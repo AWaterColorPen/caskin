@@ -7,6 +7,7 @@ import (
 type ienforcer interface {
 	// check permission
 	Enforce(User, Object, Domain, Action) (bool, error)
+	IsSuperAdmin(User) (bool, error)
 
 	// get grouping entry in domain
 	GetRolesForUserInDomain(User, Domain) []Role
@@ -49,6 +50,10 @@ type enforcer struct {
 
 func (e *enforcer) Enforce(user User, object Object, domain Domain, action Action) (bool, error) {
 	return e.e.Enforce(user.Encode(), domain.Encode(), object.Encode(), action)
+}
+
+func (e *enforcer) IsSuperAdmin(user User) (bool, error) {
+	return e.e.HasRoleForUser(user.Encode(), SuperAdminRole, SuperAdminDomain)
 }
 
 func (e *enforcer) GetRolesForUserInDomain(user User, domain Domain) []Role {

@@ -13,13 +13,14 @@ type MetaDB interface {
 	DeleteRoleByID(uint64) error
 
 	// Object API
-	TakeObject(Role) error
+	TakeObject(Object) error
 	GetObjectInDomain(Domain, ...ObjectType) ([]Object, error)
 	GetObjectByID([]uint64) ([]Object, error)
 	UpsertObject(Object) error
 	DeleteObjectByID(uint64) error
 
 	// Domain API
+	TakeDomain(Domain) error
 	GetAllDomain() ([]Domain, error)
 	DeleteDomainByID(uint64) error
 }
