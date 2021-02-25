@@ -12,6 +12,30 @@ type gormMDB struct {
 	db *gorm.DB
 }
 
+func (g *gormMDB) CreateObject(object caskin.Object) error {
+	panic("implement me")
+}
+
+func (g *gormMDB) RecoverObject(object caskin.Object) error {
+	panic("implement me")
+}
+
+func (g *gormMDB) UpdateObject(object caskin.Object) error {
+	panic("implement me")
+}
+
+func (g *gormMDB) CreateDomain(domain caskin.Domain) error {
+	panic("implement me")
+}
+
+func (g *gormMDB) RecoverDomain(domain caskin.Domain) error {
+	panic("implement me")
+}
+
+func (g *gormMDB) UpdateDomain(domain caskin.Domain) error {
+	panic("implement me")
+}
+
 func (g *gormMDB) TakeUser(user caskin.User) error {
 	return g.db.Where(user).Take(user).Error
 }
@@ -27,6 +51,17 @@ func (g *gormMDB) GetUserByID(id []uint64) ([]caskin.User, error) {
 	return ret, nil
 }
 
+func (g *gormMDB) CreateRole(role caskin.Role) error {
+	panic("implement me")
+}
+
+func (g *gormMDB) RecoverRole(role caskin.Role) error {
+	panic("implement me")
+}
+
+func (g *gormMDB) UpdateRole(role caskin.Role) error {
+	panic("implement me")
+}
 func (g *gormMDB) TakeRole(role caskin.Role) error {
 	return g.db.Where(role).Take(role).Error
 }
