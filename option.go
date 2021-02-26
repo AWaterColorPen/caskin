@@ -3,11 +3,11 @@ package caskin
 import "math"
 
 var (
-	DefaultSuperAdminRoleID   uint64 = math.MaxInt32
-	DefaultSuperAdminDomainID uint64 = math.MaxInt32
+	DefaultSuperadminRoleID   uint64 = math.MaxInt32
+	DefaultSuperadminDomainID uint64 = math.MaxInt32
 
-	DefaultSuperAdminRoleName   = "superadmin_role"
-	DefaultSuperAdminDomainName = "superadmin_domain"
+	DefaultSuperadminRoleName   = "superadmin_role"
+	DefaultSuperadminDomainName = "superadmin_domain"
 	// default
 	DefaultSeparator = ","
 )
@@ -47,7 +47,7 @@ func (o *Option) GetSuperAdminRole() Role {
 		return o.SuperAdminOption.Role()
 	}
 
-	return &sampleSuperAdminRole{}
+	return &sampleSuperadminRole{}
 }
 
 func (o *Option) GetSuperAdminDomain() Domain {

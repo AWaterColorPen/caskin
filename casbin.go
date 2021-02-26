@@ -53,7 +53,7 @@ func (e *enforcer) Enforce(user User, object Object, domain Domain, action Actio
 }
 
 func (e *enforcer) IsSuperAdmin(user User) (bool, error) {
-	return e.e.HasRoleForUser(user.Encode(), SuperAdminRole, SuperAdminDomain)
+	return e.e.HasRoleForUser(user.Encode(), SuperadminRole, SuperadminDomain)
 }
 
 func (e *enforcer) GetRolesForUserInDomain(user User, domain Domain) []Role {

@@ -16,6 +16,11 @@ type Policy struct {
 	Action Action
 }
 
+type RolesForUser struct {
+	User  User   `json:"user"`
+	Roles []Role `json:"roles"`
+}
+
 type entry interface {
 	// get id method
 	GetID() uint64

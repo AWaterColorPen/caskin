@@ -1,51 +1,51 @@
 package caskin
 
-type sampleSuperAdminRole struct {
+type sampleSuperadminRole struct {
 }
 
-func (s *sampleSuperAdminRole) GetID() uint64 {
-	return DefaultSuperAdminRoleID
+func (s *sampleSuperadminRole) GetID() uint64 {
+	return DefaultSuperadminRoleID
 }
 
-func (s *sampleSuperAdminRole) Encode() string {
-	return SuperAdminRole
+func (s *sampleSuperadminRole) Encode() string {
+	return SuperadminRole
 }
 
-func (s *sampleSuperAdminRole) Decode(code string) error {
-	if code != SuperAdminRole {
+func (s *sampleSuperadminRole) Decode(code string) error {
+	if code != SuperadminRole {
 		return ErrIsNotSuperAdmin
 	}
 	return nil
 }
 
-func (s *sampleSuperAdminRole) IsObject() bool {
+func (s *sampleSuperadminRole) IsObject() bool {
 	return false
 }
 
-func (s *sampleSuperAdminRole) GetObject() string {
+func (s *sampleSuperadminRole) GetObject() string {
 	return ""
 }
 
-func (s *sampleSuperAdminRole) GetParentID() uint64 {
+func (s *sampleSuperadminRole) GetParentID() uint64 {
 	return 0
 }
 
-func (s *sampleSuperAdminRole) SetParentID(uint64) {
+func (s *sampleSuperadminRole) SetParentID(uint64) {
 }
 
 type sampleSuperAdminDomain struct {
 }
 
 func (s *sampleSuperAdminDomain) GetID() uint64 {
-	return DefaultSuperAdminDomainID
+	return DefaultSuperadminDomainID
 }
 
 func (s *sampleSuperAdminDomain) Encode() string {
-	return SuperAdminDomain
+	return SuperadminDomain
 }
 
 func (s *sampleSuperAdminDomain) Decode(code string) error {
-	if code != SuperAdminDomain {
+	if code != SuperadminDomain {
 		return ErrIsNotSuperAdmin
 	}
 	return nil
