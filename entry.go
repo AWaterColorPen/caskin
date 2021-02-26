@@ -21,6 +21,11 @@ type RolesForUser struct {
 	Roles []Role `json:"roles"`
 }
 
+type UsersForRole struct {
+	Role  Role   `json:"role"`
+	Users []User `json:"users"`
+}
+
 type entry interface {
 	// get id method
 	GetID() uint64

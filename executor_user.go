@@ -58,7 +58,7 @@ func (e *executor) ModifyRolesForUser(ru *RolesForUser) error {
 		return err
 	}
 
-	_, currentDomain, err := e.provider.Get()
+	currentUser, currentDomain, err := e.provider.Get()
 	if err != nil {
 		return err
 	}
@@ -72,11 +72,12 @@ func (e *executor) ModifyRolesForUser(ru *RolesForUser) error {
 	var rid []uint64
 	rid = append(rid, rid1...)
 	rid = append(rid, rid2...)
+	linq.From(rid).Distinct().ToSlice(&rid)
 	roles, err := e.mdb.GetRoleByID(rid)
 	if err != nil {
 		return err
 	}
-	roles = e.filterWithNoError(user, currentDomain, Write, roles).([]Role)
+	roles = e.filterWithNoError(currentUser, currentDomain, Write, roles).([]Role)
 	rm := getIDMap(roles)
 
 	// make source and target role id list
