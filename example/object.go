@@ -31,6 +31,10 @@ func (o *Object) GetID() uint64 {
 	return o.ID
 }
 
+func (o *Object) SetID(id uint64) {
+	o.ID = id
+}
+
 func (o *Object) Encode() string {
 	return fmt.Sprintf("object_%v", o.ID)
 }
@@ -54,6 +58,10 @@ func (o *Object) GetParentID() uint64 {
 
 func (o *Object) SetParentID(pid uint64) {
 	o.ParentID = pid
+}
+
+func (o *Object) SetDomainID(did uint64) {
+	o.DomainID = did
 }
 
 func (o *Object) GetObjectType() caskin.ObjectType {

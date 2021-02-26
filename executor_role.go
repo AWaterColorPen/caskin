@@ -6,6 +6,7 @@ import "github.com/ahmetb/go-linq/v3"
 // 1. get all user which current user has read permission in current domain
 // 2. get all role which current user has read permission in current domain
 // 3. get role to users 's g as UsersForRole in current domain
+// 4. build role's tree
 func (e *executor) GetAllUsersForRole() ([]*UsersForRole, error) {
 	currentUser, currentDomain, err := e.provider.Get()
 	if err != nil {
@@ -22,6 +23,8 @@ func (e *executor) GetAllUsersForRole() ([]*UsersForRole, error) {
 	users = e.filterWithNoError(currentUser, currentDomain, Read, users).([]User)
 	um := getIDMap(users)
 
+	rs := e.e.GetRolesInDomain(currentDomain)
+	tree := getTree(rs)
 	roles, err := e.mdb.GetRoleInDomain(currentDomain)
 	if err != nil {
 		return nil, err
@@ -30,6 +33,10 @@ func (e *executor) GetAllUsersForRole() ([]*UsersForRole, error) {
 
 	var urs []*UsersForRole
 	for _, v := range roles {
+		if p, ok := tree[v.GetID()]; ok {
+			v.SetParentID(p)
+		}
+
 		ur := &UsersForRole{Role: v}
 		uus := e.e.GetUsersForRoleInDomain(v, currentDomain)
 		for _, u := range uus {
@@ -109,4 +116,56 @@ func (e *executor) ModifyUsersForRole(ur *UsersForRole) error {
 	}
 
 	return nil
+}
+
+// CreateRole if there does not exist the role, then create a new one
+// 1. create a new role into metadata database
+func (e *executor) CreateRole(role Role) error {
+	return e.createOrRecoverRole(role, e.mdb.CreateRole)
+}
+
+// RecoverRole if there exist the role but soft deleted, then recover it
+// 1. recover the soft delete one role at metadata database
+func (e *executor) RecoverRole(role Role) error {
+	return e.createOrRecoverRole(role, e.mdb.RecoverRole)
+}
+
+// DeleteRole if current user has role's write permission
+// 1. delete all user's g in the domain
+// 2. don't delete any role's g or object's g2 in the domain
+// 3. soft delete one domain in metadata database
+func (e *executor) DeleteRole(domain Domain) error {
+	fn := func(domain Domain) error {
+		if err := e.e.RemoveUsersInDomain(domain); err != nil {
+			return err
+		}
+		return e.mdb.DeleteDomainByID(domain.GetID())
+	}
+
+	return e.writeDomain(domain, fn)
+}
+
+// UpdateRole if there exist the domain and user has domain's write permission
+// 1. just update domain's properties
+func (e *executor) UpdateRole(domain Domain) error {
+	return e.writeDomain(domain, e.mdb.UpdateDomain)
+}
+
+func (e *executor) createOrRecoverRole(role Role, fn func(Role) error) error {
+	if err := e.mdb.TakeRole(role); err == nil {
+		return ErrAlreadyExists
+	}
+
+	take := func(id uint64) (parentEntry, error) {
+		r := e.factory.NewRole()
+		// r.SetDomainID()
+		err := e.mdb.TakeRole(r)
+		return r, err
+	}
+
+	if err := e.checkParentEntryWrite(role, take); err != nil {
+		return err
+	}
+
+	return fn(role)
 }

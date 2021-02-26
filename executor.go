@@ -39,3 +39,36 @@ func (e *executor) check(action Action, one entry) error {
 
 	return nil
 }
+
+func (e *executor) checkParentEntryWrite(one parentEntry, take takeParentEntry) error {
+	u, d, err := e.provider.Get()
+	if err != nil {
+		return err
+	}
+
+	if ok := Check(e.e, u, d, Write, e.factory.NewObject, one); !ok {
+		return ErrNoWritePermission
+	}
+
+	for _, v := range []uint64{
+		one.GetID(),
+		one.GetParentID(),
+	} {
+		if v == 0 {
+			continue
+		}
+
+		toCheck, err := take(v)
+		if err != nil {
+			return err
+		}
+
+		if ok := Check(e.e, u, d, Write, e.factory.NewObject, toCheck); !ok {
+			return ErrNoWritePermission
+		}
+	}
+
+	return nil
+}
+
+type takeParentEntry func(uint64) (parentEntry, error)

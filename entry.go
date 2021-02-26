@@ -29,19 +29,33 @@ type UsersForRole struct {
 type entry interface {
 	// get id method
 	GetID() uint64
-
-	// encode and decode method
+	// get id method
+	SetID(uint64)
+	// encode entry to string method
 	Encode() string
+	// decode string to entry method
 	Decode(string) error
-
-	// object method
+	// is object method
 	IsObject() bool
+	// get object string method
 	GetObject() string
 }
 
 type parent interface {
+	// get parent id method
 	GetParentID() uint64
+	// set parent id method
 	SetParentID(uint64)
+}
+
+type inDomain interface {
+	// set domain id method
+	SetDomainID(uint64)
+}
+
+type parentEntry interface {
+	entry
+	parent
 }
 
 type User interface {
@@ -49,13 +63,13 @@ type User interface {
 }
 
 type Role interface {
-	entry
-	parent
+	parentEntry
+	inDomain
 }
 
 type Object interface {
-	entry
-	parent
+	parentEntry
+	inDomain
 	GetObjectType() ObjectType
 }
 

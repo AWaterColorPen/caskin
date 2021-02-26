@@ -21,6 +21,10 @@ func (u *User) GetID() uint64 {
 	return u.ID
 }
 
+func (u *User) SetID(id uint64) {
+	u.ID = id
+}
+
 func (u *User) Encode() string {
 	return fmt.Sprintf("user_%v", u.ID)
 }

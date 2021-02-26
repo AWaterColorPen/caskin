@@ -8,7 +8,7 @@ func (e *executor) CreateDomain(domain Domain) error {
 }
 
 // RecoverDomain if there exist the domain but soft deleted, then recover it
-// 1. soft delete one domain at metadata database
+// 1. recover the soft delete one domain at metadata database
 // 2. re initialize the recovering domain
 func (e *executor) RecoverDomain(domain Domain) error {
 	return e.createOrRecoverDomain(domain, e.mdb.RecoverDomain)

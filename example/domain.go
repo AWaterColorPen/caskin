@@ -20,6 +20,10 @@ func (d *Domain) GetID() uint64 {
 	return d.ID
 }
 
+func (d *Domain) SetID(id uint64) {
+	d.ID = id
+}
+
 func (d *Domain) Encode() string {
 	return fmt.Sprintf("domain_%v", d.ID)
 }

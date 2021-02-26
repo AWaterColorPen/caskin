@@ -23,6 +23,10 @@ func (r *Role) GetID() uint64 {
 	return r.ID
 }
 
+func (r *Role) SetID(id uint64) {
+	r.ID = id
+}
+
 func (r *Role) Encode() string {
 	return fmt.Sprintf("role_%v", r.ID)
 }
@@ -46,4 +50,8 @@ func (r *Role) GetParentID() uint64 {
 
 func (r *Role) SetParentID(pid uint64) {
 	r.ParentID = pid
+}
+
+func (r *Role) SetDomainID(did uint64) {
+	r.DomainID = did
 }
