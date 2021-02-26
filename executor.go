@@ -58,7 +58,7 @@ func (e *executor) checkParentEntryWrite(one parentEntry, take takeParentEntry) 
 			continue
 		}
 
-		toCheck, err := take(v)
+		toCheck, err := take(v, d)
 		if err != nil {
 			return err
 		}
@@ -71,4 +71,4 @@ func (e *executor) checkParentEntryWrite(one parentEntry, take takeParentEntry) 
 	return nil
 }
 
-type takeParentEntry func(uint64) (parentEntry, error)
+type takeParentEntry func(uint64, Domain) (parentEntry, error)

@@ -156,9 +156,9 @@ func (e *executor) createOrRecoverRole(role Role, fn func(Role) error) error {
 		return ErrAlreadyExists
 	}
 
-	take := func(id uint64) (parentEntry, error) {
+	take := func(id uint64, domain Domain) (parentEntry, error) {
 		r := e.factory.NewRole()
-		// r.SetDomainID()
+		r.SetDomainID(domain.GetID())
 		err := e.mdb.TakeRole(r)
 		return r, err
 	}
