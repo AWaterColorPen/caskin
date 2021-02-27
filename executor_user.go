@@ -110,3 +110,88 @@ func (e *executor) ModifyRolesForUser(ru *RolesForUser) error {
 
 	return nil
 }
+
+// CreateDomain if there does not exist the domain, then create a new one
+// 1. create a new domain into metadata database
+// 2. initialize the new domain
+func (e *executor) CreateUser(User User) error {
+	return e.createOrRecoverUser(domain, e.mdb.CreateUser)
+}
+
+// RecoverUser if there exist the domain but soft deleted, then recover it
+// 1. recover the soft delete one domain at metadata database
+// 2. re initialize the recovering domain
+func (e *executor) RecoverUser(domain User) error {
+	return e.createOrRecoverUser(domain, e.mdb.RecoverUser)
+}
+
+// DeleteUser if user has domain's write permission
+// 1. delete all user's g in the domain
+// 2. don't delete any role's g or object's g2 in the domain
+// 3. soft delete one domain in metadata database
+func (e *executor) DeleteUser(domain User) error {
+	fn := func(domain User) error {
+		if err := e.e.RemoveUsersInUser(domain); err != nil {
+			return err
+		}
+		return e.mdb.DeleteUserByID(domain.GetID())
+	}
+
+	return e.writeUser(domain, fn)
+}
+
+// UpdateUser if there exist the domain and user has domain's write permission
+// 1. just update domain's properties
+func (e *executor) UpdateUser(domain User) error {
+	return e.writeUser(domain, e.mdb.UpdateUser)
+}
+
+// ReInitializeUser if there exist the domain and user has domain's write permission
+// 1. just re initialize the domain
+func (e *executor) ReInitializeUser(domain User) error {
+	return e.writeUser(domain, e.initializeUser)
+}
+
+// GetAllUser if user has domain's read permission
+// 1. get all domain
+func (e *executor) GetAllUser() ([]User, error) {
+	domains, err := e.mdb.GetAllUser()
+	if err != nil {
+		return nil, err
+	}
+
+	out, err := e.filter(Read, domains)
+	if err != nil {
+		return nil, err
+	}
+
+	return out.([]User), nil
+}
+
+func (e *executor) createOrRecoverUser(domain User, fn func(User) error) error {
+	if err := e.mdb.TakeUser(domain); err == nil {
+		return ErrAlreadyExists
+	}
+
+	if err := fn(domain); err != nil {
+		return err
+	}
+
+	return e.initializeUser(domain)
+}
+
+func (e *executor) writeUser(domain User, fn func(User) error) error {
+	if err := isValid(domain); err != nil {
+		return err
+	}
+
+	if err := e.mdb.TakeUser(domain); err != nil {
+		return ErrNotExists
+	}
+
+	if err := e.check(Write, domain); err != nil {
+		return err
+	}
+
+	return fn(domain)
+}

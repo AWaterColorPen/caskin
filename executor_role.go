@@ -145,8 +145,8 @@ func (e *executor) DeleteRole(domain Domain) error {
 	return e.writeDomain(domain, fn)
 }
 
-// UpdateRole if there exist the domain and user has domain's write permission
-// 1. just update domain's properties
+// UpdateRole if there exist the role and current user has role's write permission
+// 1. update role domain's properties
 func (e *executor) UpdateRole(domain Domain) error {
 	return e.writeDomain(domain, e.mdb.UpdateDomain)
 }
@@ -156,7 +156,12 @@ func (e *executor) createOrRecoverRole(role Role, fn func(Role) error) error {
 		return ErrAlreadyExists
 	}
 
-	take := func(id uint64, domain Domain) (parentEntry, error) {
+	_, domain, err := e.provider.Get()
+	if err != nil {
+		return err
+	}
+
+	take := func(id uint64) (parentEntry, error) {
 		r := e.factory.NewRole()
 		r.SetDomainID(domain.GetID())
 		err := e.mdb.TakeRole(r)
@@ -167,5 +172,35 @@ func (e *executor) createOrRecoverRole(role Role, fn func(Role) error) error {
 		return err
 	}
 
+	role.SetDomainID(domain.GetID())
 	return fn(role)
+}
+
+func (e *executor) writeRole(role Role, fn func(Role) error) error {
+	if err := isValid(role); err != nil {
+		return err
+	}
+
+	if err := e.mdb.TakeRole(role); err != nil {
+		return ErrNotExists
+	}
+
+	_, domain, err := e.provider.Get()
+	if err != nil {
+		return err
+	}
+	
+	take := func(id uint64) (parentEntry, error) {
+		r := e.factory.NewRole()
+		r.SetDomainID(domain.GetID())
+		err := e.mdb.TakeRole(r)
+		return r, err
+	}
+
+	if err := e.checkParentEntryWrite(role, take); err != nil {
+		return err
+	}
+
+	role.SetDomainID(domain.GetID())
+	return fn(domain)
 }
