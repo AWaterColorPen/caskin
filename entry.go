@@ -38,7 +38,7 @@ type entry interface {
 	// is object method
 	IsObject() bool
 	// get object string method
-	GetObject() string
+	GetObject() Object
 }
 
 type parent interface {

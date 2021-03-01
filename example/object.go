@@ -2,9 +2,9 @@ package example
 
 import (
 	"fmt"
-	"github.com/awatercolorpen/caskin"
 	"time"
 
+	"github.com/awatercolorpen/caskin"
 	"gorm.io/gorm"
 )
 
@@ -16,8 +16,9 @@ type Object struct {
 	DeletedAt gorm.DeletedAt    `gorm:"column:delete_at;index"                 json:"-"`
 	Name      string            `gorm:"column:name;index:idx_role,unique"      json:"name,omitempty"`
 	Type      caskin.ObjectType `gorm:"column:type"                            json:"type,omitempty"`
-	Object    string            `gorm:"column:object"                          json:"object,omitempty"`
-	DomainID  uint64            `gorm:"column:tenant_id;index:idx_role,unique" json:"tenant_id,omitempty"`
+	DomainID  uint64            `gorm:"column:domain_id;index:idx_role,unique" json:"domain_id,omitempty"`
+	ObjectID  uint64            `gorm:"column:object_id"                       json:"object_id,omitempty"`
+	Object    *Object           `gorm:"column:foreignKey:ObjectID"             json:"object,omitempty"`
 	ParentID  uint64            `gorm:"-"                                      json:"parent_id"`
 }
 
@@ -48,8 +49,8 @@ func (o *Object) IsObject() bool {
 	return true
 }
 
-func (o *Object) GetObject() string {
-	return o.Object
+func (o *Object) GetObject() caskin.Object {
+	return &Object{ID: o.ObjectID}
 }
 
 func (o *Object) GetParentID() uint64 {

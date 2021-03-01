@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/awatercolorpen/caskin"
 	"gorm.io/gorm"
 )
 
@@ -38,6 +39,6 @@ func (u *User) IsObject() bool {
 	return false
 }
 
-func (u *User) GetObject() string {
-	return ""
+func (u *User) GetObject() caskin.Object {
+	return nil
 }

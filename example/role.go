@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/awatercolorpen/caskin"
 	"gorm.io/gorm"
 )
 
@@ -14,8 +15,9 @@ type Role struct {
 	UpdatedAt time.Time      `gorm:"column:updated_at"                      json:"updated_at,omitempty"`
 	DeletedAt gorm.DeletedAt `gorm:"column:delete_at;index"                 json:"-"`
 	Name      string         `gorm:"column:name;index:idx_role,unique"      json:"name,omitempty"`
-	Object    string         `gorm:"column:object"                          json:"object,omitempty"`
-	DomainID  uint64         `gorm:"column:tenant_id;index:idx_role,unique" json:"tenant_id,omitempty"`
+	DomainID  uint64         `gorm:"column:domain_id;index:idx_role,unique" json:"domain_id,omitempty"`
+	ObjectID  uint64         `gorm:"column:object_id"                       json:"object_id,omitempty"`
+	Object    *Object        `gorm:"column:foreignKey:ObjectID"             json:"object,omitempty"`
 	ParentID  uint64         `gorm:"-"                                      json:"parent_id"`
 }
 
@@ -40,8 +42,8 @@ func (r *Role) IsObject() bool {
 	return true
 }
 
-func (r *Role) GetObject() string {
-	return r.Object
+func (r *Role) GetObject() caskin.Object {
+	return &Object{ID: r.ObjectID}
 }
 
 func (r *Role) GetParentID() uint64 {

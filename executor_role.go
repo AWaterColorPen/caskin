@@ -50,7 +50,8 @@ func (e *executor) GetAllUsersForRole() ([]*UsersForRole, error) {
 	return urs, nil
 }
 
-// ModifyUsersForRole if current user has user and role's write permission
+// ModifyUsersForRole
+// if current user has user and role's write permission
 // 1. modify role to users 's g in current domain
 func (e *executor) ModifyUsersForRole(ur *UsersForRole) error {
 	if err := isValid(ur.Role); err != nil {
@@ -118,37 +119,47 @@ func (e *executor) ModifyUsersForRole(ur *UsersForRole) error {
 	return nil
 }
 
-// CreateRole if there does not exist the role, then create a new one
+// CreateRole
+// if current user has role's write permission and there does not exist the role
+// then create a new one
 // 1. create a new role into metadata database
 func (e *executor) CreateRole(role Role) error {
 	return e.createOrRecoverRole(role, e.mdb.CreateRole)
 }
 
-// RecoverRole if there exist the role but soft deleted, then recover it
+// RecoverRole
+// if current user has role's write permission and there exist the role but soft deleted
+// then recover it
 // 1. recover the soft delete one role at metadata database
 func (e *executor) RecoverRole(role Role) error {
 	return e.createOrRecoverRole(role, e.mdb.RecoverRole)
 }
 
-// DeleteRole if current user has role's write permission
-// 1. delete all user's g in the domain
-// 2. don't delete any role's g or object's g2 in the domain
-// 3. soft delete one domain in metadata database
-func (e *executor) DeleteRole(domain Domain) error {
-	fn := func(domain Domain) error {
-		if err := e.e.RemoveUsersInDomain(domain); err != nil {
+// DeleteRole
+// if current user has role's write permission
+// 1. delete role's g in the domain
+// 2. delete role's p in the domain
+// 3. soft delete one role in metadata database
+func (e *executor) DeleteRole(role Role) error {
+	fn := func(r Role) error {
+		_, domain, err := e.provider.Get()
+		if err != nil {
 			return err
 		}
-		return e.mdb.DeleteDomainByID(domain.GetID())
+		if err := e.e.RemoveRoleInDomain(r, domain); err != nil {
+			return err
+		}
+		return e.mdb.DeleteRoleByID(r.GetID())
 	}
 
-	return e.writeDomain(domain, fn)
+	return e.writeRole(role, fn)
 }
 
-// UpdateRole if there exist the role and current user has role's write permission
-// 1. update role domain's properties
-func (e *executor) UpdateRole(domain Domain) error {
-	return e.writeDomain(domain, e.mdb.UpdateDomain)
+// UpdateRole
+// if current user has role's write permission and there exist the role
+// 1. update role's properties
+func (e *executor) UpdateRole(role Role) error {
+	return e.writeRole(role, e.mdb.UpdateRole)
 }
 
 func (e *executor) createOrRecoverRole(role Role, fn func(Role) error) error {
@@ -163,6 +174,7 @@ func (e *executor) createOrRecoverRole(role Role, fn func(Role) error) error {
 
 	take := func(id uint64) (parentEntry, error) {
 		r := e.factory.NewRole()
+		r.SetID(id)
 		r.SetDomainID(domain.GetID())
 		err := e.mdb.TakeRole(r)
 		return r, err
@@ -202,5 +214,5 @@ func (e *executor) writeRole(role Role, fn func(Role) error) error {
 	}
 
 	role.SetDomainID(domain.GetID())
-	return fn(domain)
+	return fn(role)
 }

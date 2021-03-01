@@ -1,47 +1,55 @@
 package caskin
 
-// CreateDomain if there does not exist the domain, then create a new one
+// CreateDomain
+// if current user has domain's write permission and there does not exist the domain
+// then create a new one
 // 1. create a new domain into metadata database
 // 2. initialize the new domain
 func (e *executor) CreateDomain(domain Domain) error {
 	return e.createOrRecoverDomain(domain, e.mdb.CreateDomain)
 }
 
-// RecoverDomain if there exist the domain but soft deleted, then recover it
+// RecoverDomain
+// if current user has domain's write permission and there exist the domain but soft deleted
+// then recover it
 // 1. recover the soft delete one domain at metadata database
 // 2. re initialize the recovering domain
 func (e *executor) RecoverDomain(domain Domain) error {
 	return e.createOrRecoverDomain(domain, e.mdb.RecoverDomain)
 }
 
-// DeleteDomain if user has domain's write permission
+// DeleteDomain
+// if current user has domain's write permission
 // 1. delete all user's g in the domain
 // 2. don't delete any role's g or object's g2 in the domain
 // 3. soft delete one domain in metadata database
 func (e *executor) DeleteDomain(domain Domain) error {
-	fn := func(domain Domain) error {
-		if err := e.e.RemoveUsersInDomain(domain); err != nil {
+	fn := func(d Domain) error {
+		if err := e.e.RemoveUsersInDomain(d); err != nil {
 			return err
 		}
-		return e.mdb.DeleteDomainByID(domain.GetID())
+		return e.mdb.DeleteDomainByID(d.GetID())
 	}
 
 	return e.writeDomain(domain, fn)
 }
 
-// UpdateDomain if there exist the domain and user has domain's write permission
+// UpdateDomain
+// if current user has domain's write permission and there exist the domain
 // 1. just update domain's properties
 func (e *executor) UpdateDomain(domain Domain) error {
 	return e.writeDomain(domain, e.mdb.UpdateDomain)
 }
 
-// ReInitializeDomain if there exist the domain and user has domain's write permission
+// ReInitializeDomain
+// if current user has domain's write permission and there exist the domain
 // 1. just re initialize the domain
 func (e *executor) ReInitializeDomain(domain Domain) error {
 	return e.writeDomain(domain, e.initializeDomain)
 }
 
-// GetAllDomain if user has domain's read permission
+// GetAllDomain
+// if current user has domain's read permission
 // 1. get all domain
 func (e *executor) GetAllDomain() ([]Domain, error) {
 	domains, err := e.mdb.GetAllDomain()
@@ -85,7 +93,8 @@ func (e *executor) writeDomain(domain Domain, fn func(Domain) error) error {
 	return fn(domain)
 }
 
-// initializeDomain it is reentrant to initialize a new domain
+// initializeDomain
+// it is reentrant to initialize a new domain
 // 1. get roles, objects, policies form DomainCreator
 // 2. upsert roles, objects into metadata database
 // 3. add policies as p into casbin

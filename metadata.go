@@ -2,8 +2,14 @@ package caskin
 
 type MetaDB interface {
 	// User API
+	CreateUser(User) error
+	RecoverUser(User) error
+	UpdateUser(User) error
 	TakeUser(User) error
+	GetUserInDomain(Domain) ([]User, error)
 	GetUserByID([]uint64) ([]User, error)
+	UpsertUser(User) error
+	DeleteUserByID(uint64) error
 
 	// Role API
 	CreateRole(Role) error

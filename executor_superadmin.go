@@ -1,18 +1,21 @@
 package caskin
 
-// AddSuperadminUser if user has user's write permission
+// AddSuperadminUser
+// if user is superadmin
 // 1. add the user as superadmin role in superadmin domain
 func (e *executor) AddSuperadminUser(user User) error {
 	return e.writeSuperadminUser(user, e.e.AddRoleForUserInDomain)
 }
 
-// DeleteSuperadminUser if user has user's write permission
+// DeleteSuperadminUser
+// if user is superadmin
 // 1. delete the user from superadmin role in superadmin domain
 func (e *executor) DeleteSuperadminUser(user User) error {
 	return e.writeSuperadminUser(user, e.e.RemoveRoleForUserInDomain)
 }
 
-// GetAllSuperadminUser if user has user's read permission
+// GetAllSuperadminUser
+// if user is superadmin
 // 1. get all superadmin user
 func (e *executor) GetAllSuperadminUser() ([]User, error) {
 	if !e.option.IsEnableSuperAdmin() {
@@ -23,17 +26,7 @@ func (e *executor) GetAllSuperadminUser() ([]User, error) {
 	role := e.option.GetSuperAdminRole()
 	us := e.e.GetUsersForRoleInDomain(role, domain)
 	id := getIDList(us)
-	users, err := e.mdb.GetUserByID(id)
-	if err != nil {
-		return nil, err
-	}
-
-	out, err := e.filter(Read, users)
-	if err != nil {
-		return nil, err
-	}
-
-	return out.([]User), nil
+	return e.mdb.GetUserByID(id)
 }
 
 func (e *executor) writeSuperadminUser(user User, fn func(User, Role, Domain) error) error {
@@ -46,10 +39,6 @@ func (e *executor) writeSuperadminUser(user User, fn func(User, Role, Domain) er
 	}
 
 	if err := e.mdb.TakeUser(user); err != nil {
-		return err
-	}
-
-	if err := e.check(Write, user); err != nil {
 		return err
 	}
 
