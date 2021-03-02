@@ -10,10 +10,10 @@ const (
 )
 
 type Policy struct {
-	Role   Role
-	Object Object
-	Domain Domain
-	Action Action
+	Role   Role   `json:"role"`
+	Object Object `json:"object"`
+	Domain Domain `json:"domain"`
+	Action Action `json:"action"`
 }
 
 type RolesForUser struct {
@@ -24,6 +24,11 @@ type RolesForUser struct {
 type UsersForRole struct {
 	Role  Role   `json:"role"`
 	Users []User `json:"users"`
+}
+
+type PoliciesForRole struct {
+	Role     Role      `json:"role"`
+	Policies []*Policy `json:"policies"`
 }
 
 type entry interface {

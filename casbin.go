@@ -120,7 +120,6 @@ func (e *enforcer) GetPoliciesForRoleInDomain(role Role, domain Domain) []*Polic
 		if err := o.Decode(p[2]); err != nil {
 			continue
 		}
-
 		action := p[3]
 
 		pp := &Policy{
@@ -235,12 +234,13 @@ func (e *enforcer) GetRolesInDomain(domain Domain) []Role {
 		if err := r1.Decode(rule[0]); err != nil {
 			continue
 		}
+		roles = append(roles, r1)
 		r2 := e.factory.NewRole()
 		if err := r2.Decode(rule[1]); err != nil {
 			continue
 		}
 		r2.SetParentID(r1.GetID())
-		roles = append(roles, r1, r2)
+		roles = append(roles, r2)
 	}
 
 	return roles
@@ -254,12 +254,13 @@ func (e *enforcer) GetObjectsInDomain(domain Domain) []Object {
 		if err := o1.Decode(rule[0]); err != nil {
 			continue
 		}
+		objects = append(objects, o1)
 		o2 := e.factory.NewObject()
 		if err := o2.Decode(rule[1]); err != nil {
 			continue
 		}
 		o1.SetParentID(o2.GetID())
-		objects = append(objects, o1, o2)
+		objects = append(objects, o2)
 	}
 
 	return objects

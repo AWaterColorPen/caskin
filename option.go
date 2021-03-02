@@ -12,6 +12,7 @@ var (
 	DefaultSeparator = ","
 )
 
+// Option configuration for caskin
 type Option struct {
 	// option of superadmin
 	SuperAdminOption *SuperAdminOption `json:"super_admin_option"`

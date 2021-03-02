@@ -43,6 +43,32 @@ func (e *executor) UpdateObject(object Object) error {
     return e.writeObject(object, e.mdb.UpdateObject)
 }
 
+// GetObject
+// if current user has object's read permission
+// 1. get objects by ty
+func (e *executor) GetObject(ty ...ObjectType) ([]Object, error) {
+    currentUser, currentDomain, err := e.provider.Get()
+    if err != nil {
+        return nil, err
+    }
+
+    ds := e.e.GetObjectsInDomain(currentDomain)
+    tree := getTree(ds)
+    objects, err := e.mdb.GetObjectInDomain(currentDomain, ty...)
+    if err != nil {
+        return nil, err
+    }
+    objects = e.filterWithNoError(currentUser, currentDomain, Read, objects).([]Object)
+
+    for _, v := range objects {
+        if p, ok := tree[v.GetID()]; ok {
+            v.SetParentID(p)
+        }
+    }
+
+    return objects, nil
+}
+
 func (e *executor) createOrRecoverObject(object Object, fn func(Object) error) error {
     if err := e.mdb.TakeObject(object); err == nil {
         return ErrAlreadyExists
