@@ -70,30 +70,6 @@ func isValid(e entry) error {
 	return nil
 }
 
-type Users []User
-
-func (u Users) ID() []uint64 {
-	return getIDList(u)
-}
-
-type Roles = []Role
-
-func (r Roles) ID() []uint64 {
-	return getIDList(r)
-}
-
-type Objects = []Object
-
-func (o Objects) ID() []uint64 {
-	return getIDList(o)
-}
-
-type Domains = []Domain
-
-func (d Domains) ID() []uint64 {
-	return getIDList(d)
-}
-
 func getIDList(source interface{}) []uint64 {
 	var id []uint64
 	linq.From(source).Where(func(v interface{}) bool {

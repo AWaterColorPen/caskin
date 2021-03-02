@@ -12,6 +12,30 @@ type gormMDB struct {
 	db *gorm.DB
 }
 
+func (g *gormMDB) CreateUser(user caskin.User) error {
+	panic("implement me")
+}
+
+func (g *gormMDB) RecoverUser(user caskin.User) error {
+	panic("implement me")
+}
+
+func (g *gormMDB) UpdateUser(user caskin.User) error {
+	panic("implement me")
+}
+
+func (g *gormMDB) GetUserInDomain(domain caskin.Domain) ([]caskin.User, error) {
+	panic("implement me")
+}
+
+func (g *gormMDB) UpsertUser(user caskin.User) error {
+	panic("implement me")
+}
+
+func (g *gormMDB) DeleteUserByID(u uint64) error {
+	panic("implement me")
+}
+
 func (g *gormMDB) CreateObject(object caskin.Object) error {
 	panic("implement me")
 }

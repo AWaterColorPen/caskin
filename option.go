@@ -23,14 +23,14 @@ type Option struct {
 
 type SuperAdminOption struct {
 	// default is false
-	Enable             bool `json:"enable"`
+	Enable bool `json:"enable"`
 	// if there is superadmin domain and role record in metadata database.
 	// default is false
 	RealSuperadminInDB bool `json:"real_superadmin_in_db"`
 	// provide superadmin Role
-	Role               func() Role
+	Role func() Role
 	// provide superadmin Domain
-	Domain             func() Domain
+	Domain func() Domain
 }
 
 type DomainCreator func(Domain) ([]Role, []Object, []*Policy)

@@ -111,7 +111,7 @@ func (e *executor) ModifyUsersForRole(ur *UsersForRole) error {
 	}
 	for _, v := range remove {
 		u := um[v.(uint64)]
-		if err := e.e.RemoveRoleForUserInDomain(u.(User), role,  currentDomain); err != nil {
+		if err := e.e.RemoveRoleForUserInDomain(u.(User), role, currentDomain); err != nil {
 			return err
 		}
 	}
@@ -201,7 +201,7 @@ func (e *executor) writeRole(role Role, fn func(Role) error) error {
 	if err != nil {
 		return err
 	}
-	
+
 	take := func(id uint64) (parentEntry, error) {
 		r := e.factory.NewRole()
 		r.SetDomainID(domain.GetID())

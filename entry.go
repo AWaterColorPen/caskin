@@ -82,6 +82,14 @@ type Domain interface {
 	entry
 }
 
+type Users = []User
+
+type Roles = []Role
+
+type Objects = []Object
+
+type Domains = []Domain
+
 type EntryFactory interface {
 	NewUser() User
 	NewRole() Role
