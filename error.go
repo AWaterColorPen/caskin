@@ -19,4 +19,6 @@ var (
 	ErrInitializationNilEnforcer      = fmt.Errorf("enforcer is nil")
 	ErrInitializationNilEntryFactory  = fmt.Errorf("entry factory is nil")
 	ErrInitializationNilMetaDB        = fmt.Errorf("metadata database is nil")
+	// errors about db
+	ErrCannotRecover = fmt.Errorf("record already exists, can not be recovered")
 )
