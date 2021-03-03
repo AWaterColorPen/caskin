@@ -7,7 +7,14 @@ import (
     "github.com/casbin/casbin/v2/model"
 )
 
-func CasbinModel() (model.Model, error) {
+func CasbinModel(options *Options) (model.Model, error) {
+    if options.IsEnableSuperAdmin() {
+        return CasbinModelSuperadmin()
+    }
+    return CasbinModelNoSuperadmin()
+}
+
+func CasbinModelSuperadmin() (model.Model, error) {
     return getCasbinModelFromUrl(ModelConfPathSuperadmin)
 }
 

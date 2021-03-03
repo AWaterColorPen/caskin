@@ -96,3 +96,6 @@ type EntryFactory interface {
 	NewObject() Object
 	NewDomain() Domain
 }
+
+// DomainCreator create new domain's function
+type DomainCreator = func(Domain) ([]Role, []Object, []*Policy)

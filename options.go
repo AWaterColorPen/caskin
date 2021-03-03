@@ -44,9 +44,6 @@ type SuperAdminOption struct {
 	Domain func() Domain
 }
 
-// DomainCreator create new domain's function
-type DomainCreator func(Domain) ([]Role, []Object, []*Policy)
-
 func (o *Options) newOptions(opts ...Option) *Options {
 	for _, v := range opts {
 		v(o)

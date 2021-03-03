@@ -179,9 +179,7 @@ func (g *gormMDB) DeleteDomainByID(id uint64) error {
 }
 
 func NewGormMDBByDB(db *gorm.DB) caskin.MetaDB {
-	return &gormMDB{
-		db: db,
-	}
+	return &gormMDB{db: db}
 }
 
 type entry interface {
