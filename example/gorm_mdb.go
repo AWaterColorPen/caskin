@@ -17,6 +17,11 @@ func (g *gormMDB) CreateUser(user caskin.User) error {
 }
 
 func (g *gormMDB) RecoverUser(user caskin.User) error {
+	if err := g.db.Unscoped().Where(user).Take(user).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return caskin.ErrCannotRecover
+		}
+	}
 	return g.db.Model(user).Update("delete_at", nil).Error
 }
 
@@ -24,47 +29,12 @@ func (g *gormMDB) UpdateUser(user caskin.User) error {
 	return g.db.Updates(user).Error
 }
 
-func (g *gormMDB) GetUserInDomain(domain caskin.Domain) ([]caskin.User, error) {
-	panic("implement me")
-}
-
-func (g *gormMDB) UpsertUser(user caskin.User) error {
-	if user.GetID() == 0 {
-		return insertOrRecover(g.db, user)
-	}
-	return g.CreateUser(user)
-}
-
-func (g *gormMDB) DeleteUserByID(id uint64) error {
-	return g.db.Delete(&User{ID: id}).Error
-}
-
-func (g *gormMDB) CreateObject(object caskin.Object) error {
-	return g.db.Create(object).Error
-}
-
-func (g *gormMDB) RecoverObject(object caskin.Object) error {
-	return g.db.Model(object).Update("delete_at", nil).Error
-}
-
-func (g *gormMDB) UpdateObject(object caskin.Object) error {
-	return g.db.Updates(object).Error
-}
-
-func (g *gormMDB) CreateDomain(domain caskin.Domain) error {
-	return g.db.Create(domain).Error
-}
-
-func (g *gormMDB) RecoverDomain(domain caskin.Domain) error {
-	return g.db.Model(domain).Update("delete_at", nil).Error
-}
-
-func (g *gormMDB) UpdateDomain(domain caskin.Domain) error {
-	return g.db.Updates(domain).Error
-}
-
 func (g *gormMDB) TakeUser(user caskin.User) error {
 	return g.db.Where(user).Take(user).Error
+}
+
+func (g *gormMDB) GetUserInDomain(domain caskin.Domain) ([]caskin.User, error) {
+	panic("implement me")
 }
 
 func (g *gormMDB) GetUserByID(id []uint64) ([]caskin.User, error) {
@@ -78,17 +48,31 @@ func (g *gormMDB) GetUserByID(id []uint64) ([]caskin.User, error) {
 	return ret, nil
 }
 
+func (g *gormMDB) UpsertUser(user caskin.User) error {
+	return upsert(g.db, user)
+}
+
+func (g *gormMDB) DeleteUserByID(id uint64) error {
+	return g.db.Delete(&User{ID: id}).Error
+}
+
 func (g *gormMDB) CreateRole(role caskin.Role) error {
 	return g.db.Create(role).Error
 }
 
 func (g *gormMDB) RecoverRole(role caskin.Role) error {
+	if err := g.db.Unscoped().Where(role).Take(role).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return caskin.ErrCannotRecover
+		}
+	}
 	return g.db.Model(role).Update("delete_at", nil).Error
 }
 
 func (g *gormMDB) UpdateRole(role caskin.Role) error {
 	return g.db.Updates(role).Error
 }
+
 func (g *gormMDB) TakeRole(role caskin.Role) error {
 	return g.db.Where(role).Take(role).Error
 }
@@ -121,6 +105,23 @@ func (g *gormMDB) UpsertRole(role caskin.Role) error {
 
 func (g *gormMDB) DeleteRoleByID(id uint64) error {
 	return g.db.Delete(&Role{}, id).Error
+}
+
+func (g *gormMDB) CreateObject(object caskin.Object) error {
+	return g.db.Create(object).Error
+}
+
+func (g *gormMDB) RecoverObject(object caskin.Object) error {
+	if err := g.db.Unscoped().Where(object).Take(object).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return caskin.ErrCannotRecover
+		}
+	}
+	return g.db.Model(object).Update("delete_at", nil).Error
+}
+
+func (g *gormMDB) UpdateObject(object caskin.Object) error {
+	return g.db.Updates(object).Error
 }
 
 func (g *gormMDB) TakeObject(object caskin.Object) error {
@@ -160,6 +161,23 @@ func (g *gormMDB) UpsertObject(object caskin.Object) error {
 
 func (g *gormMDB) DeleteObjectByID(id uint64) error {
 	return g.db.Delete(&Object{}, id).Error
+}
+
+func (g *gormMDB) CreateDomain(domain caskin.Domain) error {
+	return g.db.Create(domain).Error
+}
+
+func (g *gormMDB) RecoverDomain(domain caskin.Domain) error {
+	if err := g.db.Unscoped().Where(domain).Take(domain).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return caskin.ErrCannotRecover
+		}
+	}
+	return g.db.Model(domain).Update("delete_at", nil).Error
+}
+
+func (g *gormMDB) UpdateDomain(domain caskin.Domain) error {
+	return g.db.Updates(domain).Error
 }
 
 func (g *gormMDB) TakeDomain(domain caskin.Domain) error {
