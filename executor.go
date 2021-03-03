@@ -3,9 +3,9 @@ package caskin
 type executor struct {
 	e        ienforcer
 	mdb      MetaDB
-	provider CurrentUserProvider
+	provider CurrentProvider
 	factory  EntryFactory
-	option   *Option
+	options  *Options
 }
 
 func (e *executor) filter(action Action, source interface{}) (interface{}, error) {
