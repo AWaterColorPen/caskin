@@ -17,6 +17,19 @@ var (
 	DefaultSeparator = "$$"
 )
 
+// SuperAdminOption option of superadmin
+type SuperAdminOption struct {
+	// default is false
+	Enable bool `json:"enable"`
+	// if there is superadmin domain and role record in metadata database.
+	// default is false
+	RealSuperadminInDB bool `json:"real_superadmin_in_db"`
+	// provide superadmin Role
+	Role func() Role
+	// provide superadmin Domain
+	Domain func() Domain
+}
+
 type Option func(*Options)
 
 // Options configuration for caskin
@@ -29,19 +42,6 @@ type Options struct {
 	Enforcer      casbin.IEnforcer
 	EntryFactory  EntryFactory
 	MetaDB        MetaDB
-}
-
-// SuperAdminOption option of superadmin
-type SuperAdminOption struct {
-	// default is false
-	Enable bool `json:"enable"`
-	// if there is superadmin domain and role record in metadata database.
-	// default is false
-	RealSuperadminInDB bool `json:"real_superadmin_in_db"`
-	// provide superadmin Role
-	Role func() Role
-	// provide superadmin Domain
-	Domain func() Domain
 }
 
 func (o *Options) newOptions(opts ...Option) *Options {

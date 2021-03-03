@@ -17,12 +17,7 @@ func (g *gormMDB) CreateUser(user caskin.User) error {
 }
 
 func (g *gormMDB) RecoverUser(user caskin.User) error {
-	if err := g.db.Unscoped().Where(user).Take(user).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return caskin.ErrCannotRecover
-		}
-	}
-	return g.db.Model(user).Update("delete_at", nil).Error
+	return g.recover(user)
 }
 
 func (g *gormMDB) UpdateUser(user caskin.User) error {
@@ -49,7 +44,7 @@ func (g *gormMDB) GetUserByID(id []uint64) ([]caskin.User, error) {
 }
 
 func (g *gormMDB) UpsertUser(user caskin.User) error {
-	return upsert(g.db, user)
+	return g.upsert(user)
 }
 
 func (g *gormMDB) DeleteUserByID(id uint64) error {
@@ -61,12 +56,7 @@ func (g *gormMDB) CreateRole(role caskin.Role) error {
 }
 
 func (g *gormMDB) RecoverRole(role caskin.Role) error {
-	if err := g.db.Unscoped().Where(role).Take(role).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return caskin.ErrCannotRecover
-		}
-	}
-	return g.db.Model(role).Update("delete_at", nil).Error
+	return g.recover(role)
 }
 
 func (g *gormMDB) UpdateRole(role caskin.Role) error {
@@ -100,7 +90,7 @@ func (g *gormMDB) GetRoleByID(id []uint64) ([]caskin.Role, error) {
 }
 
 func (g *gormMDB) UpsertRole(role caskin.Role) error {
-	return upsert(g.db, role)
+	return g.upsert(role)
 }
 
 func (g *gormMDB) DeleteRoleByID(id uint64) error {
@@ -112,12 +102,7 @@ func (g *gormMDB) CreateObject(object caskin.Object) error {
 }
 
 func (g *gormMDB) RecoverObject(object caskin.Object) error {
-	if err := g.db.Unscoped().Where(object).Take(object).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return caskin.ErrCannotRecover
-		}
-	}
-	return g.db.Model(object).Update("delete_at", nil).Error
+	return g.recover(object)
 }
 
 func (g *gormMDB) UpdateObject(object caskin.Object) error {
@@ -156,7 +141,7 @@ func (g *gormMDB) GetObjectByID(id []uint64) ([]caskin.Object, error) {
 }
 
 func (g *gormMDB) UpsertObject(object caskin.Object) error {
-	return upsert(g.db, object)
+	return g.upsert(object)
 }
 
 func (g *gormMDB) DeleteObjectByID(id uint64) error {
@@ -168,12 +153,7 @@ func (g *gormMDB) CreateDomain(domain caskin.Domain) error {
 }
 
 func (g *gormMDB) RecoverDomain(domain caskin.Domain) error {
-	if err := g.db.Unscoped().Where(domain).Take(domain).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return caskin.ErrCannotRecover
-		}
-	}
-	return g.db.Model(domain).Update("delete_at", nil).Error
+	return g.recover(domain)
 }
 
 func (g *gormMDB) UpdateDomain(domain caskin.Domain) error {
@@ -199,23 +179,22 @@ func (g *gormMDB) DeleteDomainByID(id uint64) error {
 	return g.db.Delete(&Domain{}, id).Error
 }
 
-func NewGormMDBByDB(db *gorm.DB) caskin.MetaDB {
-	return &gormMDB{db: db}
-}
-
-type entry interface {
-	GetID() uint64
-}
-
-func upsert(db *gorm.DB, entry entry) error {
+func (g *gormMDB) upsert(entry entry) error {
 	if entry.GetID() == 0 {
-		return insertOrRecover(db, entry)
+		return g.insertOrRecover(entry)
 	}
-	return db.Updates(entry).Error
+	return g.db.Updates(entry).Error
 }
 
-func insertOrRecover(db *gorm.DB, item interface{}) error {
-	return db.Transaction(func(tx *gorm.DB) error {
+func (g *gormMDB) recover(item interface{}) error {
+	if err := g.db.Unscoped().Where(item).Take(item).Error; err != nil {
+		return err
+	}
+	return g.db.Model(item).Update("delete_at", nil).Error
+}
+
+func (g *gormMDB) insertOrRecover(item interface{}) error {
+	return g.db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Unscoped().Where(item).Take(item).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return tx.Create(item).Error
@@ -224,4 +203,12 @@ func insertOrRecover(db *gorm.DB, item interface{}) error {
 		}
 		return tx.Model(item).Update("delete_at", nil).Error
 	})
+}
+
+func NewGormMDBByDB(db *gorm.DB) caskin.MetaDB {
+	return &gormMDB{db: db}
+}
+
+type entry interface {
+	GetID() uint64
 }

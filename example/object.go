@@ -22,12 +22,6 @@ type Object struct {
 	ParentID  uint64            `gorm:"-"                                      json:"parent_id"`
 }
 
-const (
-	ObjectTypeDefault caskin.ObjectType = "default"
-	ObjectTypeObject  caskin.ObjectType = "object"
-	ObjectTypeRole    caskin.ObjectType = "role"
-)
-
 func (o *Object) GetID() uint64 {
 	return o.ID
 }

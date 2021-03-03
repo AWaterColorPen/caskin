@@ -1,9 +1,5 @@
 package caskin
 
-type CurrentProvider interface {
-	Get() (User, Domain, error)
-}
-
 type Caskin struct {
 	options *Options
 }

@@ -4,33 +4,6 @@ type ObjectType string
 
 type Action string
 
-const (
-	Read  Action = "read"
-	Write Action = "write"
-)
-
-type Policy struct {
-	Role   Role   `json:"role"`
-	Object Object `json:"object"`
-	Domain Domain `json:"domain"`
-	Action Action `json:"action"`
-}
-
-type RolesForUser struct {
-	User  User   `json:"user"`
-	Roles []Role `json:"roles"`
-}
-
-type UsersForRole struct {
-	Role  Role   `json:"role"`
-	Users []User `json:"users"`
-}
-
-type PoliciesForRole struct {
-	Role     Role      `json:"role"`
-	Policies []*Policy `json:"policies"`
-}
-
 type entry interface {
 	// get id method
 	GetID() uint64
@@ -90,6 +63,7 @@ type Objects = []Object
 
 type Domains = []Domain
 
+// EntryFactory
 type EntryFactory interface {
 	NewUser() User
 	NewRole() Role
@@ -99,3 +73,30 @@ type EntryFactory interface {
 
 // DomainCreator create new domain's function
 type DomainCreator = func(Domain) ([]Role, []Object, []*Policy)
+
+// CurrentProvider
+type CurrentProvider interface {
+	Get() (User, Domain, error)
+}
+
+type Policy struct {
+	Role   Role   `json:"role"`
+	Object Object `json:"object"`
+	Domain Domain `json:"domain"`
+	Action Action `json:"action"`
+}
+
+type RolesForUser struct {
+	User  User   `json:"user"`
+	Roles []Role `json:"roles"`
+}
+
+type UsersForRole struct {
+	Role  Role   `json:"role"`
+	Users []User `json:"users"`
+}
+
+type PoliciesForRole struct {
+	Role     Role      `json:"role"`
+	Policies []*Policy `json:"policies"`
+}

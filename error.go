@@ -12,7 +12,7 @@ var (
 	ErrNoReadPermission  = fmt.Errorf("no read permission")
 	ErrNoWritePermission = fmt.Errorf("no write permission")
 	// errors about superadmin
-	ErrIsNotSuperAdmin       = fmt.Errorf("is no superadmin")
+	ErrIsNotSuperAdmin       = fmt.Errorf("is not superadmin")
 	ErrSuperAdminIsNoEnabled = fmt.Errorf("superadmin is not enabled")
 	// errors about caskin initialization
 	ErrInitializationNilDomainCreator = fmt.Errorf("domain creator is nil")

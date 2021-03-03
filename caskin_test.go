@@ -15,8 +15,7 @@ import (
 
 func TestNewCaskin(t *testing.T) {
     options := &caskin.Options{}
-
-    _, err := caskin.New(options, )
+    _, err := newCaskin(t, options)
     assert.Error(t, err)
 }
 
