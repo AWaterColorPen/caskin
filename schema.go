@@ -17,6 +17,8 @@ type entry interface {
 	IsObject() bool
 	// get object string method
 	GetObject() Object
+	// set object
+	SetObjectId(uint64)
 }
 
 type parent interface {
@@ -77,6 +79,10 @@ type DomainCreator = func(Domain) Creator
 //
 type Creator interface {
 	BuildCreator() (Roles, Objects)
+	Set()
+	GetPolicy() []*Policy
+	GetRoles() Roles
+	GetObjects() Objects
 }
 
 // CurrentProvider

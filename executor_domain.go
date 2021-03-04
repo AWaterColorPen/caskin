@@ -99,7 +99,13 @@ func (e *executor) writeDomain(domain Domain, fn func(Domain) error) error {
 // 2. upsert roles, objects into metadata database
 // 3. add policies as p into casbin
 func (e *executor) initializeDomain(domain Domain) error {
-	roles, objects, policies := e.options.DomainCreator(domain)
+	e.options.DomainCreator.BuildCreator()
+	e.options.DomainCreator.Set()
+
+	roles := e.options.DomainCreator.GetRoles()
+	objects := e.options.DomainCreator.GetObjects()
+	policies := e.options.DomainCreator.GetPolicy()
+
 	for _, v := range objects {
 		if err := e.mdb.UpsertObject(v); err != nil {
 			return err

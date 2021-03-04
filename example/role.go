@@ -46,6 +46,10 @@ func (r *Role) GetObject() caskin.Object {
 	return &Object{ID: r.ObjectID}
 }
 
+func (r *Role) SetObjectId(objectId uint64) {
+	r.ObjectID = objectId
+}
+
 func (r *Role) GetParentID() uint64 {
 	return r.ParentID
 }

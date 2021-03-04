@@ -38,7 +38,7 @@ type Options struct {
 	SuperAdminOption *SuperAdminOption `json:"super_admin_option"`
 
 	// options for implementations of the interface
-	DomainCreator DomainCreator
+	DomainCreator Creator
 	Enforcer      casbin.IEnforcer
 	EntryFactory  EntryFactory
 	MetaDB        MetaDB
@@ -80,9 +80,9 @@ func (o *Options) GetSuperAdminDomain() Domain {
 }
 
 // DomainCreatorOption set the DomainCreator for the options
-func DomainCreatorOption(domainCreator DomainCreator) Option {
+func DomainCreatorOption(creator Creator) Option {
 	return func(o *Options) {
-		o.DomainCreator = domainCreator
+		o.DomainCreator = creator
 	}
 }
 
