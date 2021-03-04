@@ -41,3 +41,6 @@ func (d *Domain) IsObject() bool {
 func (d *Domain) GetObject() caskin.Object {
 	return nil
 }
+
+func (d *Domain) SetObjectId(objcetId uint64) {
+}
