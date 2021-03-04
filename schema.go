@@ -26,7 +26,7 @@ type parent interface {
 	SetParentID(uint64)
 }
 
-type inDomain interface {
+type entryInDomain interface {
 	// set domain id method
 	SetDomainID(uint64)
 }
@@ -42,12 +42,12 @@ type User interface {
 
 type Role interface {
 	parentEntry
-	inDomain
+	entryInDomain
 }
 
 type Object interface {
 	parentEntry
-	inDomain
+	entryInDomain
 	GetObjectType() ObjectType
 }
 
@@ -72,7 +72,12 @@ type EntryFactory interface {
 }
 
 // DomainCreator create new domain's function
-type DomainCreator = func(Domain) ([]Role, []Object, []*Policy)
+type DomainCreator = func(Domain) Creator
+
+//
+type Creator interface {
+	BuildCreator() (Roles, Objects)
+}
 
 // CurrentProvider
 type CurrentProvider interface {
