@@ -85,7 +85,7 @@ type Creator interface {
 	GetObjects() Objects
 }
 
-// CurrentProvider
+// CurrentProvider 用户
 type CurrentProvider interface {
 	Get() (User, Domain, error)
 }

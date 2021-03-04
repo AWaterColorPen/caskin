@@ -41,7 +41,7 @@ type DomainCreator struct {
 	roles   caskin.Roles
 }
 
-func NewDomainCreator(domain caskin.Domain) *DomainCreator {
+func NewDomainCreator(domain caskin.Domain) caskin.Creator {
 	return &DomainCreator{domain: domain}
 }
 
