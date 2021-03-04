@@ -2,6 +2,7 @@ package caskin_test
 
 import (
     "github.com/casbin/casbin/v2"
+    "github.com/casbin/casbin/v2/model"
     "path/filepath"
     "testing"
 
@@ -30,12 +31,12 @@ func newCaskin(tb testing.TB, options *caskin.Options) (*caskin.Caskin, error) {
         return nil, err
     }
 
-    model, err := caskin.CasbinModel(options)
+    m, err := getCasbinModel(options)
     if err != nil {
         return nil, err
     }
 
-    enforcer, err := casbin.NewSyncedEnforcer(model, adapter)
+    enforcer, err := casbin.NewSyncedEnforcer(m, adapter)
     if err != nil {
         return nil, err
     }
@@ -51,4 +52,19 @@ func newCaskin(tb testing.TB, options *caskin.Options) (*caskin.Caskin, error) {
 func getTestDB(tb testing.TB) (*gorm.DB, error) {
     dsn := filepath.Join(tb.TempDir(), "sqlite")
     return gorm.Open(sqlite.Open(dsn), &gorm.Config{})
+}
+
+var casbinModelMap = map[bool]model.Model{}
+
+func getCasbinModel(options *caskin.Options) (model.Model, error) {
+    k := options.IsEnableSuperAdmin()
+    if _, ok := casbinModelMap[k]; !ok {
+        m, err := caskin.CasbinModel(options)
+        if err != nil {
+            return nil, err
+        }
+        casbinModelMap[k] = m
+    }
+
+    return casbinModelMap[k], nil
 }
