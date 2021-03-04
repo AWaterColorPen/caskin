@@ -29,6 +29,9 @@ func (s *sampleSuperadminRole) GetObject() Object {
 	return nil
 }
 
+func (s *sampleSuperadminRole) SetObjectId(objectId uint64) {
+}
+
 func (s *sampleSuperadminRole) GetParentID() uint64 {
 	return 0
 }
@@ -66,4 +69,8 @@ func (s *sampleSuperAdminDomain) IsObject() bool {
 
 func (s *sampleSuperAdminDomain) GetObject() Object {
 	return nil
+}
+
+func (s *sampleSuperAdminDomain) SetObjectId(u uint64) {
+	panic("implement me")
 }
