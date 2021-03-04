@@ -76,7 +76,7 @@ type EntryFactory interface {
 // DomainCreator create new domain's function
 type DomainCreator = func(Domain) Creator
 
-//
+// Creator interface to create a domain
 type Creator interface {
 	BuildCreator() (Roles, Objects)
 	Set()
