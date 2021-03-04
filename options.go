@@ -80,9 +80,9 @@ func (o *Options) GetSuperAdminDomain() Domain {
 }
 
 // DomainCreatorOption set the DomainCreator for the options
-func DomainCreatorOption(domainCreator DomainCreator) Option {
+func DomainCreatorOption(creator DomainCreator) Option {
 	return func(o *Options) {
-		o.DomainCreator = domainCreator
+		o.DomainCreator = creator
 	}
 }
 

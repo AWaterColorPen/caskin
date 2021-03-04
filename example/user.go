@@ -42,3 +42,5 @@ func (u *User) IsObject() bool {
 func (u *User) GetObject() caskin.Object {
 	return nil
 }
+
+func (u *User) SetObjectId(objectId uint64) {}
