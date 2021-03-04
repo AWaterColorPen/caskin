@@ -12,6 +12,6 @@
   - [ ] fix issue when modify `Role` and `Object`, it should check old item's Parent's write permission
   - [ ] fix issue when modify object data, it should check relate `Object.GetObjectType`
 - unit test
-  - [ ] unit test get `casbin.Model` with cache. it should not create new one per unit test
+  - [x] unit test get `casbin.Model` with cache. it should not create new one per unit test
   - [ ] create domain in unit test
   - [ ] add users: superadmin, domain-admin, domain-member

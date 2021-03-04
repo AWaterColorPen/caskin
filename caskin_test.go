@@ -17,7 +17,7 @@ import (
 func TestNewCaskin(t *testing.T) {
     options := &caskin.Options{}
     _, err := newCaskin(t, options)
-    assert.Error(t, err)
+    assert.NoError(t, err)
 }
 
 func newCaskin(tb testing.TB, options *caskin.Options) (*caskin.Caskin, error) {
@@ -42,7 +42,7 @@ func newCaskin(tb testing.TB, options *caskin.Options) (*caskin.Caskin, error) {
     }
 
     return caskin.New(options,
-        caskin.DomainCreatorOption(nil),
+        caskin.DomainCreatorOption(example.NewDomainCreator),
         caskin.EnforcerOption(enforcer),
         caskin.EntryFactoryOption(&example.EntryFactory{}),
         caskin.MetaDBOption(example.NewGormMDBByDB(db)),

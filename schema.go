@@ -98,13 +98,13 @@ type Policy struct {
 }
 
 type RolesForUser struct {
-	User  User   `json:"user"`
-	Roles []Role `json:"roles"`
+	User  User  `json:"user"`
+	Roles Roles `json:"roles"`
 }
 
 type UsersForRole struct {
-	Role  Role   `json:"role"`
-	Users []User `json:"users"`
+	Role  Role  `json:"role"`
+	Users Users `json:"users"`
 }
 
 type PoliciesForRole struct {

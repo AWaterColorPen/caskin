@@ -100,25 +100,36 @@ func (e *executor) writeDomain(domain Domain, fn func(Domain) error) error {
 // 3. add policies as p into casbin
 func (e *executor) initializeDomain(domain Domain) error {
 	creator := e.options.DomainCreator(domain)
-	creator.BuildCreator()
-	creator.Set()
-
-	roles := creator.GetRoles()
-	objects := creator.GetObjects()
-	policies := creator.GetPolicy()
-
+	roles, objects := creator.BuildCreator()
+	for _, v := range objects {
+		if err := e.mdb.UpsertObject(v); err != nil {
+			return err
+		}
+	}
+	for _, v := range roles {
+		if err := e.mdb.UpsertRole(v); err != nil {
+			return err
+		}
+	}
 	for _, v := range objects {
 		if err := e.mdb.UpsertObject(v); err != nil {
 			return err
 		}
 	}
 
+	creator.Set()
 	for _, v := range roles {
 		if err := e.mdb.UpsertRole(v); err != nil {
 			return err
 		}
 	}
+	for _, v := range objects {
+		if err := e.mdb.UpsertObject(v); err != nil {
+			return err
+		}
+	}
 
+	policies := creator.GetPolicy()
 	for _, v := range policies {
 		if err := e.e.AddPolicyInDomain(v.Role, v.Object, v.Domain, v.Action); err != nil {
 			return err
