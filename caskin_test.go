@@ -26,6 +26,15 @@ func newCaskin(tb testing.TB, options *caskin.Options) (*caskin.Caskin, error) {
         return nil, err
     }
 
+    err = db.AutoMigrate(
+        &example.User{},
+        &example.Domain{},
+        &example.Role{},
+        &example.Object{})
+    if err != nil {
+        return nil, err
+    }
+
     adapter, err := gormadapter.NewAdapterByDB(db)
     if err != nil {
         return nil, err
