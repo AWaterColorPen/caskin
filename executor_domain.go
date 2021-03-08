@@ -62,7 +62,12 @@ func (e *executor) GetAllDomain() ([]Domain, error) {
 		return nil, err
 	}
 
-	return out.([]Domain), nil
+	var result []Domain
+	for _, v := range out {
+		result = append(result, v.(Domain))
+	}
+
+	return result, nil
 }
 
 func (e *executor) createOrRecoverDomain(domain Domain, fn func(Domain) error) error {

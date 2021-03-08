@@ -8,7 +8,17 @@ type executor struct {
 	options  *Options
 }
 
-func (e *executor) filter(action Action, source interface{}) (interface{}, error) {
+func (e *executor) filter(action Action, source interface{}) ([]interface{}, error) {
+	u, d, err := e.provider.Get()
+	if err != nil {
+		return nil, err
+	}
+
+	return Filter(e.e, u, d, action, source), nil
+}
+
+// 原来的写法
+func (e *executor) filter2(action Action, source interface{}) (interface{}, error) {
 	u, d, err := e.provider.Get()
 	if err != nil {
 		return nil, err

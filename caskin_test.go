@@ -1,18 +1,17 @@
 package caskin_test
 
 import (
-	"github.com/casbin/casbin/v2"
-	"github.com/casbin/casbin/v2/model"
-	"path/filepath"
-	"testing"
-	"time"
-
+	"fmt"
 	"github.com/awatercolorpen/caskin"
 	"github.com/awatercolorpen/caskin/example"
+	"github.com/casbin/casbin/v2"
+	"github.com/casbin/casbin/v2/model"
 	"github.com/casbin/gorm-adapter/v3"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"path/filepath"
+	"testing"
 )
 
 func TestNewCaskin(t *testing.T) {
@@ -67,8 +66,13 @@ func newCaskin(tb testing.TB) (*caskin.Caskin, error) {
 }
 
 func getTestDB(tb testing.TB) (*gorm.DB, error) {
-	dsn := filepath.Join("./", "sqlite")
-	return gorm.Open(sqlite.Open(dsn), &gorm.Config{})
+	dsn := filepath.Join(tb.TempDir(), "sqlite")
+	fmt.Println(dsn)
+	db, err := gorm.Open(sqlite.Open(dsn), &gorm.Config{})
+	if err != nil {
+		return nil, err
+	}
+	return db.Debug(), nil
 }
 
 var casbinModelMap = map[bool]model.Model{}
@@ -86,7 +90,12 @@ func getCasbinModel(options *caskin.Options) (model.Model, error) {
 	return casbinModelMap[k], nil
 }
 
-func getInitializeTestCaskin(t *testing.T) (*caskin.Caskin, error) {
+type InitializedEnvironment struct {
+	caskinClient *caskin.Caskin
+	provider     *example.Provider
+}
+
+func getInitializedTestCaskin(t *testing.T) (*InitializedEnvironment, error) {
 	c, err := newCaskin(t)
 	if err != nil {
 		return nil, err
@@ -96,9 +105,6 @@ func getInitializeTestCaskin(t *testing.T) (*caskin.Caskin, error) {
 	executor := c.GetExecutor(provider)
 
 	domain := &example.Domain{
-		CreatedAt: time.Time{},
-		UpdatedAt: time.Time{},
-		DeletedAt: gorm.DeletedAt{},
 		Name:      "test_domain_01",
 	}
 	// 创建domain
@@ -107,9 +113,6 @@ func getInitializeTestCaskin(t *testing.T) (*caskin.Caskin, error) {
 	}
 
 	superAdmin := &example.User{
-		CreatedAt:   time.Time{},
-		UpdatedAt:   time.Time{},
-		DeletedAt:   gorm.DeletedAt{},
 		PhoneNumber: "12345678901",
 		Email:       "superadmin@qq.com",
 	}
@@ -138,10 +141,13 @@ func getInitializeTestCaskin(t *testing.T) (*caskin.Caskin, error) {
 	}
 
 	// 创建superAdmin
-	return c, nil
+	return &InitializedEnvironment{
+		caskinClient: c,
+		provider:     provider,
+	}, nil
 }
 
 func TestCaskin_GetExecutor(t *testing.T) {
-	_, err := getInitializeTestCaskin(t)
+	_, err := getInitializedTestCaskin(t)
 	assert.NoError(t, err)
 }
