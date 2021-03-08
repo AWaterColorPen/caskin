@@ -9,9 +9,13 @@ import (
 )
 
 func TestExecutorDomain(t *testing.T) {
-	env, err := getInitializedTestCaskin(t)
+	stage, err := getStage(t)
 	assert.NoError(t, err)
-	executor := env.caskinClient.GetExecutor(env.provider)
+	provider := example.Provider{
+		User:   stage.Domain,
+		Domain: stage.SuperadminUser,
+	}
+	executor := stage.Caskin.GetExecutor(provider)
 
 	domain := &example.Domain{
 		Name:      "test_domain_02",
@@ -29,4 +33,7 @@ func TestExecutorDomain(t *testing.T) {
 
 	domain.Name = "test_domain_022"
 	assert.NoError(t, executor.UpdateDomain(domain))
+
+	bytes, _ = json.Marshal(domain)
+	fmt.Println(string(bytes))
 }

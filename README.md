@@ -7,11 +7,21 @@
 
 - feature
   - [x] redesign `DomainCreator` to help `CreateDomain` `RecoverDomain` to be reentrant API
-  - [ ] web feature, frontend menu and sub function, backend API
+  - [ ] (p2) web feature, frontend menu and sub function, backend API
+  - [ ] (p2) abstract features for just like web feature and other feature
+  - [ ] (p3) go 1.16
 - bug
-  - [ ] fix issue when modify `Role` and `Object`, it should check old item's Parent's write permission
-  - [ ] fix issue when modify object data, it should check relate `Object.GetObjectType`
+  - [ ] (p1) fix issue when modify `Role` and `Object`, it should check old item's Parent's write permission
+  - [ ] (p1) fix issue when modify object data, it should check relate `Object.GetObjectType`
 - unit test
   - [x] unit test get `casbin.Model` with cache. it should not create new one per unit test
   - [x] create domain in unit test
-  - [ ] add users: superadmin, domain-admin, domain-me~~~~mber
+  - [ ] (p0) add users: superadmin, domain-admin, domain-member
+  - [ ] (p0) wrap a `Stage` with `Caskin` instance and initialized `User`, `Domain`, `Role`, `Object`
+  - [ ] (p0) unit for executor domain API
+  - [ ] (p0) unit for executor user API
+  - [ ] (p0) unit for executor superadmin API
+  - [ ] (p0) unit for executor role API
+  - [ ] (p0) unit for executor object API
+  - [ ] (p0) unit for executor policy API
+  

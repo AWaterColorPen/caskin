@@ -87,11 +87,14 @@ func (e *executor) writeDomain(domain Domain, fn func(Domain) error) error {
 		return err
 	}
 
-	if err := e.mdb.TakeDomain(domain); err != nil {
+	tmpDomain := e.factory.NewDomain()
+	tmpDomain.SetID(domain.GetID())
+
+	if err := e.mdb.TakeDomain(tmpDomain); err != nil {
 		return ErrNotExists
 	}
 
-	if err := e.check(Write, domain); err != nil {
+	if err := e.check(Write, tmpDomain); err != nil {
 		return err
 	}
 
