@@ -27,7 +27,7 @@ func (d *DomainCreator) BuildCreator() (caskin.Roles, caskin.Objects) {
 	return d.roles, d.objects
 }
 
-func (d *DomainCreator) Set() {
+func (d *DomainCreator) SetRelation() {
 	ooId := d.objects[0].GetID()
 	for _, object := range d.objects {
 		object.SetObjectId(ooId)
@@ -40,11 +40,11 @@ func (d *DomainCreator) Set() {
 }
 
 func (d *DomainCreator) GetRoles() caskin.Roles {
-    return d.roles
+	return d.roles
 }
 
 func (d *DomainCreator) GetObjects() caskin.Objects {
-    return d.objects
+	return d.objects
 }
 
 func (d *DomainCreator) GetPolicy() []*caskin.Policy {

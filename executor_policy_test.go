@@ -11,7 +11,7 @@ import (
 
 func TestExecutorPolicy(t *testing.T) {
 	stage, _ := getStage(t)
-	provider := example.Provider{
+	provider := &example.Provider{
 		User:   stage.SuperadminUser,
 		Domain: stage.Domain,
 	}
@@ -26,7 +26,7 @@ func TestExecutorPolicy(t *testing.T) {
 	bytes, _ := json.Marshal(roles)
 	fmt.Println(string(bytes))
 
-	objects, err := executor.GetObject(caskin.ObjectTypeObject, caskin.ObjectTypeRole, caskin.ObjectTypeDefault)
+	objects, err := executor.GetObjects(caskin.ObjectTypeObject, caskin.ObjectTypeRole, caskin.ObjectTypeDefault)
 	assert.NoError(t, err)
 	bytes, _ = json.Marshal(objects)
 	fmt.Println(string(bytes))

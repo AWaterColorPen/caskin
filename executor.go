@@ -36,7 +36,7 @@ func (e *executor) filterWithNoError2(user User, domain Domain, action Action, s
 	return Filter(e.e, user, domain, action, source)
 }
 
-func (e *executor) check(action Action, one entry) error {
+func (e *executor) check(action Action, one ObjectData) error {
 	u, d, err := e.provider.Get()
 	if err != nil {
 		return err

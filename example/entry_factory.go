@@ -7,17 +7,17 @@ type EntryFactory struct {
 }
 
 func (e *EntryFactory) NewUser() caskin.User {
-    return &User{}
+	return &User{}
 }
 
 func (e *EntryFactory) NewRole() caskin.Role {
-    return &Role{}
+	return &Role{}
 }
 
 func (e *EntryFactory) NewObject() caskin.Object {
-    return &Object{}
+	return &Object{}
 }
 
 func (e *EntryFactory) NewDomain() caskin.Domain {
-    return &Domain{}
+	return &Domain{}
 }

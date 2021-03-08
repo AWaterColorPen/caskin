@@ -46,7 +46,7 @@ func (e *executor) UpdateObject(object Object) error {
 // GetObject
 // if current user has object's read permission
 // 1. get objects by ty
-func (e *executor) GetObject(ty ...ObjectType) ([]Object, error) {
+func (e *executor) GetObjects(ty ...ObjectType) ([]Object, error) {
 	currentUser, currentDomain, err := e.provider.Get()
 	if err != nil {
 		return nil, err
@@ -84,6 +84,7 @@ func (e *executor) createOrRecoverObject(object Object, fn func(Object) error, t
 		return err
 	}
 
+
 	take := func(id uint64) (parentEntry, error) {
 		o := e.factory.NewObject()
 		o.SetID(id)
@@ -119,10 +120,11 @@ func (e *executor) writeObject(role Object, fn func(Object) error) error {
 
 	// TODO 这里没有对old的object进行权限控制
 	take := func(id uint64) (parentEntry, error) {
-		r := e.factory.NewObject()
-		r.SetDomainID(domain.GetID())
-		err := e.mdb.TakeObject(r)
-		return r, err
+		o := e.factory.NewObject()
+		o.SetID(id)
+		o.SetDomainID(domain.GetID())
+		err := e.mdb.TakeObject(o)
+		return o, err
 	}
 
 	if err := e.checkParentEntryWrite(role, take); err != nil {

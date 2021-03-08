@@ -9,13 +9,13 @@ import (
 
 func TestExecutorObject(t *testing.T) {
 	stage, _ := getStage(t)
-	provider := example.Provider{
+	provider := &example.Provider{
 		User:   stage.SuperadminUser,
 		Domain: stage.Domain,
 	}
 	executor := stage.Caskin.GetExecutor(provider)
 
-	objects, err := executor.GetObject(caskin.ObjectTypeObject)
+	objects, err := executor.GetObjects(caskin.ObjectTypeObject)
 	assert.NoError(t, err)
 	assert.Len(t, objects, 1)
 
@@ -33,7 +33,7 @@ func TestExecutorObject(t *testing.T) {
 	assert.NoError(t, executor.CreateObject(object))
 
 	subObject := &example.Object{
-		Name:    "object_01_sub",
+		Name:     "object_01_sub",
 		Type:     objectType,
 		DomainID: 1,
 		ObjectID: objects[0].GetID(),
@@ -42,12 +42,12 @@ func TestExecutorObject(t *testing.T) {
 	assert.NoError(t, executor.CreateObject(subObject))
 
 	assert.NoError(t, executor.DeleteObject(object))
-	objects, err = executor.GetObject(objectType)
+	objects, err = executor.GetObjects(objectType)
 	assert.NoError(t, err)
 	assert.Len(t, objects, 1)
 
 	assert.NoError(t, executor.RecoverObject(object))
-	objects, err = executor.GetObject(objectType)
+	objects, err = executor.GetObjects(objectType)
 	assert.NoError(t, err)
 	assert.Len(t, objects, 2)
 
@@ -55,12 +55,12 @@ func TestExecutorObject(t *testing.T) {
 	assert.Error(t, executor.UpdateObject(object))
 
 	assert.NoError(t, executor.DeleteObject(subObject))
-	objects, err = executor.GetObject(objectType)
+	objects, err = executor.GetObjects(objectType)
 	assert.NoError(t, err)
 	assert.Len(t, objects, 1)
 
 	assert.NoError(t, executor.RecoverObject(subObject))
-	objects, err = executor.GetObject(objectType)
+	objects, err = executor.GetObjects(objectType)
 	assert.NoError(t, err)
 	assert.Len(t, objects, 2)
 

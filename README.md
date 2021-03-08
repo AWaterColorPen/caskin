@@ -11,13 +11,15 @@
   - [ ] (p2) abstract features for just like web feature and other feature
   - [ ] (p3) go 1.16
 - bug
+  - [ ] (p1) fix issue when remove `Role`, it should remove children role's g and parent role's g
   - [ ] (p1) fix issue when modify `Role` and `Object`, it should check old item's Parent's write permission
   - [ ] (p1) fix issue when modify object data, it should check relate `Object.GetObjectType`
+  - [ ] (p1) fix issue when remove `Role` or `Object`, it should remove all its son node
 - unit test
   - [x] unit test get `casbin.Model` with cache. it should not create new one per unit test
   - [x] create domain in unit test
-  - [ ] (p0) add users: superadmin, domain-admin, domain-member
-  - [ ] (p0) wrap a `Stage` with `Caskin` instance and initialized `User`, `Domain`, `Role`, `Object`
+  - [x] add users: superadmin, domain-admin, domain-member
+  - [x] wrap a `Stage` with `Caskin` instance and initialized `User`, `Domain`, `Role`, `Object`
   - [ ] (p0) unit for executor domain API
   - [ ] (p0) unit for executor user API
   - [ ] (p0) unit for executor superadmin API

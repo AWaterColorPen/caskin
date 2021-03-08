@@ -113,14 +113,18 @@ func (g *gormMDB) TakeObject(object caskin.Object) error {
 	return g.db.Where(object).Take(object).Error
 }
 
+func (g *gormMDB) TakeDeletedObject(object caskin.Object) error {
+	return g.db.Unscoped().Where(object).Take(object).Error
+}
+
 func (g *gormMDB) GetObjectInDomain(domain caskin.Domain, objectType ...caskin.ObjectType) ([]caskin.Object, error) {
-	o := &Object{DomainID: domain.GetID()}
+	d := g.db.Where("domain_id = ?", domain.GetID())
 	if len(objectType) > 0 {
-		o.Type = objectType[0]
+		d = d.Where("type IN ?", objectType)
 	}
 
 	var object []*Object
-	if err := g.db.Find(&object, "type IN ?", objectType).Error; err != nil {
+	if err := d.Find(&object).Error; err != nil {
 		return nil, err
 	}
 
@@ -146,10 +150,6 @@ func (g *gormMDB) UpsertObject(object caskin.Object) error {
 
 func (g *gormMDB) DeleteObjectByID(id uint64) error {
 	return g.db.Delete(&Object{}, id).Error
-}
-
-func (g *gormMDB) TakeDeletedObject(object caskin.Object) error {
-	return g.db.Unscoped().Where(object).Take(object).Error
 }
 
 func (g *gormMDB) CreateDomain(domain caskin.Domain) error {

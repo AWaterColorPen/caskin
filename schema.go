@@ -13,12 +13,6 @@ type entry interface {
 	Encode() string
 	// decode string to entry method
 	Decode(string) error
-	// is object method
-	IsObject() bool
-	// get object string method
-	GetObject() Object
-	// set object
-	SetObjectId(uint64)
 }
 
 type parent interface {
@@ -28,7 +22,11 @@ type parent interface {
 	SetParentID(uint64)
 }
 
-type entryInDomain interface {
+type ObjectData interface {
+	// get object interface method
+	GetObject() Object
+	// set object
+	SetObjectId(uint64)
 	// set domain id method
 	SetDomainID(uint64)
 }
@@ -36,6 +34,7 @@ type entryInDomain interface {
 type parentEntry interface {
 	entry
 	parent
+	ObjectData
 }
 
 type User interface {
@@ -44,12 +43,10 @@ type User interface {
 
 type Role interface {
 	parentEntry
-	entryInDomain
 }
 
 type Object interface {
 	parentEntry
-	entryInDomain
 	GetObjectType() ObjectType
 }
 
@@ -79,7 +76,7 @@ type DomainCreator = func(Domain) Creator
 // Creator interface to create a domain
 type Creator interface {
 	BuildCreator() (Roles, Objects)
-	Set()
+	SetRelation()
 	GetPolicy() []*Policy
 	GetRoles() Roles
 	GetObjects() Objects
@@ -95,6 +92,11 @@ type Policy struct {
 	Object Object `json:"object"`
 	Domain Domain `json:"domain"`
 	Action Action `json:"action"`
+}
+
+type UserRolePair struct {
+	User User `json:"user"`
+	Role Role `json:"role"`
 }
 
 type RolesForUser struct {
