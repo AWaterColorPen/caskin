@@ -1,18 +1,16 @@
 package caskin_test
 
 import (
-	"github.com/casbin/casbin/v2"
-	"github.com/casbin/casbin/v2/model"
-	"path/filepath"
-	"testing"
-	"time"
-
 	"github.com/awatercolorpen/caskin"
 	"github.com/awatercolorpen/caskin/example"
+	"github.com/casbin/casbin/v2"
+	"github.com/casbin/casbin/v2/model"
 	"github.com/casbin/gorm-adapter/v3"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"path/filepath"
+	"testing"
 )
 
 func TestNewCaskin(t *testing.T) {
@@ -22,11 +20,8 @@ func TestNewCaskin(t *testing.T) {
 
 func newCaskin(tb testing.TB) (*caskin.Caskin, error) {
 	options := &caskin.Options{
-		SuperAdminOption: &caskin.SuperAdminOption{
+		SuperadminOption: &caskin.SuperadminOption{
 			Enable:             true,
-			RealSuperadminInDB: true,
-			Role:               nil,
-			Domain:             nil,
 		},
 	}
 	db, err := getTestDB(tb)
@@ -67,7 +62,8 @@ func newCaskin(tb testing.TB) (*caskin.Caskin, error) {
 }
 
 func getTestDB(tb testing.TB) (*gorm.DB, error) {
-	dsn := filepath.Join("./", "sqlite")
+	dsn := filepath.Join(tb.TempDir(), "sqlite")
+	// dsn := filepath.Join("./", "sqlite")
 	return gorm.Open(sqlite.Open(dsn), &gorm.Config{})
 }
 
@@ -86,7 +82,14 @@ func getCasbinModel(options *caskin.Options) (model.Model, error) {
 	return casbinModelMap[k], nil
 }
 
-func getInitializeTestCaskin(t *testing.T) (*caskin.Caskin, error) {
+
+func TestCaskin_GetExecutor(t *testing.T) {
+	_, err := getStage(t)
+	assert.NoError(t, err)
+}
+
+
+func getStage(t *testing.T) (*example.Stage, error) {
 	c, err := newCaskin(t)
 	if err != nil {
 		return nil, err
@@ -95,53 +98,53 @@ func getInitializeTestCaskin(t *testing.T) (*caskin.Caskin, error) {
 	provider := &example.Provider{}
 	executor := c.GetExecutor(provider)
 
-	domain := &example.Domain{
-		CreatedAt: time.Time{},
-		UpdatedAt: time.Time{},
-		DeletedAt: gorm.DeletedAt{},
-		Name:      "test_domain_01",
-	}
-	// 创建domain
+	domain := &example.Domain{Name: "domain_01"}
 	if err := executor.CreateDomain(domain); err != nil {
 		return nil, err
 	}
 
-	superAdmin := &example.User{
-		CreatedAt:   time.Time{},
-		UpdatedAt:   time.Time{},
-		DeletedAt:   gorm.DeletedAt{},
+	superadmin := &example.User{
 		PhoneNumber: "12345678901",
 		Email:       "superadmin@qq.com",
 	}
-	if err := executor.CreateUser(superAdmin); err != nil {
-		return nil, err
+	admin := &example.User{
+		PhoneNumber: "12345678902",
+		Email:       "admin@qq.com",
+	}
+	member := &example.User{
+		PhoneNumber: "12345678903",
+		Email:       "member@qq.com",
+	}
+	for _, v := range []caskin.User{superadmin, admin, member} {
+		if err := executor.CreateUser(v); err != nil {
+			return nil, err
+		}
 	}
 
-	if err := executor.AddSuperadminUser(superAdmin); err != nil {
+	if err := executor.AddSuperadminUser(superadmin); err != nil {
 		return nil, err
 	}
 
 	provider.Domain = domain
-	provider.User = superAdmin
-
-	executor = c.GetExecutor(provider)
-
+	provider.User = superadmin
 	roles, err := executor.GetRoles()
 
-	rolesForUser := &caskin.RolesForUser{
-		User:  superAdmin,
-		Roles: roles,
+	for _, v := range []*caskin.RolesForUser{
+		{User:  admin, Roles: []caskin.Role{roles[0]}},
+		{User:  member, Roles: []caskin.Role{roles[1]}},
+	} {
+		if err := executor.ModifyRolesForUser(v); err != nil {
+			return nil, err
+		}
 	}
 
-	if err := executor.ModifyRolesForUser(rolesForUser); err != nil {
-		return nil, err
+	stage := &example.Stage{
+		Caskin: c,
+		Domain: domain,
+		SuperadminUser: superadmin,
+		AdminUser: admin,
+		MemberUser: member,
 	}
 
-	// 创建superAdmin
-	return c, nil
-}
-
-func TestCaskin_GetExecutor(t *testing.T) {
-	_, err := getInitializeTestCaskin(t)
-	assert.NoError(t, err)
+	return stage, nil
 }

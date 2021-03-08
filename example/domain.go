@@ -42,5 +42,5 @@ func (d *Domain) GetObject() caskin.Object {
 	return nil
 }
 
-func (d *Domain) SetObjectId(objcetId uint64) {
+func (d *Domain) SetObjectId(uint64) {
 }

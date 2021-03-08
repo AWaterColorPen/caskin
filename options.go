@@ -17,8 +17,8 @@ var (
 	DefaultSeparator = "$$"
 )
 
-// SuperAdminOption option of superadmin
-type SuperAdminOption struct {
+// SuperadminOption option of superadmin
+type SuperadminOption struct {
 	// default is false
 	Enable bool `json:"enable"`
 	// if there is superadmin domain and role record in metadata database.
@@ -35,7 +35,7 @@ type Option func(*Options)
 // Options configuration for caskin
 type Options struct {
 	// options for configuration
-	SuperAdminOption *SuperAdminOption `json:"super_admin_option"`
+	SuperadminOption *SuperadminOption `json:"super_admin_option"`
 
 	// options for implementations of the interface
 	DomainCreator DomainCreator
@@ -52,28 +52,28 @@ func (o *Options) newOptions(opts ...Option) *Options {
 }
 
 func (o *Options) IsEnableSuperAdmin() bool {
-	return o.SuperAdminOption != nil && o.SuperAdminOption.Enable
+	return o.SuperadminOption != nil && o.SuperadminOption.Enable
 }
 
-func (o *Options) GetSuperAdminRole() Role {
+func (o *Options) GetSuperadminRole() Role {
 	if !o.IsEnableSuperAdmin() {
 		return nil
 	}
 
-	if o.SuperAdminOption.Role != nil {
-		return o.SuperAdminOption.Role()
+	if o.SuperadminOption.Role != nil {
+		return o.SuperadminOption.Role()
 	}
 
 	return &sampleSuperadminRole{}
 }
 
-func (o *Options) GetSuperAdminDomain() Domain {
+func (o *Options) GetSuperadminDomain() Domain {
 	if !o.IsEnableSuperAdmin() {
 		return nil
 	}
 
-	if o.SuperAdminOption.Domain != nil {
-		return o.SuperAdminOption.Domain()
+	if o.SuperadminOption.Domain != nil {
+		return o.SuperadminOption.Domain()
 	}
 
 	return &sampleSuperAdminDomain{}

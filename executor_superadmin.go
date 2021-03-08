@@ -22,8 +22,8 @@ func (e *executor) GetAllSuperadminUser() ([]User, error) {
 		return nil, ErrSuperAdminIsNoEnabled
 	}
 
-	domain := e.options.GetSuperAdminDomain()
-	role := e.options.GetSuperAdminRole()
+	domain := e.options.GetSuperadminDomain()
+	role := e.options.GetSuperadminRole()
 	us := e.e.GetUsersForRoleInDomain(role, domain)
 	id := getIDList(us)
 	return e.mdb.GetUserByID(id)
@@ -42,7 +42,7 @@ func (e *executor) writeSuperadminUser(user User, fn func(User, Role, Domain) er
 		return err
 	}
 
-	domain := e.options.GetSuperAdminDomain()
-	role := e.options.GetSuperAdminRole()
+	domain := e.options.GetSuperadminDomain()
+	role := e.options.GetSuperadminRole()
 	return fn(user, role, domain)
 }
