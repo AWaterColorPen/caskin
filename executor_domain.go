@@ -101,6 +101,8 @@ func (e *executor) writeDomain(domain Domain, fn func(Domain) error) error {
 	return fn(domain)
 }
 
+
+
 // initializeDomain
 // it is reentrant to initialize a new domain
 // 1. get roles, objects, policies form DomainCreator
@@ -116,11 +118,6 @@ func (e *executor) initializeDomain(domain Domain) error {
 	}
 	for _, v := range roles {
 		if err := e.mdb.UpsertRole(v); err != nil {
-			return err
-		}
-	}
-	for _, v := range objects {
-		if err := e.mdb.UpsertObject(v); err != nil {
 			return err
 		}
 	}

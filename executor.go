@@ -60,10 +60,10 @@ func (e *executor) checkParentEntryWrite(one parentEntry, take takeParentEntry) 
 	if err != nil {
 		return err
 	}
-
-	if ok := Check(e.e, u, d, Write, one); !ok {
-		return ErrNoWritePermission
-	}
+	// 检查当前数据的权限
+	//if ok := Check(e.e, u, d, Write, one); !ok {
+	//	return ErrNoWritePermission
+	//}
 
 	for _, v := range []uint64{
 		one.GetID(),

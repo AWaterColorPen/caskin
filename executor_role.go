@@ -228,6 +228,7 @@ func (e *executor) writeRole(role Role, fn func(Role) error) error {
 		return err
 	}
 
+	// TODO 这里没有对old的role进行权限控制
 	take := func(id uint64) (parentEntry, error) {
 		r := e.factory.NewRole()
 		r.SetDomainID(domain.GetID())
