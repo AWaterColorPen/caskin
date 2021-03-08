@@ -84,27 +84,3 @@ func TestExecutorUser_GeneralRecover(t *testing.T) {
 	user3 := &example.User{ID: 5}
 	assert.Error(t, executor.RecoverUser(user3))
 }
-
-func TestExecutorUser_GetUserRolePair(t *testing.T) {
-	stage, _ := getStage(t)
-	provider := &example.Provider{}
-	executor := stage.Caskin.GetExecutor(provider)
-
-	user1 := &example.User{
-		PhoneNumber: stage.MemberUser.PhoneNumber,
-	}
-	assert.Equal(t, caskin.ErrAlreadyExists, executor.RecoverUser(user1))
-	assert.Equal(t, caskin.ErrProviderGet, executor.DeleteUser(stage.MemberUser))
-
-	provider.User = stage.MemberUser
-	provider.Domain = stage.Domain
-	assert.NoError(t, executor.DeleteUser(stage.MemberUser))
-
-	user2 := &example.User{
-		PhoneNumber: stage.MemberUser.PhoneNumber,
-	}
-	assert.NoError(t, executor.RecoverUser(user2))
-
-	user3 := &example.User{ID: 5}
-	assert.Error(t, executor.RecoverUser(user3))
-}

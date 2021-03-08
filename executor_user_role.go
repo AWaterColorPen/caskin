@@ -157,3 +157,78 @@ func (e *executor) GetUserRolePair() ([]*UserRolePair, error) {
 
 	return list, nil
 }
+
+// GetUserRolePairByUser
+// 1. get role which current user has read permission in current domain
+// 2. get user to role 's g as UserRolePair in current domain
+func (e *executor) GetUserRolePairByUser(user User) ([]*UserRolePair, error) {
+	if err := isValid(user); err != nil {
+		return nil, err
+	}
+
+	if err := e.mdb.TakeUser(user); err != nil {
+		return nil, err
+	}
+
+	currentUser, currentDomain, err := e.provider.Get()
+	if err != nil {
+		return nil, err
+	}
+
+	roles, err := e.mdb.GetRoleInDomain(currentDomain)
+	if err != nil {
+		return nil, err
+	}
+	out := e.filterWithNoError(currentUser, currentDomain, Read, roles)
+	roles = []Role{}
+	for _, v := range out {
+		roles = append(roles, v.(Role))
+	}
+	rm := getIDMap(roles)
+
+	var list []*UserRolePair
+	rs := e.e.GetRolesForUserInDomain(user, currentDomain)
+	for _, r := range rs {
+		if role, ok := rm[r.GetID()]; ok {
+			list = append(list, &UserRolePair{User: user, Role: role.(Role)})
+		}
+	}
+
+	return list, nil
+}
+
+// GetUserRolePairByRole
+// 1. get role which current user has read permission in current domain
+// 2. get user to role 's g as UserRolePair in current domain
+func (e *executor) GetUserRolePairByRole(role Role) ([]*UserRolePair, error) {
+	if err := isValid(role); err != nil {
+		return nil, err
+	}
+
+	if err := e.mdb.TakeRole(role); err != nil {
+		return nil, err
+	}
+
+	if err := e.check(Read, role); err != nil {
+		return nil, err
+	}
+
+	_, currentDomain, err := e.provider.Get()
+	if err != nil {
+		return nil, err
+	}
+
+	us := e.e.GetUsersForRoleInDomain(role, currentDomain)
+	oid := getIDList(us)
+	users, err := e.mdb.GetUserByID(oid)
+	if err != nil {
+		return nil, err
+	}
+
+	var list []*UserRolePair
+	for _, v := range users {
+		list = append(list, &UserRolePair{User: v, Role: role})
+	}
+
+	return list, nil
+}
