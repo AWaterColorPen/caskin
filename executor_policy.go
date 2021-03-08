@@ -18,13 +18,22 @@ func (e *executor) GetAllPoliciesForRole() ([]*PoliciesForRole, error) {
 	if err != nil {
 		return nil, err
 	}
-	roles = e.filterWithNoError(currentUser, currentDomain, Read, roles).([]Role)
+	r := e.filterWithNoError(currentUser, currentDomain, Read, roles)
+	roles = []Role{}
+	for _, v := range r {
+		roles = append(roles, v.(Role))
+	}
 
 	objects, err := e.mdb.GetObjectInDomain(currentDomain)
 	if err != nil {
 		return nil, err
 	}
-	objects = e.filterWithNoError(currentUser, currentDomain, Read, objects).([]Object)
+
+	os := e.filterWithNoError(currentUser, currentDomain, Read, objects)
+	objects = []Object{}
+	for _, v := range os {
+		objects = append(objects, v.(Object))
+	}
 	om := getIDMap(objects)
 
 	e.e.GetPoliciesInDomain(currentDomain)
@@ -90,7 +99,11 @@ func (e *executor) ModifyPoliciesForRole(pr *PoliciesForRole) error {
 	if err != nil {
 		return err
 	}
-	objects = e.filterWithNoError(currentUser, currentDomain, Write, objects).([]Object)
+	os := e.filterWithNoError(currentUser, currentDomain, Write, objects)
+	objects = []Object{}
+	for _, v := range os {
+		objects = append(objects, v.(Object))
+	}
 	om := getIDMap(objects)
 
 	// make source and target role id list

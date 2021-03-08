@@ -6,7 +6,16 @@ import (
 )
 
 // Filter filter source permission by u, d, action
-func Filter(e ienforcer, u User, d Domain, action Action, source interface{}) interface{} {
+func Filter(e ienforcer, u User, d Domain, action Action, source interface{}) []interface{} {
+	var result []interface{}
+	linq.From(source).Where(func(v interface{}) bool {
+		return Check(e, u, d, action, v.(entry))
+	}).ToSlice(&result)
+	return result
+}
+
+// Filter2 原来的写法
+func Filter2(e ienforcer, u User, d Domain, action Action, source interface{}) interface{} {
 	linq.From(source).Where(func(v interface{}) bool {
 		return Check(e, u, d, action, v.(entry))
 	}).ToSlice(&source)

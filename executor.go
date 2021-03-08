@@ -17,7 +17,12 @@ func (e *executor) filter(action Action, source interface{}) (interface{}, error
 	return Filter(e.e, u, d, action, source), nil
 }
 
-func (e *executor) filterWithNoError(user User, domain Domain, action Action, source interface{}) interface{} {
+func (e *executor) filterWithNoßError(user User, domain Domain, action Action, source interface{}) []interface{} {
+	return Filter(e.e, user, domain, action, source)
+}
+
+// 原来的写法
+func (e *executor) filterWithNoError2(user User, domain Domain, action Action, source interface{}) interface{} {
 	return Filter(e.e, user, domain, action, source)
 }
 

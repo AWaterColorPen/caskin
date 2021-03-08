@@ -1,6 +1,8 @@
 package caskin
 
-import "github.com/ahmetb/go-linq/v3"
+import (
+	"github.com/ahmetb/go-linq/v3"
+)
 
 // GetAllRolesForUser
 // 1. get all user which current user has read permission in current domain
@@ -19,13 +21,21 @@ func (e *executor) GetAllRolesForUser() ([]*RolesForUser, error) {
 	if err != nil {
 		return nil, err
 	}
-	users = e.filterWithNoError(currentUser, currentDomain, Read, users).([]User)
+	u := e.filterWithNoError(currentUser, currentDomain, Read, users)
+	users = []User{}
+	for _, v := range u {
+		users = append(users, v.(User))
 
+	}
 	roles, err := e.mdb.GetRoleInDomain(currentDomain)
 	if err != nil {
 		return nil, err
 	}
-	roles = e.filterWithNoError(currentUser, currentDomain, Read, roles).([]Role)
+	r := e.filterWithNoError(currentUser, currentDomain, Read, roles)
+	roles = []Role{}
+	for _, v := range r {
+		roles = append(roles, v.(Role))
+	}
 	rm := getIDMap(roles)
 
 	var rus []*RolesForUser
@@ -78,7 +88,12 @@ func (e *executor) ModifyRolesForUser(ru *RolesForUser) error {
 	if err != nil {
 		return err
 	}
-	roles = e.filterWithNoError(currentUser, currentDomain, Write, roles).([]Role)
+	r := e.filterWithNoError(currentUser, currentDomain, Write, roles)
+	roles = []Role{}
+	for _, v := range r {
+		roles = append(roles, v.(Role))
+
+	}
 	rm := getIDMap(roles)
 
 	// make source and target role id list
@@ -151,12 +166,16 @@ func (e *executor) UpdateUser(user User) error {
 	return e.writeUser(user, e.mdb.UpdateUser)
 }
 
-func (e *executor) createOrRecoverUser(domain User, fn func(User) error) error {
-	if err := e.mdb.TakeUser(domain); err == nil {
+func (e *executor) createOrRecoverUser(user User, fn func(User) error) error {
+	if err := e.mdb.TakeUser(user); err == nil {
 		return ErrAlreadyExists
 	}
 
-	return fn(domain)
+	if err := e.check(Write, user); err != nil {
+		return err
+	}
+
+	return fn(user)
 }
 
 func (e *executor) writeUser(user User, fn func(User) error) error {
