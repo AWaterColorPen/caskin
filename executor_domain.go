@@ -119,13 +119,8 @@ func (e *executor) initializeDomain(domain Domain) error {
 			return err
 		}
 	}
-	for _, v := range objects {
-		if err := e.mdb.UpsertObject(v); err != nil {
-			return err
-		}
-	}
 
-	creator.Set()
+	creator.SetRelation()
 	for _, v := range roles {
 		if err := e.mdb.UpsertRole(v); err != nil {
 			return err

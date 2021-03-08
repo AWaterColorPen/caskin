@@ -27,7 +27,7 @@ func (d *DomainCreator) BuildCreator() (caskin.Roles, caskin.Objects) {
 	return d.roles, d.objects
 }
 
-func (d *DomainCreator) Set() {
+func (d *DomainCreator) SetRelation() {
 	ooId := d.objects[0].GetID()
 	for _, object := range d.objects {
 		object.SetObjectId(ooId)

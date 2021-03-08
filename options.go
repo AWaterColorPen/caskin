@@ -19,15 +19,10 @@ var (
 
 // SuperadminOption option of superadmin
 type SuperadminOption struct {
-	// default is false
-	Enable bool `json:"enable"`
-	// if there is superadmin domain and role record in metadata database.
-	// default is false
-	RealSuperadminInDB bool `json:"real_superadmin_in_db"`
-	// provide superadmin Role
-	Role func() Role
-	// provide superadmin Domain
-	Domain func() Domain
+	Enable             bool          `json:"enable"`                // default is false
+	RealSuperadminInDB bool          `json:"real_superadmin_in_db"` // if there is superadmin domain and role record in metadata database. default is false
+	Role               func() Role   `json:"-"`                     // provide superadmin Role
+	Domain             func() Domain `json:"-"`                     // provide superadmin Domain
 }
 
 type Option func(*Options)

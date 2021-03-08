@@ -79,7 +79,7 @@ type DomainCreator = func(Domain) Creator
 // Creator interface to create a domain
 type Creator interface {
 	BuildCreator() (Roles, Objects)
-	Set()
+	SetRelation()
 	GetPolicy() []*Policy
 	GetRoles() Roles
 	GetObjects() Objects
