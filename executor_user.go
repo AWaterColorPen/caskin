@@ -5,7 +5,7 @@ import (
 )
 
 // GetAllRolesForUser
-// 1. get all user which current user has read permission in current domain
+// 1. get all user
 // 2. get all role which current user has read permission in current domain
 // 3. get user to roles 's g as RolesForUser in current domain
 func (e *executor) GetAllRolesForUser() ([]*RolesForUser, error) {
@@ -54,7 +54,7 @@ func (e *executor) GetAllRolesForUser() ([]*RolesForUser, error) {
 }
 
 // ModifyRolesForUser
-// if current user has user and role's write permission
+// if current user has role's write permission
 // 1. modify user to roles 's g in current domain
 func (e *executor) ModifyRolesForUser(ru *RolesForUser) error {
 	if err := isValid(ru.User); err != nil {
@@ -63,10 +63,6 @@ func (e *executor) ModifyRolesForUser(ru *RolesForUser) error {
 
 	if err := e.mdb.TakeUser(ru.User); err != nil {
 		return ErrNotExists
-	}
-
-	if err := e.check(Write, ru.User); err != nil {
-		return err
 	}
 
 	currentUser, currentDomain, err := e.provider.Get()
@@ -128,23 +124,24 @@ func (e *executor) ModifyRolesForUser(ru *RolesForUser) error {
 }
 
 // CreateUser
-// if current user has user's write permission and there does not exist the user
-// then create a new one
+// if there does not exist the user
+// then create a new one without permission checking
 // 1. create a new user into metadata database
 func (e *executor) CreateUser(user User) error {
 	return e.createOrRecoverUser(user, e.mdb.CreateUser)
 }
 
 // RecoverUser
-// if current user has user's write permission and there exist the user but soft deleted
-// then recover it
+// if there exist the user but soft deleted
+// then recover it without permission checking
 // 1. recover the soft delete one user at metadata database
 func (e *executor) RecoverUser(user User) error {
 	return e.createOrRecoverUser(user, e.mdb.RecoverUser)
 }
 
 // DeleteUser
-// if current user has user's write permission
+// if there exist the user
+// delete user without permission checking
 // 1. delete all user's g in the domain
 // 2. soft delete one user in metadata database
 func (e *executor) DeleteUser(user User) error {
@@ -160,7 +157,8 @@ func (e *executor) DeleteUser(user User) error {
 }
 
 // UpdateUser
-// if current user has user's write permission and there exist the user
+// if there exist the user
+// update user without permission checking
 // 1. just update user's properties
 func (e *executor) UpdateUser(user User) error {
 	return e.writeUser(user, e.mdb.UpdateUser)
@@ -169,10 +167,6 @@ func (e *executor) UpdateUser(user User) error {
 func (e *executor) createOrRecoverUser(user User, fn func(User) error) error {
 	if err := e.mdb.TakeUser(user); err == nil {
 		return ErrAlreadyExists
-	}
-
-	if err := e.check(Write, user); err != nil {
-		return err
 	}
 
 	return fn(user)
@@ -185,10 +179,6 @@ func (e *executor) writeUser(user User, fn func(User) error) error {
 
 	if err := e.mdb.TakeUser(user); err != nil {
 		return ErrNotExists
-	}
-
-	if err := e.check(Write, user); err != nil {
-		return err
 	}
 
 	return fn(user)

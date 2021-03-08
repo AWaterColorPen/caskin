@@ -1,29 +1,29 @@
 package caskin_test
 
 import (
-    "testing"
+	"testing"
 
-    "github.com/awatercolorpen/caskin"
-    "github.com/stretchr/testify/assert"
+	"github.com/awatercolorpen/caskin"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestCasbinModel(t *testing.T) {
-    _, err1 := caskin.CasbinModel(&caskin.Options{})
-    assert.NoError(t, err1)
-    _, err2 := caskin.CasbinModel(&caskin.Options{
-        SuperadminOption: &caskin.SuperadminOption{
-            Enable: true,
-        },
-    })
-    assert.NoError(t, err2)
+	_, err1 := caskin.CasbinModel(&caskin.Options{})
+	assert.NoError(t, err1)
+	_, err2 := caskin.CasbinModel(&caskin.Options{
+		SuperadminOption: &caskin.SuperadminOption{
+			Enable: true,
+		},
+	})
+	assert.NoError(t, err2)
 }
 
 func TestCasbinModelSuperadmin(t *testing.T) {
-    _, err := caskin.CasbinModelSuperadmin()
-    assert.NoError(t, err)
+	_, err := caskin.CasbinModelSuperadmin()
+	assert.NoError(t, err)
 }
 
 func TestCasbinModelNoSuperadmin(t *testing.T) {
-    _, err := caskin.CasbinModelNoSuperadmin()
-    assert.NoError(t, err)
+	_, err := caskin.CasbinModelNoSuperadmin()
+	assert.NoError(t, err)
 }

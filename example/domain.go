@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/awatercolorpen/caskin"
 	"gorm.io/gorm"
 )
 
@@ -32,15 +31,4 @@ func (d *Domain) Encode() string {
 func (d *Domain) Decode(code string) error {
 	_, err := fmt.Sscanf(code, "domain_%v", &d.ID)
 	return err
-}
-
-func (d *Domain) IsObject() bool {
-	return false
-}
-
-func (d *Domain) GetObject() caskin.Object {
-	return nil
-}
-
-func (d *Domain) SetObjectId(uint64) {
 }

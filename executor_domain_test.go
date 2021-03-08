@@ -1,9 +1,10 @@
 package caskin_test
 
 import (
+	"testing"
+
 	"github.com/awatercolorpen/caskin/example"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestExecutorDomain(t *testing.T) {
@@ -29,6 +30,6 @@ func TestExecutorDomain(t *testing.T) {
 	domain.Name = "domain_02_new_name"
 	assert.NoError(t, executor.UpdateDomain(domain))
 
-	domain0 := &example.Domain{ID:3, Name: "domain_03"}
+	domain0 := &example.Domain{ID: 3, Name: "domain_03"}
 	assert.Error(t, executor.UpdateDomain(domain0))
 }

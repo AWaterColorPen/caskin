@@ -9,7 +9,7 @@ import (
 func Filter(e ienforcer, u User, d Domain, action Action, source interface{}) []interface{} {
 	var result []interface{}
 	linq.From(source).Where(func(v interface{}) bool {
-		return Check(e, u, d, action, v.(entry))
+		return Check(e, u, d, action, v.(ObjectData))
 	}).ToSlice(&result)
 	return result
 }
@@ -17,17 +17,13 @@ func Filter(e ienforcer, u User, d Domain, action Action, source interface{}) []
 // Filter2 原来的写法
 func Filter2(e ienforcer, u User, d Domain, action Action, source interface{}) interface{} {
 	linq.From(source).Where(func(v interface{}) bool {
-		return Check(e, u, d, action, v.(entry))
+		return Check(e, u, d, action, v.(ObjectData))
 	}).ToSlice(&source)
 	return source
 }
 
 // Filter check entry permission by u, d, action
-func Check(e ienforcer, u User, d Domain, action Action, one entry) bool {
-	if !one.IsObject() {
-		return true
-	}
-
+func Check(e ienforcer, u User, d Domain, action Action, one ObjectData) bool {
 	o := one.GetObject()
 	ok, _ := e.Enforce(u, o, d, action)
 	return ok

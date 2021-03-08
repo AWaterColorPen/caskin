@@ -12,6 +12,8 @@ type ienforcer interface {
 	// get grouping entry in domain
 	GetRolesForUserInDomain(User, Domain) []Role
 	GetUsersForRoleInDomain(Role, Domain) []User
+	GetParentsForRoleInDomain(Role, Domain) []Role
+	GetChildrenForRoleInDomain(Role, Domain) []Role
 	GetParentsForObjectInDomain(Object, Domain) []Object
 	GetChildrenForObjectInDomain(Object, Domain) []Object
 	GetPoliciesForRoleInDomain(Role, Domain) []*Policy
@@ -82,12 +84,38 @@ func (e *enforcer) GetUsersForRoleInDomain(role Role, domain Domain) []User {
 	return users
 }
 
+func (e *enforcer) GetParentsForRoleInDomain(role Role, domain Domain) []Role {
+	var roles []Role
+	rs := e.e.GetRolesForUserInDomain(role.Encode(), domain.Encode())
+	for _, v := range rs {
+		r := e.factory.NewRole()
+		if err := r.Decode(v); err == nil {
+			roles = append(roles, role)
+		}
+	}
+
+	return roles
+}
+
+func (e *enforcer) GetChildrenForRoleInDomain(role Role, domain Domain) []Role {
+	var roles []Role
+	rs := e.e.GetUsersForRoleInDomain(role.Encode(), domain.Encode())
+	for _, v := range rs {
+		r := e.factory.NewRole()
+		if err := r.Decode(v); err == nil {
+			roles = append(roles, role)
+		}
+	}
+
+	return roles
+}
+
 func (e *enforcer) GetParentsForObjectInDomain(object Object, domain Domain) []Object {
 	var objects []Object
 	os, _ := e.e.GetModel()["g"][ObjectPType].RM.GetRoles(object.Encode(), domain.Encode())
-	for _, u := range os {
+	for _, v := range os {
 		o := e.factory.NewObject()
-		if err := o.Decode(u); err == nil {
+		if err := o.Decode(v); err == nil {
 			objects = append(objects, o)
 		}
 	}
@@ -98,9 +126,9 @@ func (e *enforcer) GetParentsForObjectInDomain(object Object, domain Domain) []O
 func (e *enforcer) GetChildrenForObjectInDomain(object Object, domain Domain) []Object {
 	var objects []Object
 	os, _ := e.e.GetModel()["g"][ObjectPType].RM.GetUsers(object.Encode(), domain.Encode())
-	for _, u := range os {
+	for _, v := range os {
 		o := e.factory.NewObject()
-		if err := o.Decode(u); err == nil {
+		if err := o.Decode(v); err == nil {
 			objects = append(objects, o)
 		}
 	}
@@ -153,8 +181,15 @@ func (e *enforcer) RemoveRoleInDomain(role Role, domain Domain) error {
 		}
 	}
 
-	rs := e.GetRolesForUserInDomain(role, domain)
-	for _, v := range rs {
+	ps := e.GetParentsForRoleInDomain(role, domain)
+	for _, v := range ps {
+		if err := e.RemoveRoleForUserInDomain(v, role, domain); err != nil {
+			return err
+		}
+	}
+
+	cs := e.GetChildrenForRoleInDomain(role, domain)
+	for _, v := range cs {
 		if err := e.RemoveRoleForUserInDomain(role, v, domain); err != nil {
 			return err
 		}

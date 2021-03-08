@@ -168,17 +168,34 @@ func (e *executor) DeleteRole(role Role) error {
 	return e.writeRole(role, fn)
 }
 
+// GetRoles
+// if current user has role's read permission
+// 1. get roles in the domain
 func (e *executor) GetRoles() (Roles, error) {
 	currentUser, currentDomain, err := e.provider.Get()
 	if err != nil {
 		return nil, err
 	}
 
-	if err := e.check(Read, currentUser); err != nil {
+	rs := e.e.GetRolesInDomain(currentDomain)
+	tree := getTree(rs)
+	roles, err := e.mdb.GetRoleInDomain(currentDomain)
+	if err != nil {
 		return nil, err
 	}
+	r := e.filterWithNoError(currentUser, currentDomain, Read, roles)
+	roles = []Role{}
+	for _, v := range r {
+		roles = append(roles, v.(Role))
+	}
 
-	return e.mdb.GetRoleInDomain(currentDomain)
+	for _, v := range roles {
+		if p, ok := tree[v.GetID()]; ok {
+			v.SetParentID(p)
+		}
+	}
+
+	return roles, nil
 }
 
 // UpdateRole

@@ -13,12 +13,6 @@ type entry interface {
 	Encode() string
 	// decode string to entry method
 	Decode(string) error
-	// is object method
-	IsObject() bool
-	// get object string method
-	GetObject() Object
-	// set object
-	SetObjectId(uint64)
 }
 
 type parent interface {
@@ -28,7 +22,11 @@ type parent interface {
 	SetParentID(uint64)
 }
 
-type entryInDomain interface {
+type ObjectData interface {
+	// get object interface method
+	GetObject() Object
+	// set object
+	SetObjectId(uint64)
 	// set domain id method
 	SetDomainID(uint64)
 }
@@ -36,6 +34,7 @@ type entryInDomain interface {
 type parentEntry interface {
 	entry
 	parent
+	ObjectData
 }
 
 type User interface {
@@ -44,12 +43,10 @@ type User interface {
 
 type Role interface {
 	parentEntry
-	entryInDomain
 }
 
 type Object interface {
 	parentEntry
-	entryInDomain
 	GetObjectType() ObjectType
 }
 

@@ -40,11 +40,11 @@ func (d *DomainCreator) SetRelation() {
 }
 
 func (d *DomainCreator) GetRoles() caskin.Roles {
-    return d.roles
+	return d.roles
 }
 
 func (d *DomainCreator) GetObjects() caskin.Objects {
-    return d.objects
+	return d.objects
 }
 
 func (d *DomainCreator) GetPolicy() []*caskin.Policy {

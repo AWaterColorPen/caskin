@@ -115,10 +115,11 @@ func (e *executor) writeObject(role Object, fn func(Object) error) error {
 	}
 
 	take := func(id uint64) (parentEntry, error) {
-		r := e.factory.NewObject()
-		r.SetDomainID(domain.GetID())
-		err := e.mdb.TakeObject(r)
-		return r, err
+		o := e.factory.NewObject()
+		o.SetID(id)
+		o.SetDomainID(domain.GetID())
+		err := e.mdb.TakeObject(o)
+		return o, err
 	}
 
 	if err := e.checkParentEntryWrite(role, take); err != nil {
