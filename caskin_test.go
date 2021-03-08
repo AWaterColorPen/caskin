@@ -21,7 +21,7 @@ func TestNewCaskin(t *testing.T) {
 func newCaskin(tb testing.TB) (*caskin.Caskin, error) {
 	options := &caskin.Options{
 		SuperadminOption: &caskin.SuperadminOption{
-			Enable:             true,
+			Enable: true,
 		},
 	}
 	db, err := getTestDB(tb)
@@ -82,12 +82,10 @@ func getCasbinModel(options *caskin.Options) (model.Model, error) {
 	return casbinModelMap[k], nil
 }
 
-
 func TestCaskin_GetExecutor(t *testing.T) {
 	_, err := getStage(t)
 	assert.NoError(t, err)
 }
-
 
 func getStage(t *testing.T) (*example.Stage, error) {
 	c, err := newCaskin(t)
@@ -130,8 +128,8 @@ func getStage(t *testing.T) (*example.Stage, error) {
 	roles, err := executor.GetRoles()
 
 	for _, v := range []*caskin.RolesForUser{
-		{User:  admin, Roles: []caskin.Role{roles[0]}},
-		{User:  member, Roles: []caskin.Role{roles[1]}},
+		{User: admin, Roles: []caskin.Role{roles[0]}},
+		{User: member, Roles: []caskin.Role{roles[1]}},
 	} {
 		if err := executor.ModifyRolesForUser(v); err != nil {
 			return nil, err
@@ -139,11 +137,11 @@ func getStage(t *testing.T) (*example.Stage, error) {
 	}
 
 	stage := &example.Stage{
-		Caskin: c,
-		Domain: domain,
+		Caskin:         c,
+		Domain:         domain,
 		SuperadminUser: superadmin,
-		AdminUser: admin,
-		MemberUser: member,
+		AdminUser:      admin,
+		MemberUser:     member,
 	}
 
 	return stage, nil
