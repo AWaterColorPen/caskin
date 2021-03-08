@@ -114,13 +114,13 @@ func (g *gormMDB) TakeObject(object caskin.Object) error {
 }
 
 func (g *gormMDB) GetObjectInDomain(domain caskin.Domain, objectType ...caskin.ObjectType) ([]caskin.Object, error) {
-	o := &Object{DomainID: domain.GetID()}
+	d := g.db.Where("object_id = ?", domain.GetID())
 	if len(objectType) > 0 {
-		o.Type = objectType[0]
+		d = d.Where("type IN ?", objectType)
 	}
 
 	var object []*Object
-	if err := g.db.Where(o).Find(&object).Error; err != nil {
+	if err := d.Find(&object).Error; err != nil {
 		return nil, err
 	}
 

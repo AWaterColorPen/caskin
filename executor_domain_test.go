@@ -9,7 +9,7 @@ import (
 
 func TestExecutorDomain(t *testing.T) {
 	stage, _ := getStage(t)
-	provider := example.Provider{
+	provider := &example.Provider{
 		User:   stage.SuperadminUser,
 		Domain: stage.Domain,
 	}

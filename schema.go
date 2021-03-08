@@ -94,6 +94,11 @@ type Policy struct {
 	Action Action `json:"action"`
 }
 
+type UserRolePair struct {
+	User User `json:"user"`
+	Role Role `json:"role"`
+}
+
 type RolesForUser struct {
 	User  User  `json:"user"`
 	Roles Roles `json:"roles"`
