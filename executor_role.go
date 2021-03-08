@@ -20,7 +20,11 @@ func (e *executor) GetAllUsersForRole() ([]*UsersForRole, error) {
 	if err != nil {
 		return nil, err
 	}
-	users = e.filterWithNoError(currentUser, currentDomain, Read, users).([]User)
+	u := e.filterWithNoError(currentUser, currentDomain, Read, users)
+	users = []User{}
+	for _, v := range u {
+		users = append(users, v.(User))
+	}
 	um := getIDMap(users)
 
 	rs := e.e.GetRolesInDomain(currentDomain)
@@ -29,7 +33,11 @@ func (e *executor) GetAllUsersForRole() ([]*UsersForRole, error) {
 	if err != nil {
 		return nil, err
 	}
-	roles = e.filterWithNoError(currentUser, currentDomain, Read, roles).([]Role)
+	r := e.filterWithNoError(currentUser, currentDomain, Read, roles)
+	roles = []Role{}
+	for _, v := range r {
+		roles = append(roles, v.(Role))
+	}
 
 	var urs []*UsersForRole
 	for _, v := range roles {
@@ -85,7 +93,12 @@ func (e *executor) ModifyUsersForRole(ur *UsersForRole) error {
 	if err != nil {
 		return err
 	}
-	users = e.filterWithNoError(currentUser, currentDomain, Write, users).([]User)
+	u := e.filterWithNoError(currentUser, currentDomain, Write, users)
+	users = []User{}
+	for _, v := range u {
+		users = append(users, v.(User))
+	}
+
 	um := getIDMap(users)
 
 	// make source and target role id list
@@ -153,6 +166,19 @@ func (e *executor) DeleteRole(role Role) error {
 	}
 
 	return e.writeRole(role, fn)
+}
+
+func (e *executor) GetRoles() (Roles, error) {
+	currentUser, currentDomain, err := e.provider.Get()
+	if err != nil {
+		return nil, err
+	}
+
+	if err := e.check(Read, currentUser); err != nil {
+		return nil, err
+	}
+
+	return e.mdb.GetRoleInDomain(currentDomain)
 }
 
 // UpdateRole

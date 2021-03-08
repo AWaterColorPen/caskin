@@ -58,7 +58,12 @@ func (e *executor) GetObject(ty ...ObjectType) ([]Object, error) {
 	if err != nil {
 		return nil, err
 	}
-	objects = e.filterWithNoError(currentUser, currentDomain, Read, objects).([]Object)
+
+	os := e.filterWithNoError(currentUser, currentDomain, Read, objects)
+	objects = []Object{}
+	for _, v := range os {
+		objects = append(objects, v.(Object))
+	}
 
 	for _, v := range objects {
 		if p, ok := tree[v.GetID()]; ok {

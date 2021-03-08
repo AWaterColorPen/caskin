@@ -14,9 +14,9 @@ type Object struct {
 	CreatedAt time.Time         `gorm:"column:created_at"                      json:"created_at,omitempty"`
 	UpdatedAt time.Time         `gorm:"column:updated_at"                      json:"updated_at,omitempty"`
 	DeletedAt gorm.DeletedAt    `gorm:"column:delete_at;index"                 json:"-"`
-	Name      string            `gorm:"column:name;index:idx_role,unique"      json:"name,omitempty"`
+	Name      string            `gorm:"column:name;index:idx_object,unique"      json:"name,omitempty"`
 	Type      caskin.ObjectType `gorm:"column:type"                            json:"type,omitempty"`
-	DomainID  uint64            `gorm:"column:domain_id;index:idx_role,unique" json:"domain_id,omitempty"`
+	DomainID  uint64            `gorm:"column:domain_id;index:idx_object,unique" json:"domain_id,omitempty"`
 	ObjectID  uint64            `gorm:"column:object_id"                       json:"object_id,omitempty"`
 	Object    *Object           `gorm:"column:foreignKey:ObjectID"             json:"object,omitempty"`
 	ParentID  uint64            `gorm:"-"                                      json:"parent_id"`
