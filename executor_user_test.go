@@ -85,6 +85,7 @@ func TestExecutorUser_GeneralDelete(t *testing.T) {
 
 	domain := &example.Domain{Name: "domain_02"}
 	assert.NoError(t, executor.CreateDomain(domain))
+	assert.NoError(t, executor.ReInitializeDomain(domain))
 
 	provider.Domain = domain
 	provider.User = stage.SuperadminUser

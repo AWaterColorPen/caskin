@@ -17,6 +17,7 @@
   - [ ] (p1) fix issue when remove `Role` or `Object`, it should remove all its son node
   - [x] (p1) fix issue when modify policies, it uses []byte as map's key
   - [x] (p1) fix issue when modify policies, it does not successfully update the policies
+  - [x] (p1) different API for `CreateDomain` and `ReInitializeDomain`
 - unit test
   - [x] unit test get `casbin.Model` with cache. it should not create new one per unit test
   - [x] create domain in unit test

@@ -100,6 +100,9 @@ func newStage(t *testing.T) (*example.Stage, error) {
 	if err := executor.CreateDomain(domain); err != nil {
 		return nil, err
 	}
+	if err := executor.ReInitializeDomain(domain); err != nil {
+		return nil, err
+	}
 
 	superadmin := &example.User{
 		PhoneNumber: "12345678901",

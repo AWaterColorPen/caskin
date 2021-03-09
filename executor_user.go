@@ -59,7 +59,10 @@ func (e *executor) writeUser(user User, fn func(interface{}) error) error {
 		return err
 	}
 
-	if err := e.mdb.Take(user); err != nil {
+	tmp := e.factory.NewUser()
+	tmp.SetID(user.GetID())
+
+	if err := e.mdb.Take(tmp); err != nil {
 		return ErrNotExists
 	}
 

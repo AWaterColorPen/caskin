@@ -4,7 +4,6 @@ package caskin
 // if there does not exist the domain
 // then create a new one without permission checking
 // 1. create a new domain into metadata database
-// 2. initialize the new domain
 func (e *executor) CreateDomain(domain Domain) error {
 	return e.createOrRecoverDomain(domain, e.mdb.Create)
 }
@@ -13,7 +12,6 @@ func (e *executor) CreateDomain(domain Domain) error {
 // if there exist the domain but soft deleted
 // then recover it without permission checking
 // 1. recover the soft delete one domain at metadata database
-// 2. re initialize the recovering domain
 func (e *executor) RecoverDomain(domain Domain) error {
 	return e.createOrRecoverDomain(domain, e.mdb.Recover)
 }
@@ -48,10 +46,11 @@ func (e *executor) UpdateDomain(domain Domain) error {
 // re initialize the domain without permission checking
 // 1. just re initialize the domain
 func (e *executor) ReInitializeDomain(domain Domain) error {
-	// TODO
-	return e.writeDomain(domain, func(interface{}) error {
+	fn := func(interface{}) error {
 		return e.initializeDomain(domain)
-	})
+	}
+
+	return e.writeDomain(domain, fn)
 }
 
 // GetAllDomain
@@ -65,11 +64,7 @@ func (e *executor) createOrRecoverDomain(domain Domain, fn func(interface{}) err
 		return ErrAlreadyExists
 	}
 
-	if err := fn(domain); err != nil {
-		return err
-	}
-
-	return e.initializeDomain(domain)
+	return fn(domain)
 }
 
 func (e *executor) writeDomain(domain Domain, fn func(interface{}) error) error {
@@ -77,17 +72,15 @@ func (e *executor) writeDomain(domain Domain, fn func(interface{}) error) error 
 		return err
 	}
 
-	tmpDomain := e.factory.NewDomain()
-	tmpDomain.SetID(domain.GetID())
+	tmp := e.factory.NewDomain()
+	tmp.SetID(domain.GetID())
 
-	if err := e.mdb.Take(tmpDomain); err != nil {
+	if err := e.mdb.Take(tmp); err != nil {
 		return ErrNotExists
 	}
 
 	return fn(domain)
 }
-
-
 
 // initializeDomain
 // it is reentrant to initialize a new domain
