@@ -17,7 +17,7 @@ func (g *gormMDB) Create(item interface{}) error {
 }
 
 func (g *gormMDB) Recover(item interface{}) error {
-	if err := g.db.Unscoped().Where(item).Take(item).Error; err != nil {
+	if err := g.TakeUnscoped(item); err != nil {
 		return err
 	}
 	return g.db.Model(item).Update("delete_at", nil).Error
@@ -29,6 +29,10 @@ func (g *gormMDB) Update(item interface{}) error {
 
 func (g *gormMDB) Take(item interface{}) error {
 	return g.db.Where(item).Take(item).Error
+}
+
+func (g *gormMDB) TakeUnscoped(item interface{}) error {
+	return g.db.Unscoped().Where(item).Take(item).Error
 }
 
 func (g *gormMDB) GetUserInDomain(domain caskin.Domain) ([]caskin.User, error) {
@@ -85,7 +89,7 @@ func (g *gormMDB) DeleteRoleByID(id uint64) error {
 }
 
 func (g *gormMDB) GetObjectInDomain(domain caskin.Domain, objectType ...caskin.ObjectType) ([]caskin.Object, error) {
-	d := g.db.Where("object_id = ?", domain.GetID())
+	d := g.db.Where("domain_id = ?", domain.GetID())
 	if len(objectType) > 0 {
 		d = d.Where("type IN ?", objectType)
 	}

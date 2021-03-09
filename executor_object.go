@@ -5,7 +5,7 @@ package caskin
 // then create a new one
 // 1. create a new object into metadata database
 func (e *executor) CreateObject(object Object) error {
-	return e.createOrRecoverObject(object, e.mdb.CreateObject)
+	return e.createOrRecoverObject(object, e.mdb.CreateObject, e.mdb.TakeObject)
 }
 
 // RecoverObject
@@ -13,7 +13,7 @@ func (e *executor) CreateObject(object Object) error {
 // then recover it
 // 1. recover the soft delete one object at metadata database
 func (e *executor) RecoverObject(object Object) error {
-	return e.createOrRecoverObject(object, e.mdb.RecoverObject)
+	return e.createOrRecoverObject(object, e.mdb.RecoverObject, e.mdb.TakeDeletedObject)
 }
 
 // DeleteObject
@@ -74,7 +74,7 @@ func (e *executor) GetObjects(ty ...ObjectType) ([]Object, error) {
 	return objects, nil
 }
 
-func (e *executor) createOrRecoverObject(object Object, fn func(Object) error) error {
+func (e *executor) createOrRecoverObject(object Object, fn func(Object) error, takeObject func(Object) error) error {
 	if err := e.mdb.TakeObject(object); err == nil {
 		return ErrAlreadyExists
 	}
@@ -89,10 +89,13 @@ func (e *executor) createOrRecoverObject(object Object, fn func(Object) error) e
 		o := e.factory.NewObject()
 		o.SetID(id)
 		o.SetDomainID(domain.GetID())
-		err := e.mdb.TakeObject(o)
+		err := takeObject(o)
 		return o, err
 	}
 
+	// TODO 这里要将create和recover 分开，关键在于unscoped
+	// 这里的object和parent的关系有 种情况
+	// 1. object需要被创建，那么其父节点必须存在，如果父节点查不到，直接报错
 	if err := e.checkParentEntryWrite(object, take); err != nil {
 		return err
 	}
@@ -115,6 +118,7 @@ func (e *executor) writeObject(role Object, fn func(Object) error) error {
 		return err
 	}
 
+	// TODO 这里没有对old的object进行权限控制
 	take := func(id uint64) (parentEntry, error) {
 		o := e.factory.NewObject()
 		o.SetID(id)
