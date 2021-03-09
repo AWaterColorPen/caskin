@@ -4,18 +4,16 @@ package caskin
 // if there does not exist the domain
 // then create a new one without permission checking
 // 1. create a new domain into metadata database
-// 2. initialize the new domain
 func (e *executor) CreateDomain(domain Domain) error {
-	return e.createOrRecoverDomain(domain, e.mdb.CreateDomain)
+	return e.createOrRecoverDomain(domain, e.mdb.Create)
 }
 
 // RecoverDomain
 // if there exist the domain but soft deleted
 // then recover it without permission checking
 // 1. recover the soft delete one domain at metadata database
-// 2. re initialize the recovering domain
 func (e *executor) RecoverDomain(domain Domain) error {
-	return e.createOrRecoverDomain(domain, e.mdb.RecoverDomain)
+	return e.createOrRecoverDomain(domain, e.mdb.Recover)
 }
 
 // DeleteDomain
@@ -25,11 +23,11 @@ func (e *executor) RecoverDomain(domain Domain) error {
 // 2. don't delete any role's g or object's g2 in the domain
 // 3. soft delete one domain in metadata database
 func (e *executor) DeleteDomain(domain Domain) error {
-	fn := func(d Domain) error {
-		if err := e.e.RemoveUsersInDomain(d); err != nil {
+	fn := func(interface{}) error {
+		if err := e.e.RemoveUsersInDomain(domain); err != nil {
 			return err
 		}
-		return e.mdb.DeleteDomainByID(d.GetID())
+		return e.mdb.DeleteDomainByID(domain.GetID())
 	}
 
 	return e.writeDomain(domain, fn)
@@ -40,7 +38,7 @@ func (e *executor) DeleteDomain(domain Domain) error {
 // update domain without permission checking
 // 1. just update domain's properties
 func (e *executor) UpdateDomain(domain Domain) error {
-	return e.writeDomain(domain, e.mdb.UpdateDomain)
+	return e.writeDomain(domain, e.mdb.Update)
 }
 
 // ReInitializeDomain
@@ -48,7 +46,11 @@ func (e *executor) UpdateDomain(domain Domain) error {
 // re initialize the domain without permission checking
 // 1. just re initialize the domain
 func (e *executor) ReInitializeDomain(domain Domain) error {
-	return e.writeDomain(domain, e.initializeDomain)
+	fn := func(interface{}) error {
+		return e.initializeDomain(domain)
+	}
+
+	return e.writeDomain(domain, fn)
 }
 
 // GetAllDomain
@@ -57,34 +59,28 @@ func (e *executor) GetAllDomain() ([]Domain, error) {
 	return e.mdb.GetAllDomain()
 }
 
-func (e *executor) createOrRecoverDomain(domain Domain, fn func(Domain) error) error {
-	if err := e.mdb.TakeDomain(domain); err == nil {
+func (e *executor) createOrRecoverDomain(domain Domain, fn func(interface{}) error) error {
+	if err := e.mdb.Take(domain); err == nil {
 		return ErrAlreadyExists
-	}
-
-	if err := fn(domain); err != nil {
-		return err
-	}
-
-	return e.initializeDomain(domain)
-}
-
-func (e *executor) writeDomain(domain Domain, fn func(Domain) error) error {
-	if err := isValid(domain); err != nil {
-		return err
-	}
-
-	tmpDomain := e.factory.NewDomain()
-	tmpDomain.SetID(domain.GetID())
-
-	if err := e.mdb.TakeDomain(tmpDomain); err != nil {
-		return ErrNotExists
 	}
 
 	return fn(domain)
 }
 
+func (e *executor) writeDomain(domain Domain, fn func(interface{}) error) error {
+	if err := isValid(domain); err != nil {
+		return err
+	}
 
+	tmp := e.factory.NewDomain()
+	tmp.SetID(domain.GetID())
+
+	if err := e.mdb.Take(tmp); err != nil {
+		return ErrNotExists
+	}
+
+	return fn(domain)
+}
 
 // initializeDomain
 // it is reentrant to initialize a new domain

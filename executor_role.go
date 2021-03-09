@@ -61,11 +61,10 @@ func (e *executor) ModifyUsersForRole(ur *UsersForRole) error {
 		return err
 	}
 
-	if err := e.mdb.TakeRole(ur.Role); err != nil {
+	if err := e.mdb.Take(ur.Role); err != nil {
 		return ErrNotExists
 	}
 
-	// check the write permission for role
 	if err := e.check(Write, ur.Role); err != nil {
 		return err
 	}
@@ -89,7 +88,6 @@ func (e *executor) ModifyUsersForRole(ur *UsersForRole) error {
 	if err != nil {
 		return err
 	}
-
 	um := getIDMap(users)
 
 	// make source and target role id list
@@ -128,7 +126,7 @@ func (e *executor) ModifyUsersForRole(ur *UsersForRole) error {
 // then create a new one
 // 1. create a new role into metadata database
 func (e *executor) CreateRole(role Role) error {
-	return e.createOrRecoverRole(role, e.mdb.CreateRole)
+	return e.createOrRecoverRole(role, e.mdb.Create)
 }
 
 // RecoverRole
@@ -136,7 +134,7 @@ func (e *executor) CreateRole(role Role) error {
 // then recover it
 // 1. recover the soft delete one role at metadata database
 func (e *executor) RecoverRole(role Role) error {
-	return e.createOrRecoverRole(role, e.mdb.RecoverRole)
+	return e.createOrRecoverRole(role, e.mdb.Recover)
 }
 
 // DeleteRole
@@ -145,15 +143,15 @@ func (e *executor) RecoverRole(role Role) error {
 // 2. delete role's p in the domain
 // 3. soft delete one role in metadata database
 func (e *executor) DeleteRole(role Role) error {
-	fn := func(r Role) error {
+	fn := func(interface{}) error {
 		_, domain, err := e.provider.Get()
 		if err != nil {
 			return err
 		}
-		if err := e.e.RemoveRoleInDomain(r, domain); err != nil {
+		if err := e.e.RemoveRoleInDomain(role, domain); err != nil {
 			return err
 		}
-		return e.mdb.DeleteRoleByID(r.GetID())
+		return e.mdb.DeleteRoleByID(role.GetID())
 	}
 
 	return e.writeRole(role, fn)
@@ -193,11 +191,11 @@ func (e *executor) GetRoles() (Roles, error) {
 // if current user has role's write permission and there exist the role
 // 1. update role's properties
 func (e *executor) UpdateRole(role Role) error {
-	return e.writeRole(role, e.mdb.UpdateRole)
+	return e.writeRole(role, e.mdb.Update)
 }
 
-func (e *executor) createOrRecoverRole(role Role, fn func(Role) error) error {
-	if err := e.mdb.TakeRole(role); err == nil {
+func (e *executor) createOrRecoverRole(role Role, fn func(interface{}) error) error {
+	if err := e.mdb.Take(role); err == nil {
 		return ErrAlreadyExists
 	}
 
@@ -210,7 +208,7 @@ func (e *executor) createOrRecoverRole(role Role, fn func(Role) error) error {
 		r := e.factory.NewRole()
 		r.SetID(id)
 		r.SetDomainID(domain.GetID())
-		err := e.mdb.TakeRole(r)
+		err := e.mdb.Take(r)
 		return r, err
 	}
 
@@ -222,12 +220,12 @@ func (e *executor) createOrRecoverRole(role Role, fn func(Role) error) error {
 	return fn(role)
 }
 
-func (e *executor) writeRole(role Role, fn func(Role) error) error {
+func (e *executor) writeRole(role Role, fn func(interface{}) error) error {
 	if err := isValid(role); err != nil {
 		return err
 	}
 
-	if err := e.mdb.TakeRole(role); err != nil {
+	if err := e.mdb.Take(role); err != nil {
 		return ErrNotExists
 	}
 
@@ -240,7 +238,7 @@ func (e *executor) writeRole(role Role, fn func(Role) error) error {
 	take := func(id uint64) (parentEntry, error) {
 		r := e.factory.NewRole()
 		r.SetDomainID(domain.GetID())
-		err := e.mdb.TakeRole(r)
+		err := e.mdb.Take(r)
 		return r, err
 	}
 

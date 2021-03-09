@@ -107,6 +107,46 @@ type UserRolePair struct {
 	Role Role `json:"role"`
 }
 
+type UserRolePairs []*UserRolePair
+
+func (u UserRolePairs) IsValidWithRole(role Role) error {
+	encode := role.Encode()
+	for _, v := range u {
+		if v.Role.Encode() != encode {
+			return ErrInputArrayNotBelongOneRole
+		}
+	}
+
+	return nil
+}
+
+func (u UserRolePairs) IsValidWithUser(user User) error {
+	encode := user.Encode()
+	for _, v := range u {
+		if v.User.Encode() != encode {
+			return ErrInputArrayNotBelongOneUser
+		}
+	}
+
+	return nil
+}
+
+func (u UserRolePairs) RoleID() []uint64 {
+	var id []uint64
+	for _, v := range u {
+		id = append(id, v.Role.GetID())
+	}
+	return id
+}
+
+func (u UserRolePairs) UserID() []uint64 {
+	var id []uint64
+	for _, v := range u {
+		id = append(id, v.User.GetID())
+	}
+	return id
+}
+
 type RolesForUser struct {
 	User  User  `json:"user"`
 	Roles Roles `json:"roles"`

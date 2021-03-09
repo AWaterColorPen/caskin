@@ -35,7 +35,7 @@ func (e *executor) writeSuperadminUser(user User, fn func(User, Role, Domain) er
 		return err
 	}
 
-	if err := e.mdb.TakeUser(user); err != nil {
+	if err := e.mdb.Take(user); err != nil {
 		return err
 	}
 
