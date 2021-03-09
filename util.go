@@ -13,7 +13,7 @@ func Filter(e ienforcer, u User, d Domain, action Action, source interface{}) []
 	return result
 }
 
-// Filter2 原来的写法
+// Filter2 original code
 func Filter2(e ienforcer, u User, d Domain, action Action, source interface{}) interface{} {
 	linq.From(source).Where(func(v interface{}) bool {
 		return Check(e, u, d, action, v.(ObjectData))
