@@ -225,7 +225,9 @@ func (e *executor) writeRole(role Role, fn func(interface{}) error) error {
 		return err
 	}
 
-	if err := e.mdb.Take(role); err != nil {
+	tmpRole := e.factory.NewRole()
+	tmpRole.SetID(role.GetID())
+	if err := e.mdb.Take(tmpRole); err != nil {
 		return ErrNotExists
 	}
 
@@ -235,6 +237,7 @@ func (e *executor) writeRole(role Role, fn func(interface{}) error) error {
 	}
 
 	// TODO 这里没有对old的role进行权限控制
+
 	take := func(id uint64) (parentEntry, error) {
 		r := e.factory.NewRole()
 		r.SetDomainID(domain.GetID())

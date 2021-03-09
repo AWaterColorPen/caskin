@@ -26,7 +26,12 @@ func TestCaskin_GetExecutor(t *testing.T) {
 func getTestDB(tb testing.TB) (*gorm.DB, error) {
 	dsn := filepath.Join(tb.TempDir(), "sqlite")
 	//dsn := filepath.Join("./", "sqlite")
-	return gorm.Open(sqlite.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open(dsn), &gorm.Config{})
+	if err != nil {
+		return nil ,err
+	}
+	return db, nil
+	//return db.Debug(), nil
 }
 
 var casbinModelMap = map[bool]model.Model{}

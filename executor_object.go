@@ -104,12 +104,14 @@ func (e *executor) createOrRecoverObject(object Object, fn func(interface{}) err
 	return fn(object)
 }
 
-func (e *executor) writeObject(role Object, fn func(interface{}) error) error {
-	if err := isValid(role); err != nil {
+func (e *executor) writeObject(object Object, fn func(interface{}) error) error {
+	if err := isValid(object); err != nil {
 		return err
 	}
 
-	if err := e.mdb.Take(role); err != nil {
+	tmpObject := e.factory.NewObject()
+	tmpObject.SetID(object.GetID())
+	if err := e.mdb.Take(tmpObject); err != nil {
 		return ErrNotExists
 	}
 
@@ -119,6 +121,7 @@ func (e *executor) writeObject(role Object, fn func(interface{}) error) error {
 	}
 
 	// TODO 这里没有对old的object进行权限控制
+
 	take := func(id uint64) (parentEntry, error) {
 		o := e.factory.NewObject()
 		o.SetID(id)
@@ -127,10 +130,10 @@ func (e *executor) writeObject(role Object, fn func(interface{}) error) error {
 		return o, err
 	}
 
-	if err := e.checkParentEntryWrite(role, take); err != nil {
+	if err := e.checkParentEntryWrite(object, take); err != nil {
 		return err
 	}
 
-	role.SetDomainID(domain.GetID())
-	return fn(role)
+	object.SetDomainID(domain.GetID())
+	return fn(object)
 }
