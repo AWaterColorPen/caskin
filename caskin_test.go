@@ -14,16 +14,37 @@ import (
 )
 
 func TestNewCaskin(t *testing.T) {
-	_, err := newCaskin(t)
+	_, err := newCaskin(t, &caskin.Options{})
 	assert.NoError(t, err)
 }
 
-func newCaskin(tb testing.TB) (*caskin.Caskin, error) {
-	options := &caskin.Options{
-		SuperadminOption: &caskin.SuperadminOption{
-			Enable: true,
-		},
+func TestCaskin_GetExecutor(t *testing.T) {
+	_, err := newStage(t)
+	assert.NoError(t, err)
+}
+
+func getTestDB(tb testing.TB) (*gorm.DB, error) {
+	dsn := filepath.Join(tb.TempDir(), "sqlite")
+	// dsn := filepath.Join("./", "sqlite")
+	return gorm.Open(sqlite.Open(dsn), &gorm.Config{})
+}
+
+var casbinModelMap = map[bool]model.Model{}
+
+func getCasbinModel(options *caskin.Options) (model.Model, error) {
+	k := options.IsEnableSuperAdmin()
+	if _, ok := casbinModelMap[k]; !ok {
+		m, err := caskin.CasbinModel(options)
+		if err != nil {
+			return nil, err
+		}
+		casbinModelMap[k] = m
 	}
+
+	return casbinModelMap[k], nil
+}
+
+func newCaskin(tb testing.TB, options *caskin.Options) (*caskin.Caskin, error) {
 	db, err := getTestDB(tb)
 	if err != nil {
 		return nil, err
@@ -61,34 +82,13 @@ func newCaskin(tb testing.TB) (*caskin.Caskin, error) {
 	)
 }
 
-func getTestDB(tb testing.TB) (*gorm.DB, error) {
-	dsn := filepath.Join(tb.TempDir(), "sqlite")
-	// dsn := filepath.Join("./", "sqlite")
-	return gorm.Open(sqlite.Open(dsn), &gorm.Config{})
-}
-
-var casbinModelMap = map[bool]model.Model{}
-
-func getCasbinModel(options *caskin.Options) (model.Model, error) {
-	k := options.IsEnableSuperAdmin()
-	if _, ok := casbinModelMap[k]; !ok {
-		m, err := caskin.CasbinModel(options)
-		if err != nil {
-			return nil, err
-		}
-		casbinModelMap[k] = m
+func newStage(t *testing.T) (*example.Stage, error) {
+	options := &caskin.Options{
+		SuperadminOption: &caskin.SuperadminOption{
+			Enable: true,
+		},
 	}
-
-	return casbinModelMap[k], nil
-}
-
-func TestCaskin_GetExecutor(t *testing.T) {
-	_, err := getStage(t)
-	assert.NoError(t, err)
-}
-
-func getStage(t *testing.T) (*example.Stage, error) {
-	c, err := newCaskin(t)
+	c, err := newCaskin(t, options)
 	if err != nil {
 		return nil, err
 	}
@@ -138,6 +138,7 @@ func getStage(t *testing.T) (*example.Stage, error) {
 
 	stage := &example.Stage{
 		Caskin:         c,
+		Options:        options,
 		Domain:         domain,
 		SuperadminUser: superadmin,
 		AdminUser:      admin,

@@ -19,16 +19,18 @@ func (e *executor) RecoverUser(user User) error {
 // DeleteUser
 // if there exist the user
 // delete user without permission checking
-// 1. delete all user's g in the domain
+// 1. delete all user's g in all domain
 // 2. soft delete one user in metadata database
 func (e *executor) DeleteUser(user User) error {
 	fn := func(u User) error {
-		_, domain, err := e.provider.Get()
+		domains, err := e.mdb.GetAllDomain()
 		if err != nil {
 			return err
 		}
-		if err := e.e.RemoveUserInDomain(u, domain); err != nil {
-			return err
+		for _, v := range domains {
+			if err := e.e.RemoveUserInDomain(u, v); err != nil {
+				return err
+			}
 		}
 		return e.mdb.DeleteUserByID(u.GetID())
 	}
