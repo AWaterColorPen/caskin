@@ -65,11 +65,12 @@ func (e *executor) ModifyUsersForRole(ur *UsersForRole) error {
 		return ErrNotExists
 	}
 
+	// check the write permission for role
 	if err := e.check(Write, ur.Role); err != nil {
 		return err
 	}
 
-	currentUser, currentDomain, err := e.provider.Get()
+	_, currentDomain, err := e.provider.Get()
 	if err != nil {
 		return err
 	}
@@ -87,11 +88,6 @@ func (e *executor) ModifyUsersForRole(ur *UsersForRole) error {
 	users, err := e.mdb.GetUserByID(uid)
 	if err != nil {
 		return err
-	}
-	u := e.filterWithNoError(currentUser, currentDomain, Write, users)
-	users = []User{}
-	for _, v := range u {
-		users = append(users, v.(User))
 	}
 
 	um := getIDMap(users)
