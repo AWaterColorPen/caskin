@@ -12,20 +12,23 @@ type gormMDB struct {
 	db *gorm.DB
 }
 
-func (g *gormMDB) CreateUser(user caskin.User) error {
-	return g.db.Create(user).Error
+func (g *gormMDB) Create(item interface{}) error {
+	return g.db.Create(item).Error
 }
 
-func (g *gormMDB) RecoverUser(user caskin.User) error {
-	return g.recover(user)
+func (g *gormMDB) Recover(item interface{}) error {
+	if err := g.db.Unscoped().Where(item).Take(item).Error; err != nil {
+		return err
+	}
+	return g.db.Model(item).Update("delete_at", nil).Error
 }
 
-func (g *gormMDB) UpdateUser(user caskin.User) error {
-	return g.db.Updates(user).Error
+func (g *gormMDB) Update(item interface{}) error {
+	return g.db.Updates(item).Error
 }
 
-func (g *gormMDB) TakeUser(user caskin.User) error {
-	return g.db.Where(user).Take(user).Error
+func (g *gormMDB) Take(item interface{}) error {
+	return g.db.Where(item).Take(item).Error
 }
 
 func (g *gormMDB) GetUserInDomain(domain caskin.Domain) ([]caskin.User, error) {
@@ -49,22 +52,6 @@ func (g *gormMDB) UpsertUser(user caskin.User) error {
 
 func (g *gormMDB) DeleteUserByID(id uint64) error {
 	return g.db.Delete(&User{ID: id}).Error
-}
-
-func (g *gormMDB) CreateRole(role caskin.Role) error {
-	return g.db.Create(role).Error
-}
-
-func (g *gormMDB) RecoverRole(role caskin.Role) error {
-	return g.recover(role)
-}
-
-func (g *gormMDB) UpdateRole(role caskin.Role) error {
-	return g.db.Updates(role).Error
-}
-
-func (g *gormMDB) TakeRole(role caskin.Role) error {
-	return g.db.Where(role).Take(role).Error
 }
 
 func (g *gormMDB) GetRoleInDomain(domain caskin.Domain) ([]caskin.Role, error) {
@@ -95,22 +82,6 @@ func (g *gormMDB) UpsertRole(role caskin.Role) error {
 
 func (g *gormMDB) DeleteRoleByID(id uint64) error {
 	return g.db.Delete(&Role{}, id).Error
-}
-
-func (g *gormMDB) CreateObject(object caskin.Object) error {
-	return g.db.Create(object).Error
-}
-
-func (g *gormMDB) RecoverObject(object caskin.Object) error {
-	return g.recover(object)
-}
-
-func (g *gormMDB) UpdateObject(object caskin.Object) error {
-	return g.db.Updates(object).Error
-}
-
-func (g *gormMDB) TakeObject(object caskin.Object) error {
-	return g.db.Where(object).Take(object).Error
 }
 
 func (g *gormMDB) GetObjectInDomain(domain caskin.Domain, objectType ...caskin.ObjectType) ([]caskin.Object, error) {
@@ -146,22 +117,6 @@ func (g *gormMDB) UpsertObject(object caskin.Object) error {
 
 func (g *gormMDB) DeleteObjectByID(id uint64) error {
 	return g.db.Delete(&Object{}, id).Error
-}
-
-func (g *gormMDB) CreateDomain(domain caskin.Domain) error {
-	return g.db.Create(domain).Error
-}
-
-func (g *gormMDB) RecoverDomain(domain caskin.Domain) error {
-	return g.recover(domain)
-}
-
-func (g *gormMDB) UpdateDomain(domain caskin.Domain) error {
-	return g.db.Updates(domain).Error
-}
-
-func (g *gormMDB) TakeDomain(domain caskin.Domain) error {
-	return g.db.Where(domain).Take(domain).Error
 }
 
 func (g *gormMDB) GetAllDomain() ([]caskin.Domain, error) {

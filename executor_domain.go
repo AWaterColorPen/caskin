@@ -6,7 +6,7 @@ package caskin
 // 1. create a new domain into metadata database
 // 2. initialize the new domain
 func (e *executor) CreateDomain(domain Domain) error {
-	return e.createOrRecoverDomain(domain, e.mdb.CreateDomain)
+	return e.createOrRecoverDomain(domain, e.mdb.Create)
 }
 
 // RecoverDomain
@@ -15,7 +15,7 @@ func (e *executor) CreateDomain(domain Domain) error {
 // 1. recover the soft delete one domain at metadata database
 // 2. re initialize the recovering domain
 func (e *executor) RecoverDomain(domain Domain) error {
-	return e.createOrRecoverDomain(domain, e.mdb.RecoverDomain)
+	return e.createOrRecoverDomain(domain, e.mdb.Recover)
 }
 
 // DeleteDomain
@@ -40,7 +40,7 @@ func (e *executor) DeleteDomain(domain Domain) error {
 // update domain without permission checking
 // 1. just update domain's properties
 func (e *executor) UpdateDomain(domain Domain) error {
-	return e.writeDomain(domain, e.mdb.UpdateDomain)
+	return e.writeDomain(domain, e.mdb.Update)
 }
 
 // ReInitializeDomain
@@ -57,8 +57,8 @@ func (e *executor) GetAllDomain() ([]Domain, error) {
 	return e.mdb.GetAllDomain()
 }
 
-func (e *executor) createOrRecoverDomain(domain Domain, fn func(Domain) error) error {
-	if err := e.mdb.TakeDomain(domain); err == nil {
+func (e *executor) createOrRecoverDomain(domain Domain, fn func(interface{}) error) error {
+	if err := e.mdb.Take(domain); err == nil {
 		return ErrAlreadyExists
 	}
 
@@ -69,7 +69,7 @@ func (e *executor) createOrRecoverDomain(domain Domain, fn func(Domain) error) e
 	return e.initializeDomain(domain)
 }
 
-func (e *executor) writeDomain(domain Domain, fn func(Domain) error) error {
+func (e *executor) writeDomain(domain Domain, fn func(interface{}) error) error {
 	if err := isValid(domain); err != nil {
 		return err
 	}
@@ -77,7 +77,7 @@ func (e *executor) writeDomain(domain Domain, fn func(Domain) error) error {
 	tmpDomain := e.factory.NewDomain()
 	tmpDomain.SetID(domain.GetID())
 
-	if err := e.mdb.TakeDomain(tmpDomain); err != nil {
+	if err := e.mdb.Take(tmpDomain); err != nil {
 		return ErrNotExists
 	}
 

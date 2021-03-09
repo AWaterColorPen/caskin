@@ -1,5 +1,7 @@
 package caskin
 
+import "strings"
+
 type ObjectType string
 
 type Action string
@@ -94,9 +96,54 @@ type Policy struct {
 	Action Action `json:"action"`
 }
 
+func (p *Policy) Key() string {
+	s := []string{p.Role.Encode(), p.Object.Encode(), p.Domain.Encode(), string(p.Action)}
+	return strings.Join(s, DefaultSeparator)
+}
+
 type UserRolePair struct {
 	User User `json:"user"`
 	Role Role `json:"role"`
+}
+
+type UserRolePairs []*UserRolePair
+
+func (u UserRolePairs) IsValidWithRole(role Role) error {
+	encode := role.Encode()
+	for _, v := range u {
+		if v.Role.Encode() != encode {
+			return ErrInputArrayNotBelongOneRole
+		}
+	}
+
+	return nil
+}
+
+func (u UserRolePairs) IsValidWithUser(user User) error {
+	encode := user.Encode()
+	for _, v := range u {
+		if v.User.Encode() != encode {
+			return ErrInputArrayNotBelongOneUser
+		}
+	}
+
+	return nil
+}
+
+func (u UserRolePairs) RoleID() []uint64 {
+	var id []uint64
+	for _, v := range u {
+		id = append(id, v.Role.GetID())
+	}
+	return id
+}
+
+func (u UserRolePairs) UserID() []uint64 {
+	var id []uint64
+	for _, v := range u {
+		id = append(id, v.User.GetID())
+	}
+	return id
 }
 
 type RolesForUser struct {

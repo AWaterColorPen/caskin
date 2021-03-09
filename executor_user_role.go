@@ -232,3 +232,77 @@ func (e *executor) GetUserRolePairByRole(role Role) ([]*UserRolePair, error) {
 
 	return list, nil
 }
+
+// ModifyUserRolePairPerUser
+// if current user has role's write permission
+// 1. modify user to roles 's g in current domain
+func (e *executor) ModifyUserRolePairPerUser(user User, input []*UserRolePair) error {
+	if err := isValid(user); err != nil {
+		return err
+	}
+
+	pairs := UserRolePairs(input)
+	if err := pairs.IsValidWithUser(user); err != nil {
+		return err
+	}
+
+	if err := e.mdb.TakeUser(user); err != nil {
+		return ErrNotExists
+	}
+
+	currentUser, currentDomain, err := e.provider.Get()
+	if err != nil {
+		return err
+	}
+
+	rs := e.e.GetRolesForUserInDomain(user, currentDomain)
+	rid1 := getIDList(rs)
+	rid2 := pairs.RoleID()
+
+	// get all role data
+	var rid []uint64
+	rid = append(rid, rid1...)
+	rid = append(rid, rid2...)
+	linq.From(rid).Distinct().ToSlice(&rid)
+	roles, err := e.mdb.GetRoleByID(rid)
+	if err != nil {
+		return err
+	}
+	r := e.filterWithNoError(currentUser, currentDomain, Write, roles)
+	roles = []Role{}
+	for _, v := range r {
+		roles = append(roles, v.(Role))
+
+	}
+	rm := getIDMap(roles)
+
+	// make source and target role id list
+	var source, target []interface{}
+	for _, v := range rid1 {
+		if _, ok := rm[v]; ok {
+			source = append(source, v)
+		}
+	}
+	for _, v := range rid2 {
+		if _, ok := rm[v]; ok {
+			target = append(target, v)
+		}
+	}
+
+	// get diff to add and remove
+	add, remove := Diff(source, target)
+	for _, v := range add {
+		r := rm[v.(uint64)]
+		if err := e.e.AddRoleForUserInDomain(user, r.(Role), currentDomain); err != nil {
+			return err
+		}
+	}
+	for _, v := range remove {
+		r := rm[v.(uint64)]
+		if err := e.e.RemoveRoleForUserInDomain(user, r.(Role), currentDomain); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}

@@ -21,4 +21,7 @@ var (
 	ErrInitializationNilMetaDB        = fmt.Errorf("metadata database is nil")
 	// errors about current provider
 	ErrProviderGet = fmt.Errorf("provider can't get current status")
+	// errors about user role pair
+	ErrInputArrayNotBelongOneUser = fmt.Errorf("input user role pair array are not belong to one user")
+	ErrInputArrayNotBelongOneRole = fmt.Errorf("input user role pair array are not belong to one role")
 )
