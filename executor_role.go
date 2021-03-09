@@ -17,6 +17,9 @@ func (e *executor) GetAllUsersForRole() ([]*UsersForRole, error) {
 	uid := getIDList(us)
 	linq.From(uid).Distinct().ToSlice(&uid)
 	users, err := e.mdb.GetUserByID(uid)
+	if err != nil {
+		return nil, err
+	}
 	um := getIDMap(users)
 
 	rs := e.e.GetRolesInDomain(currentDomain)
