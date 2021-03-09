@@ -1,8 +1,6 @@
 package caskin_test
 
 import (
-	"encoding/json"
-	"fmt"
 	"github.com/awatercolorpen/caskin"
 	"github.com/awatercolorpen/caskin/example"
 	"github.com/stretchr/testify/assert"
@@ -20,14 +18,11 @@ func TestExecutorPolicy(t *testing.T) {
 	policiesForRoleList, err := executor.GetAllPoliciesForRole()
 	assert.NoError(t, err)
 	assert.Len(t, policiesForRoleList, 2)
-	//assert.Len(t, policiesForRoleList[0].Policies, 6)
-	bytes, _ := json.Marshal(policiesForRoleList)
-	fmt.Println(string(bytes))
+	assert.Len(t, policiesForRoleList[0].Policies, 6)
 
 	roles, err := executor.GetRoles()
 	assert.NoError(t, err)
-	bytes, _ = json.Marshal(roles)
-	fmt.Println(string(bytes))
+	assert.Len(t, roles, 2)
 
 	objects, err := executor.GetObjects(caskin.ObjectTypeObject, caskin.ObjectTypeRole, caskin.ObjectTypeDefault)
 	assert.NoError(t, err)
@@ -49,7 +44,5 @@ func TestExecutorPolicy(t *testing.T) {
 	policiesForRoleList, err = executor.GetAllPoliciesForRole()
 	assert.NoError(t, err)
 	assert.Len(t, policiesForRoleList, 2)
-	//assert.Len(t, policiesForRoleList[0].Policies, 5)
-	bytes, _ = json.Marshal(policiesForRoleList)
-	fmt.Println(string(bytes))
+	assert.Len(t, policiesForRoleList[0].Policies, 5)
 }
