@@ -115,6 +115,10 @@ func (e *executor) writeObject(object Object, fn func(interface{}) error) error 
 		return ErrNotExists
 	}
 
+	if tmpObject.GetObjectType() != object.GetObjectType() {
+		return ErrNotValidObjectType
+	}
+
 	user, domain, err := e.provider.Get()
 	if err != nil {
 		return err

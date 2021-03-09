@@ -8,6 +8,7 @@ var (
 	ErrEmptyID       = fmt.Errorf("empty id")
 	ErrAlreadyExists = fmt.Errorf("already exists")
 	ErrNotExists     = fmt.Errorf("not exists")
+	ErrNotValidObjectType = fmt.Errorf("not valid object type")
 	// errors about permission
 	ErrNoReadPermission  = fmt.Errorf("no read permission")
 	ErrNoWritePermission = fmt.Errorf("no write permission")
