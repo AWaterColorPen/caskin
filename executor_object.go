@@ -5,7 +5,7 @@ package caskin
 // then create a new one
 // 1. create a new object into metadata database
 func (e *executor) CreateObject(object Object) error {
-	return e.createOrRecoverObject(object, e.mdb.CreateObject, e.mdb.TakeObject)
+	return e.createOrRecoverObject(object, e.mdb.Create, e.mdb.Take)
 }
 
 // RecoverObject
@@ -13,7 +13,7 @@ func (e *executor) CreateObject(object Object) error {
 // then recover it
 // 1. recover the soft delete one object at metadata database
 func (e *executor) RecoverObject(object Object) error {
-	return e.createOrRecoverObject(object, e.mdb.RecoverObject, e.mdb.TakeDeletedObject)
+	return e.createOrRecoverObject(object, e.mdb.Recover, e.mdb.TakeUnscoped)
 }
 
 // DeleteObject
@@ -22,15 +22,15 @@ func (e *executor) RecoverObject(object Object) error {
 // 2. delete object's p in the domain
 // 3. soft delete one object in metadata database
 func (e *executor) DeleteObject(object Object) error {
-	fn := func(o Object) error {
+	fn := func(interface{}) error {
 		_, domain, err := e.provider.Get()
 		if err != nil {
 			return err
 		}
-		if err := e.e.RemoveObjectInDomain(o, domain); err != nil {
+		if err := e.e.RemoveObjectInDomain(object, domain); err != nil {
 			return err
 		}
-		return e.mdb.DeleteObjectByID(o.GetID())
+		return e.mdb.DeleteObjectByID(object.GetID())
 	}
 
 	return e.writeObject(object, fn)
@@ -40,7 +40,7 @@ func (e *executor) DeleteObject(object Object) error {
 // if current user has object's write permission and there exist the object
 // 1. update object's properties
 func (e *executor) UpdateObject(object Object) error {
-	return e.writeObject(object, e.mdb.UpdateObject)
+	return e.writeObject(object, e.mdb.Update)
 }
 
 // GetObject
@@ -74,8 +74,8 @@ func (e *executor) GetObjects(ty ...ObjectType) ([]Object, error) {
 	return objects, nil
 }
 
-func (e *executor) createOrRecoverObject(object Object, fn func(Object) error, takeObject func(Object) error) error {
-	if err := e.mdb.TakeObject(object); err == nil {
+func (e *executor) createOrRecoverObject(object Object, fn func(interface{}) error, takeObject func(interface{}) error) error {
+	if err := e.mdb.Take(object); err == nil {
 		return ErrAlreadyExists
 	}
 
@@ -104,12 +104,12 @@ func (e *executor) createOrRecoverObject(object Object, fn func(Object) error, t
 	return fn(object)
 }
 
-func (e *executor) writeObject(role Object, fn func(Object) error) error {
+func (e *executor) writeObject(role Object, fn func(interface{}) error) error {
 	if err := isValid(role); err != nil {
 		return err
 	}
 
-	if err := e.mdb.TakeObject(role); err != nil {
+	if err := e.mdb.Take(role); err != nil {
 		return ErrNotExists
 	}
 
@@ -123,7 +123,7 @@ func (e *executor) writeObject(role Object, fn func(Object) error) error {
 		o := e.factory.NewObject()
 		o.SetID(id)
 		o.SetDomainID(domain.GetID())
-		err := e.mdb.TakeObject(o)
+		err := e.mdb.Take(o)
 		return o, err
 	}
 

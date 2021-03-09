@@ -35,10 +35,6 @@ func (g *gormMDB) TakeUnscoped(item interface{}) error {
 	return g.db.Unscoped().Where(item).Take(item).Error
 }
 
-func (g *gormMDB) GetUserInDomain(domain caskin.Domain) ([]caskin.User, error) {
-	panic("implement me")
-}
-
 func (g *gormMDB) GetUserByID(id []uint64) ([]caskin.User, error) {
 	var user []*User
 	if err := g.db.Find(&user, "id IN ?", id).Error; err != nil {
@@ -48,10 +44,6 @@ func (g *gormMDB) GetUserByID(id []uint64) ([]caskin.User, error) {
 	var ret []caskin.User
 	linq.From(user).ToSlice(&ret)
 	return ret, nil
-}
-
-func (g *gormMDB) UpsertUser(user caskin.User) error {
-	return g.upsert(user)
 }
 
 func (g *gormMDB) DeleteUserByID(id uint64) error {
@@ -143,13 +135,6 @@ func (g *gormMDB) upsert(entry entry) error {
 		return g.insertOrRecover(entry)
 	}
 	return g.db.Updates(entry).Error
-}
-
-func (g *gormMDB) recover(item interface{}) error {
-	if err := g.db.Unscoped().Where(item).Take(item).Error; err != nil {
-		return err
-	}
-	return g.db.Model(item).Update("delete_at", nil).Error
 }
 
 func (g *gormMDB) insertOrRecover(item interface{}) error {

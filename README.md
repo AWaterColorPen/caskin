@@ -11,7 +11,7 @@
   - [ ] (p2) abstract features for just like web feature and other feature
   - [ ] (p3) go 1.16
 - bug
-  - [ ] (p1) fix issue when remove `Role`, it should remove children role's g and parent role's g
+  - [x] (p1) fix issue when remove `Role`, it should remove children role's g and parent role's g
   - [ ] (p1) fix issue when modify `Role` and `Object`, it should check old item's Parent's write permission
   - [ ] (p1) fix issue when modify object data, it should check relate `Object.GetObjectType`
   - [ ] (p1) fix issue when remove `Role` or `Object`, it should remove all its son node

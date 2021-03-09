@@ -70,7 +70,7 @@ func (e *executor) ModifyPoliciesForRole(pr *PoliciesForRole) error {
 		return err
 	}
 
-	if err := e.mdb.TakeRole(pr.Role); err != nil {
+	if err := e.mdb.Take(pr.Role); err != nil {
 		return ErrNotExists
 	}
 

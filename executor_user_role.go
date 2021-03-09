@@ -55,7 +55,7 @@ func (e *executor) ModifyRolesForUser(ru *RolesForUser) error {
 		return err
 	}
 
-	if err := e.mdb.TakeUser(ru.User); err != nil {
+	if err := e.mdb.Take(ru.User); err != nil {
 		return ErrNotExists
 	}
 
@@ -166,7 +166,7 @@ func (e *executor) GetUserRolePairByUser(user User) ([]*UserRolePair, error) {
 		return nil, err
 	}
 
-	if err := e.mdb.TakeUser(user); err != nil {
+	if err := e.mdb.Take(user); err != nil {
 		return nil, err
 	}
 
@@ -205,7 +205,7 @@ func (e *executor) GetUserRolePairByRole(role Role) ([]*UserRolePair, error) {
 		return nil, err
 	}
 
-	if err := e.mdb.TakeRole(role); err != nil {
+	if err := e.mdb.Take(role); err != nil {
 		return nil, err
 	}
 
@@ -246,7 +246,7 @@ func (e *executor) ModifyUserRolePairPerUser(user User, input []*UserRolePair) e
 		return err
 	}
 
-	if err := e.mdb.TakeUser(user); err != nil {
+	if err := e.mdb.Take(user); err != nil {
 		return ErrNotExists
 	}
 

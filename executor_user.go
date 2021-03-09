@@ -5,7 +5,7 @@ package caskin
 // then create a new one without permission checking
 // 1. create a new user into metadata database
 func (e *executor) CreateUser(user User) error {
-	return e.createOrRecoverUser(user, e.mdb.CreateUser)
+	return e.createOrRecoverUser(user, e.mdb.Create)
 }
 
 // RecoverUser
@@ -13,7 +13,7 @@ func (e *executor) CreateUser(user User) error {
 // then recover it without permission checking
 // 1. recover the soft delete one user at metadata database
 func (e *executor) RecoverUser(user User) error {
-	return e.createOrRecoverUser(user, e.mdb.RecoverUser)
+	return e.createOrRecoverUser(user, e.mdb.Recover)
 }
 
 // DeleteUser
@@ -22,17 +22,17 @@ func (e *executor) RecoverUser(user User) error {
 // 1. delete all user's g in all domain
 // 2. soft delete one user in metadata database
 func (e *executor) DeleteUser(user User) error {
-	fn := func(u User) error {
+	fn := func(interface{}) error {
 		domains, err := e.mdb.GetAllDomain()
 		if err != nil {
 			return err
 		}
 		for _, v := range domains {
-			if err := e.e.RemoveUserInDomain(u, v); err != nil {
+			if err := e.e.RemoveUserInDomain(user, v); err != nil {
 				return err
 			}
 		}
-		return e.mdb.DeleteUserByID(u.GetID())
+		return e.mdb.DeleteUserByID(user.GetID())
 	}
 
 	return e.writeUser(user, fn)
@@ -43,23 +43,23 @@ func (e *executor) DeleteUser(user User) error {
 // update user without permission checking
 // 1. just update user's properties
 func (e *executor) UpdateUser(user User) error {
-	return e.writeUser(user, e.mdb.UpdateUser)
+	return e.writeUser(user, e.mdb.Update)
 }
 
-func (e *executor) createOrRecoverUser(user User, fn func(User) error) error {
-	if err := e.mdb.TakeUser(user); err == nil {
+func (e *executor) createOrRecoverUser(user User, fn func(interface{}) error) error {
+	if err := e.mdb.Take(user); err == nil {
 		return ErrAlreadyExists
 	}
 
 	return fn(user)
 }
 
-func (e *executor) writeUser(user User, fn func(User) error) error {
+func (e *executor) writeUser(user User, fn func(interface{}) error) error {
 	if err := isValid(user); err != nil {
 		return err
 	}
 
-	if err := e.mdb.TakeUser(user); err != nil {
+	if err := e.mdb.Take(user); err != nil {
 		return ErrNotExists
 	}
 

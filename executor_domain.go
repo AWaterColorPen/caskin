@@ -25,11 +25,11 @@ func (e *executor) RecoverDomain(domain Domain) error {
 // 2. don't delete any role's g or object's g2 in the domain
 // 3. soft delete one domain in metadata database
 func (e *executor) DeleteDomain(domain Domain) error {
-	fn := func(d Domain) error {
-		if err := e.e.RemoveUsersInDomain(d); err != nil {
+	fn := func(interface{}) error {
+		if err := e.e.RemoveUsersInDomain(domain); err != nil {
 			return err
 		}
-		return e.mdb.DeleteDomainByID(d.GetID())
+		return e.mdb.DeleteDomainByID(domain.GetID())
 	}
 
 	return e.writeDomain(domain, fn)
@@ -48,7 +48,10 @@ func (e *executor) UpdateDomain(domain Domain) error {
 // re initialize the domain without permission checking
 // 1. just re initialize the domain
 func (e *executor) ReInitializeDomain(domain Domain) error {
-	return e.writeDomain(domain, e.initializeDomain)
+	// TODO
+	return e.writeDomain(domain, func(interface{}) error {
+		return e.initializeDomain(domain)
+	})
 }
 
 // GetAllDomain
