@@ -8,11 +8,8 @@ import (
 )
 
 func TestExecutorDomain(t *testing.T) {
-	stage, _ := getStage(t)
-	provider := &example.Provider{
-		User:   stage.SuperadminUser,
-		Domain: stage.Domain,
-	}
+	stage, _ := newStage(t)
+	provider := &example.Provider{}
 	executor := stage.Caskin.GetExecutor(provider)
 
 	domain := &example.Domain{Name: "domain_02"}

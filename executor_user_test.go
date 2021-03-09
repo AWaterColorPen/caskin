@@ -8,12 +8,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestExecutorUser_GeneralCreateAndDelete(t *testing.T) {
-	stage, _ := getStage(t)
-	provider := &example.Provider{
-		User: stage.MemberUser,
-		Domain: stage.Domain,
-	}
+func TestExecutorUser_GeneralCreate(t *testing.T) {
+	stage, _ := newStage(t)
+	provider := &example.Provider{}
 	executor := stage.Caskin.GetExecutor(provider)
 
 	user1 := &example.User{
@@ -42,7 +39,7 @@ func TestExecutorUser_GeneralCreateAndDelete(t *testing.T) {
 }
 
 func TestExecutorUser_GeneralUpdate(t *testing.T) {
-	stage, _ := getStage(t)
+	stage, _ := newStage(t)
 	executor := stage.Caskin.GetExecutor(&example.Provider{})
 
 	user1 := &example.User{
@@ -62,7 +59,7 @@ func TestExecutorUser_GeneralUpdate(t *testing.T) {
 }
 
 func TestExecutorUser_GeneralRecover(t *testing.T) {
-	stage, _ := getStage(t)
+	stage, _ := newStage(t)
 	provider := &example.Provider{}
 	executor := stage.Caskin.GetExecutor(provider)
 
@@ -70,10 +67,6 @@ func TestExecutorUser_GeneralRecover(t *testing.T) {
 		PhoneNumber: stage.MemberUser.PhoneNumber,
 	}
 	assert.Equal(t, caskin.ErrAlreadyExists, executor.RecoverUser(user1))
-	assert.Equal(t, caskin.ErrProviderGet, executor.DeleteUser(stage.MemberUser))
-
-	provider.User = stage.MemberUser
-	provider.Domain = stage.Domain
 	assert.NoError(t, executor.DeleteUser(stage.MemberUser))
 
 	user2 := &example.User{
@@ -83,4 +76,35 @@ func TestExecutorUser_GeneralRecover(t *testing.T) {
 
 	user3 := &example.User{ID: 5}
 	assert.Error(t, executor.RecoverUser(user3))
+}
+
+func TestExecutorUser_GeneralDelete(t *testing.T) {
+	stage, _ := newStage(t)
+	provider := &example.Provider{}
+	executor := stage.Caskin.GetExecutor(provider)
+
+	domain := &example.Domain{Name: "domain_02"}
+	assert.NoError(t, executor.CreateDomain(domain))
+
+	provider.Domain = domain
+	provider.User = stage.SuperadminUser
+	roles, err := executor.GetRoles()
+	assert.NoError(t, err)
+
+	for _, v := range []*caskin.RolesForUser{
+		{User: stage.MemberUser, Roles: []caskin.Role{roles[0]}},
+		{User: stage.AdminUser, Roles: []caskin.Role{roles[1]}},
+	} {
+		assert.NoError(t, executor.ModifyRolesForUser(v))
+	}
+
+	assert.NoError(t, executor.DeleteUser(stage.SuperadminUser))
+	list1, err := executor.GetAllSuperadminUser()
+	assert.NoError(t, err)
+	assert.Len(t, list1, 0)
+
+	assert.NoError(t, executor.DeleteUser(stage.MemberUser))
+	list2, err := executor.GetUserRolePair()
+	assert.NoError(t, err)
+	assert.Len(t, list2, 1)
 }

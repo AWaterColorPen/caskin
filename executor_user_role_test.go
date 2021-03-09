@@ -8,7 +8,7 @@ import (
 )
 
 func TestExecutorUser_GetUserRolePair(t *testing.T) {
-	stage, _ := getStage(t)
+	stage, _ := newStage(t)
 	provider := &example.Provider{
 		User: stage.MemberUser,
 		Domain: stage.Domain,
