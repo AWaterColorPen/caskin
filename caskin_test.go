@@ -25,7 +25,7 @@ func TestCaskin_GetExecutor(t *testing.T) {
 
 func getTestDB(tb testing.TB) (*gorm.DB, error) {
 	dsn := filepath.Join(tb.TempDir(), "sqlite")
-	// dsn := filepath.Join("./", "sqlite")
+	//dsn := filepath.Join("./", "sqlite")
 	return gorm.Open(sqlite.Open(dsn), &gorm.Config{})
 }
 

@@ -64,10 +64,10 @@ func DiffPolicy(source, target []*Policy) (add, remove []*Policy) {
 	}
 	for _, v := range r {
 		if p, ok := sourceMap[v]; ok {
-			add = append(add, p)
+			remove = append(remove, p)
 		}
 		if p, ok := targetMap[v]; ok {
-			add = append(add, p)
+			remove = append(remove, p)
 		}
 	}
 	return

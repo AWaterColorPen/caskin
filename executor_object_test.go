@@ -8,7 +8,7 @@ import (
 )
 
 func TestExecutorObject(t *testing.T) {
-	stage, _ := getStage(t)
+	stage, _ := newStage(t)
 	provider := &example.Provider{
 		User:   stage.SuperadminUser,
 		Domain: stage.Domain,

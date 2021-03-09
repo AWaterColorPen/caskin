@@ -10,7 +10,7 @@ import (
 )
 
 func TestExecutorPolicy(t *testing.T) {
-	stage, _ := getStage(t)
+	stage, _ := newStage(t)
 	provider := &example.Provider{
 		User:   stage.SuperadminUser,
 		Domain: stage.Domain,
@@ -20,16 +20,17 @@ func TestExecutorPolicy(t *testing.T) {
 	policiesForRoleList, err := executor.GetAllPoliciesForRole()
 	assert.NoError(t, err)
 	assert.Len(t, policiesForRoleList, 2)
+	//assert.Len(t, policiesForRoleList[0].Policies, 6)
+	bytes, _ := json.Marshal(policiesForRoleList)
+	fmt.Println(string(bytes))
 
 	roles, err := executor.GetRoles()
 	assert.NoError(t, err)
-	bytes, _ := json.Marshal(roles)
+	bytes, _ = json.Marshal(roles)
 	fmt.Println(string(bytes))
 
 	objects, err := executor.GetObjects(caskin.ObjectTypeObject, caskin.ObjectTypeRole, caskin.ObjectTypeDefault)
 	assert.NoError(t, err)
-	bytes, _ = json.Marshal(objects)
-	fmt.Println(string(bytes))
 
 	domain := stage.Domain
 	policiesForRole := &caskin.PoliciesForRole{
@@ -47,7 +48,8 @@ func TestExecutorPolicy(t *testing.T) {
 
 	policiesForRoleList, err = executor.GetAllPoliciesForRole()
 	assert.NoError(t, err)
+	assert.Len(t, policiesForRoleList, 2)
+	//assert.Len(t, policiesForRoleList[0].Policies, 5)
 	bytes, _ = json.Marshal(policiesForRoleList)
 	fmt.Println(string(bytes))
-
 }
