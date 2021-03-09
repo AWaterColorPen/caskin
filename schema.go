@@ -113,7 +113,7 @@ func (u UserRolePairs) IsValidWithRole(role Role) error {
 	encode := role.Encode()
 	for _, v := range u {
 		if v.Role.Encode() != encode {
-			return ErrInputArrayNotBelongOneRole
+			return ErrInputArrayNotBelongSameRole
 		}
 	}
 
@@ -124,7 +124,7 @@ func (u UserRolePairs) IsValidWithUser(user User) error {
 	encode := user.Encode()
 	for _, v := range u {
 		if v.User.Encode() != encode {
-			return ErrInputArrayNotBelongOneUser
+			return ErrInputArrayNotBelongSameUser
 		}
 	}
 

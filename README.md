@@ -23,7 +23,7 @@
   - [x] create domain in unit test
   - [x] add users: superadmin, domain-admin, domain-member
   - [x] wrap a `Stage` with `Caskin` instance and initialized `User`, `Domain`, `Role`, `Object`
-  - [ ] (p0) unit for executor domain API
+  - [x] (p0) unit for executor domain API
   - [x] (p0) unit for executor user API
   - [ ] (p0) unit for executor user role API
   - [x] (p0) unit for executor superadmin API
