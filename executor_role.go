@@ -20,11 +20,6 @@ func (e *executor) GetAllUsersForRole() ([]*UsersForRole, error) {
 	if err != nil {
 		return nil, err
 	}
-	u := e.filterWithNoError(currentUser, currentDomain, Read, users)
-	users = []User{}
-	for _, v := range u {
-		users = append(users, v.(User))
-	}
 	um := getIDMap(users)
 
 	rs := e.e.GetRolesInDomain(currentDomain)
