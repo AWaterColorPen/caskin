@@ -79,11 +79,14 @@ func (e *executor) createOrRecoverObject(object Object, fn func(interface{}) err
 		return ErrAlreadyExists
 	}
 
-	_, domain, err := e.provider.Get()
+	user, domain, err := e.provider.Get()
 	if err != nil {
 		return err
 	}
 
+	if ok := Check(e.e, user, domain, Write, object); !ok {
+		return ErrNoWritePermission
+	}
 
 	take := func(id uint64) (parentEntry, error) {
 		o := e.factory.NewObject()
@@ -93,9 +96,6 @@ func (e *executor) createOrRecoverObject(object Object, fn func(interface{}) err
 		return o, err
 	}
 
-	// TODO 这里要将create和recover 分开，关键在于unscoped
-	// 这里的object和parent的关系有 种情况
-	// 1. object需要被创建，那么其父节点必须存在，如果父节点查不到，直接报错
 	if err := e.checkParentEntryWrite(object, take); err != nil {
 		return err
 	}
@@ -115,12 +115,14 @@ func (e *executor) writeObject(object Object, fn func(interface{}) error) error 
 		return ErrNotExists
 	}
 
-	_, domain, err := e.provider.Get()
+	user, domain, err := e.provider.Get()
 	if err != nil {
 		return err
 	}
 
-	// TODO 这里没有对old的object进行权限控制
+	if ok := Check(e.e, user, domain, Write, tmpObject); !ok {
+		return ErrNoWritePermission
+	}
 
 	take := func(id uint64) (parentEntry, error) {
 		o := e.factory.NewObject()

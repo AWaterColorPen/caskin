@@ -1,8 +1,6 @@
 package caskin_test
 
 import (
-	"encoding/json"
-	"fmt"
 	"github.com/awatercolorpen/caskin"
 	"github.com/awatercolorpen/caskin/example"
 	"github.com/stretchr/testify/assert"
@@ -94,7 +92,7 @@ func TestExecutor_GetObjects(t *testing.T) {
 func TestExecutor_CreateObject(t *testing.T) {
 	stage, _ := newStage(t)
 	provider := &example.Provider{
-		User:   stage.SuperadminUser,
+		User:   stage.AdminUser,
 		Domain: stage.Domain,
 	}
 	executor := stage.Caskin.GetExecutor(provider)
@@ -111,13 +109,22 @@ func TestExecutor_CreateObject(t *testing.T) {
 	}
 	assert.NoError(t, executor.CreateObject(object))
 
-	object2 := &example.Object{
+	object1 := &example.Object{
 		Name:     "object_01",
 		Type:     objectType,
 		DomainID: 1,
 		ObjectID: objects[0].GetID(),
 	}
-	assert.Error(t, executor.CreateObject(object2))
+	assert.Error(t, executor.CreateObject(object1))
+
+	provider.User = stage.MemberUser
+	object2 := &example.Object{
+		Name:     "object_02",
+		Type:     objectType,
+		DomainID: 1,
+		ObjectID: objects[0].GetID(),
+	}
+	assert.Equal(t, caskin.ErrNoWritePermission, executor.CreateObject(object2))
 }
 
 func TestExecutor_DeleteObject(t *testing.T) {
@@ -137,9 +144,13 @@ func TestExecutor_DeleteObject(t *testing.T) {
 	assert.Len(t, objects, 2)
 
 	object := &example.Object{
-		ID:        4,
+		ID: 4,
 	}
 	assert.Error(t, executor.DeleteObject(object))
+
+	provider.User = stage.MemberUser
+	object.ID = 2
+	assert.Equal(t, caskin.ErrNoWritePermission, executor.DeleteObject(object))
 }
 
 func TestExecutor_RecoverObject(t *testing.T) {
@@ -159,7 +170,7 @@ func TestExecutor_RecoverObject(t *testing.T) {
 	assert.Len(t, objects, 2)
 
 	object := &example.Object{
-		ID:        3,
+		ID: 3,
 	}
 	assert.NoError(t, executor.RecoverObject(object))
 	assert.Equal(t, caskin.ErrAlreadyExists, executor.RecoverObject(object))
@@ -193,10 +204,6 @@ func TestExecutor_UpdateObject(t *testing.T) {
 		ParentID: object.ID,
 	}
 	assert.NoError(t, executor.CreateObject(subObject))
-
-	policiesForRole, _ := executor.GetAllPoliciesForRole()
-	bytes, _ := json.Marshal(policiesForRole)
-	fmt.Println(string(bytes))
 
 	provider.User = stage.AdminUser
 	subObject.Name = "object_01_sub_new_name"
