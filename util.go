@@ -38,27 +38,37 @@ func Diff(source, target []interface{}) (add, remove []interface{}) {
 
 // DiffPolicy diff policy source, target list to get add, remove list
 func DiffPolicy(source, target []*Policy) (add, remove []*Policy) {
+	sourceMap := make(map[interface{}]*Policy)
+	targetMap := make(map[interface{}]*Policy)
 	var s, t []interface{}
 	for _, v := range source {
 		b, _ := json.Marshal(v)
-		s = append(s, b)
+		s = append(s, string(b))
+		sourceMap[string(b)] = v
 	}
 	for _, v := range target {
 		b, _ := json.Marshal(v)
-		t = append(t, b)
+		t = append(t, string(b))
+		targetMap[string(b)] = v
 	}
 
 	// get diff to add and remove
 	a, r := Diff(s, t)
 	for _, v := range a {
-		p := &Policy{}
-		_ = json.Unmarshal(v.([]byte), p)
-		add = append(add, p)
+		if p, ok := sourceMap[v]; ok {
+			add = append(add, p)
+		}
+		if p, ok := targetMap[v]; ok {
+			add = append(add, p)
+		}
 	}
 	for _, v := range r {
-		p := &Policy{}
-		_ = json.Unmarshal(v.([]byte), p)
-		remove = append(remove, p)
+		if p, ok := sourceMap[v]; ok {
+			add = append(add, p)
+		}
+		if p, ok := targetMap[v]; ok {
+			add = append(add, p)
+		}
 	}
 	return
 }

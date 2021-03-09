@@ -99,6 +99,7 @@ func (e *executor) ModifyPoliciesForRole(pr *PoliciesForRole) error {
 	if err != nil {
 		return err
 	}
+
 	os := e.filterWithNoError(currentUser, currentDomain, Write, objects)
 	objects = []Object{}
 	for _, v := range os {

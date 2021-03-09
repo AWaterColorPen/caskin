@@ -40,8 +40,6 @@ func TestExecutorPolicy(t *testing.T) {
 			{roles[0], objects[1], domain, caskin.Write},
 			{roles[0], objects[2], domain, caskin.Read},
 			{roles[0], objects[2], domain, caskin.Write},
-			{roles[1], objects[2], domain, caskin.Read},
-			{roles[1], objects[2], domain, caskin.Write},
 		},
 	}
 
