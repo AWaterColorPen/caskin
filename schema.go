@@ -1,5 +1,7 @@
 package caskin
 
+import "strings"
+
 type ObjectType string
 
 type Action string
@@ -92,6 +94,11 @@ type Policy struct {
 	Object Object `json:"object"`
 	Domain Domain `json:"domain"`
 	Action Action `json:"action"`
+}
+
+func (p *Policy) Key() string {
+	s := []string{p.Role.Encode(), p.Object.Encode(), p.Domain.Encode(), string(p.Action)}
+	return strings.Join(s, DefaultSeparator)
 }
 
 type UserRolePair struct {

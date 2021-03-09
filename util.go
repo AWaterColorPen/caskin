@@ -1,7 +1,6 @@
 package caskin
 
 import (
-	"encoding/json"
 	"github.com/ahmetb/go-linq/v3"
 )
 
@@ -42,14 +41,14 @@ func DiffPolicy(source, target []*Policy) (add, remove []*Policy) {
 	targetMap := make(map[interface{}]*Policy)
 	var s, t []interface{}
 	for _, v := range source {
-		b, _ := json.Marshal(v)
-		s = append(s, string(b))
-		sourceMap[string(b)] = v
+		key := v.Key()
+		s = append(s, key)
+		sourceMap[key] = v
 	}
 	for _, v := range target {
-		b, _ := json.Marshal(v)
-		t = append(t, string(b))
-		targetMap[string(b)] = v
+		key := v.Key()
+		t = append(t, key)
+		targetMap[key] = v
 	}
 
 	// get diff to add and remove
