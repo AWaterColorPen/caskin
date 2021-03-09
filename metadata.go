@@ -30,6 +30,7 @@ type MetaDB interface {
 	GetObjectByID([]uint64) ([]Object, error)
 	UpsertObject(Object) error
 	DeleteObjectByID(uint64) error
+	TakeDeletedObject(Object) error
 
 	// Domain API
 	CreateDomain(Domain) error

@@ -15,6 +15,8 @@
   - [ ] (p1) fix issue when modify `Role` and `Object`, it should check old item's Parent's write permission
   - [ ] (p1) fix issue when modify object data, it should check relate `Object.GetObjectType`
   - [ ] (p1) fix issue when remove `Role` or `Object`, it should remove all its son node
+  - [x] (p1) fix issue when modify policies, it uses []byte as map's key
+  - [ ] (p1) fix issue when modify policies, it does not successfully update the policies
 - unit test
   - [x] unit test get `casbin.Model` with cache. it should not create new one per unit test
   - [x] create domain in unit test

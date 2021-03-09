@@ -113,8 +113,12 @@ func (g *gormMDB) TakeObject(object caskin.Object) error {
 	return g.db.Where(object).Take(object).Error
 }
 
+func (g *gormMDB) TakeDeletedObject(object caskin.Object) error {
+	return g.db.Unscoped().Where(object).Take(object).Error
+}
+
 func (g *gormMDB) GetObjectInDomain(domain caskin.Domain, objectType ...caskin.ObjectType) ([]caskin.Object, error) {
-	d := g.db.Where("object_id = ?", domain.GetID())
+	d := g.db.Where("domain_id = ?", domain.GetID())
 	if len(objectType) > 0 {
 		d = d.Where("type IN ?", objectType)
 	}

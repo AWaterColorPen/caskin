@@ -84,6 +84,8 @@ func (e *executor) writeDomain(domain Domain, fn func(Domain) error) error {
 	return fn(domain)
 }
 
+
+
 // initializeDomain
 // it is reentrant to initialize a new domain
 // 1. get roles, objects, policies form DomainCreator
