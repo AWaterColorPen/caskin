@@ -27,12 +27,7 @@ func TestNewStage(t *testing.T) {
 func getTestDB(tb testing.TB) (*gorm.DB, error) {
 	dsn := filepath.Join(tb.TempDir(), "sqlite")
 	//dsn := filepath.Join("./", "sqlite")
-	db, err := gorm.Open(sqlite.Open(dsn), &gorm.Config{})
-	if err != nil {
-		return nil, err
-	}
-	return db, nil
-	//return db.Debug(), nil
+	return gorm.Open(sqlite.Open(dsn), &gorm.Config{})
 }
 
 var casbinModelMap = map[bool]model.Model{}
@@ -179,6 +174,10 @@ func stageAddSubAdmin(stage *example.Stage) error {
 		ParentID: 1,
 	}
 	if err := executor.CreateObject(object1); err != nil {
+		return err
+	}
+	object1.ObjectID = object1.ID
+	if err := executor.UpdateObject(object1); err != nil {
 		return err
 	}
 

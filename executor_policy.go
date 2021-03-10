@@ -61,15 +61,7 @@ func (e *executor) GetPolicyList() ([]*Policy, error) {
 // 1. get policy which current user has role and object's read permission in current domain
 // 2. get user to role 's g as Policy in current domain
 func (e *executor) GetPolicyListByRole(role Role) ([]*Policy, error) {
-	if err := isValid(role); err != nil {
-		return nil, err
-	}
-
-	if err := e.mdb.Take(role); err != nil {
-		return nil, err
-	}
-
-	if err := e.check(Read, role); err != nil {
+	if err := e.getOrModifyCheck(role, Read); err != nil {
 		return nil, err
 	}
 
@@ -111,15 +103,7 @@ func (e *executor) GetPolicyListByRole(role Role) ([]*Policy, error) {
 // 1. get policy which current user has role and object's read permission in current domain
 // 2. get user to role 's g as Policy in current domain
 func (e *executor) GetPolicyListByObject(object Object) ([]*Policy, error) {
-	if err := isValid(object); err != nil {
-		return nil, err
-	}
-
-	if err := e.mdb.Take(object); err != nil {
-		return nil, err
-	}
-
-	if err := e.check(Read, object); err != nil {
+	if err := e.getOrModifyCheck(object, Read); err != nil {
 		return nil, err
 	}
 
@@ -159,15 +143,12 @@ func (e *executor) GetPolicyListByObject(object Object) ([]*Policy, error) {
 // if current user has role and object's write permission
 // 1. modify role to objects 's p in current domain
 func (e *executor) ModifyPolicyListPerRole(role Role, input []*Policy) error {
-	if err := isValid(role); err != nil {
+	if err := e.getOrModifyCheck(role, Write); err != nil {
 		return err
 	}
 
-	if err := e.mdb.Take(role); err != nil {
-		return ErrNotExists
-	}
-
-	if err := e.check(Write, role); err != nil {
+	list := PolicyList(input)
+	if err := list.IsValidWithRole(role); err != nil {
 		return err
 	}
 
@@ -232,15 +213,12 @@ func (e *executor) ModifyPolicyListPerRole(role Role, input []*Policy) error {
 // if current user has role and object's write permission
 // 1. modify role to objects 's p in current domain
 func (e *executor) ModifyPolicyListPerObject(object Object, input []*Policy) error {
-	if err := isValid(object); err != nil {
+	if err := e.getOrModifyCheck(object, Write); err != nil {
 		return err
 	}
 
-	if err := e.mdb.Take(object); err != nil {
-		return ErrNotExists
-	}
-
-	if err := e.check(Write, object); err != nil {
+	list := PolicyList(input)
+	if err := list.IsValidWithObject(object); err != nil {
 		return err
 	}
 

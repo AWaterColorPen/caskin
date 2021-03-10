@@ -1,16 +1,31 @@
 package caskin
 
-func (e *executor) newObject() parentEntry {
-	return e.factory.NewObject()
-}
-
 // CreateObject
 // if current user has object's write permission and there does not exist the object
 // then create a new one
 // 1. create a new object into metadata database
 // 2. update object to parent's g2 in the domain
 func (e *executor) CreateObject(object Object) error {
-	return e.flowHandler(object, e.createEntryCheck, e.newObject, e.mdb.Create)
+	fn := func(interface{}) error {
+		_, domain, err := e.provider.Get()
+		if err != nil {
+			return err
+		}
+
+		object.SetDomainID(domain.GetID())
+		if err := e.mdb.Create(object); err != nil {
+			return err
+		}
+
+		if object.GetParentID() != 0 {
+			parent := e.factory.NewObject()
+			parent.SetID(object.GetParentID())
+			return e.e.AddParentForObjectInDomain(object, parent, domain)
+		}
+		return nil
+	}
+
+	return e.flowHandler(object, e.createEntryCheck, e.newObject, fn)
 }
 
 // RecoverObject

@@ -8,6 +8,32 @@ type executor struct {
 	options  *Options
 }
 
+func (e *executor) newObject() parentEntry {
+	return e.factory.NewObject()
+}
+
+func (e *executor) newRole() parentEntry {
+	return e.factory.NewRole()
+}
+
+func (e *executor) getOrModifyCheck(item objectDataEntry, actions ...Action) error {
+	if err := isValid(item); err != nil {
+		return err
+	}
+
+	if err := e.mdb.Take(item); err != nil {
+		return ErrNotExists
+	}
+
+	for _, action := range actions {
+		if err := e.check(action, item); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (e *executor) filter(action Action, source interface{}) ([]interface{}, error) {
 	u, d, err := e.provider.Get()
 	if err != nil {
@@ -87,3 +113,10 @@ func (e *executor) checkParentEntryWrite(one parentEntry, take takeParentEntry) 
 }
 
 type takeParentEntry func(uint64) (parentEntry, error)
+
+type objectDataEntry interface {
+	entry
+	ObjectData
+}
+
+

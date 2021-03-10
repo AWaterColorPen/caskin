@@ -17,7 +17,6 @@ type Role struct {
 	Name      string         `gorm:"column:name;index:idx_role,unique"      json:"name,omitempty"`
 	DomainID  uint64         `gorm:"column:domain_id;index:idx_role,unique" json:"domain_id,omitempty"`
 	ObjectID  uint64         `gorm:"column:object_id"                       json:"object_id,omitempty"`
-	Object    *Object        `gorm:"column:foreignKey:ObjectID"             json:"object,omitempty"`
 	ParentID  uint64         `gorm:"-"                                      json:"parent_id"`
 }
 

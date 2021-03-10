@@ -96,15 +96,7 @@ func (e *executor) GetUserRolePairByUser(user User) ([]*UserRolePair, error) {
 // 1. get role which current user has read permission in current domain
 // 2. get user to role 's g as UserRolePair in current domain
 func (e *executor) GetUserRolePairByRole(role Role) ([]*UserRolePair, error) {
-	if err := isValid(role); err != nil {
-		return nil, err
-	}
-
-	if err := e.mdb.Take(role); err != nil {
-		return nil, err
-	}
-
-	if err := e.check(Read, role); err != nil {
+	if err := e.getOrModifyCheck(role, Read); err != nil {
 		return nil, err
 	}
 
@@ -206,20 +198,12 @@ func (e *executor) ModifyUserRolePairPerUser(user User, input []*UserRolePair) e
 // if current user has role's write permission
 // 1. modify role's to user 's g in current domain
 func (e *executor) ModifyUserRolePairPerRole(role Role, input []*UserRolePair) error {
-	if err := isValid(role); err != nil {
+	if err := e.getOrModifyCheck(role, Write); err != nil {
 		return err
 	}
 
 	pairs := UserRolePairs(input)
 	if err := pairs.IsValidWithRole(role); err != nil {
-		return err
-	}
-
-	if err := e.mdb.Take(role); err != nil {
-		return ErrNotExists
-	}
-
-	if err := e.check(Write, role); err != nil {
 		return err
 	}
 

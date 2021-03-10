@@ -22,5 +22,5 @@
   - [x] (p0) unit for executor superadmin API
   - [ ] (p0) unit for executor role API
   - [ ] (p0) unit for executor object API
-  - [ ] (p0) unit for executor policy API
+  - [x] (p0) unit for executor policy API
   
