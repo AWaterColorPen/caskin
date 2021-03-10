@@ -79,13 +79,9 @@ func (e *executor) createOrRecoverObject(object Object, fn func(interface{}) err
 		return ErrAlreadyExists
 	}
 
-	user, domain, err := e.provider.Get()
+	_, domain, err := e.provider.Get()
 	if err != nil {
 		return err
-	}
-
-	if ok := Check(e.e, user, domain, Write, object); !ok {
-		return ErrNoWritePermission
 	}
 
 	take := func(id uint64) (parentEntry, error) {
@@ -119,13 +115,9 @@ func (e *executor) writeObject(object Object, fn func(interface{}) error) error 
 		return ErrNotValidObjectType
 	}
 
-	user, domain, err := e.provider.Get()
+	_, domain, err := e.provider.Get()
 	if err != nil {
 		return err
-	}
-
-	if ok := Check(e.e, user, domain, Write, tmpObject); !ok {
-		return ErrNoWritePermission
 	}
 
 	take := func(id uint64) (parentEntry, error) {
@@ -136,6 +128,9 @@ func (e *executor) writeObject(object Object, fn func(interface{}) error) error 
 		return o, err
 	}
 
+	if err := e.checkParentEntryWrite(tmpObject, take);err!=nil {
+		return err
+	}
 	if err := e.checkParentEntryWrite(object, take); err != nil {
 		return err
 	}
