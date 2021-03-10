@@ -125,14 +125,35 @@ func (e *executor) ModifyUsersForRole(ur *UsersForRole) error {
 // if current user has role's write permission and there does not exist the role
 // then create a new one
 // 1. create a new role into metadata database
+// 2. update role to parent's g in the domain
 func (e *executor) CreateRole(role Role) error {
-	return e.createOrRecoverRole(role, e.mdb.Create)
+	fn := func(interface{}) error {
+		if err := e.mdb.Create(role); err != nil {
+			return err
+		}
+
+		_, domain, err := e.provider.Get()
+		if err != nil {
+			return err
+		}
+
+		if role.GetParentID() != 0 {
+			parent := e.factory.NewRole()
+			parent.SetID(role.GetParentID())
+			if err := e.e.AddParentForRoleInDomain(role, parent, domain); err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+	return e.createOrRecoverRole(role, fn)
 }
 
 // RecoverRole
 // if current user has role's write permission and there exist the role but soft deleted
 // then recover it
 // 1. recover the soft delete one role at metadata database
+// 2. update role to parent's g in the domain
 func (e *executor) RecoverRole(role Role) error {
 	return e.createOrRecoverRole(role, e.mdb.Recover)
 }
@@ -155,6 +176,14 @@ func (e *executor) DeleteRole(role Role) error {
 	}
 
 	return e.writeRole(role, fn)
+}
+
+// UpdateRole
+// if current user has role's write permission and there exist the role
+// 1. update role's properties
+// 2. update role to parent's g in the domain
+func (e *executor) UpdateRole(role Role) error {
+	return e.writeRole(role, e.mdb.Update)
 }
 
 // GetRoles
@@ -187,12 +216,6 @@ func (e *executor) GetRoles() (Roles, error) {
 	return roles, nil
 }
 
-// UpdateRole
-// if current user has role's write permission and there exist the role
-// 1. update role's properties
-func (e *executor) UpdateRole(role Role) error {
-	return e.writeRole(role, e.mdb.Update)
-}
 
 func (e *executor) createOrRecoverRole(role Role, fn func(interface{}) error) error {
 	if err := e.mdb.Take(role); err == nil {
@@ -204,16 +227,24 @@ func (e *executor) createOrRecoverRole(role Role, fn func(interface{}) error) er
 		return err
 	}
 
-	take := func(id uint64) (parentEntry, error) {
-		r := e.factory.NewRole()
-		r.SetID(id)
-		r.SetDomainID(domain.GetID())
-		err := e.mdb.Take(r)
-		return r, err
+	if err := e.check(Write, role); err != nil {
+		return err
 	}
 
-	if err := e.checkParentEntryWrite(role, take); err != nil {
-		return err
+	var parents []Role
+	if role.GetParentID() != 0 {
+		nextParent := e.factory.NewRole()
+		nextParent.SetID(role.GetParentID())
+		parents = append(parents, nextParent)
+	}
+	for _, v := range parents {
+		v.SetDomainID(domain.GetID())
+		if err := e.mdb.Take(v); err != nil {
+			return err
+		}
+		if err := e.check(Write, v); err != nil {
+			return err
+		}
 	}
 
 	role.SetDomainID(domain.GetID())
@@ -225,10 +256,14 @@ func (e *executor) writeRole(role Role, fn func(interface{}) error) error {
 		return err
 	}
 
-	tmpRole := e.factory.NewRole()
-	tmpRole.SetID(role.GetID())
-	if err := e.mdb.Take(tmpRole); err != nil {
+	tmp := e.factory.NewRole()
+	tmp.SetID(role.GetID())
+	if err := e.mdb.Take(tmp); err != nil {
 		return ErrNotExists
+	}
+
+	if err := e.check(Write, tmp); err != nil {
+		return err
 	}
 
 	_, domain, err := e.provider.Get()
@@ -236,17 +271,19 @@ func (e *executor) writeRole(role Role, fn func(interface{}) error) error {
 		return err
 	}
 
-	// TODO 这里没有对old的role进行权限控制
+	parents := e.e.GetParentsForRoleInDomain(tmp, domain)
 
-	take := func(id uint64) (parentEntry, error) {
-		r := e.factory.NewRole()
-		r.SetDomainID(domain.GetID())
-		err := e.mdb.Take(r)
-		return r, err
-	}
-
-	if err := e.checkParentEntryWrite(role, take); err != nil {
-		return err
+	nextParent := e.factory.NewRole()
+	nextParent.SetID(role.GetParentID())
+	parents = append(parents, nextParent)
+	for _, v := range parents {
+		v.SetDomainID(domain.GetID())
+		if err := e.mdb.Take(v); err != nil {
+			return err
+		}
+		if err := e.check(Write, v); err != nil {
+			return err
+		}
 	}
 
 	role.SetDomainID(domain.GetID())

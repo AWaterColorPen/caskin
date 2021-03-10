@@ -28,7 +28,7 @@ func getTestDB(tb testing.TB) (*gorm.DB, error) {
 	//dsn := filepath.Join("./", "sqlite")
 	db, err := gorm.Open(sqlite.Open(dsn), &gorm.Config{})
 	if err != nil {
-		return nil ,err
+		return nil, err
 	}
 	return db, nil
 	//return db.Debug(), nil

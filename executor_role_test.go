@@ -27,7 +27,7 @@ func TestExecutorRole(t *testing.T) {
 	assert.Len(t, roles, 2)
 
 	usersForRole := &caskin.UsersForRole{
-		Role: roles[0],
+		Role:  roles[0],
 		Users: caskin.Users{},
 	}
 
@@ -40,53 +40,102 @@ func TestExecutorRole_GeneralCreate(t *testing.T) {
 	executor := stage.Caskin.GetExecutor(provider)
 
 	role1 := &example.Role{
-		Name: "sub_admin",
+		Name: "sub_admin_1",
 	}
 	assert.Equal(t, caskin.ErrProviderGet, executor.CreateRole(role1))
 
 	provider.Domain = stage.Domain
 	provider.User = stage.MemberUser
 	assert.Equal(t, caskin.ErrNoWritePermission, executor.CreateRole(role1))
+	provider.User = stage.AdminUser
+	assert.Equal(t, caskin.ErrNoWritePermission, executor.CreateRole(role1))
+
 	role1.ObjectID = 2
+	provider.User = stage.MemberUser
 	assert.Equal(t, caskin.ErrNoWritePermission, executor.CreateRole(role1))
+	provider.User = stage.AdminUser
+	assert.NoError(t, executor.CreateRole(role1))
+
+	role2 := &example.Role{
+		Name:     "sub_admin_1",
+		ObjectID: 2,
+	}
+	assert.Equal(t, caskin.ErrAlreadyExists, executor.CreateRole(role2))
+
+	role3 := &example.Role{
+		Name:     "sub_admin_1",
+		ObjectID: 2,
+	}
+	assert.Equal(t, caskin.ErrEmptyID, executor.DeleteRole(role3))
+	role3.ID = role1.ID
+	assert.NoError(t, executor.DeleteRole(role3))
+
+	role4 := &example.Role{ID: 5, ObjectID: 2}
+	assert.Equal(t, caskin.ErrNotExists, executor.DeleteRole(role4))
+	assert.NoError(t, executor.CreateRole(role4))
+}
+
+func TestExecutorRole_CreateSubNode(t *testing.T) {
+	stage, _ := newStage(t)
+	provider := &example.Provider{}
+	executor := stage.Caskin.GetExecutor(provider)
+
+	role1 := &example.Role{
+		Name:     "sub_member_1",
+		ObjectID: 2,
+		ParentID: 3,
+	}
+	provider.Domain = stage.Domain
+	provider.User = stage.AdminUser
 	assert.Equal(t, caskin.ErrNoWritePermission, executor.CreateRole(role1))
-	// user2 := &example.User{
-	// 	PhoneNumber: "12345678904",
-	// 	Email:       "member2@qq.com",
-	// }
-	// assert.Equal(t, caskin.ErrAlreadyExists, executor.CreateUser(user2))
-	//
-	// user3 := &example.User{
-	// 	PhoneNumber: "12345678904",
-	// 	Email:       "member2@qq.com",
-	// }
-	// assert.Equal(t, caskin.ErrEmptyID, executor.DeleteUser(user3))
-	// user3.ID = user2.ID
-	// assert.NoError(t, executor.DeleteUser(user3))
-	//
-	// user4 := &example.User{ID: 5}
-	// assert.Equal(t, caskin.ErrNotExists, executor.DeleteUser(user4))
-	// assert.NoError(t, executor.CreateUser(user4))
+
+	role1.ParentID = 2
+	assert.NoError(t, executor.CreateRole(role1))
+
+	role1.ObjectID = 2
+	provider.User = stage.MemberUser
+	assert.Equal(t, caskin.ErrNoWritePermission, executor.CreateRole(role1))
+	provider.User = stage.AdminUser
+	assert.NoError(t, executor.CreateRole(role1))
+
+	role2 := &example.Role{
+		Name: "sub_admin_1",
+	}
+	assert.Equal(t, caskin.ErrAlreadyExists, executor.CreateRole(role2))
+
+	role3 := &example.Role{
+		Name: "sub_admin_1",
+	}
+	assert.Equal(t, caskin.ErrEmptyID, executor.DeleteRole(role3))
+	role3.ID = role1.ID
+	assert.NoError(t, executor.DeleteRole(role3))
+
+	role4 := &example.Role{ID: 5}
+	assert.Equal(t, caskin.ErrNotExists, executor.DeleteRole(role4))
+	assert.NoError(t, executor.CreateRole(role4))
 }
 
 func TestExecutorRole_GeneralUpdate(t *testing.T) {
 	stage, _ := newStage(t)
-	executor := stage.Caskin.GetExecutor(&example.Provider{})
-
-	user1 := &example.User{
-		ID:          stage.MemberUser.ID,
-		PhoneNumber: stage.MemberUser.PhoneNumber,
-		Email:       "member2@qq.com",
+	provider := &example.Provider{
+		Domain: stage.Domain,
+		User:   stage.AdminUser,
 	}
-	assert.NoError(t, executor.UpdateUser(user1))
+	executor := stage.Caskin.GetExecutor(provider)
 
-	user2 := &example.User{
-		PhoneNumber: stage.MemberUser.PhoneNumber,
+	role1 := &example.Role{
+		ID:   2,
+		Name: "member_momoda",
 	}
-	assert.Equal(t, caskin.ErrEmptyID, executor.UpdateUser(user2))
+	assert.NoError(t, executor.UpdateRole(role1))
 
-	user3 := &example.User{ID: 5}
-	assert.Equal(t, caskin.ErrNotExists, executor.UpdateUser(user3))
+	role2 := &example.Role{
+		Name: "member_momoda",
+	}
+	assert.Equal(t, caskin.ErrEmptyID, executor.UpdateRole(role2))
+
+	role3 := &example.Role{ID: 5}
+	assert.Equal(t, caskin.ErrNotExists, executor.UpdateRole(role3))
 }
 
 func TestExecutorRole_GeneralRecover(t *testing.T) {
@@ -94,19 +143,21 @@ func TestExecutorRole_GeneralRecover(t *testing.T) {
 	provider := &example.Provider{}
 	executor := stage.Caskin.GetExecutor(provider)
 
-	user1 := &example.User{
-		PhoneNumber: stage.MemberUser.PhoneNumber,
+	role1 := &example.Role{
+		Name: "member",
 	}
-	assert.Equal(t, caskin.ErrAlreadyExists, executor.RecoverUser(user1))
-	assert.NoError(t, executor.DeleteUser(stage.MemberUser))
+	provider.Domain = stage.Domain
+	provider.User = stage.AdminUser
+	assert.Equal(t, caskin.ErrAlreadyExists, executor.RecoverRole(role1))
+	assert.NoError(t, executor.DeleteRole(role1))
 
-	user2 := &example.User{
-		PhoneNumber: stage.MemberUser.PhoneNumber,
+	role2 := &example.Role{
+		Name: "member",
 	}
-	assert.NoError(t, executor.RecoverUser(user2))
+	assert.NoError(t, executor.RecoverRole(role2))
 
-	user3 := &example.User{ID: 5}
-	assert.Error(t, executor.RecoverUser(user3))
+	role3 := &example.Role{ID: 5}
+	assert.Error(t, executor.RecoverRole(role3))
 }
 
 func TestExecutorRole_GeneralDelete(t *testing.T) {
@@ -114,30 +165,22 @@ func TestExecutorRole_GeneralDelete(t *testing.T) {
 	provider := &example.Provider{}
 	executor := stage.Caskin.GetExecutor(provider)
 
-	domain := &example.Domain{Name: "domain_02"}
-	assert.NoError(t, executor.CreateDomain(domain))
-	assert.NoError(t, executor.ReInitializeDomain(domain))
+	role1 := &example.Role{Name: "member"}
+	provider.Domain = stage.Domain
+	provider.User = stage.MemberUser
+	assert.Equal(t, caskin.ErrEmptyID, executor.DeleteRole(role1))
+	role1.ID = 2
+	assert.Equal(t, caskin.ErrNoWritePermission, executor.DeleteRole(role1))
 
-	provider.Domain = domain
-	provider.User = stage.SuperadminUser
-	roles, err := executor.GetRoles()
+	provider.Domain = stage.Domain
+	provider.User = stage.AdminUser
+	assert.NoError(t, executor.DeleteRole(role1))
+
+	roles1, err := executor.GetRoles()
 	assert.NoError(t, err)
+	assert.Len(t, roles1, 1)
 
-	for _, v := range []*caskin.RolesForUser{
-		{User: stage.MemberUser, Roles: []caskin.Role{roles[0]}},
-		{User: stage.AdminUser, Roles: []caskin.Role{roles[1]}},
-	} {
-		assert.NoError(t, executor.ModifyRolesForUser(v))
-	}
-
-	assert.NoError(t, executor.DeleteUser(stage.SuperadminUser))
-	list1, err := executor.GetAllSuperadminUser()
+	list1, err := executor.GetUserRolePair()
 	assert.NoError(t, err)
-	assert.Len(t, list1, 0)
-
-	assert.NoError(t, executor.DeleteUser(stage.MemberUser))
-	list2, err := executor.GetUserRolePair()
-	assert.NoError(t, err)
-	assert.Len(t, list2, 1)
+	assert.Len(t, list1, 1)
 }
-

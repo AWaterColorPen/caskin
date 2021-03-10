@@ -24,6 +24,5 @@ var (
 	ErrProviderGet = fmt.Errorf("provider can't get current status")
 	// errors about user role pair
 	ErrInputArrayNotBelongSameUser = fmt.Errorf("input user role pair array are not belong to same user")
-	ErrInputArrayNotBelongSameRole  = fmt.Errorf("input user role pair array are not belong to same role")
+	ErrInputArrayNotBelongSameRole = fmt.Errorf("input user role pair array are not belong to same role")
 )
-

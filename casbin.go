@@ -31,6 +31,10 @@ type ienforcer interface {
 	AddRoleForUserInDomain(User, Role, Domain) error
 	RemoveRoleForUserInDomain(User, Role, Domain) error
 
+	// add or remove role-parent grouping information
+	AddParentForRoleInDomain(Role, Role, Domain) error
+	RemoveParentForRoleInDomain(Role, Role, Domain) error
+
 	// add or remove object-parent grouping information
 	AddParentForObjectInDomain(Object, Object, Domain) error
 	RemoveParentForObjectInDomain(Object, Object, Domain) error
@@ -238,13 +242,23 @@ func (e *enforcer) RemoveRoleForUserInDomain(user User, role Role, domain Domain
 	return err
 }
 
-func (e *enforcer) AddParentForObjectInDomain(object1 Object, object2 Object, domain Domain) error {
-	_, err := e.e.AddNamedGroupingPolicy(ObjectPType, object1.Encode(), object2.Encode(), domain.Encode())
+func (e *enforcer) AddParentForRoleInDomain(son Role, parent Role, domain Domain) error {
+	_, err := e.e.AddRoleForUserInDomain(parent.Encode(), son.Encode(), domain.Encode())
 	return err
 }
 
-func (e *enforcer) RemoveParentForObjectInDomain(object1 Object, object2 Object, domain Domain) error {
-	_, err := e.e.RemoveNamedGroupingPolicy(ObjectPType, object1.Encode(), object2.Encode(), domain.Encode())
+func (e *enforcer) RemoveParentForRoleInDomain(son Role, parent Role, domain Domain) error {
+	_, err := e.e.DeleteRoleForUserInDomain(parent.Encode(), son.Encode(), domain.Encode())
+	return err
+}
+
+func (e *enforcer) AddParentForObjectInDomain(son Object, parent Object, domain Domain) error {
+	_, err := e.e.AddNamedGroupingPolicy(ObjectPType, son.Encode(), parent.Encode(), domain.Encode())
+	return err
+}
+
+func (e *enforcer) RemoveParentForObjectInDomain(son Object, parent Object, domain Domain) error {
+	_, err := e.e.RemoveNamedGroupingPolicy(ObjectPType, son.Encode(), parent.Encode(), domain.Encode())
 	return err
 }
 
