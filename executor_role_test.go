@@ -47,8 +47,8 @@ func TestExecutorRole_GeneralCreate(t *testing.T) {
 	provider.Domain = stage.Domain
 	provider.User = stage.MemberUser
 	assert.Equal(t, caskin.ErrNoWritePermission, executor.CreateRole(role1))
-	// role1.ObjectID =
-	// provider.User = stage.
+	role1.ObjectID = 2
+	assert.Equal(t, caskin.ErrNoWritePermission, executor.CreateRole(role1))
 	assert.Equal(t, caskin.ErrNoWritePermission, executor.CreateRole(role1))
 	// user2 := &example.User{
 	// 	PhoneNumber: "12345678904",
