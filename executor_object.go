@@ -34,7 +34,6 @@ func (e *executor) DeleteObject(object Object) error {
 		}
 		return e.mdb.DeleteObjectByID(object.GetID())
 	}
-
 	return e.writeObject(object, fn)
 }
 
@@ -175,7 +174,7 @@ func (e *executor) createObject(object Object) error {
 	if err := e.mdb.Create(object); err != nil {
 		return err
 	}
-	// 3.2. 处理parent的关系
+	// 5. 处理parent的关系
 	if parent.GetID() != 0 {
 		return e.e.AddParentForObjectInDomain(object, parent, domain)
 	}

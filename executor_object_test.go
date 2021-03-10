@@ -253,7 +253,7 @@ func TestExecutorObject_GeneralRecover(t *testing.T) {
 	assert.Equal(t, caskin.ErrAlreadyExists, executor.RecoverObject(object))
 }
 
-func TestExecutor_DeleteObject(t *testing.T) {
+func TestExecutorObject_GeneralDelete(t *testing.T) {
 	stage, _ := newStage(t)
 	provider := &example.Provider{
 		User:   stage.SuperadminUser,

@@ -104,6 +104,26 @@ func (p *Policy) Key() string {
 
 type PolicyList []*Policy
 
+func (p PolicyList) IsValidWithObject(object Object) error {
+	encode := object.Encode()
+	for _, v := range p {
+		if v.Object.Encode() != encode {
+			return ErrInputPolicyListNotBelongSameObject
+		}
+	}
+	return nil
+}
+
+func (p PolicyList) IsValidWithRole(role Role) error {
+	encode := role.Encode()
+	for _, v := range p {
+		if v.Role.Encode() != encode {
+			return ErrInputPolicyListNotBelongSameRole
+		}
+	}
+	return nil
+}
+
 type UserRolePair struct {
 	User User `json:"user"`
 	Role Role `json:"role"`
@@ -115,10 +135,9 @@ func (u UserRolePairs) IsValidWithRole(role Role) error {
 	encode := role.Encode()
 	for _, v := range u {
 		if v.Role.Encode() != encode {
-			return ErrInputArrayNotBelongSameRole
+			return ErrInputPairArrayNotBelongSameRole
 		}
 	}
-
 	return nil
 }
 
@@ -126,10 +145,9 @@ func (u UserRolePairs) IsValidWithUser(user User) error {
 	encode := user.Encode()
 	for _, v := range u {
 		if v.User.Encode() != encode {
-			return ErrInputArrayNotBelongSameUser
+			return ErrInputPairArrayNotBelongSameUser
 		}
 	}
-
 	return nil
 }
 

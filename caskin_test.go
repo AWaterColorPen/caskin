@@ -18,9 +18,10 @@ func TestNewCaskin(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-func TestCaskin_GetExecutor(t *testing.T) {
-	_, err := newStage(t)
+func TestNewStage(t *testing.T) {
+	stage, err := newStage(t)
 	assert.NoError(t, err)
+	assert.NoError(t, stageAddSubAdmin(stage))
 }
 
 func getTestDB(tb testing.TB) (*gorm.DB, error) {
@@ -155,3 +156,71 @@ func newStage(t *testing.T) (*example.Stage, error) {
 
 	return stage, nil
 }
+
+func stageAddSubAdmin(stage *example.Stage) error {
+	provider := &example.Provider{
+		Domain: stage.Domain,
+		User:   stage.AdminUser,
+	}
+	executor := stage.Caskin.GetExecutor(provider)
+
+	subAdmin := &example.User{
+		PhoneNumber: "123456789031",
+		Email:       "subadmin@qq.com",
+	}
+	if err := executor.CreateUser(subAdmin); err != nil {
+		return err
+	}
+
+	object1 := &example.Object{
+		Name: "object_sub_01",
+		Type: caskin.ObjectTypeObject,
+		ObjectID: 1,
+		ParentID: 1,
+	}
+	if err := executor.CreateObject(object1); err != nil {
+		return err
+	}
+
+	object2 := &example.Object{
+		Name: "role_sub_02",
+		Type: caskin.ObjectTypeRole,
+		ObjectID: object1.ID,
+		ParentID: 2,
+	}
+	if err := executor.CreateObject(object2); err != nil {
+		return err
+	}
+
+	role := &example.Role{
+		Name: "admin_sub_01",
+		ObjectID: object2.ID,
+		ParentID: 1,
+	}
+	if err := executor.CreateRole(role); err != nil {
+		return err
+	}
+
+	for k, v := range map[caskin.Role][]*caskin.UserRolePair{
+		role: {{User: subAdmin, Role: role}},
+	} {
+		if err := executor.ModifyUserRolePairPerRole(k, v); err != nil {
+			return err
+		}
+	}
+
+	policy := []*caskin.Policy{
+		{role, object1, stage.Domain, caskin.Read},
+		{role, object1, stage.Domain, caskin.Write},
+		{role, object2, stage.Domain, caskin.Read},
+		{role, object2, stage.Domain, caskin.Write},
+	}
+	if err := executor.ModifyPolicyListPerRole(role, policy); err != nil {
+		return err
+	}
+
+	stage.SubAdminUser = subAdmin
+
+	return nil
+}
+

@@ -10,4 +10,5 @@ type Stage struct {
 	SuperadminUser *User           // superadmin user on stage
 	AdminUser      *User           // a domain admin user on stage
 	MemberUser     *User           // a domain member user on stage
+	SubAdminUser   *User           // a domain sub admin user on stage
 }

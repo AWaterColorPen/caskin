@@ -92,11 +92,11 @@ func TestExecutorUser_GeneralDelete(t *testing.T) {
 	roles, err := executor.GetRoles()
 	assert.NoError(t, err)
 
-	for _, v := range []*caskin.RolesForUser{
-		{User: stage.MemberUser, Roles: []caskin.Role{roles[0]}},
-		{User: stage.AdminUser, Roles: []caskin.Role{roles[1]}},
+	for k, v := range map[caskin.Role][]*caskin.UserRolePair{
+		roles[0]: {{User: stage.MemberUser, Role: roles[0]}},
+		roles[1]: {{User: stage.AdminUser, Role: roles[1]}},
 	} {
-		assert.NoError(t, executor.ModifyRolesForUser(v))
+		assert.NoError(t, executor.ModifyUserRolePairPerRole(k, v))
 	}
 
 	assert.NoError(t, executor.DeleteUser(stage.SuperadminUser))

@@ -4,10 +4,10 @@ import "fmt"
 
 var (
 	// errors about entry
-	ErrNil           = fmt.Errorf("nil data")
-	ErrEmptyID       = fmt.Errorf("empty id")
-	ErrAlreadyExists = fmt.Errorf("already exists")
-	ErrNotExists     = fmt.Errorf("not exists")
+	ErrNil                = fmt.Errorf("nil data")
+	ErrEmptyID            = fmt.Errorf("empty id")
+	ErrAlreadyExists      = fmt.Errorf("already exists")
+	ErrNotExists          = fmt.Errorf("not exists")
 	ErrNotValidObjectType = fmt.Errorf("not valid object type")
 	// errors about permission
 	ErrNoReadPermission  = fmt.Errorf("no read permission")
@@ -23,6 +23,9 @@ var (
 	// errors about current provider
 	ErrProviderGet = fmt.Errorf("provider can't get current status")
 	// errors about user role pair
-	ErrInputArrayNotBelongSameUser = fmt.Errorf("input user role pair array are not belong to same user")
-	ErrInputArrayNotBelongSameRole = fmt.Errorf("input user role pair array are not belong to same role")
+	ErrInputPairArrayNotBelongSameUser = fmt.Errorf("input user role pair array are not belong to same user")
+	ErrInputPairArrayNotBelongSameRole = fmt.Errorf("input user role pair array are not belong to same role")
+	// errors about policy list
+	ErrInputPolicyListNotBelongSameRole   = fmt.Errorf("input policy list are not belong to same role")
+	ErrInputPolicyListNotBelongSameObject = fmt.Errorf("input policy list are not belong to same object")
 )
