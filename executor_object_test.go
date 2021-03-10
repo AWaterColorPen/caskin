@@ -137,7 +137,7 @@ func TestExecutor_DeleteObject(t *testing.T) {
 	assert.Len(t, objects, 2)
 
 	object := &example.Object{
-		ID:        4,
+		ID: 4,
 	}
 	assert.Error(t, executor.DeleteObject(object))
 }
@@ -159,7 +159,7 @@ func TestExecutor_RecoverObject(t *testing.T) {
 	assert.Len(t, objects, 2)
 
 	object := &example.Object{
-		ID:        3,
+		ID: 3,
 	}
 	assert.NoError(t, executor.RecoverObject(object))
 	assert.Equal(t, caskin.ErrAlreadyExists, executor.RecoverObject(object))

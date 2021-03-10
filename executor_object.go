@@ -4,6 +4,7 @@ package caskin
 // if current user has object's write permission and there does not exist the object
 // then create a new one
 // 1. create a new object into metadata database
+// 2. update object to parent's g2 in the domain
 func (e *executor) CreateObject(object Object) error {
 	return e.createOrRecoverObject(object, e.mdb.Create, e.mdb.Take)
 }
@@ -12,13 +13,14 @@ func (e *executor) CreateObject(object Object) error {
 // if current user has object's write permission and there exist the object but soft deleted
 // then recover it
 // 1. recover the soft delete one object at metadata database
+// 2. update object to parent's g2 in the domain
 func (e *executor) RecoverObject(object Object) error {
 	return e.createOrRecoverObject(object, e.mdb.Recover, e.mdb.TakeUnscoped)
 }
 
 // DeleteObject
 // if current user has object's write permission
-// 1. delete object's g in the domain
+// 1. delete object's g2 in the domain
 // 2. delete object's p in the domain
 // 3. soft delete one object in metadata database
 func (e *executor) DeleteObject(object Object) error {
@@ -39,6 +41,7 @@ func (e *executor) DeleteObject(object Object) error {
 // UpdateObject
 // if current user has object's write permission and there exist the object
 // 1. update object's properties
+// 2. update object to parent's g2 in the domain
 func (e *executor) UpdateObject(object Object) error {
 	return e.writeObject(object, e.mdb.Update)
 }
@@ -83,7 +86,6 @@ func (e *executor) createOrRecoverObject(object Object, fn func(interface{}) err
 	if err != nil {
 		return err
 	}
-
 
 	take := func(id uint64) (parentEntry, error) {
 		o := e.factory.NewObject()

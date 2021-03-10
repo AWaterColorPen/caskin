@@ -1,82 +1,82 @@
 package caskin_test
 
 import (
-    "testing"
+	"testing"
 
-    "github.com/awatercolorpen/caskin"
-    "github.com/awatercolorpen/caskin/example"
-    "github.com/stretchr/testify/assert"
+	"github.com/awatercolorpen/caskin"
+	"github.com/awatercolorpen/caskin/example"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestExecutorSuperadmin_Add(t *testing.T) {
-    stage, _ := newStage(t)
-    provider := &example.Provider{}
-    executor := stage.Caskin.GetExecutor(provider)
+	stage, _ := newStage(t)
+	provider := &example.Provider{}
+	executor := stage.Caskin.GetExecutor(provider)
 
-    user1 := &example.User{
-        PhoneNumber: "12345678904",
-        Email:       "member2@qq.com",
-    }
-    assert.Equal(t, caskin.ErrEmptyID, executor.AddSuperadminUser(user1))
-    user1.ID = stage.MemberUser.ID
-    assert.Error(t, executor.AddSuperadminUser(user1))
-    assert.NoError(t, executor.AddSuperadminUser(stage.MemberUser))
+	user1 := &example.User{
+		PhoneNumber: "12345678904",
+		Email:       "member2@qq.com",
+	}
+	assert.Equal(t, caskin.ErrEmptyID, executor.AddSuperadminUser(user1))
+	user1.ID = stage.MemberUser.ID
+	assert.Error(t, executor.AddSuperadminUser(user1))
+	assert.NoError(t, executor.AddSuperadminUser(stage.MemberUser))
 
-    list1, err := executor.GetAllSuperadminUser()
-    assert.NoError(t, err)
-    assert.Len(t, list1, 2)
+	list1, err := executor.GetAllSuperadminUser()
+	assert.NoError(t, err)
+	assert.Len(t, list1, 2)
 }
 
 func TestExecutorSuperadmin_Delete(t *testing.T) {
-    stage, _ := newStage(t)
-    provider := &example.Provider{}
-    executor := stage.Caskin.GetExecutor(provider)
+	stage, _ := newStage(t)
+	provider := &example.Provider{}
+	executor := stage.Caskin.GetExecutor(provider)
 
-    user1 := &example.User{
-        PhoneNumber: "12345678904",
-        Email:       "member2@qq.com",
-    }
-    assert.Equal(t, caskin.ErrEmptyID, executor.DeleteSuperadminUser(user1))
-    user1.ID = stage.MemberUser.ID
-    assert.Error(t, executor.DeleteSuperadminUser(user1))
+	user1 := &example.User{
+		PhoneNumber: "12345678904",
+		Email:       "member2@qq.com",
+	}
+	assert.Equal(t, caskin.ErrEmptyID, executor.DeleteSuperadminUser(user1))
+	user1.ID = stage.MemberUser.ID
+	assert.Error(t, executor.DeleteSuperadminUser(user1))
 
-    // delete a no superadmin user, it will not return error
-    assert.NoError(t, executor.DeleteSuperadminUser(stage.MemberUser))
-    list1, err := executor.GetAllSuperadminUser()
-    assert.NoError(t, err)
-    assert.Len(t, list1, 1)
+	// delete a no superadmin user, it will not return error
+	assert.NoError(t, executor.DeleteSuperadminUser(stage.MemberUser))
+	list1, err := executor.GetAllSuperadminUser()
+	assert.NoError(t, err)
+	assert.Len(t, list1, 1)
 
-    assert.NoError(t, executor.DeleteSuperadminUser(stage.SuperadminUser))
-    list2, err := executor.GetAllSuperadminUser()
-    assert.NoError(t, err)
-    assert.Len(t, list2, 0)
+	assert.NoError(t, executor.DeleteSuperadminUser(stage.SuperadminUser))
+	list2, err := executor.GetAllSuperadminUser()
+	assert.NoError(t, err)
+	assert.Len(t, list2, 0)
 }
 
 func TestExecutorSuperadmin_NoSuperadmin(t *testing.T) {
-    stage, _ := newStage(t)
-    assert.NoError(t, noSuperadminStage(stage))
-    provider := &example.Provider{}
-    executor := stage.Caskin.GetExecutor(provider)
+	stage, _ := newStage(t)
+	assert.NoError(t, noSuperadminStage(stage))
+	provider := &example.Provider{}
+	executor := stage.Caskin.GetExecutor(provider)
 
-    user1 := &example.User{
-        PhoneNumber: "12345678904",
-        Email:       "member2@qq.com",
-    }
-    assert.NoError(t, executor.CreateUser(user1))
-    assert.Equal(t, caskin.ErrSuperAdminIsNoEnabled, executor.AddSuperadminUser(user1))
-    assert.Equal(t, caskin.ErrSuperAdminIsNoEnabled, executor.DeleteSuperadminUser(stage.AdminUser))
-    _, err := executor.GetAllSuperadminUser()
-    assert.Equal(t, caskin.ErrSuperAdminIsNoEnabled, err)
+	user1 := &example.User{
+		PhoneNumber: "12345678904",
+		Email:       "member2@qq.com",
+	}
+	assert.NoError(t, executor.CreateUser(user1))
+	assert.Equal(t, caskin.ErrSuperAdminIsNoEnabled, executor.AddSuperadminUser(user1))
+	assert.Equal(t, caskin.ErrSuperAdminIsNoEnabled, executor.DeleteSuperadminUser(stage.AdminUser))
+	_, err := executor.GetAllSuperadminUser()
+	assert.Equal(t, caskin.ErrSuperAdminIsNoEnabled, err)
 }
 
 func noSuperadminStage(stage *example.Stage) error {
-    provider := &example.Provider{}
-    executor := stage.Caskin.GetExecutor(provider)
-    if err := executor.DeleteSuperadminUser(stage.SuperadminUser); err != nil {
-        return err
-    }
+	provider := &example.Provider{}
+	executor := stage.Caskin.GetExecutor(provider)
+	if err := executor.DeleteSuperadminUser(stage.SuperadminUser); err != nil {
+		return err
+	}
 
-    stage.SuperadminUser = nil
-    stage.Options.SuperadminOption.Enable = false
-    return nil
+	stage.SuperadminUser = nil
+	stage.Options.SuperadminOption.Enable = false
+	return nil
 }

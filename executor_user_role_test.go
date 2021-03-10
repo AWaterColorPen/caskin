@@ -10,7 +10,7 @@ import (
 func TestExecutorUser_GetUserRolePair(t *testing.T) {
 	stage, _ := newStage(t)
 	provider := &example.Provider{
-		User: stage.MemberUser,
+		User:   stage.MemberUser,
 		Domain: stage.Domain,
 	}
 	executor := stage.Caskin.GetExecutor(provider)

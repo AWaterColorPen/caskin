@@ -19,7 +19,6 @@ func TestExecutorDomain_GeneralCreate(t *testing.T) {
 	domain2 := &example.Domain{Name: "domain_02"}
 	assert.Equal(t, caskin.ErrAlreadyExists, executor.CreateDomain(domain2))
 
-
 	domains1, err := executor.GetAllDomain()
 	assert.NoError(t, err)
 	assert.Len(t, domains1, 2)

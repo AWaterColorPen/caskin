@@ -17,7 +17,7 @@ type entry interface {
 	Decode(string) error
 }
 
-type parent interface {
+type hasParent interface {
 	// get parent id method
 	GetParentID() uint64
 	// set parent id method
@@ -35,7 +35,7 @@ type ObjectData interface {
 
 type parentEntry interface {
 	entry
-	parent
+	hasParent
 	ObjectData
 }
 
