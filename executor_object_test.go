@@ -179,7 +179,7 @@ func TestExecutorObject_CreateSubNode(t *testing.T) {
 func TestExecutorObject_GeneralUpdate(t *testing.T) {
 	stage, _ := newStage(t)
 	provider := &example.Provider{
-		User:   stage.SuperadminUser,
+		User:   stage.AdminUser,
 		Domain: stage.Domain,
 	}
 	executor := stage.Caskin.GetExecutor(provider)
@@ -212,6 +212,16 @@ func TestExecutorObject_GeneralUpdate(t *testing.T) {
 	provider.User = stage.AdminUser
 	subObject.Name = "object_01_sub_new_name"
 	assert.Equal(t, caskin.ErrNoWritePermission, executor.UpdateObject(subObject))
+	assert.Error(t, executor.CreateObject(object1))
+
+	provider.User = stage.MemberUser
+	object2 := &example.Object{
+		Name:     "object_02",
+		Type:     objectType,
+		DomainID: 1,
+		ObjectID: objects[0].GetID(),
+	}
+	assert.Equal(t, caskin.ErrNoWritePermission, executor.CreateObject(object2))
 }
 
 func TestExecutorObject_GeneralRecover(t *testing.T) {
@@ -233,6 +243,11 @@ func TestExecutorObject_GeneralRecover(t *testing.T) {
 	object := &example.Object{
 		ID: 3,
 	}
+	assert.Error(t, executor.DeleteObject(object))
+
+	provider.User = stage.MemberUser
+	object.ID = 2
+	assert.Equal(t, caskin.ErrNoWritePermission, executor.DeleteObject(object))
 	assert.NoError(t, executor.RecoverObject(object))
 	assert.Equal(t, caskin.ErrAlreadyExists, executor.RecoverObject(object))
 }
@@ -257,4 +272,21 @@ func TestExecutor_DeleteObject(t *testing.T) {
 		ID: 4,
 	}
 	assert.Error(t, executor.DeleteObject(object))
+	assert.NoError(t, executor.CreateObject(object))
+
+	object.Name = "object_01_new_name"
+	assert.NoError(t, executor.UpdateObject(object))
+
+	subObject := &example.Object{
+		Name:     "object_01_sub",
+		Type:     objectType,
+		DomainID: 1,
+		ObjectID: 4,
+		ParentID: object.ID,
+	}
+	assert.NoError(t, executor.CreateObject(subObject))
+
+	provider.User = stage.AdminUser
+	subObject.Name = "object_01_sub_new_name"
+	assert.Equal(t, caskin.ErrNoWritePermission, executor.UpdateObject(subObject))
 }
