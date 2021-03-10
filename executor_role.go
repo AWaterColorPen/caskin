@@ -216,7 +216,6 @@ func (e *executor) GetRoles() (Roles, error) {
 	return roles, nil
 }
 
-
 func (e *executor) createOrRecoverRole(role Role, fn func(interface{}) error) error {
 	if err := e.mdb.Take(role); err == nil {
 		return ErrAlreadyExists
