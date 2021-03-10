@@ -135,11 +135,11 @@ func newStage(t *testing.T) (*example.Stage, error) {
 	provider.User = superadmin
 	roles, err := executor.GetRoles()
 
-	for _, v := range []*caskin.RolesForUser{
-		{User: admin, Roles: []caskin.Role{roles[0]}},
-		{User: member, Roles: []caskin.Role{roles[1]}},
+	for k, v := range map[caskin.Role][]*caskin.UserRolePair{
+		roles[0]: {{User: admin, Role: roles[0]}},
+		roles[1]: {{User: member, Role: roles[1]}},
 	} {
-		if err := executor.ModifyRolesForUser(v); err != nil {
+		if err := executor.ModifyUserRolePairPerRole(k, v); err != nil {
 			return nil, err
 		}
 	}

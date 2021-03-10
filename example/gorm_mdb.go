@@ -1,8 +1,6 @@
 package example
 
 import (
-	"errors"
-
 	"github.com/ahmetb/go-linq/v3"
 	"github.com/awatercolorpen/caskin"
 	"gorm.io/gorm"
@@ -132,21 +130,12 @@ func (g *gormMDB) DeleteDomainByID(id uint64) error {
 
 func (g *gormMDB) upsert(entry entry) error {
 	if entry.GetID() == 0 {
-		return g.insertOrRecover(entry)
-	}
-	return g.db.Updates(entry).Error
-}
-
-func (g *gormMDB) insertOrRecover(item interface{}) error {
-	return g.db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Unscoped().Where(item).Take(item).Error; err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return tx.Create(item).Error
-			}
-			return err
+		if err := g.Recover(entry); err == nil {
+			return nil
 		}
-		return tx.Model(item).Update("delete_at", nil).Error
-	})
+		return g.Create(entry)
+	}
+	return g.Update(entry)
 }
 
 func NewGormMDBByDB(db *gorm.DB) caskin.MetaDB {

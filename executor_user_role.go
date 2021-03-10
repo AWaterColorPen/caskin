@@ -134,6 +134,9 @@ func (e *executor) GetUserRolePair() ([]*UserRolePair, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	rs := e.e.GetRolesInDomain(currentDomain)
+	tree := getTree(rs)
 	roles, err := e.mdb.GetRoleInDomain(currentDomain)
 	if err != nil {
 		return nil, err
@@ -144,6 +147,11 @@ func (e *executor) GetUserRolePair() ([]*UserRolePair, error) {
 		roles = append(roles, v.(Role))
 	}
 	rm := getIDMap(roles)
+	for _, v := range roles {
+		if p, ok := tree[v.GetID()]; ok {
+			v.SetParentID(p)
+		}
+	}
 
 	var list []*UserRolePair
 	for _, v := range users {
@@ -300,6 +308,78 @@ func (e *executor) ModifyUserRolePairPerUser(user User, input []*UserRolePair) e
 	for _, v := range remove {
 		r := rm[v.(uint64)]
 		if err := e.e.RemoveRoleForUserInDomain(user, r.(Role), currentDomain); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ModifyUserRolePairPerRole
+// if current user has role's write permission
+// 1. modify role's to user 's g in current domain
+func (e *executor) ModifyUserRolePairPerRole(role Role, input []*UserRolePair) error {
+	if err := isValid(role); err != nil {
+		return err
+	}
+
+	pairs := UserRolePairs(input)
+	if err := pairs.IsValidWithRole(role); err != nil {
+		return err
+	}
+
+	if err := e.mdb.Take(role); err != nil {
+		return ErrNotExists
+	}
+
+	if err := e.check(Write, role); err != nil {
+		return err
+	}
+
+	_, currentDomain, err := e.provider.Get()
+	if err != nil {
+		return err
+	}
+
+	us := e.e.GetUsersForRoleInDomain(role, currentDomain)
+	uid1 := getIDList(us)
+	uid2 := pairs.UserID()
+
+	// get all role data
+	var uid []uint64
+	uid = append(uid, uid1...)
+	uid = append(uid, uid2...)
+	linq.From(uid).Distinct().ToSlice(&uid)
+	users, err := e.mdb.GetUserByID(uid)
+	if err != nil {
+		return err
+	}
+	um := getIDMap(users)
+
+	// make source and target role id list
+	var source, target []interface{}
+	for _, v := range uid1 {
+		if _, ok := um[v]; ok {
+			source = append(source, v)
+		}
+	}
+	for _, v := range uid2 {
+		if _, ok := um[v]; ok {
+			target = append(target, v)
+		}
+	}
+
+	// get diff to add and remove
+	add, remove := Diff(source, target)
+	for _, v := range add {
+		u := um[v.(uint64)]
+		if err := e.e.AddRoleForUserInDomain(u.(User), role, currentDomain); err != nil {
+			return err
+		}
+	}
+	for _, v := range remove {
+		u := um[v.(uint64)]
+		if err := e.e.RemoveRoleForUserInDomain(u.(User), role, currentDomain); err != nil {
 			return err
 		}
 	}

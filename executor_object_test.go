@@ -1,8 +1,6 @@
 package caskin_test
 
 import (
-	"encoding/json"
-	"fmt"
 	"github.com/awatercolorpen/caskin"
 	"github.com/awatercolorpen/caskin/example"
 	"github.com/stretchr/testify/assert"
@@ -70,102 +68,115 @@ func TestExecutorObject(t *testing.T) {
 	assert.NoError(t, executor.UpdateObject(subObject))
 }
 
-func TestExecutor_GetObjects(t *testing.T) {
+func TestExecutorObject_GetObjects(t *testing.T) {
 	stage, _ := newStage(t)
-	provider := &example.Provider{
-		User:   stage.SuperadminUser,
-		Domain: stage.Domain,
-	}
+	provider := &example.Provider{}
 	executor := stage.Caskin.GetExecutor(provider)
 
-	objects, err := executor.GetObjects()
+	provider.Domain = stage.Domain
+	provider.User = stage.AdminUser
+	objects1, err := executor.GetObjects()
 	assert.NoError(t, err)
-	assert.Len(t, objects, 3)
+	assert.Len(t, objects1, 3)
 
-	objects, err = executor.GetObjects(caskin.ObjectTypeObject)
+	objects2, err := executor.GetObjects(caskin.ObjectTypeObject)
 	assert.NoError(t, err)
-	assert.Len(t, objects, 1)
+	assert.Len(t, objects2, 1)
 
-	objects, err = executor.GetObjects(caskin.ObjectTypeObject, caskin.ObjectTypeRole)
+	objects3, err := executor.GetObjects(caskin.ObjectTypeObject, caskin.ObjectTypeRole)
 	assert.NoError(t, err)
-	assert.Len(t, objects, 2)
+	assert.Len(t, objects3, 2)
+
+	provider.Domain = stage.Domain
+	provider.User = stage.MemberUser
+	objects4, err := executor.GetObjects()
+	assert.NoError(t, err)
+	assert.Len(t, objects4, 0)
 }
 
-func TestExecutor_CreateObject(t *testing.T) {
+func TestExecutorObject_GeneralCreate(t *testing.T) {
 	stage, _ := newStage(t)
-	provider := &example.Provider{
-		User:   stage.SuperadminUser,
-		Domain: stage.Domain,
-	}
+	provider := &example.Provider{}
 	executor := stage.Caskin.GetExecutor(provider)
 
-	objects, _ := executor.GetObjects(caskin.ObjectTypeObject)
-	assert.Len(t, objects, 1)
-
-	objectType := caskin.ObjectType("test_data")
-	object := &example.Object{
+	object1 := &example.Object{
 		Name:     "object_01",
-		Type:     objectType,
-		DomainID: 1,
-		ObjectID: objects[0].GetID(),
+		Type:     ObjectTypeTest,
 	}
-	assert.NoError(t, executor.CreateObject(object))
+	assert.Equal(t, caskin.ErrProviderGet, executor.CreateObject(object1))
+
+	provider.Domain = stage.Domain
+	provider.User = stage.MemberUser
+	assert.Equal(t, caskin.ErrNoWritePermission, executor.CreateObject(object1))
+	provider.User = stage.AdminUser
+	assert.Equal(t, caskin.ErrNoWritePermission, executor.CreateObject(object1))
+
+	object1.ObjectID = 1
+	provider.User = stage.MemberUser
+	assert.Equal(t, caskin.ErrNoWritePermission, executor.CreateObject(object1))
+	provider.User = stage.AdminUser
+	assert.NoError(t, executor.CreateObject(object1))
 
 	object2 := &example.Object{
 		Name:     "object_01",
-		Type:     objectType,
-		DomainID: 1,
-		ObjectID: objects[0].GetID(),
+		Type:     ObjectTypeTest,
 	}
-	assert.Error(t, executor.CreateObject(object2))
+	assert.Equal(t, caskin.ErrAlreadyExists, executor.CreateObject(object2))
+
+	object3 := &example.Object{
+		Name:     "object_01",
+		Type:     ObjectTypeTest,
+	}
+	assert.Equal(t, caskin.ErrEmptyID, executor.DeleteObject(object3))
+	object3.ID = object1.ID
+	assert.NoError(t, executor.DeleteObject(object3))
+
+	object4 := &example.Object{ID: 10, ObjectID: 1}
+	assert.Equal(t, caskin.ErrNotExists, executor.DeleteObject(object4))
+	assert.NoError(t, executor.CreateObject(object4))
 }
 
-func TestExecutor_DeleteObject(t *testing.T) {
+func TestExecutorObject_CreateSubNode(t *testing.T) {
 	stage, _ := newStage(t)
-	provider := &example.Provider{
-		User:   stage.SuperadminUser,
-		Domain: stage.Domain,
-	}
+	provider := &example.Provider{}
 	executor := stage.Caskin.GetExecutor(provider)
 
-	objects, _ := executor.GetObjects()
-	assert.Len(t, objects, 3)
-
-	assert.NoError(t, executor.DeleteObject(objects[2]))
-
-	objects, _ = executor.GetObjects()
-	assert.Len(t, objects, 2)
-
-	object := &example.Object{
-		ID: 4,
+	role1 := &example.Role{
+		Name:     "sub_member_1",
+		ObjectID: 2,
+		ParentID: 3,
 	}
-	assert.Error(t, executor.DeleteObject(object))
+	provider.Domain = stage.Domain
+	provider.User = stage.AdminUser
+	assert.Equal(t, caskin.ErrNoWritePermission, executor.CreateRole(role1))
+
+	role1.ParentID = 2
+	assert.NoError(t, executor.CreateRole(role1))
+
+	role1.ObjectID = 2
+	provider.User = stage.MemberUser
+	assert.Equal(t, caskin.ErrNoWritePermission, executor.CreateRole(role1))
+	provider.User = stage.AdminUser
+	assert.NoError(t, executor.CreateRole(role1))
+
+	role2 := &example.Role{
+		Name: "sub_admin_1",
+	}
+	assert.Equal(t, caskin.ErrAlreadyExists, executor.CreateRole(role2))
+
+	role3 := &example.Role{
+		Name: "sub_admin_1",
+	}
+	assert.Equal(t, caskin.ErrEmptyID, executor.DeleteRole(role3))
+	role3.ID = role1.ID
+	assert.NoError(t, executor.DeleteRole(role3))
+
+	role4 := &example.Role{ID: 5}
+	assert.Equal(t, caskin.ErrNotExists, executor.DeleteRole(role4))
+	assert.NoError(t, executor.CreateRole(role4))
 }
 
-func TestExecutor_RecoverObject(t *testing.T) {
-	stage, _ := newStage(t)
-	provider := &example.Provider{
-		User:   stage.SuperadminUser,
-		Domain: stage.Domain,
-	}
-	executor := stage.Caskin.GetExecutor(provider)
-
-	objects, _ := executor.GetObjects()
-	assert.Len(t, objects, 3)
-
-	assert.NoError(t, executor.DeleteObject(objects[2]))
-
-	objects, _ = executor.GetObjects()
-	assert.Len(t, objects, 2)
-
-	object := &example.Object{
-		ID: 3,
-	}
-	assert.NoError(t, executor.RecoverObject(object))
-	assert.Equal(t, caskin.ErrAlreadyExists, executor.RecoverObject(object))
-}
-
-func TestExecutor_UpdateObject(t *testing.T) {
+func TestExecutorObject_GeneralUpdate(t *testing.T) {
 	stage, _ := newStage(t)
 	provider := &example.Provider{
 		User:   stage.SuperadminUser,
@@ -194,11 +205,56 @@ func TestExecutor_UpdateObject(t *testing.T) {
 	}
 	assert.NoError(t, executor.CreateObject(subObject))
 
-	policiesForRole, _ := executor.GetAllPoliciesForRole()
-	bytes, _ := json.Marshal(policiesForRole)
-	fmt.Println(string(bytes))
+	// policiesForRole, _ := executor.GetAllPoliciesForRole()
+	// bytes, _ := json.Marshal(policiesForRole)
+	// fmt.Println(string(bytes))
 
 	provider.User = stage.AdminUser
 	subObject.Name = "object_01_sub_new_name"
 	assert.Equal(t, caskin.ErrNoWritePermission, executor.UpdateObject(subObject))
+}
+
+func TestExecutorObject_GeneralRecover(t *testing.T) {
+	stage, _ := newStage(t)
+	provider := &example.Provider{
+		User:   stage.SuperadminUser,
+		Domain: stage.Domain,
+	}
+	executor := stage.Caskin.GetExecutor(provider)
+
+	objects, _ := executor.GetObjects()
+	assert.Len(t, objects, 3)
+
+	assert.NoError(t, executor.DeleteObject(objects[2]))
+
+	objects, _ = executor.GetObjects()
+	assert.Len(t, objects, 2)
+
+	object := &example.Object{
+		ID: 3,
+	}
+	assert.NoError(t, executor.RecoverObject(object))
+	assert.Equal(t, caskin.ErrAlreadyExists, executor.RecoverObject(object))
+}
+
+func TestExecutor_DeleteObject(t *testing.T) {
+	stage, _ := newStage(t)
+	provider := &example.Provider{
+		User:   stage.SuperadminUser,
+		Domain: stage.Domain,
+	}
+	executor := stage.Caskin.GetExecutor(provider)
+
+	objects, _ := executor.GetObjects()
+	assert.Len(t, objects, 3)
+
+	assert.NoError(t, executor.DeleteObject(objects[2]))
+
+	objects, _ = executor.GetObjects()
+	assert.Len(t, objects, 2)
+
+	object := &example.Object{
+		ID: 4,
+	}
+	assert.Error(t, executor.DeleteObject(object))
 }

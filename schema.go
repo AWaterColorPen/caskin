@@ -96,11 +96,13 @@ type Policy struct {
 	Action Action `json:"action"`
 }
 
-// get the unique identify of the policy
+// Key get the unique identify of the policy
 func (p *Policy) Key() string {
 	s := []string{p.Role.Encode(), p.Object.Encode(), p.Domain.Encode(), string(p.Action)}
 	return strings.Join(s, DefaultSeparator)
 }
+
+type PolicyList []*Policy
 
 type UserRolePair struct {
 	User User `json:"user"`

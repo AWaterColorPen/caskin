@@ -17,6 +17,7 @@ type ienforcer interface {
 	GetParentsForObjectInDomain(Object, Domain) []Object
 	GetChildrenForObjectInDomain(Object, Domain) []Object
 	GetPoliciesForRoleInDomain(Role, Domain) []*Policy
+	GetPoliciesForObjectInDomain(Object, Domain) []*Policy
 
 	// remove entry in domain
 	RemoveUserInDomain(User, Domain) error
@@ -143,6 +144,32 @@ func (e *enforcer) GetChildrenForObjectInDomain(object Object, domain Domain) []
 func (e *enforcer) GetPoliciesForRoleInDomain(role Role, domain Domain) []*Policy {
 	var policies []*Policy
 	ps := e.e.GetPermissionsForUser(role.Encode(), domain.Encode())
+	for _, p := range ps {
+		r := e.factory.NewRole()
+		o := e.factory.NewObject()
+		if err := r.Decode(p[0]); err != nil {
+			continue
+		}
+		if err := o.Decode(p[2]); err != nil {
+			continue
+		}
+		action := p[3]
+
+		pp := &Policy{
+			Role:   r,
+			Object: o,
+			Domain: domain,
+			Action: Action(action),
+		}
+		policies = append(policies, pp)
+	}
+
+	return policies
+}
+
+func (e *enforcer) GetPoliciesForObjectInDomain(object Object, domain Domain) []*Policy {
+	var policies []*Policy
+	ps := e.e.GetFilteredPolicy(1, domain.Encode(), object.Encode())
 	for _, p := range ps {
 		r := e.factory.NewRole()
 		o := e.factory.NewObject()
