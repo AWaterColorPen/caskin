@@ -10,7 +10,7 @@ import (
 
 func TestExecutorSuperadmin_Add(t *testing.T) {
 	stage, _ := newStage(t)
-	provider := &Provider{}
+	provider := caskin.NewCachedProvider(nil, nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 
 	user1 := &example.User{
@@ -29,7 +29,7 @@ func TestExecutorSuperadmin_Add(t *testing.T) {
 
 func TestExecutorSuperadmin_Delete(t *testing.T) {
 	stage, _ := newStage(t)
-	provider := &Provider{}
+	provider := caskin.NewCachedProvider(nil, nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 
 	user1 := &example.User{
@@ -55,7 +55,7 @@ func TestExecutorSuperadmin_Delete(t *testing.T) {
 func TestExecutorSuperadmin_NoSuperadmin(t *testing.T) {
 	stage, _ := newStage(t)
 	assert.NoError(t, noSuperadminStage(stage))
-	provider := &Provider{}
+	provider := caskin.NewCachedProvider(nil, nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 
 	user1 := &example.User{
@@ -70,7 +70,7 @@ func TestExecutorSuperadmin_NoSuperadmin(t *testing.T) {
 }
 
 func noSuperadminStage(stage *Stage) error {
-	provider := &Provider{}
+	provider := caskin.NewCachedProvider(nil, nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 	if err := executor.DeleteSuperadminUser(stage.SuperadminUser); err != nil {
 		return err

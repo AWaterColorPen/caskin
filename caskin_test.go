@@ -24,19 +24,6 @@ type Stage struct {
 	SubAdminUser   *example.User    // a domain sub admin user on stage
 }
 
-// Provider example Provider for easy testing
-type Provider struct {
-	User   caskin.User
-	Domain caskin.Domain
-}
-
-func (p *Provider) Get() (caskin.User, caskin.Domain, error) {
-	if p.User == nil || p.Domain == nil {
-		return nil, nil, caskin.ErrProviderGet
-	}
-	return p.User, p.Domain, nil
-}
-
 func TestNewCaskin(t *testing.T) {
 	_, err := newCaskin(t, &caskin.Options{})
 	assert.NoError(t, err)
@@ -118,7 +105,7 @@ func newStage(t *testing.T) (*Stage, error) {
 		return nil, err
 	}
 
-	provider := &Provider{}
+	provider := caskin.NewCachedProvider(nil, nil, nil)
 	executor := c.GetExecutor(provider)
 
 	domain := &example.Domain{Name: "domain_01"}
@@ -177,10 +164,9 @@ func newStage(t *testing.T) (*Stage, error) {
 }
 
 func stageAddSubAdmin(stage *Stage) error {
-	provider := &Provider{
-		Domain: stage.Domain,
-		User:   stage.AdminUser,
-	}
+	provider := caskin.NewCachedProvider(nil, nil, nil)
+	provider.Domain = stage.Domain
+    provider.User = stage.AdminUser
 	executor := stage.Caskin.GetExecutor(provider)
 
 	subAdmin := &example.User{
