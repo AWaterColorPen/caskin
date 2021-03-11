@@ -4,11 +4,12 @@ import "fmt"
 
 var (
 	// errors about entry
-	ErrNil                = fmt.Errorf("nil data")
-	ErrEmptyID            = fmt.Errorf("empty id")
-	ErrAlreadyExists      = fmt.Errorf("already exists")
-	ErrNotExists          = fmt.Errorf("not exists")
-	ErrNotValidObjectType = fmt.Errorf("not valid object type")
+	ErrNil                  = fmt.Errorf("nil data")
+	ErrEmptyID              = fmt.Errorf("empty id")
+	ErrAlreadyExists        = fmt.Errorf("already exists")
+	ErrNotExists            = fmt.Errorf("not exists")
+	ErrNotValidObjectType   = fmt.Errorf("not valid object type")
+	ErrNotValidParentObject = fmt.Errorf("not valid parent object")
 
 	// errors about permission
 	ErrNoReadPermission  = fmt.Errorf("no read permission")

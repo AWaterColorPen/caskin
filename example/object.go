@@ -38,10 +38,6 @@ func (o *Object) Decode(code string) error {
 	return err
 }
 
-func (o *Object) IsObject() bool {
-	return true
-}
-
 func (o *Object) GetObject() caskin.Object {
 	return &Object{ID: o.ObjectID}
 }

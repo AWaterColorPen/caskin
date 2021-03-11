@@ -10,7 +10,7 @@ import (
 
 func TestExecutorUser_GeneralCreate(t *testing.T) {
 	stage, _ := newStage(t)
-	provider := &example.Provider{}
+	provider := &Provider{}
 	executor := stage.Caskin.GetExecutor(provider)
 
 	user1 := &example.User{
@@ -40,7 +40,7 @@ func TestExecutorUser_GeneralCreate(t *testing.T) {
 
 func TestExecutorUser_GeneralUpdate(t *testing.T) {
 	stage, _ := newStage(t)
-	executor := stage.Caskin.GetExecutor(&example.Provider{})
+	executor := stage.Caskin.GetExecutor(&Provider{})
 
 	user1 := &example.User{
 		ID:          stage.MemberUser.ID,
@@ -60,7 +60,7 @@ func TestExecutorUser_GeneralUpdate(t *testing.T) {
 
 func TestExecutorUser_GeneralRecover(t *testing.T) {
 	stage, _ := newStage(t)
-	provider := &example.Provider{}
+	provider := &Provider{}
 	executor := stage.Caskin.GetExecutor(provider)
 
 	user1 := &example.User{
@@ -80,7 +80,7 @@ func TestExecutorUser_GeneralRecover(t *testing.T) {
 
 func TestExecutorUser_GeneralDelete(t *testing.T) {
 	stage, _ := newStage(t)
-	provider := &example.Provider{}
+	provider := &Provider{}
 	executor := stage.Caskin.GetExecutor(provider)
 
 	domain := &example.Domain{Name: "domain_02"}

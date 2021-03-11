@@ -1,16 +1,17 @@
 package caskin_test
 
 import (
+	"testing"
+
 	"github.com/awatercolorpen/caskin"
 	"github.com/awatercolorpen/caskin/example"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestExecutorObject(t *testing.T) {
 	stage, _ := newStage(t)
 	assert.NoError(t, stageAddSubAdmin(stage))
-	provider := &example.Provider{
+	provider := &Provider{
 		User:   stage.SuperadminUser,
 		Domain: stage.Domain,
 	}
@@ -71,7 +72,7 @@ func TestExecutorObject(t *testing.T) {
 
 func TestExecutorObject_GetObjects(t *testing.T) {
 	stage, _ := newStage(t)
-	provider := &example.Provider{}
+	provider := &Provider{}
 	executor := stage.Caskin.GetExecutor(provider)
 
 	provider.Domain = stage.Domain
@@ -97,7 +98,7 @@ func TestExecutorObject_GetObjects(t *testing.T) {
 
 func TestExecutorObject_GeneralCreate(t *testing.T) {
 	stage, _ := newStage(t)
-	provider := &example.Provider{}
+	provider := &Provider{}
 	executor := stage.Caskin.GetExecutor(provider)
 
 	object1 := &example.Object{
@@ -140,7 +141,7 @@ func TestExecutorObject_GeneralCreate(t *testing.T) {
 func TestExecutorObject_CreateSubNode(t *testing.T) {
 	stage, _ := newStage(t)
 	assert.NoError(t, stageAddSubAdmin(stage))
-	provider := &example.Provider{}
+	provider := &Provider{}
 	executor := stage.Caskin.GetExecutor(provider)
 
 	object := &example.Object{
@@ -191,7 +192,7 @@ func TestExecutorObject_CreateSubNode(t *testing.T) {
 
 func TestExecutorObject_GeneralUpdate(t *testing.T) {
 	stage, _ := newStage(t)
-	provider := &example.Provider{
+	provider := &Provider{
 		User:   stage.AdminUser,
 		Domain: stage.Domain,
 	}
@@ -229,7 +230,7 @@ func TestExecutorObject_GeneralUpdate(t *testing.T) {
 
 func TestExecutorObject_GeneralRecover(t *testing.T) {
 	stage, _ := newStage(t)
-	provider := &example.Provider{
+	provider := &Provider{
 		User:   stage.SuperadminUser,
 		Domain: stage.Domain,
 	}
@@ -260,7 +261,7 @@ func TestExecutorObject_GeneralRecover(t *testing.T) {
 
 func TestExecutorObject_GeneralDelete(t *testing.T) {
 	stage, _ := newStage(t)
-	provider := &example.Provider{
+	provider := &Provider{
 		User:   stage.SuperadminUser,
 		Domain: stage.Domain,
 	}

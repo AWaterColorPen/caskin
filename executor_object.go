@@ -102,4 +102,3 @@ func (e *executor) GetObjects(ty ...ObjectType) ([]Object, error) {
 
 	return objects, nil
 }
-
