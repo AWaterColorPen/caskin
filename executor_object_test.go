@@ -253,6 +253,8 @@ func TestExecutorObject_GeneralUpdate(t *testing.T) {
 
 	subObject.ID = 0
 	assert.Equal(t, caskin.ErrEmptyID, executor.UpdateObject(subObject))
+	subObject.ID = 10
+	assert.Equal(t, caskin.ErrNotExists, executor.UpdateObject(subObject))
 
 	object2 := &example.Object{
 		Name:     "object_02",
@@ -310,9 +312,10 @@ func TestExecutorObject_GeneralDelete(t *testing.T) {
 	assert.Len(t, objects, 2)
 
 	object := &example.Object{
-		ID: 4,
 	}
-	assert.Error(t, executor.DeleteObject(object))
+	assert.Equal(t, caskin.ErrEmptyID, executor.DeleteObject(object))
+	object.ID = 4
+	assert.Equal(t, caskin.ErrNotExists, executor.DeleteObject(object))
 	assert.NoError(t, executor.CreateObject(object))
 
 	object.Name = "object_01_new_name"
