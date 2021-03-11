@@ -68,7 +68,7 @@ func (e *executor) updateEntryCheck(item entry, tmp entry) error {
 }
 
 func (e *executor) createObjectDataEntryCheck(item objectDataEntry) error {
-	if err := e.createEntryCheck(item); err == nil {
+	if err := e.createEntryCheck(item); err != nil {
 		return err
 	}
 	return e.check(item, Write)

@@ -6,26 +6,15 @@ package caskin
 // 1. create a new role into metadata database
 // 2. update role to parent's g in the domain
 func (e *executor) CreateRole(role Role) error {
-	fn := func(interface{}) error {
+	fn := func(domain Domain) error {
 		if err := e.mdb.Create(role); err != nil {
 			return err
 		}
-
-		_, domain, err := e.provider.Get()
-		if err != nil {
-			return err
-		}
-
-		if role.GetParentID() != 0 {
-			parent := e.factory.NewRole()
-			parent.SetID(role.GetParentID())
-			if err := e.e.AddParentForRoleInDomain(role, parent, domain); err != nil {
-				return err
-			}
-		}
-		return nil
+		updater := e.roleParentUpdater()
+		return updater.update(role, domain)
 	}
-	return e.createOrRecoverRole(role, fn)
+
+	return e.parentEntryFlowHandler(role, e.createObjectDataEntryCheck, e.newRole, fn)
 }
 
 // RecoverRole
@@ -34,7 +23,15 @@ func (e *executor) CreateRole(role Role) error {
 // 1. recover the soft delete one role at metadata database
 // 2. update role to parent's g in the domain
 func (e *executor) RecoverRole(role Role) error {
-	return e.createOrRecoverRole(role, e.mdb.Recover)
+	fn := func(domain Domain) error {
+		if err := e.mdb.Recover(role); err != nil {
+			return err
+		}
+		updater := e.roleParentUpdater()
+		return updater.update(role, domain)
+	}
+
+	return e.parentEntryFlowHandler(role, e.recoverObjectDataEntryCheck, e.newRole, fn)
 }
 
 // DeleteRole
@@ -42,19 +39,14 @@ func (e *executor) RecoverRole(role Role) error {
 // 1. delete role's g in the domain
 // 2. delete role's p in the domain
 // 3. soft delete one role in metadata database
+// 4. dfs to delete all son of the role in the domain
 func (e *executor) DeleteRole(role Role) error {
-	fn := func(interface{}) error {
-		_, domain, err := e.provider.Get()
-		if err != nil {
-			return err
-		}
-		if err := e.e.RemoveRoleInDomain(role, domain); err != nil {
-			return err
-		}
-		return e.mdb.DeleteRoleByID(role.GetID())
+	fn := func(domain Domain) error {
+		deleter := newParentEntryDeleter(e.roleChildrenFn(), e.roleDeleteFn())
+		return deleter.dfs(role, domain)
 	}
 
-	return e.writeRole(role, fn)
+	return e.parentEntryFlowHandler(role, e.deleteObjectDataEntryCheck, e.newRole, fn)
 }
 
 // UpdateRole
@@ -62,7 +54,22 @@ func (e *executor) DeleteRole(role Role) error {
 // 1. update role's properties
 // 2. update role to parent's g in the domain
 func (e *executor) UpdateRole(role Role) error {
-	return e.writeRole(role, e.mdb.Update)
+	fn := func(domain Domain) error {
+		if err := e.mdb.Update(role); err != nil {
+			return err
+		}
+		updater := e.roleParentUpdater()
+		return updater.update(role, domain)
+	}
+
+	roleUpdateCheck := func(item objectDataEntry) error {
+		tmp := e.newRole()
+		if err := e.updateObjectDataEntryCheck(item, tmp); err != nil {
+			return err
+		}
+		return e.parentEntryCheck(tmp, e.roleParentsFn())
+	}
+	return e.parentEntryFlowHandler(role, roleUpdateCheck, e.newRole, fn)
 }
 
 // GetRoles
@@ -93,77 +100,4 @@ func (e *executor) GetRoles() (Roles, error) {
 	}
 
 	return roles, nil
-}
-
-func (e *executor) createOrRecoverRole(role Role, fn func(interface{}) error) error {
-	if err := e.mdb.Take(role); err == nil {
-		return ErrAlreadyExists
-	}
-
-	_, domain, err := e.provider.Get()
-	if err != nil {
-		return err
-	}
-
-	if err := e.check(role, Write); err != nil {
-		return err
-	}
-
-	var parents []Role
-	if role.GetParentID() != 0 {
-		nextParent := e.factory.NewRole()
-		nextParent.SetID(role.GetParentID())
-		parents = append(parents, nextParent)
-	}
-	for _, v := range parents {
-		v.SetDomainID(domain.GetID())
-		if err := e.mdb.Take(v); err != nil {
-			return err
-		}
-		if err := e.check(v, Write); err != nil {
-			return err
-		}
-	}
-
-	role.SetDomainID(domain.GetID())
-	return fn(role)
-}
-
-func (e *executor) writeRole(role Role, fn func(interface{}) error) error {
-	if err := isValid(role); err != nil {
-		return err
-	}
-
-	tmp := e.factory.NewRole()
-	tmp.SetID(role.GetID())
-	if err := e.mdb.Take(tmp); err != nil {
-		return ErrNotExists
-	}
-
-	if err := e.check(tmp, Write); err != nil {
-		return err
-	}
-
-	_, domain, err := e.provider.Get()
-	if err != nil {
-		return err
-	}
-
-	parents := e.e.GetParentsForRoleInDomain(tmp, domain)
-
-	nextParent := e.factory.NewRole()
-	nextParent.SetID(role.GetParentID())
-	parents = append(parents, nextParent)
-	for _, v := range parents {
-		v.SetDomainID(domain.GetID())
-		if err := e.mdb.Take(v); err != nil {
-			return err
-		}
-		if err := e.check(v, Write); err != nil {
-			return err
-		}
-	}
-
-	role.SetDomainID(domain.GetID())
-	return fn(role)
 }

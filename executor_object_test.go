@@ -9,6 +9,7 @@ import (
 
 func TestExecutorObject(t *testing.T) {
 	stage, _ := newStage(t)
+	assert.NoError(t, stageAddSubAdmin(stage))
 	provider := &example.Provider{
 		User:   stage.AdminUser,
 		Domain: stage.Domain,
@@ -198,11 +199,9 @@ func TestExecutorObject_GeneralUpdate(t *testing.T) {
 	}
 	executor := stage.Caskin.GetExecutor(provider)
 
-	objectType := caskin.ObjectType("test_data")
 	object := &example.Object{
 		Name:     "object_01",
-		Type:     objectType,
-		DomainID: 1,
+		Type:     ObjectTypeTest,
 		ObjectID: 1,
 	}
 	assert.NoError(t, executor.CreateObject(object))
@@ -212,22 +211,19 @@ func TestExecutorObject_GeneralUpdate(t *testing.T) {
 
 	subObject := &example.Object{
 		Name:     "object_01_sub",
-		Type:     objectType,
-		DomainID: 1,
+		Type:     ObjectTypeTest,
 		ObjectID: 1,
 		ParentID: object.ID,
 	}
 	assert.NoError(t, executor.CreateObject(subObject))
 
-	provider.User = stage.AdminUser
+	provider.User = stage.MemberUser
 	subObject.Name = "object_01_sub_new_name"
 	assert.Equal(t, caskin.ErrNoWritePermission, executor.UpdateObject(subObject))
 
-	provider.User = stage.MemberUser
 	object2 := &example.Object{
 		Name:     "object_02",
-		Type:     objectType,
-		DomainID: 1,
+		Type:     ObjectTypeTest,
 		ObjectID: 1,
 	}
 	assert.Equal(t, caskin.ErrNoWritePermission, executor.CreateObject(object2))
