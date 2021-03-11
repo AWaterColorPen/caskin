@@ -8,7 +8,7 @@ import (
 func Filter(e ienforcer, u User, d Domain, action Action, source interface{}) []interface{} {
 	var result []interface{}
 	linq.From(source).Where(func(v interface{}) bool {
-		return Check(e, u, d, action, v.(ObjectData))
+		return Check(e, u, d, v.(ObjectData), action)
 	}).ToSlice(&result)
 	return result
 }
@@ -16,13 +16,13 @@ func Filter(e ienforcer, u User, d Domain, action Action, source interface{}) []
 // Filter2 original code
 func Filter2(e ienforcer, u User, d Domain, action Action, source interface{}) interface{} {
 	linq.From(source).Where(func(v interface{}) bool {
-		return Check(e, u, d, action, v.(ObjectData))
+		return Check(e, u, d, v.(ObjectData), action)
 	}).ToSlice(&source)
 	return source
 }
 
 // Filter check entry permission by u, d, action
-func Check(e ienforcer, u User, d Domain, action Action, one ObjectData) bool {
+func Check(e ienforcer, u User, d Domain, one ObjectData, action Action) bool {
 	o := one.GetObject()
 	ok, _ := e.Enforce(u, o, d, action)
 	return ok

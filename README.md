@@ -11,9 +11,9 @@
   - [ ] (p3) go 1.16
 - bug
   - [ ] (p1) fix `Role` and `Object` 's `Create`, `Recover`, `Update` API, it should update parent's `g/g2` casbin policy
-  - [ ] (p1) fix issue when modify `Role` and `Object`, it should check old item's Parent's write permission
+  - [x] (p1) fix issue when modify `Role` and `Object`, it should check old item's Parent's write permission
   - [ ] (p1) fix issue when modify object data, it should check relate `Object.GetObjectType`
-  - [ ] (p1) fix issue when remove `Role` or `Object`, it should remove all its son node
+  - [x] (p1) fix issue when remove `Role` or `Object`, it should remove all its son node
   - [x] (p1) fix issue when modify policies, it does not successfully update the policies
 - unit test
   - [x] (p0) unit for executor domain API

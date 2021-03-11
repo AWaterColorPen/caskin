@@ -21,7 +21,7 @@ func (p *parentEntryDeleter) dfs(current parentEntry, domain Domain) error {
 	return p.deleteFn(current, domain)
 }
 
-func NewParentEntryDeleter(childrenFn childrenFn, deleteFn deleteFn) *parentEntryDeleter {
+func newParentEntryDeleter(childrenFn childrenFn, deleteFn deleteFn) *parentEntryDeleter {
 	return &parentEntryDeleter{
 		visited:    map[interface{}]bool{},
 		childrenFn: childrenFn,

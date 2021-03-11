@@ -105,7 +105,7 @@ func (e *executor) createOrRecoverRole(role Role, fn func(interface{}) error) er
 		return err
 	}
 
-	if err := e.check(Write, role); err != nil {
+	if err := e.check(role, Write); err != nil {
 		return err
 	}
 
@@ -120,7 +120,7 @@ func (e *executor) createOrRecoverRole(role Role, fn func(interface{}) error) er
 		if err := e.mdb.Take(v); err != nil {
 			return err
 		}
-		if err := e.check(Write, v); err != nil {
+		if err := e.check(v, Write); err != nil {
 			return err
 		}
 	}
@@ -140,7 +140,7 @@ func (e *executor) writeRole(role Role, fn func(interface{}) error) error {
 		return ErrNotExists
 	}
 
-	if err := e.check(Write, tmp); err != nil {
+	if err := e.check(tmp, Write); err != nil {
 		return err
 	}
 
@@ -159,7 +159,7 @@ func (e *executor) writeRole(role Role, fn func(interface{}) error) error {
 		if err := e.mdb.Take(v); err != nil {
 			return err
 		}
-		if err := e.check(Write, v); err != nil {
+		if err := e.check(v, Write); err != nil {
 			return err
 		}
 	}
