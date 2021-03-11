@@ -1,5 +1,7 @@
 package caskin
 
+import "github.com/ahmetb/go-linq/v3"
+
 type executor struct {
 	e        ienforcer
 	mdb      MetaDB
@@ -14,6 +16,23 @@ func (e *executor) newObject() parentEntry {
 
 func (e *executor) newRole() parentEntry {
 	return e.factory.NewRole()
+}
+
+func (e *executor) createCheck(item ObjectData) error {
+	if err := e.mdb.Take(item); err == nil {
+		return ErrAlreadyExists
+	}
+	return e.check(Write, item)
+}
+
+func (e *executor) deleteCheck(item objectDataEntry) error {
+	if err := isValid(item); err != nil {
+		return err
+	}
+	if err := e.mdb.Take(item); err != nil {
+		return ErrNotExists
+	}
+	return e.check(Write, item)
 }
 
 func (e *executor) getOrModifyCheck(item objectDataEntry, actions ...Action) error {
@@ -32,6 +51,45 @@ func (e *executor) getOrModifyCheck(item objectDataEntry, actions ...Action) err
 	}
 
 	return nil
+}
+
+func (e *executor) objectDeleteFn() deleteFn {
+	return func(p parentEntry, d Domain) error {
+		if err := e.e.RemoveObjectInDomain(p.(Object), d); err != nil {
+			return err
+		}
+		return e.mdb.DeleteObjectByID(p.GetID())
+	}
+}
+
+func (e *executor) roleDeleteFn() deleteFn {
+	return func(p parentEntry, d Domain) error {
+		if err := e.e.RemoveRoleInDomain(p.(Role), d); err != nil {
+			return err
+		}
+		return e.mdb.DeleteRoleByID(p.GetID())
+	}
+}
+
+func (e *executor) objectChildrenFn() childrenFn {
+	return e.childrenFn(func(p parentEntry, domain Domain) interface{} {
+		return e.e.GetChildrenForObjectInDomain(p.(Object), domain)
+	})
+}
+
+func (e *executor) roleChildrenFn() childrenFn {
+	return e.childrenFn(func(p parentEntry, domain Domain) interface{} {
+		return e.e.GetChildrenForRoleInDomain(p.(Role), domain)
+	})
+}
+
+func (e *executor) childrenFn(fn func(parentEntry, Domain) interface{}) childrenFn {
+	return func(p parentEntry, domain Domain) []parentEntry {
+		var out []parentEntry
+		children := fn(p, domain)
+		linq.From(children).ToSlice(&out)
+		return out
+	}
 }
 
 func (e *executor) filter(action Action, source interface{}) ([]interface{}, error) {
@@ -118,5 +176,3 @@ type objectDataEntry interface {
 	entry
 	ObjectData
 }
-
-

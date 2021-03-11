@@ -25,7 +25,7 @@ func (e *executor) CreateObject(object Object) error {
 		return nil
 	}
 
-	return e.flowHandler(object, e.createEntryCheck, e.newObject, fn)
+	return e.flowHandler(object, e.createCheck, e.newObject, fn)
 }
 
 // RecoverObject
@@ -106,13 +106,6 @@ func (e *executor) GetObjects(ty ...ObjectType) ([]Object, error) {
 	return objects, nil
 }
 
-func (e *executor) createEntryCheck(entry parentEntry) error {
-	if err := e.mdb.Take(entry); err == nil {
-		return ErrAlreadyExists
-	}
-	return e.check(Write, entry)
-}
-
 func (e *executor) recoverEntryCheck(entry parentEntry) error {
 	// 1. 首先查看当前的object是否存在，如果存在，那么不需要恢复，直接报错
 	if err := e.mdb.Take(entry); err == nil {
@@ -154,10 +147,7 @@ func (e *executor) deleteEntryCheck(entry parentEntry) error {
 	return e.check(Write, entry)
 }
 
-func (e *executor) flowHandler(entry parentEntry,
-	check func(parentEntry) error,
-	newEntry func() parentEntry,
-	handle func(interface{}) error) error {
+func (e *executor) flowHandler(entry parentEntry, check func(parentEntry) error, newEntry func() parentEntry, handle func(interface{}) error) error {
 	if err := check(entry); err != nil {
 		return err
 	}

@@ -1,4 +1,5 @@
 package caskin
+
 //
 // // 创建object的逻辑
 // func (e *executor) createObject(object Object) error {

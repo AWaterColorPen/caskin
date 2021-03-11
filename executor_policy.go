@@ -278,4 +278,3 @@ func (e *executor) ModifyPolicyListPerObject(object Object, input []*Policy) err
 
 	return nil
 }
-

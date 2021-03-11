@@ -168,8 +168,8 @@ func stageAddSubAdmin(stage *example.Stage) error {
 	}
 
 	object1 := &example.Object{
-		Name: "object_sub_01",
-		Type: caskin.ObjectTypeObject,
+		Name:     "object_sub_01",
+		Type:     caskin.ObjectTypeObject,
 		ObjectID: 1,
 		ParentID: 1,
 	}
@@ -182,8 +182,8 @@ func stageAddSubAdmin(stage *example.Stage) error {
 	}
 
 	object2 := &example.Object{
-		Name: "role_sub_02",
-		Type: caskin.ObjectTypeRole,
+		Name:     "role_sub_02",
+		Type:     caskin.ObjectTypeRole,
 		ObjectID: object1.ID,
 		ParentID: 2,
 	}
@@ -192,7 +192,7 @@ func stageAddSubAdmin(stage *example.Stage) error {
 	}
 
 	role := &example.Role{
-		Name: "admin_sub_01",
+		Name:     "admin_sub_01",
 		ObjectID: object2.ID,
 		ParentID: 1,
 	}
@@ -222,4 +222,3 @@ func stageAddSubAdmin(stage *example.Stage) error {
 
 	return nil
 }
-

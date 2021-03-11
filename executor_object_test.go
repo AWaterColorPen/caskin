@@ -100,8 +100,8 @@ func TestExecutorObject_GeneralCreate(t *testing.T) {
 	executor := stage.Caskin.GetExecutor(provider)
 
 	object1 := &example.Object{
-		Name:     "object_01",
-		Type:     ObjectTypeTest,
+		Name: "object_01",
+		Type: ObjectTypeTest,
 	}
 	assert.Equal(t, caskin.ErrProviderGet, executor.CreateObject(object1))
 
@@ -118,14 +118,14 @@ func TestExecutorObject_GeneralCreate(t *testing.T) {
 	assert.NoError(t, executor.CreateObject(object1))
 
 	object2 := &example.Object{
-		Name:     "object_01",
-		Type:     ObjectTypeTest,
+		Name: "object_01",
+		Type: ObjectTypeTest,
 	}
 	assert.Equal(t, caskin.ErrAlreadyExists, executor.CreateObject(object2))
 
 	object3 := &example.Object{
-		Name:     "object_01",
-		Type:     ObjectTypeTest,
+		Name: "object_01",
+		Type: ObjectTypeTest,
 	}
 	assert.Equal(t, caskin.ErrEmptyID, executor.DeleteObject(object3))
 	object3.ID = object1.ID
