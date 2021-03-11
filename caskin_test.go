@@ -37,7 +37,7 @@ func TestNewStage(t *testing.T) {
 
 func getTestDB(tb testing.TB) (*gorm.DB, error) {
 	dsn := filepath.Join(tb.TempDir(), "sqlite")
-	//dsn := filepath.Join("./", "sqlite")
+	// dsn := filepath.Join("./", "sqlite")
 	return gorm.Open(sqlite.Open(dsn), &gorm.Config{})
 }
 
@@ -105,7 +105,7 @@ func newStage(t *testing.T) (*Stage, error) {
 		return nil, err
 	}
 
-	provider := caskin.NewCachedProvider(nil, nil, nil)
+	provider := caskin.NewCachedProvider(nil, nil)
 	executor := c.GetExecutor(provider)
 
 	domain := &example.Domain{Name: "domain_01"}
@@ -164,7 +164,7 @@ func newStage(t *testing.T) (*Stage, error) {
 }
 
 func stageAddSubAdmin(stage *Stage) error {
-	provider := caskin.NewCachedProvider(nil, nil, nil)
+	provider := caskin.NewCachedProvider(nil, nil)
 	provider.Domain = stage.Domain
     provider.User = stage.AdminUser
 	executor := stage.Caskin.GetExecutor(provider)
