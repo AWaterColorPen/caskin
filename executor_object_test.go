@@ -8,69 +8,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestExecutorObject(t *testing.T) {
-	stage, _ := newStage(t)
-	assert.NoError(t, stageAddSubAdmin(stage))
-	provider := caskin.NewCachedProvider(nil, nil)
-	provider.User = stage.SuperadminUser
-	provider.Domain = stage.Domain
-	executor := stage.Caskin.GetExecutor(provider)
-
-	objects, err := executor.GetObjects(caskin.ObjectTypeObject)
-	assert.NoError(t, err)
-	assert.Len(t, objects, 1)
-
-	domains, err := executor.GetAllDomain()
-	assert.NoError(t, err)
-	assert.Len(t, domains, 1)
-
-	object := &example.Object{
-		Name:     "object_01",
-		Type:     ObjectTypeTest,
-		ObjectID: objects[0].GetID(),
-	}
-	assert.NoError(t, executor.CreateObject(object))
-
-	subObject := &example.Object{
-		Name:     "object_01_sub",
-		Type:     ObjectTypeTest,
-		ObjectID: objects[0].GetID(),
-		ParentID: object.ID,
-	}
-	assert.NoError(t, executor.CreateObject(subObject))
-
-	assert.NoError(t, executor.DeleteObject(object))
-	objects, err = executor.GetObjects(ObjectTypeTest)
-	assert.NoError(t, err)
-	assert.Len(t, objects, 0)
-
-	assert.NoError(t, executor.RecoverObject(object))
-	objects, err = executor.GetObjects(ObjectTypeTest)
-	assert.NoError(t, err)
-	assert.Len(t, objects, 1)
-
-	object.Name = "object_01_new_name"
-	assert.NoError(t, executor.UpdateObject(object))
-
-	assert.NoError(t, executor.RecoverObject(subObject))
-	objects, err = executor.GetObjects(ObjectTypeTest)
-	assert.NoError(t, err)
-	assert.Len(t, objects, 2)
-
-	assert.NoError(t, executor.DeleteObject(object))
-	objects, err = executor.GetObjects(ObjectTypeTest)
-	assert.NoError(t, err)
-	assert.Len(t, objects, 0)
-
-	assert.NoError(t, executor.RecoverObject(subObject))
-	objects, err = executor.GetObjects(ObjectTypeTest)
-	assert.NoError(t, err)
-	assert.Len(t, objects, 2)
-
-	subObject.Name = "object_01__sub_new_name"
-	assert.NoError(t, executor.UpdateObject(subObject))
-}
-
 func TestExecutorObject_GetObjects(t *testing.T) {
 	stage, _ := newStage(t)
 	provider := caskin.NewCachedProvider(nil, nil)
@@ -146,45 +83,35 @@ func TestExecutorObject_CreateSubNode(t *testing.T) {
 	executor := stage.Caskin.GetExecutor(provider)
 
 	object1 := &example.Object{
-		Name:     "sub_object_1",
+		Name:     "object_sub_02",
+		Type:     caskin.ObjectTypeObject,
 		ObjectID: 4,
 		ParentID: 4,
 	}
+	provider.User = stage.MemberUser
 	provider.Domain = stage.Domain
+	assert.Equal(t, caskin.ErrNoWritePermission, executor.CreateObject(object1))
+
 	provider.User = stage.SubAdminUser
 	assert.NoError(t, executor.CreateObject(object1))
 
 	object1.ParentID = 1
 	assert.Equal(t, caskin.ErrNoWritePermission, executor.UpdateObject(object1))
-	provider.User = stage.AdminUser
+	object1.ParentID = 5
+	assert.Equal(t, caskin.ErrNotValidObjectType, executor.UpdateObject(object1))
+	object1.ParentID = 4
+	assert.Equal(t, caskin.ErrObjectTypeObjectIDMustBeItselfID, executor.UpdateObject(object1))
+
+	object1.ObjectID = object1.ID
 	assert.NoError(t, executor.UpdateObject(object1))
 
-	object2 := &example.Object{
-		Name:     "object_2",
-		ObjectID: 2,
-	}
-	provider.User = stage.MemberUser
-	assert.Equal(t, caskin.ErrNoWritePermission, executor.CreateObject(object2))
+	object2 := &example.Object{ID: 4}
+	assert.NoError(t, executor.DeleteObject(object2))
+
 	provider.User = stage.AdminUser
-	assert.NoError(t, executor.CreateObject(object2))
-
-	object3 := &example.Object{
-		Name:     "sub_admin_1",
-		ObjectID: 1,
-	}
-	assert.NoError(t, executor.CreateObject(object3))
-	assert.Equal(t, caskin.ErrAlreadyExists, executor.CreateObject(object3))
-
-	object4 := &example.Object{
-		Name: "sub_admin_1",
-	}
-	assert.Equal(t, caskin.ErrEmptyID, executor.DeleteObject(object4))
-	object4.ID = object3.ID
-	assert.NoError(t, executor.DeleteObject(object4))
-
-	object5 := &example.Object{ID: 8, ObjectID: 1}
-	assert.Equal(t, caskin.ErrNotExists, executor.DeleteObject(object5))
-	assert.NoError(t, executor.CreateObject(object5))
+	list1, err := executor.GetObjects()
+	assert.NoError(t, err)
+	assert.Len(t, list1, 3)
 }
 
 func TestExecutorObject_GeneralUpdate(t *testing.T) {
@@ -262,7 +189,7 @@ func TestExecutorObject_GeneralRecover(t *testing.T) {
 func TestExecutorObject_GeneralDelete(t *testing.T) {
 	stage, _ := newStage(t)
 	provider := caskin.NewCachedProvider(nil, nil)
-	provider.User = stage.SuperadminUser
+	provider.User = stage.AdminUser
 	provider.Domain = stage.Domain
 	executor := stage.Caskin.GetExecutor(provider)
 
@@ -274,26 +201,12 @@ func TestExecutorObject_GeneralDelete(t *testing.T) {
 	objects, _ = executor.GetObjects()
 	assert.Len(t, objects, 2)
 
-	object := &example.Object{
-	}
-	assert.Equal(t, caskin.ErrEmptyID, executor.DeleteObject(object))
-	object.ID = 4
-	assert.Equal(t, caskin.ErrNotExists, executor.DeleteObject(object))
-	assert.NoError(t, executor.CreateObject(object))
+	object1 := &example.Object{}
+	assert.Equal(t, caskin.ErrEmptyID, executor.DeleteObject(object1))
+	object1.ID = 4
+	assert.Equal(t, caskin.ErrNotExists, executor.DeleteObject(object1))
 
-	object.Name = "object_01_new_name"
-	assert.NoError(t, executor.UpdateObject(object))
-
-	subObject := &example.Object{
-		Name:     "object_01_sub",
-		Type:     ObjectTypeTest,
-		DomainID: 1,
-		ObjectID: 4,
-		ParentID: object.ID,
-	}
-	assert.NoError(t, executor.CreateObject(subObject))
-
-	provider.User = stage.AdminUser
-	subObject.Name = "object_01_sub_new_name"
-	assert.Equal(t, caskin.ErrNoWritePermission, executor.UpdateObject(subObject))
+	provider.User = stage.MemberUser
+	object2 := &example.Object{ID: 2}
+	assert.Equal(t, caskin.ErrNoWritePermission, executor.DeleteObject(object2))
 }

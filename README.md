@@ -13,5 +13,5 @@
   - [ ] (p2) fix issue when modify object data, it will not just filter. it should return no permission 
 - unit test
   - [ ] (p0) unit for executor role API
-  - [ ] (p0) unit for executor object API
+  - [x] (p0) unit for executor object API
   

@@ -35,4 +35,7 @@ var (
 	// errors about policy list
 	ErrInputPolicyListNotBelongSameRole   = fmt.Errorf("input policy list are not belong to same role")
 	ErrInputPolicyListNotBelongSameObject = fmt.Errorf("input policy list are not belong to same object")
+
+	// errors about special object
+	ErrObjectTypeObjectIDMustBeItselfID = fmt.Errorf("the object id of object type's object must be itself's id")
 )

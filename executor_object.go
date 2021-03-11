@@ -55,6 +55,10 @@ func (e *executor) DeleteObject(object Object) error {
 // 2. update object to parent's g2 in the domain
 func (e *executor) UpdateObject(object Object) error {
 	fn := func(domain Domain) error {
+		if object.GetObjectType() == ObjectTypeObject &&
+			object.GetObject().GetID() != object.GetID() {
+			return ErrObjectTypeObjectIDMustBeItselfID
+		}
 		if err := e.mdb.Update(object); err != nil {
 			return err
 		}
