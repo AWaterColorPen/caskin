@@ -10,7 +10,7 @@ import (
 func TestExecutorObject(t *testing.T) {
 	stage, _ := newStage(t)
 	provider := &example.Provider{
-		User:   stage.SuperadminUser,
+		User:   stage.AdminUser,
 		Domain: stage.Domain,
 	}
 	executor := stage.Caskin.GetExecutor(provider)
@@ -23,44 +23,46 @@ func TestExecutorObject(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Len(t, domains, 1)
 
-	objectType := caskin.ObjectType("test_data")
 	object := &example.Object{
 		Name:     "object_01",
-		Type:     objectType,
-		DomainID: 1,
+		Type:     ObjectTypeTest,
 		ObjectID: objects[0].GetID(),
 	}
 	assert.NoError(t, executor.CreateObject(object))
 
 	subObject := &example.Object{
 		Name:     "object_01_sub",
-		Type:     objectType,
-		DomainID: 1,
+		Type:     ObjectTypeTest,
 		ObjectID: objects[0].GetID(),
 		ParentID: object.ID,
 	}
 	assert.NoError(t, executor.CreateObject(subObject))
 
 	assert.NoError(t, executor.DeleteObject(object))
-	objects, err = executor.GetObjects(objectType)
+	objects, err = executor.GetObjects(ObjectTypeTest)
 	assert.NoError(t, err)
-	assert.Len(t, objects, 1)
+	assert.Len(t, objects, 0)
 
 	assert.NoError(t, executor.RecoverObject(object))
-	objects, err = executor.GetObjects(objectType)
+	objects, err = executor.GetObjects(ObjectTypeTest)
 	assert.NoError(t, err)
-	assert.Len(t, objects, 2)
+	assert.Len(t, objects, 1)
 
 	object.Name = "object_01_new_name"
 	assert.NoError(t, executor.UpdateObject(object))
 
-	assert.NoError(t, executor.DeleteObject(subObject))
-	objects, err = executor.GetObjects(objectType)
+	assert.NoError(t, executor.RecoverObject(subObject))
+	objects, err = executor.GetObjects(ObjectTypeTest)
 	assert.NoError(t, err)
-	assert.Len(t, objects, 1)
+	assert.Len(t, objects, 2)
+
+	assert.NoError(t, executor.DeleteObject(object))
+	objects, err = executor.GetObjects(ObjectTypeTest)
+	assert.NoError(t, err)
+	assert.Len(t, objects, 0)
 
 	assert.NoError(t, executor.RecoverObject(subObject))
-	objects, err = executor.GetObjects(objectType)
+	objects, err = executor.GetObjects(ObjectTypeTest)
 	assert.NoError(t, err)
 	assert.Len(t, objects, 2)
 
@@ -83,7 +85,7 @@ func TestExecutorObject_GetObjects(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Len(t, objects2, 1)
 
-	objects3, err := executor.GetObjects(caskin.ObjectTypeObject, caskin.ObjectTypeObject)
+	objects3, err := executor.GetObjects(caskin.ObjectTypeObject, caskin.ObjectTypeRole)
 	assert.NoError(t, err)
 	assert.Len(t, objects3, 2)
 
