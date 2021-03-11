@@ -83,7 +83,7 @@ func TestExecutorObject_GetObjects(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Len(t, objects2, 1)
 
-	objects3, err := executor.GetObjects(caskin.ObjectTypeObject, caskin.ObjectTypeRole)
+	objects3, err := executor.GetObjects(caskin.ObjectTypeObject, caskin.ObjectTypeObject)
 	assert.NoError(t, err)
 	assert.Len(t, objects3, 2)
 
@@ -100,8 +100,8 @@ func TestExecutorObject_GeneralCreate(t *testing.T) {
 	executor := stage.Caskin.GetExecutor(provider)
 
 	object1 := &example.Object{
-		Name:     "object_01",
-		Type:     ObjectTypeTest,
+		Name: "object_01",
+		Type: ObjectTypeTest,
 	}
 	assert.Equal(t, caskin.ErrProviderGet, executor.CreateObject(object1))
 
@@ -118,14 +118,14 @@ func TestExecutorObject_GeneralCreate(t *testing.T) {
 	assert.NoError(t, executor.CreateObject(object1))
 
 	object2 := &example.Object{
-		Name:     "object_01",
-		Type:     ObjectTypeTest,
+		Name: "object_01",
+		Type: ObjectTypeTest,
 	}
 	assert.Equal(t, caskin.ErrAlreadyExists, executor.CreateObject(object2))
 
 	object3 := &example.Object{
-		Name:     "object_01",
-		Type:     ObjectTypeTest,
+		Name: "object_01",
+		Type: ObjectTypeTest,
 	}
 	assert.Equal(t, caskin.ErrEmptyID, executor.DeleteObject(object3))
 	object3.ID = object1.ID
@@ -141,39 +141,51 @@ func TestExecutorObject_CreateSubNode(t *testing.T) {
 	provider := &example.Provider{}
 	executor := stage.Caskin.GetExecutor(provider)
 
-	role1 := &example.Role{
-		Name:     "sub_member_1",
-		ObjectID: 2,
-		ParentID: 3,
+	object := &example.Object{
+		Name:     "object_1",
+		ObjectID: 3,
+		ParentID: 0,
+	}
+	object1 := &example.Object{
+		Name:     "sub_object_1",
+		ObjectID: 3,
+		ParentID: 1,
 	}
 	provider.Domain = stage.Domain
 	provider.User = stage.AdminUser
-	assert.Equal(t, caskin.ErrNoWritePermission, executor.CreateRole(role1))
-
-	role1.ParentID = 2
-	assert.NoError(t, executor.CreateRole(role1))
-
-	role1.ObjectID = 2
+	assert.NoError(t, executor.CreateObject(object))
 	provider.User = stage.MemberUser
-	assert.Equal(t, caskin.ErrNoWritePermission, executor.CreateRole(role1))
+	assert.Equal(t, caskin.ErrNoWritePermission, executor.CreateObject(object1))
+
+	object1.ParentID = 4
+	assert.NoError(t, executor.CreateObject(object1))
+
+	object2 := &example.Object{
+		Name:     "object_2",
+		ObjectID: 2,
+	}
+	provider.User = stage.MemberUser
+	assert.Equal(t, caskin.ErrNoWritePermission, executor.CreateObject(object2))
 	provider.User = stage.AdminUser
-	assert.NoError(t, executor.CreateRole(role1))
+	assert.NoError(t, executor.CreateObject(object2))
 
-	role2 := &example.Role{
+	object3 := &example.Object{
+		Name:     "sub_admin_1",
+		ObjectID: 1,
+	}
+	assert.NoError(t, executor.CreateObject(object3))
+	assert.Equal(t, caskin.ErrAlreadyExists, executor.CreateObject(object3))
+
+	object4 := &example.Object{
 		Name: "sub_admin_1",
 	}
-	assert.Equal(t, caskin.ErrAlreadyExists, executor.CreateRole(role2))
+	assert.Equal(t, caskin.ErrEmptyID, executor.DeleteObject(object4))
+	object4.ID = object3.ID
+	assert.NoError(t, executor.DeleteObject(object4))
 
-	role3 := &example.Role{
-		Name: "sub_admin_1",
-	}
-	assert.Equal(t, caskin.ErrEmptyID, executor.DeleteRole(role3))
-	role3.ID = role1.ID
-	assert.NoError(t, executor.DeleteRole(role3))
-
-	role4 := &example.Role{ID: 5}
-	assert.Equal(t, caskin.ErrNotExists, executor.DeleteRole(role4))
-	assert.NoError(t, executor.CreateRole(role4))
+	object5 := &example.Object{ID: 8, ObjectID: 1}
+	assert.Equal(t, caskin.ErrNotExists, executor.DeleteObject(object5))
+	assert.NoError(t, executor.CreateObject(object5))
 }
 
 func TestExecutorObject_GeneralUpdate(t *testing.T) {
@@ -200,20 +212,14 @@ func TestExecutorObject_GeneralUpdate(t *testing.T) {
 		Name:     "object_01_sub",
 		Type:     objectType,
 		DomainID: 1,
-		ObjectID: 4,
+		ObjectID: 1,
 		ParentID: object.ID,
 	}
 	assert.NoError(t, executor.CreateObject(subObject))
 
-	// policiesForRole, _ := executor.GetAllPoliciesForRole()
-	// bytes, _ := json.Marshal(policiesForRole)
-	// fmt.Println(string(bytes))
-
 	provider.User = stage.AdminUser
 	subObject.Name = "object_01_sub_new_name"
 	assert.Equal(t, caskin.ErrNoWritePermission, executor.UpdateObject(subObject))
-
-	// assert.Error(t, executor.CreateObject(object1))
 
 	provider.User = stage.MemberUser
 	object2 := &example.Object{
@@ -249,6 +255,9 @@ func TestExecutorObject_GeneralRecover(t *testing.T) {
 	provider.User = stage.MemberUser
 	object.ID = 2
 	assert.Equal(t, caskin.ErrNoWritePermission, executor.DeleteObject(object))
+
+	provider.User = stage.AdminUser
+	assert.NoError(t, executor.DeleteObject(object))
 	assert.NoError(t, executor.RecoverObject(object))
 	assert.Equal(t, caskin.ErrAlreadyExists, executor.RecoverObject(object))
 }
