@@ -29,7 +29,7 @@ func (s *sampleSuperadminRole) GetObject() Object {
 	return nil
 }
 
-func (s *sampleSuperadminRole) SetObjectId(objectId uint64) {
+func (s *sampleSuperadminRole) SetObjectId(uint64) {
 }
 
 func (s *sampleSuperadminRole) GetParentID() uint64 {
@@ -71,6 +71,5 @@ func (s *sampleSuperAdminDomain) GetObject() Object {
 	return nil
 }
 
-func (s *sampleSuperAdminDomain) SetObjectId(u uint64) {
-	panic("implement me")
+func (s *sampleSuperAdminDomain) SetObjectId(uint64) {
 }

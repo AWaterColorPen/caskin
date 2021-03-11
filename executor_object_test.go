@@ -139,13 +139,13 @@ func TestExecutorObject_GeneralCreate(t *testing.T) {
 
 func TestExecutorObject_CreateSubNode(t *testing.T) {
 	stage, _ := newStage(t)
+	assert.NoError(t, stageAddSubAdmin(stage))
 	provider := &example.Provider{}
 	executor := stage.Caskin.GetExecutor(provider)
 
 	object := &example.Object{
 		Name:     "object_1",
 		ObjectID: 3,
-		ParentID: 0,
 	}
 	object1 := &example.Object{
 		Name:     "sub_object_1",

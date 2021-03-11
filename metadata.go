@@ -4,6 +4,7 @@ type MetaDB interface {
 	Create(interface{}) error
 	Recover(interface{}) error
 	Update(interface{}) error
+	Upsert(interface{}) error
 	Take(interface{}) error
 	TakeUnscoped(interface{}) error
 
@@ -14,13 +15,11 @@ type MetaDB interface {
 	// Role API
 	GetRoleInDomain(Domain) ([]Role, error)
 	GetRoleByID([]uint64) ([]Role, error)
-	UpsertRole(Role) error
 	DeleteRoleByID(uint64) error
 
 	// Object API
 	GetObjectInDomain(Domain, ...ObjectType) ([]Object, error)
 	GetObjectByID([]uint64) ([]Object, error)
-	UpsertObject(Object) error
 	DeleteObjectByID(uint64) error
 
 	// Domain API

@@ -49,12 +49,6 @@ func TestExecutorPolicy_GetPolicyListFromSubAdmin(t *testing.T) {
 	provider.Domain = stage.Domain
 	provider.User = stage.SubAdminUser
 
-	roles, err := executor.GetRoles()
-	assert.NoError(t, err)
-	assert.Len(t, roles, 1)
-	objects, err := executor.GetObjects()
-	assert.NoError(t, err)
-	assert.Len(t, objects, 2)
 	list, err := executor.GetPolicyList()
 	assert.NoError(t, err)
 	assert.Len(t, list, 4)
