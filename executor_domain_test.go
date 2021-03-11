@@ -10,7 +10,7 @@ import (
 
 func TestExecutorDomain_GeneralCreate(t *testing.T) {
 	stage, _ := newStage(t)
-	provider := &example.Provider{}
+	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 
 	domain1 := &example.Domain{Name: "domain_02"}
@@ -37,7 +37,7 @@ func TestExecutorDomain_GeneralCreate(t *testing.T) {
 
 func TestExecutorDomain_GeneralUpdate(t *testing.T) {
 	stage, _ := newStage(t)
-	executor := stage.Caskin.GetExecutor(&example.Provider{})
+	executor := stage.Caskin.GetExecutor(caskin.NewCachedProvider(nil, nil))
 
 	domain1 := &example.Domain{
 		ID:   stage.Domain.ID,
@@ -55,7 +55,7 @@ func TestExecutorDomain_GeneralUpdate(t *testing.T) {
 
 func TestExecutorDomain_GeneralRecover(t *testing.T) {
 	stage, _ := newStage(t)
-	provider := &example.Provider{}
+	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 
 	domain1 := &example.Domain{
@@ -75,7 +75,7 @@ func TestExecutorDomain_GeneralRecover(t *testing.T) {
 
 func TestExecutorDomain_GeneralDelete(t *testing.T) {
 	stage, _ := newStage(t)
-	provider := &example.Provider{}
+	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 
 	assert.NoError(t, executor.DeleteDomain(stage.Domain))
@@ -101,7 +101,7 @@ func TestExecutorDomain_GeneralDelete(t *testing.T) {
 
 func TestExecutorDomain_Initialize(t *testing.T) {
 	stage, _ := newStage(t)
-	provider := &example.Provider{}
+	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 
 	domain := &example.Domain{Name: "domain_02"}

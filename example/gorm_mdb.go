@@ -25,6 +25,17 @@ func (g *gormMDB) Update(item interface{}) error {
 	return g.db.Updates(item).Error
 }
 
+func (g *gormMDB) Upsert(item interface{}) error {
+	v, ok := item.(entry)
+	if !ok || v.GetID() == 0 {
+		if err := g.Recover(item); err == nil {
+			return nil
+		}
+		return g.Create(item)
+	}
+	return g.Update(item)
+}
+
 func (g *gormMDB) Take(item interface{}) error {
 	return g.db.Where(item).Take(item).Error
 }
@@ -70,10 +81,6 @@ func (g *gormMDB) GetRoleByID(id []uint64) ([]caskin.Role, error) {
 	return ret, nil
 }
 
-func (g *gormMDB) UpsertRole(role caskin.Role) error {
-	return g.upsert(role)
-}
-
 func (g *gormMDB) DeleteRoleByID(id uint64) error {
 	return g.db.Delete(&Role{}, id).Error
 }
@@ -105,10 +112,6 @@ func (g *gormMDB) GetObjectByID(id []uint64) ([]caskin.Object, error) {
 	return ret, nil
 }
 
-func (g *gormMDB) UpsertObject(object caskin.Object) error {
-	return g.upsert(object)
-}
-
 func (g *gormMDB) DeleteObjectByID(id uint64) error {
 	return g.db.Delete(&Object{}, id).Error
 }
@@ -126,16 +129,6 @@ func (g *gormMDB) GetAllDomain() ([]caskin.Domain, error) {
 
 func (g *gormMDB) DeleteDomainByID(id uint64) error {
 	return g.db.Delete(&Domain{}, id).Error
-}
-
-func (g *gormMDB) upsert(entry entry) error {
-	if entry.GetID() == 0 {
-		if err := g.Recover(entry); err == nil {
-			return nil
-		}
-		return g.Create(entry)
-	}
-	return g.Update(entry)
 }
 
 func NewGormMDBByDB(db *gorm.DB) caskin.MetaDB {

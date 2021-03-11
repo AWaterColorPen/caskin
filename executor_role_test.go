@@ -9,7 +9,7 @@ import (
 
 func TestExecutorRole_GeneralCreate(t *testing.T) {
 	stage, _ := newStage(t)
-	provider := &example.Provider{}
+	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 
 	role1 := &example.Role{
@@ -50,7 +50,7 @@ func TestExecutorRole_GeneralCreate(t *testing.T) {
 
 func TestExecutorRole_CreateSubNode(t *testing.T) {
 	stage, _ := newStage(t)
-	provider := &example.Provider{}
+	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 
 	role1 := &example.Role{
@@ -90,10 +90,9 @@ func TestExecutorRole_CreateSubNode(t *testing.T) {
 
 func TestExecutorRole_GeneralUpdate(t *testing.T) {
 	stage, _ := newStage(t)
-	provider := &example.Provider{
-		Domain: stage.Domain,
-		User:   stage.AdminUser,
-	}
+	provider := caskin.NewCachedProvider(nil, nil)
+	provider.User = stage.AdminUser
+	provider.Domain = stage.Domain
 	executor := stage.Caskin.GetExecutor(provider)
 
 	role1 := &example.Role{
@@ -113,7 +112,7 @@ func TestExecutorRole_GeneralUpdate(t *testing.T) {
 
 func TestExecutorRole_GeneralRecover(t *testing.T) {
 	stage, _ := newStage(t)
-	provider := &example.Provider{}
+	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 
 	role1 := &example.Role{
@@ -135,7 +134,7 @@ func TestExecutorRole_GeneralRecover(t *testing.T) {
 
 func TestExecutorRole_GeneralDelete(t *testing.T) {
 	stage, _ := newStage(t)
-	provider := &example.Provider{}
+	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 
 	role1 := &example.Role{Name: "member"}

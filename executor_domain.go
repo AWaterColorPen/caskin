@@ -91,24 +91,24 @@ func (e *executor) initializeDomain(domain Domain) error {
 	creator := e.options.DomainCreator(domain)
 	roles, objects := creator.BuildCreator()
 	for _, v := range objects {
-		if err := e.mdb.UpsertObject(v); err != nil {
+		if err := e.mdb.Upsert(v); err != nil {
 			return err
 		}
 	}
 	for _, v := range roles {
-		if err := e.mdb.UpsertRole(v); err != nil {
+		if err := e.mdb.Upsert(v); err != nil {
 			return err
 		}
 	}
 
 	creator.SetRelation()
 	for _, v := range roles {
-		if err := e.mdb.UpsertRole(v); err != nil {
+		if err := e.mdb.Upsert(v); err != nil {
 			return err
 		}
 	}
 	for _, v := range objects {
-		if err := e.mdb.UpsertObject(v); err != nil {
+		if err := e.mdb.Upsert(v); err != nil {
 			return err
 		}
 	}

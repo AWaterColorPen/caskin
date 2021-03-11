@@ -1,19 +1,19 @@
 package caskin_test
 
 import (
+	"testing"
+
 	"github.com/awatercolorpen/caskin"
 	"github.com/awatercolorpen/caskin/example"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestExecutorObject(t *testing.T) {
 	stage, _ := newStage(t)
 	assert.NoError(t, stageAddSubAdmin(stage))
-	provider := &example.Provider{
-		User:   stage.AdminUser,
-		Domain: stage.Domain,
-	}
+	provider := caskin.NewCachedProvider(nil, nil)
+	provider.User = stage.SuperadminUser
+	provider.Domain = stage.Domain
 	executor := stage.Caskin.GetExecutor(provider)
 
 	objects, err := executor.GetObjects(caskin.ObjectTypeObject)
@@ -73,7 +73,7 @@ func TestExecutorObject(t *testing.T) {
 
 func TestExecutorObject_GetObjects(t *testing.T) {
 	stage, _ := newStage(t)
-	provider := &example.Provider{}
+	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 
 	provider.Domain = stage.Domain
@@ -99,7 +99,7 @@ func TestExecutorObject_GetObjects(t *testing.T) {
 
 func TestExecutorObject_GeneralCreate(t *testing.T) {
 	stage, _ := newStage(t)
-	provider := &example.Provider{}
+	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 
 	object1 := &example.Object{
@@ -141,43 +141,9 @@ func TestExecutorObject_GeneralCreate(t *testing.T) {
 
 func TestExecutorObject_CreateSubNode(t *testing.T) {
 	stage, _ := newStage(t)
-	provider := &example.Provider{}
+	assert.NoError(t, stageAddSubAdmin(stage))
+	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
-
-	object := &example.Object{
-		Name: "object_1",
-	}
-	provider.User = stage.SuperadminUser
-	provider.Domain = stage.Domain
-	assert.NoError(t, executor.CreateObject(object))
-
-	object.ObjectID = object.ID
-	object.ParentID = 1
-	assert.NoError(t, executor.UpdateObject(object))
-
-	provider.User = stage.AdminUser
-	object.Name = "object_1_new_name"
-	assert.NoError(t, executor.UpdateObject(object))
-
-	subAdmin := &example.User{
-		PhoneNumber: "12345678904",
-		Email:       "subAdmin@qq.com",
-	}
-
-	provider.User = stage.SuperadminUser
-	assert.NoError(t, executor.CreateUser(subAdmin))
-	role := &example.Role{
-		Name:     "subAdmin",
-		ObjectID: 2,
-	}
-	assert.NoError(t, executor.CreateRole(role))
-	policies := []*caskin.Policy{
-		{Role: role, Object: object, Domain: stage.Domain, Action: caskin.Read},
-		{Role: role, Object: object, Domain: stage.Domain, Action: caskin.Write},
-	}
-	assert.NoError(t, executor.ModifyPolicyListPerRole(role, policies))
-	pair := []*caskin.UserRolePair{{User: subAdmin, Role: role}}
-	assert.NoError(t, executor.ModifyUserRolePairPerUser(subAdmin, pair))
 
 	object1 := &example.Object{
 		Name:     "sub_object_1",
@@ -185,7 +151,7 @@ func TestExecutorObject_CreateSubNode(t *testing.T) {
 		ParentID: 4,
 	}
 	provider.Domain = stage.Domain
-	provider.User = subAdmin
+	provider.User = stage.SubAdminUser
 	assert.NoError(t, executor.CreateObject(object1))
 
 	object1.ParentID = 1
@@ -223,10 +189,9 @@ func TestExecutorObject_CreateSubNode(t *testing.T) {
 
 func TestExecutorObject_GeneralUpdate(t *testing.T) {
 	stage, _ := newStage(t)
-	provider := &example.Provider{
-		User:   stage.AdminUser,
-		Domain: stage.Domain,
-	}
+	provider := caskin.NewCachedProvider(nil, nil)
+	provider.User = stage.AdminUser
+	provider.Domain = stage.Domain
 	executor := stage.Caskin.GetExecutor(provider)
 
 	object := &example.Object{
@@ -266,10 +231,9 @@ func TestExecutorObject_GeneralUpdate(t *testing.T) {
 
 func TestExecutorObject_GeneralRecover(t *testing.T) {
 	stage, _ := newStage(t)
-	provider := &example.Provider{
-		User:   stage.SuperadminUser,
-		Domain: stage.Domain,
-	}
+	provider := caskin.NewCachedProvider(nil, nil)
+	provider.User = stage.SuperadminUser
+	provider.Domain = stage.Domain
 	executor := stage.Caskin.GetExecutor(provider)
 
 	objects, _ := executor.GetObjects()
@@ -297,10 +261,9 @@ func TestExecutorObject_GeneralRecover(t *testing.T) {
 
 func TestExecutorObject_GeneralDelete(t *testing.T) {
 	stage, _ := newStage(t)
-	provider := &example.Provider{
-		User:   stage.SuperadminUser,
-		Domain: stage.Domain,
-	}
+	provider := caskin.NewCachedProvider(nil, nil)
+	provider.User = stage.SuperadminUser
+	provider.Domain = stage.Domain
 	executor := stage.Caskin.GetExecutor(provider)
 
 	objects, _ := executor.GetObjects()

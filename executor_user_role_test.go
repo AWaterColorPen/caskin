@@ -8,151 +8,128 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestExecutorUser_GetUserRolePair(t *testing.T) {
-	stage, _ := newStage(t)
-	provider := &example.Provider{
-		User:   stage.MemberUser,
-		Domain: stage.Domain,
-	}
-	executor := stage.Caskin.GetExecutor(provider)
-
-	list1, err := executor.GetUserRolePair()
-	assert.NoError(t, err)
-	assert.Len(t, list1, 0)
-
-	provider.User = stage.AdminUser
-	list2, err := executor.GetUserRolePair()
-	assert.NoError(t, err)
-	assert.Len(t, list2, 2)
-}
-
 func TestExecutorUserRole_GetUserRolePair(t *testing.T) {
 	stage, _ := newStage(t)
 	assert.NoError(t, stageAddSubAdmin(stage))
-	provider := &example.Provider{}
+	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 
 	provider.Domain = stage.Domain
 	provider.User = stage.AdminUser
-	list1, err := executor.GetPolicyList()
+	list1, err := executor.GetUserRolePair()
 	assert.NoError(t, err)
-	assert.Len(t, list1, 12)
+	assert.Len(t, list1, 3)
 	roles, err := executor.GetRoles()
 	assert.NoError(t, err)
 	assert.Len(t, roles, 3)
-	objects, err := executor.GetObjects()
-	assert.NoError(t, err)
-	assert.Len(t, objects, 5)
 
-	domain := stage.Domain
-	policy1 := []*caskin.Policy{
-		{roles[0], objects[0], domain, caskin.Read},
-		{roles[0], objects[1], domain, caskin.Read},
-		{roles[0], objects[1], domain, caskin.Write},
-		{roles[0], objects[2], domain, caskin.Read},
-		{roles[0], objects[2], domain, caskin.Write},
+	pairs := []*caskin.UserRolePair{
+		{stage.MemberUser, roles[1]},
+		{stage.SubAdminUser, roles[1]},
 	}
-	assert.NoError(t, executor.ModifyPolicyListPerRole(roles[0], policy1))
+	assert.NoError(t, executor.ModifyUserRolePairPerRole(roles[1], pairs))
 
-	list3, err := executor.GetPolicyList()
+	list3, err := executor.GetUserRolePair()
 	assert.NoError(t, err)
-	assert.Len(t, list3, 11)
+	assert.Len(t, list3, 4)
 }
 
-func TestExecutorUserRole_GetPolicyListFromSubAdmin(t *testing.T) {
+func TestExecutorUserRole_GetUserRolePairSubAdmin(t *testing.T) {
 	stage, _ := newStage(t)
 	assert.NoError(t, stageAddSubAdmin(stage))
-	provider := &example.Provider{}
+	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 
 	provider.Domain = stage.Domain
 	provider.User = stage.SubAdminUser
 
-	roles, err := executor.GetRoles()
+	list, err := executor.GetUserRolePair()
 	assert.NoError(t, err)
-	assert.Len(t, roles, 1)
-	objects, err := executor.GetObjects()
-	assert.NoError(t, err)
-	assert.Len(t, objects, 2)
-	list, err := executor.GetPolicyList()
-	assert.NoError(t, err)
-	assert.Len(t, list, 4)
+	assert.Len(t, list, 1)
 }
 
-func TestExecutorUserRole_GetPolicyListByRole(t *testing.T) {
+func TestExecutorUserRole_GetUserRolePairByRole(t *testing.T) {
 	stage, _ := newStage(t)
 	assert.NoError(t, stageAddSubAdmin(stage))
-	provider := &example.Provider{}
+	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 
 	provider.Domain = stage.Domain
 	provider.User = stage.AdminUser
 	role1 := &example.Role{ID: 2, Name: "xxx"}
-	_, err := executor.GetPolicyListByRole(role1)
+	_, err := executor.GetUserRolePairByRole(role1)
 	assert.Equal(t, caskin.ErrNotExists, err)
 
 	role1.Name = "member"
-	policy1, err := executor.GetPolicyListByRole(role1)
+	pair1, err := executor.GetUserRolePairByRole(role1)
 	assert.NoError(t, err)
-	assert.Len(t, policy1, 2)
+	assert.Len(t, pair1, 1)
 
 	role2 := &example.Role{Name: "admin"}
-	_, err = executor.GetPolicyListByRole(role2)
+	_, err = executor.GetUserRolePairByRole(role2)
 	assert.Equal(t, caskin.ErrEmptyID, err)
 
 	provider.User = stage.MemberUser
-	_, err = executor.GetPolicyListByRole(role1)
+	_, err = executor.GetUserRolePairByRole(role1)
 	assert.Equal(t, caskin.ErrNoReadPermission, err)
 
 	provider.User = stage.SubAdminUser
 	role3 := &example.Role{ID: 3}
-	policy2, err := executor.GetPolicyListByRole(role3)
+	pair2, err := executor.GetUserRolePairByRole(role3)
 	assert.NoError(t, err)
-	assert.Len(t, policy2, 4)
+	assert.Len(t, pair2, 1)
 
-	_, err = executor.GetPolicyListByRole(role1)
+	_, err = executor.GetUserRolePairByRole(role1)
 	assert.Equal(t, caskin.ErrNoReadPermission, err)
 }
 
-func TestExecutorUserRole_GetPolicyListByObject(t *testing.T) {
+func TestExecutorUserRole_GetUserRolePairByUser(t *testing.T) {
 	stage, _ := newStage(t)
 	assert.NoError(t, stageAddSubAdmin(stage))
-	provider := &example.Provider{}
+	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 
 	provider.Domain = stage.Domain
 	provider.User = stage.AdminUser
-	object1 := &example.Object{ID: 2, Name: "xxx"}
-	_, err := executor.GetPolicyListByObject(object1)
+	user1 := &example.User{ID: 4, PhoneNumber: "xxx"}
+	_, err := executor.GetUserRolePairByUser(user1)
 	assert.Equal(t, caskin.ErrNotExists, err)
 
-	object1.Name = string(caskin.ObjectTypeRole)
-	policy1, err := executor.GetPolicyListByObject(object1)
+	user1.PhoneNumber = stage.SubAdminUser.PhoneNumber
+	pair1, err := executor.GetUserRolePairByUser(user1)
 	assert.NoError(t, err)
-	assert.Len(t, policy1, 2)
+	assert.Len(t, pair1, 1)
 
-	object2 := &example.Object{Name: "object"}
-	_, err = executor.GetPolicyListByObject(object2)
+	user2 := &example.User{PhoneNumber: stage.SubAdminUser.PhoneNumber}
+	_, err = executor.GetUserRolePairByUser(user2)
 	assert.Equal(t, caskin.ErrEmptyID, err)
 
 	provider.User = stage.MemberUser
-	_, err = executor.GetPolicyListByObject(object1)
-	assert.Equal(t, caskin.ErrNoReadPermission, err)
+	pair2, err := executor.GetUserRolePairByUser(user1)
+	assert.NoError(t, err)
+	assert.Len(t, pair2, 0)
+
+	provider.User = stage.AdminUser
+	roles, err := executor.GetRoles()
+	assert.NoError(t, err)
+	assert.Len(t, roles, 3)
+	pairs := []*caskin.UserRolePair{
+		{stage.MemberUser, roles[1]},
+		{stage.SubAdminUser, roles[1]},
+	}
+	assert.NoError(t, executor.ModifyUserRolePairPerRole(roles[1], pairs))
 
 	provider.User = stage.SubAdminUser
-	object3 := &example.Object{ID: 4}
-	policy2, err := executor.GetPolicyListByObject(object3)
+	user3 := &example.User{ID: 4}
+	pair3, err := executor.GetUserRolePairByUser(user3)
 	assert.NoError(t, err)
-	assert.Len(t, policy2, 2)
-
-	_, err = executor.GetPolicyListByObject(object1)
-	assert.Equal(t, caskin.ErrNoReadPermission, err)
+	assert.Len(t, pair3, 1)
 }
 
-func TestExecutorUserRole_ModifyPolicyListPerRole(t *testing.T) {
+func TestExecutorUserRole_ModifyUserRolePairPerRole(t *testing.T) {
 	stage, _ := newStage(t)
 	assert.NoError(t, stageAddSubAdmin(stage))
-	provider := &example.Provider{}
+	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 
 	provider.Domain = stage.Domain
@@ -172,36 +149,37 @@ func TestExecutorUserRole_ModifyPolicyListPerRole(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Len(t, objects1, 2)
 
-	policy1 := []*caskin.Policy{
-		{roles0[0], objects1[0], stage.Domain, caskin.Read},
+	pair1 := []*caskin.UserRolePair{
+		{stage.MemberUser, roles0[0]},
+		{stage.SubAdminUser, roles0[0]},
 	}
-	assert.Equal(t, caskin.ErrNoWritePermission, executor.ModifyPolicyListPerRole(roles0[0], policy1))
+	assert.Equal(t, caskin.ErrNoWritePermission, executor.ModifyUserRolePairPerRole(roles0[0], pair1))
 
-	policy2 := []*caskin.Policy{
-		{roles1[0], objects1[0], stage.Domain, caskin.Read},
-		{roles1[0], objects1[1], stage.Domain, caskin.Read},
-		{roles1[0], objects0[0], stage.Domain, caskin.Read},
-		{roles1[0], objects0[0], stage.Domain, caskin.Write},
+	pair2 := []*caskin.UserRolePair{
+		{stage.MemberUser, roles1[0]},
+		{stage.SubAdminUser, roles1[0]},
 	}
-	assert.NoError(t, executor.ModifyPolicyListPerRole(roles1[0], policy2))
-	list1, err := executor.GetPolicyList()
+	assert.NoError(t, executor.ModifyUserRolePairPerRole(roles1[0], pair2))
+
+	provider.User = stage.MemberUser
+	list1, err := executor.GetUserRolePair()
 	assert.NoError(t, err)
 	assert.Len(t, list1, 2)
 
 	provider.User = stage.AdminUser
-	policy3 := []*caskin.Policy{
-		{roles0[0], objects1[0], stage.Domain, caskin.Read},
-		{roles0[0], objects1[1], stage.Domain, caskin.Read},
-		{roles1[0], objects0[0], stage.Domain, caskin.Read},
-		{roles1[0], objects0[0], stage.Domain, caskin.Write},
+	pair3 := []*caskin.UserRolePair{
+		{stage.MemberUser, roles1[0]},
+		{stage.SubAdminUser, roles1[0]},
+		{stage.SubAdminUser, roles0[0]},
 	}
-	assert.Equal(t, caskin.ErrInputPolicyListNotBelongSameRole, executor.ModifyPolicyListPerRole(roles1[0], policy3))
+
+	assert.Equal(t, caskin.ErrInputPairArrayNotBelongSameRole, executor.ModifyUserRolePairPerRole(roles1[0], pair3))
 }
 
-func TestExecutorUserRole_ModifyPolicyListPerObject(t *testing.T) {
+func TestExecutorUserRole_ModifyUserRolePairPerUser(t *testing.T) {
 	stage, _ := newStage(t)
 	assert.NoError(t, stageAddSubAdmin(stage))
-	provider := &example.Provider{}
+	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 
 	provider.Domain = stage.Domain
@@ -221,27 +199,28 @@ func TestExecutorUserRole_ModifyPolicyListPerObject(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Len(t, objects1, 2)
 
-	policy1 := []*caskin.Policy{
-		{roles1[0], objects0[0], stage.Domain, caskin.Read},
+	pair1 := []*caskin.UserRolePair{
+		{stage.MemberUser, roles0[0]},
 	}
-	assert.Equal(t, caskin.ErrNoWritePermission, executor.ModifyPolicyListPerObject(objects0[0], policy1))
-
-	policy2 := []*caskin.Policy{
-		{roles1[0], objects1[0], stage.Domain, caskin.Read},
-		{roles0[0], objects1[0], stage.Domain, caskin.Read},
-		{roles0[0], objects1[0], stage.Domain, caskin.Write},
-	}
-	assert.NoError(t, executor.ModifyPolicyListPerObject(objects1[0], policy2))
-	list1, err := executor.GetPolicyList()
+	assert.NoError(t, executor.ModifyUserRolePairPerUser(stage.MemberUser, pair1))
+	provider.User = stage.AdminUser
+	list1, err := executor.GetUserRolePair()
 	assert.NoError(t, err)
 	assert.Len(t, list1, 3)
 
-	provider.User = stage.AdminUser
-	policy3 := []*caskin.Policy{
-		{roles0[0], objects1[0], stage.Domain, caskin.Read},
-		{roles0[0], objects1[1], stage.Domain, caskin.Read},
-		{roles1[0], objects0[0], stage.Domain, caskin.Read},
-		{roles1[0], objects0[0], stage.Domain, caskin.Write},
+	provider.User = stage.SubAdminUser
+	pair2 := []*caskin.UserRolePair{
+		{stage.MemberUser, roles1[0]},
 	}
-	assert.Equal(t, caskin.ErrInputPolicyListNotBelongSameObject, executor.ModifyPolicyListPerObject(objects1[0], policy3))
+	assert.NoError(t, executor.ModifyUserRolePairPerUser(stage.MemberUser, pair2))
+	list2, err := executor.GetUserRolePair()
+	assert.NoError(t, err)
+	assert.Len(t, list2, 2)
+
+	provider.User = stage.AdminUser
+	pair3 := []*caskin.UserRolePair{
+		{stage.SubAdminUser, roles1[0]},
+		{stage.MemberUser, roles1[0]},
+	}
+	assert.Equal(t, caskin.ErrInputPairArrayNotBelongSameUser, executor.ModifyUserRolePairPerUser(stage.SubAdminUser, pair3))
 }

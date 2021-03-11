@@ -13,6 +13,17 @@ import (
 	"testing"
 )
 
+// Stage example Stage for easy testing
+type Stage struct {
+	Caskin         *caskin.Caskin  // caskin instance on stage
+	Options        *caskin.Options // caskin options on stage
+	Domain         *example.Domain  // a domain on stage
+	SuperadminUser *example.User    // superadmin user on stage
+	AdminUser      *example.User    // a domain admin user on stage
+	MemberUser     *example.User    // a domain member user on stage
+	SubAdminUser   *example.User    // a domain sub admin user on stage
+}
+
 func TestNewCaskin(t *testing.T) {
 	_, err := newCaskin(t, &caskin.Options{})
 	assert.NoError(t, err)
@@ -26,7 +37,7 @@ func TestNewStage(t *testing.T) {
 
 func getTestDB(tb testing.TB) (*gorm.DB, error) {
 	dsn := filepath.Join(tb.TempDir(), "sqlite")
-	//dsn := filepath.Join("./", "sqlite")
+	// dsn := filepath.Join("./", "sqlite")
 	return gorm.Open(sqlite.Open(dsn), &gorm.Config{})
 }
 
@@ -83,7 +94,7 @@ func newCaskin(tb testing.TB, options *caskin.Options) (*caskin.Caskin, error) {
 	)
 }
 
-func newStage(t *testing.T) (*example.Stage, error) {
+func newStage(t *testing.T) (*Stage, error) {
 	options := &caskin.Options{
 		SuperadminOption: &caskin.SuperadminOption{
 			Enable: true,
@@ -94,7 +105,7 @@ func newStage(t *testing.T) (*example.Stage, error) {
 		return nil, err
 	}
 
-	provider := &example.Provider{}
+	provider := caskin.NewCachedProvider(nil, nil)
 	executor := c.GetExecutor(provider)
 
 	domain := &example.Domain{Name: "domain_01"}
@@ -140,7 +151,7 @@ func newStage(t *testing.T) (*example.Stage, error) {
 		}
 	}
 
-	stage := &example.Stage{
+	stage := &Stage{
 		Caskin:         c,
 		Options:        options,
 		Domain:         domain,
@@ -152,11 +163,10 @@ func newStage(t *testing.T) (*example.Stage, error) {
 	return stage, nil
 }
 
-func stageAddSubAdmin(stage *example.Stage) error {
-	provider := &example.Provider{
-		Domain: stage.Domain,
-		User:   stage.AdminUser,
-	}
+func stageAddSubAdmin(stage *Stage) error {
+	provider := caskin.NewCachedProvider(nil, nil)
+	provider.Domain = stage.Domain
+    provider.User = stage.AdminUser
 	executor := stage.Caskin.GetExecutor(provider)
 
 	subAdmin := &example.User{

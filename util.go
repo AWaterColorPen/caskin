@@ -13,15 +13,7 @@ func Filter(e ienforcer, u User, d Domain, action Action, source interface{}) []
 	return result
 }
 
-// Filter2 original code
-func Filter2(e ienforcer, u User, d Domain, action Action, source interface{}) interface{} {
-	linq.From(source).Where(func(v interface{}) bool {
-		return Check(e, u, d, v.(ObjectData), action)
-	}).ToSlice(&source)
-	return source
-}
-
-// Filter check entry permission by u, d, action
+// Check check entry permission by u, d, action
 func Check(e ienforcer, u User, d Domain, one ObjectData, action Action) bool {
 	o := one.GetObject()
 	ok, _ := e.Enforce(u, o, d, action)
@@ -70,6 +62,21 @@ func DiffPolicy(source, target []*Policy) (add, remove []*Policy) {
 		}
 	}
 	return
+}
+
+func isValidFamily(data1, data2 ObjectData, take func(interface{}) error) error {
+	o1 := data1.GetObject()
+	o2 := data2.GetObject()
+	if err := take(o1); err != nil {
+		return ErrNotValidParentObject
+	}
+	if err := take(o2); err != nil {
+		return ErrNotValidParentObject
+	}
+	if o1.GetObjectType() != o2.GetObjectType() {
+		return ErrNotValidParentObject
+	}
+	return nil
 }
 
 func isValid(e entry) error {

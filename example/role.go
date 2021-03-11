@@ -37,10 +37,6 @@ func (r *Role) Decode(code string) error {
 	return err
 }
 
-func (r *Role) IsObject() bool {
-	return true
-}
-
 func (r *Role) GetObject() caskin.Object {
 	return &Object{ID: r.ObjectID}
 }

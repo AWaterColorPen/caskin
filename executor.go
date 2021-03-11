@@ -123,6 +123,20 @@ func (e *executor) parentEntryCheck(item parentEntry, parentsFn parentsFn) error
 		if err := e.check(v, Write); err != nil {
 			return err
 		}
+		// their object type should be same
+		if u, ok := v.(Object); ok {
+			w := item.(Object)
+			if u.GetObjectType() != w.GetObjectType() {
+				return ErrNotValidObjectType
+			}
+		}
+		// role is ObjectData, their object type should be same
+		if u, ok := v.(Role); ok {
+			w := item.(Role)
+			if err := isValidFamily(w, u, e.mdb.Take); err != nil {
+				return err
+			}
+		}
 	}
 	return nil
 }

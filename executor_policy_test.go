@@ -10,7 +10,7 @@ import (
 func TestExecutorPolicy_GetPolicyList(t *testing.T) {
 	stage, _ := newStage(t)
 	assert.NoError(t, stageAddSubAdmin(stage))
-	provider := &example.Provider{}
+	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 
 	provider.Domain = stage.Domain
@@ -43,18 +43,12 @@ func TestExecutorPolicy_GetPolicyList(t *testing.T) {
 func TestExecutorPolicy_GetPolicyListFromSubAdmin(t *testing.T) {
 	stage, _ := newStage(t)
 	assert.NoError(t, stageAddSubAdmin(stage))
-	provider := &example.Provider{}
+	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 
 	provider.Domain = stage.Domain
 	provider.User = stage.SubAdminUser
 
-	roles, err := executor.GetRoles()
-	assert.NoError(t, err)
-	assert.Len(t, roles, 1)
-	objects, err := executor.GetObjects()
-	assert.NoError(t, err)
-	assert.Len(t, objects, 2)
 	list, err := executor.GetPolicyList()
 	assert.NoError(t, err)
 	assert.Len(t, list, 4)
@@ -63,7 +57,7 @@ func TestExecutorPolicy_GetPolicyListFromSubAdmin(t *testing.T) {
 func TestExecutorPolicy_GetPolicyListByRole(t *testing.T) {
 	stage, _ := newStage(t)
 	assert.NoError(t, stageAddSubAdmin(stage))
-	provider := &example.Provider{}
+	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 
 	provider.Domain = stage.Domain
@@ -98,7 +92,7 @@ func TestExecutorPolicy_GetPolicyListByRole(t *testing.T) {
 func TestExecutorPolicy_GetPolicyListByObject(t *testing.T) {
 	stage, _ := newStage(t)
 	assert.NoError(t, stageAddSubAdmin(stage))
-	provider := &example.Provider{}
+	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 
 	provider.Domain = stage.Domain
@@ -133,7 +127,7 @@ func TestExecutorPolicy_GetPolicyListByObject(t *testing.T) {
 func TestExecutorPolicy_ModifyPolicyListPerRole(t *testing.T) {
 	stage, _ := newStage(t)
 	assert.NoError(t, stageAddSubAdmin(stage))
-	provider := &example.Provider{}
+	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 
 	provider.Domain = stage.Domain
@@ -182,7 +176,7 @@ func TestExecutorPolicy_ModifyPolicyListPerRole(t *testing.T) {
 func TestExecutorPolicy_ModifyPolicyListPerObject(t *testing.T) {
 	stage, _ := newStage(t)
 	assert.NoError(t, stageAddSubAdmin(stage))
-	provider := &example.Provider{}
+	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 
 	provider.Domain = stage.Domain
