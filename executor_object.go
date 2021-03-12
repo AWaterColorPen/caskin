@@ -53,6 +53,7 @@ func (e *executor) DeleteObject(object Object) error {
 		tmp := e.newObject().(Object)
 		tmp.SetID(item.GetID())
 		tmp.SetObjectType(item.(Object).GetObjectType())
+		tmp.SetParentID(item.(Object).GetParentID())
 		return e.parentEntryCheck(tmp, e.objectParentsFn())
 	}
 	return e.parentEntryFlowHandler(object, objectDeleteCheck, e.newObject, fn)

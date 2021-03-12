@@ -125,10 +125,13 @@ func TestExecutorObject_GeneralUpdate(t *testing.T) {
 		Name:     "object_01",
 		Type:     ObjectTypeTest,
 		ObjectID: 1,
+		ParentID: 1,
 	}
 	assert.NoError(t, executor.CreateObject(object))
 
 	object.Name = "object_01_new_name"
+	assert.NoError(t, executor.UpdateObject(object))
+	object.Type = caskin.ObjectTypeObject
 	assert.NoError(t, executor.UpdateObject(object))
 
 	subObject := &example.Object{
@@ -205,10 +208,10 @@ func TestExecutorObject_GeneralDelete(t *testing.T) {
 	assert.Equal(t, caskin.ErrNoWritePermission, executor.DeleteObject(object1))
 
 	provider.User = stage.AdminUser
-	assert.Equal(t, caskin.ErrEmptyParentIdOrNotSuperadmin, executor.DeleteObject(object1))
+	//assert.Equal(t, caskin.ErrEmptyParentIdOrNotSuperadmin, executor.DeleteObject(object1))
 
-	object2 := &example.Object{ID: 5, ParentID: 1}
-	assert.Equal(t, caskin.ErrInValidObjectType, executor.DeleteObject(object2))
+	object2 := &example.Object{ID: 5}
+	assert.NoError(t, executor.DeleteObject(object2))
 
 	object1.ParentID = 1
 	assert.NoError(t, executor.DeleteObject(object1))
@@ -217,5 +220,5 @@ func TestExecutorObject_GeneralDelete(t *testing.T) {
 
 	provider.User = stage.AdminUser
 	object3 := &example.Object{ID: 5}
-	assert.Equal(t, caskin.ErrNoWritePermission, executor.DeleteObject(object3))
+	assert.Equal(t, caskin.ErrNotExists, executor.DeleteObject(object3))
 }

@@ -154,6 +154,44 @@ func (e *executor) parentEntryCheck(item parentEntry, parentsFn parentsFn) error
 	return nil
 }
 
+func (e *executor) parentEntryCheck2(item parentEntry, newEntry func() parentEntry, parentsFn parentsFn) error {
+	user, domain, _ := e.provider.Get()
+	parents := parentsFn(item, domain)
+	for _, v := range parents {
+		// special logic: normal user can't operate root object
+		if v.GetID() == 0 {
+			_, ok1 := item.(Object)
+			ok2, _ := e.e.IsSuperAdmin(user)
+			if ok1 && !ok2 {
+				return ErrEmptyParentIdOrNotSuperadmin
+			}
+			return nil
+		}
+
+		if err := e.mdb.Take(v); err != nil {
+			return err
+		}
+		if err := e.check(v, Write); err != nil {
+			return err
+		}
+		// their object type should be same
+		if u, ok := v.(Object); ok {
+			w := item.(Object)
+			if u.GetObjectType() != w.GetObjectType() {
+				return ErrInValidObjectType
+			}
+		}
+		if _, ok := v.(Object); !ok {
+			u := v.(Role)
+			w := item.(Role)
+			if err := isValidFamily(w, u, e.mdb.Take); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
 func (e *executor) objectParentUpdater() *parentEntryUpdater {
 	return &parentEntryUpdater{
 		newEntry:  e.newObject,
@@ -238,14 +276,21 @@ func (e *executor) parentEntryFlowHandler(item parentEntry,
 		return err
 	}
 
-	if err := e.parentEntryCheck(item, singleParentsFunc(item, newEntry)); err != nil {
-		return err
-	}
-
-	_, domain, err := e.provider.Get()
+	user, domain, err := e.provider.Get()
 	if err != nil {
 		return err
 	}
+
+	if item.GetParentID() != 0 {
+		if err := e.parentEntryCheck(item, singleParentsFunc(item, newEntry)); err != nil {
+			return err
+		}
+	} else {
+		if ok, _ := e.e.IsSuperAdmin(user); !ok {
+			return ErrCanNotOperateRootObjectWithoutSuperadmin
+		}
+	}
+
 	item.SetDomainID(domain.GetID())
 	return fn(domain)
 }
