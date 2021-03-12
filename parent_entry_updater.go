@@ -1,10 +1,10 @@
 package caskin
 
 type parentEntryUpdater struct {
-	parentsFn      parentsFn
-	addParentFn    addParentFn
-	deleteParentFn deleteParentFn
-	newEntry       func() treeNodeEntry
+	parentGetFn parentGetFn
+	parentAddFn parentAddFn
+	parentDelFn parentDelFn
+	newEntry    func() treeNodeEntry
 }
 
 func (p *parentEntryUpdater) update(item treeNodeEntry, domain Domain) error {
@@ -12,7 +12,7 @@ func (p *parentEntryUpdater) update(item treeNodeEntry, domain Domain) error {
 	if item.GetParentID() != 0 {
 		target = append(target, item.GetParentID())
 	}
-	parents := p.parentsFn(item, domain)
+	parents := p.parentGetFn(item, domain)
 	for _, v := range parents {
 		source = append(source, v.GetID())
 	}
@@ -21,28 +21,20 @@ func (p *parentEntryUpdater) update(item treeNodeEntry, domain Domain) error {
 	for _, v := range add {
 		parent := p.newEntry()
 		parent.SetID(v.(uint64))
-		if err := p.addParentFn(item, parent, domain); err != nil {
+		if err := p.parentAddFn(item, parent, domain); err != nil {
 			return err
 		}
 	}
 	for _, v := range remove {
 		parent := p.newEntry()
 		parent.SetID(v.(uint64))
-		if err := p.deleteParentFn(item, parent, domain); err != nil {
+		if err := p.parentDelFn(item, parent, domain); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-type parentsFn = func(treeNodeEntry, Domain) []treeNodeEntry
-type addParentFn = func(treeNodeEntry, treeNodeEntry, Domain) error
-type deleteParentFn = func(treeNodeEntry, treeNodeEntry, Domain) error
-
-func singleParentsFunc(item treeNodeEntry, newEntry func() treeNodeEntry) parentsFn {
-	return func(treeNodeEntry, Domain) []treeNodeEntry {
-		parent := newEntry()
-		parent.SetID(item.GetParentID())
-		return []treeNodeEntry{parent}
-	}
-}
+type parentGetFn = func(treeNodeEntry, Domain) []treeNodeEntry
+type parentAddFn = func(treeNodeEntry, treeNodeEntry, Domain) error
+type parentDelFn = func(treeNodeEntry, treeNodeEntry, Domain) error

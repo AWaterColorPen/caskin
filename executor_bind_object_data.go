@@ -107,7 +107,7 @@ func (b *BindExecutor) UpdateBindObjectData(item ObjectData, bind Object, ty Obj
 		if err := b.e.updateObjectDataEntryCheck(bind, tmp); err != nil {
 			return err
 		}
-		if err := b.e.parentEntryCheck(bind, b.e.objectParentsFn()); err != nil {
+		if err := b.e.treeNodeParentCheck(bind, b.e.newObject); err != nil {
 			return err
 		}
 

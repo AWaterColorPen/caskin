@@ -91,6 +91,18 @@ func isValid(item idInterface) error {
 	return nil
 }
 
+func isRoot(node treeNode) bool {
+	return node.GetParentID() == 0
+}
+
+func isObjectRoot(node treeNode) bool {
+	if !isRoot(node) {
+		return false
+	}
+	_, ok := node.(Object)
+	return ok
+}
+
 func getIDList(source interface{}) []uint64 {
 	var id []uint64
 	linq.From(source).Where(func(v interface{}) bool {

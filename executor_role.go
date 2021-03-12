@@ -67,7 +67,7 @@ func (e *executor) UpdateRole(role Role) error {
 		if err := e.updateObjectDataEntryCheck(item, tmp); err != nil {
 			return err
 		}
-		return e.parentEntryCheck(tmp, e.roleParentsFn())
+		return e.treeNodeParentCheck(tmp, e.newRole)
 	}
 	return e.parentEntryFlowHandler(role, roleUpdateCheck, e.newRole, fn)
 }

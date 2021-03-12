@@ -33,4 +33,3 @@ type idInterface interface {
 	// get id method
 	GetID() uint64
 }
-
