@@ -32,7 +32,7 @@ func (e *executor) DeleteUser(user User) error {
 				return err
 			}
 		}
-		return e.mdb.DeleteUserByID(user.GetID())
+		return e.mdb.DeleteByID(user, user.GetID())
 	}
 
 	return e.writeUser(user, fn)

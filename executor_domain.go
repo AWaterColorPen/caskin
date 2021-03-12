@@ -27,7 +27,7 @@ func (e *executor) DeleteDomain(domain Domain) error {
 		if err := e.e.RemoveUsersInDomain(domain); err != nil {
 			return err
 		}
-		return e.mdb.DeleteDomainByID(domain.GetID())
+		return e.mdb.DeleteByID(domain, domain.GetID())
 	}
 
 	return e.writeDomain(domain, fn)

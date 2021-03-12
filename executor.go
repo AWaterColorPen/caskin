@@ -177,7 +177,7 @@ func (e *executor) objectDeleteFn() deleteFn {
 		if err := e.e.RemoveObjectInDomain(p.(Object), d); err != nil {
 			return err
 		}
-		return e.mdb.DeleteObjectByID(p.GetID())
+		return e.mdb.DeleteByID(p, p.GetID())
 	}
 }
 
@@ -211,7 +211,7 @@ func (e *executor) roleDeleteFn() deleteFn {
 		if err := e.e.RemoveRoleInDomain(p.(Role), d); err != nil {
 			return err
 		}
-		return e.mdb.DeleteRoleByID(p.GetID())
+		return e.mdb.DeleteByID(p, p.GetID())
 	}
 }
 

@@ -28,7 +28,7 @@ func (s *sampleSuperadminRole) GetObject() Object {
 	return nil
 }
 
-func (s *sampleSuperadminRole) SetObjectId(uint64) {
+func (s *sampleSuperadminRole) SetObjectID(uint64) {
 }
 
 func (s *sampleSuperadminRole) GetParentID() uint64 {
