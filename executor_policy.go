@@ -116,11 +116,8 @@ func (e *executor) GetPolicyListByObject(object Object) ([]*Policy, error) {
 	if err != nil {
 		return nil, err
 	}
-	r := e.filterWithNoError(currentUser, currentDomain, Read, roles)
-	roles = []Role{}
-	for _, v := range r {
-		roles = append(roles, v.(Role))
-	}
+	out := e.filterWithNoError(currentUser, currentDomain, Read, roles)
+	linq.From(out).ToSlice(&roles)
 	rm := getIDMap(roles)
 
 	var list []*Policy
