@@ -117,39 +117,41 @@ func TestExecutorObject_CreateSubNode(t *testing.T) {
 func TestExecutorObject_GeneralUpdate(t *testing.T) {
 	stage, _ := newStage(t)
 	provider := caskin.NewCachedProvider(nil, nil)
+	assert.NoError(t, stageAddSubAdmin(stage))
+
 	provider.User = stage.AdminUser
 	provider.Domain = stage.Domain
 	executor := stage.Caskin.GetExecutor(provider)
 
 	object := &example.Object{
-		Name:     "object_01",
-		Type:     ObjectTypeTest,
-		ObjectID: 1,
+		ID:       4,
+		Name:     "object_sub_01_new_name",
+		Type:     caskin.ObjectTypeObject,
 		ParentID: 1,
+		ObjectID: 4,
 	}
-	assert.NoError(t, executor.CreateObject(object))
-
-	object.Name = "object_01_new_name"
-	assert.NoError(t, executor.UpdateObject(object))
-	object.Type = caskin.ObjectTypeObject
 	assert.NoError(t, executor.UpdateObject(object))
 
-	subObject := &example.Object{
-		Name:     "object_01_sub",
-		Type:     ObjectTypeTest,
-		ObjectID: 1,
-		ParentID: object.ID,
-	}
-	assert.NoError(t, executor.CreateObject(subObject))
+	object.Type = caskin.ObjectTypeRole
+	assert.Equal(t, caskin.ErrInValidObjectType, executor.UpdateObject(object))
+
+	object1 := &example.Object{}
+	assert.Equal(t, caskin.ErrEmptyID, executor.UpdateObject(object1))
+
+	object2 := &example.Object{ID: 1, Name: "object_01_new_name", Type: caskin.ObjectTypeObject, ObjectID: 1, ParentID: 0}
+	assert.Equal(t, caskin.ErrCanNotOperateRootObjectWithoutSuperadmin, executor.UpdateObject(object2))
 
 	provider.User = stage.MemberUser
-	subObject.Name = "object_01_sub_new_name"
-	assert.Equal(t, caskin.ErrNoWritePermission, executor.UpdateObject(subObject))
+	object4 := &example.Object{
+		ID:       4,
+		Name:     "object_sub_01_new_name2",
+		Type:     caskin.ObjectTypeObject,
+		ParentID: 1,
+		ObjectID: 4,
+	}
+	assert.Equal(t, caskin.ErrNoWritePermission, executor.UpdateObject(object4))
 
-	subObject.ID = 0
-	assert.Equal(t, caskin.ErrEmptyID, executor.UpdateObject(subObject))
-	subObject.ID = 10
-	assert.Equal(t, caskin.ErrNotExists, executor.UpdateObject(subObject))
+
 }
 
 func TestExecutorObject_GeneralRecover(t *testing.T) {
@@ -180,18 +182,6 @@ func TestExecutorObject_GeneralRecover(t *testing.T) {
 	assert.Equal(t, caskin.ErrNoWritePermission, executor.RecoverObject(object2))
 }
 
-/**
-  删除object的测试：
-  1. 成功
-  	1.1 测试权限是否正常工作，admin是否能够删除子节点的数据
-  	1.2 测试是否能够成功删除
-	1.3 测试
-  2. 失败
-	2.1 传入的值不规范，可能id为0
-	2.2 数据不存在，无法删除
-	2.3 当前用户没有写的权限
-	2.4 和当前的objectType不同而不能删除
-*/
 func TestExecutorObject_GeneralDelete(t *testing.T) {
 	stage, _ := newStage(t)
 	provider := caskin.NewCachedProvider(nil, nil)
