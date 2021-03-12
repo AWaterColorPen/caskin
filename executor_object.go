@@ -52,8 +52,10 @@ func (e *executor) DeleteObject(object Object) error {
 		if err := e.deleteObjectDataEntryCheck(item); err != nil {
 			return err
 		}
-		tmp := e.newObject()
+		tmp := e.newObject().(Object)
 		tmp.SetID(item.GetID())
+		tmp.SetObjectType(item.(Object).GetObjectType())
+		tmp.SetParentID(item.(Object).GetParentID())
 		return e.parentEntryCheck(tmp, e.objectParentsFn())
 	}
 	return e.parentEntryFlowHandler(object, objectDeleteCheck, e.newObject, fn)

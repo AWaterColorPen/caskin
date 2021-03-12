@@ -27,6 +27,7 @@ type Role interface {
 type Object interface {
 	treeNodeEntry
 	GetObjectType() ObjectType
+	SetObjectType(ObjectType)
 }
 
 type Domain interface {
