@@ -6,25 +6,8 @@ type ObjectType string
 
 type Action string
 
-type entry interface {
-	// get id method
-	GetID() uint64
-	// get id method
-	SetID(uint64)
-	// encode entry to string method
-	Encode() string
-	// decode string to entry method
-	Decode(string) error
-}
-
-type hasParent interface {
-	// get parent id method
-	GetParentID() uint64
-	// set parent id method
-	SetParentID(uint64)
-}
-
 type ObjectData interface {
+	GetID() uint64
 	// get object interface method
 	GetObject() Object
 	// set object
@@ -33,22 +16,16 @@ type ObjectData interface {
 	SetDomainID(uint64)
 }
 
-type parentEntry interface {
-	entry
-	hasParent
-	ObjectData
-}
-
 type User interface {
 	entry
 }
 
 type Role interface {
-	parentEntry
+	treeNodeEntry
 }
 
 type Object interface {
-	parentEntry
+	treeNodeEntry
 	GetObjectType() ObjectType
 }
 
@@ -84,11 +61,7 @@ type Creator interface {
 	GetObjects() Objects
 }
 
-// CurrentProvider 包含发起当前请求的user及其domain
-type CurrentProvider interface {
-	Get() (User, Domain, error)
-}
-
+// Policy tuple of role-object-domain-action
 type Policy struct {
 	Role   Role   `json:"role"`
 	Object Object `json:"object"`
@@ -102,6 +75,7 @@ func (p *Policy) Key() string {
 	return strings.Join(s, DefaultSeparator)
 }
 
+// PolicyList list of policy
 type PolicyList []*Policy
 
 func (p PolicyList) IsValidWithObject(object Object) error {
@@ -124,11 +98,13 @@ func (p PolicyList) IsValidWithRole(role Role) error {
 	return nil
 }
 
+// UserRolePair pair of user and role
 type UserRolePair struct {
 	User User `json:"user"`
 	Role Role `json:"role"`
 }
 
+// UserRolePairs list of user and role's pair
 type UserRolePairs []*UserRolePair
 
 func (u UserRolePairs) IsValidWithRole(role Role) error {

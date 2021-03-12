@@ -26,3 +26,10 @@ type MetaDB interface {
 	GetAllDomain() ([]Domain, error)
 	DeleteDomainByID(uint64) error
 }
+
+type MetaDBBindObjectAPI interface {
+	Create(ObjectData, Object) error
+	Recover(ObjectData, Object) error
+	Update(ObjectData, Object) error
+	DeleteByID(objectDataID, bindObjectID uint64) error
+}

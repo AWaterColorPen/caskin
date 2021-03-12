@@ -1,5 +1,7 @@
 package caskin
 
+import "github.com/ahmetb/go-linq/v3"
+
 // CreateObject
 // if current user has object's write permission and there does not exist the object
 // then create a new one
@@ -101,10 +103,7 @@ func (e *executor) GetObjects(ty ...ObjectType) ([]Object, error) {
 	}
 
 	os := e.filterWithNoError(currentUser, currentDomain, Read, objects)
-	objects = []Object{}
-	for _, v := range os {
-		objects = append(objects, v.(Object))
-	}
+	linq.From(os).ToSlice(&objects)
 
 	for _, v := range objects {
 		if p, ok := tree[v.GetID()]; ok {
