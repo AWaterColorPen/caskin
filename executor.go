@@ -10,11 +10,11 @@ type executor struct {
 	options  *Options
 }
 
-func (e *executor) newObject() parentEntry {
+func (e *executor) newObject() treeNodeEntry {
 	return e.factory.NewObject()
 }
 
-func (e *executor) newRole() parentEntry {
+func (e *executor) newRole() treeNodeEntry {
 	return e.factory.NewRole()
 }
 
@@ -116,7 +116,7 @@ func (e *executor) updateObjectDataEntryCheck(item objectDataEntry, tmp objectDa
 	return e.check(tmp, Write)
 }
 
-func (e *executor) parentEntryCheck(item parentEntry, parentsFn parentsFn) error {
+func (e *executor) parentEntryCheck(item treeNodeEntry, parentsFn parentsFn) error {
 	user, domain, _ := e.provider.Get()
 	parents := parentsFn(item, domain)
 	for _, v := range parents {
@@ -158,17 +158,17 @@ func (e *executor) objectParentUpdater() *parentEntryUpdater {
 	return &parentEntryUpdater{
 		newEntry:  e.newObject,
 		parentsFn: e.objectParentsFn(),
-		addParentFn: func(p1 parentEntry, p2 parentEntry, domain Domain) error {
+		addParentFn: func(p1 treeNodeEntry, p2 treeNodeEntry, domain Domain) error {
 			return e.e.AddParentForObjectInDomain(p1.(Object), p2.(Object), domain)
 		},
-		deleteParentFn: func(p1 parentEntry, p2 parentEntry, domain Domain) error {
+		deleteParentFn: func(p1 treeNodeEntry, p2 treeNodeEntry, domain Domain) error {
 			return e.e.RemoveParentForObjectInDomain(p1.(Object), p2.(Object), domain)
 		},
 	}
 }
 
 func (e *executor) objectDeleteFn() deleteFn {
-	return func(p parentEntry, d Domain) error {
+	return func(p treeNodeEntry, d Domain) error {
 		if err := e.e.RemoveObjectInDomain(p.(Object), d); err != nil {
 			return err
 		}
@@ -177,13 +177,13 @@ func (e *executor) objectDeleteFn() deleteFn {
 }
 
 func (e *executor) objectChildrenFn() childrenFn {
-	return e.childrenOrParentFn(func(p parentEntry, domain Domain) interface{} {
+	return e.childrenOrParentFn(func(p treeNodeEntry, domain Domain) interface{} {
 		return e.e.GetChildrenForObjectInDomain(p.(Object), domain)
 	})
 }
 
 func (e *executor) objectParentsFn() parentsFn {
-	return e.childrenOrParentFn(func(p parentEntry, domain Domain) interface{} {
+	return e.childrenOrParentFn(func(p treeNodeEntry, domain Domain) interface{} {
 		return e.e.GetParentsForObjectInDomain(p.(Object), domain)
 	})
 }
@@ -192,17 +192,17 @@ func (e *executor) roleParentUpdater() *parentEntryUpdater {
 	return &parentEntryUpdater{
 		newEntry:  e.newRole,
 		parentsFn: e.roleParentsFn(),
-		addParentFn: func(p1 parentEntry, p2 parentEntry, domain Domain) error {
+		addParentFn: func(p1 treeNodeEntry, p2 treeNodeEntry, domain Domain) error {
 			return e.e.AddParentForRoleInDomain(p1.(Role), p2.(Role), domain)
 		},
-		deleteParentFn: func(p1 parentEntry, p2 parentEntry, domain Domain) error {
+		deleteParentFn: func(p1 treeNodeEntry, p2 treeNodeEntry, domain Domain) error {
 			return e.e.RemoveParentForRoleInDomain(p1.(Role), p2.(Role), domain)
 		},
 	}
 }
 
 func (e *executor) roleDeleteFn() deleteFn {
-	return func(p parentEntry, d Domain) error {
+	return func(p treeNodeEntry, d Domain) error {
 		if err := e.e.RemoveRoleInDomain(p.(Role), d); err != nil {
 			return err
 		}
@@ -211,28 +211,28 @@ func (e *executor) roleDeleteFn() deleteFn {
 }
 
 func (e *executor) roleChildrenFn() childrenFn {
-	return e.childrenOrParentFn(func(p parentEntry, domain Domain) interface{} {
+	return e.childrenOrParentFn(func(p treeNodeEntry, domain Domain) interface{} {
 		return e.e.GetChildrenForRoleInDomain(p.(Role), domain)
 	})
 }
 
 func (e *executor) roleParentsFn() parentsFn {
-	return e.childrenOrParentFn(func(p parentEntry, domain Domain) interface{} {
+	return e.childrenOrParentFn(func(p treeNodeEntry, domain Domain) interface{} {
 		return e.e.GetParentsForRoleInDomain(p.(Role), domain)
 	})
 }
 
-func (e *executor) childrenOrParentFn(fn func(parentEntry, Domain) interface{}) childrenFn {
-	return func(p parentEntry, domain Domain) []parentEntry {
-		var out []parentEntry
+func (e *executor) childrenOrParentFn(fn func(treeNodeEntry, Domain) interface{}) childrenFn {
+	return func(p treeNodeEntry, domain Domain) []treeNodeEntry {
+		var out []treeNodeEntry
 		linq.From(fn(p, domain)).ToSlice(&out)
 		return out
 	}
 }
 
-func (e *executor) parentEntryFlowHandler(item parentEntry,
+func (e *executor) parentEntryFlowHandler(item treeNodeEntry,
 	check func(objectDataEntry) error,
-	newEntry func() parentEntry,
+	newEntry func() treeNodeEntry,
 	fn func(Domain) error) error {
 	if err := check(item); err != nil {
 		return err

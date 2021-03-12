@@ -6,7 +6,7 @@ type parentEntryDeleter struct {
 	deleteFn   deleteFn
 }
 
-func (p *parentEntryDeleter) dfs(current parentEntry, domain Domain) error {
+func (p *parentEntryDeleter) dfs(current treeNodeEntry, domain Domain) error {
 	if _, ok := p.visited[current.GetID()]; ok {
 		return nil
 	}
@@ -29,5 +29,5 @@ func newParentEntryDeleter(childrenFn childrenFn, deleteFn deleteFn) *parentEntr
 	}
 }
 
-type childrenFn = func(parentEntry, Domain) []parentEntry
-type deleteFn = func(parentEntry, Domain) error
+type childrenFn = func(treeNodeEntry, Domain) []treeNodeEntry
+type deleteFn = func(treeNodeEntry, Domain) error

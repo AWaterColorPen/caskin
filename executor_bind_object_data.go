@@ -76,7 +76,7 @@ func (b *BindExecutor) DeleteBindObjectData(item ObjectData, bind Object, ty Obj
 		return b.e.deleteEntryCheck(item)
 	}
 
-	delFn := func(p parentEntry, d Domain) error {
+	delFn := func(p treeNodeEntry, d Domain) error {
 		if err := b.e.e.RemoveObjectInDomain(p.(Object), d); err != nil {
 			return err
 		}

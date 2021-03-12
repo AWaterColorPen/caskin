@@ -18,14 +18,11 @@ type treeNode interface {
 	SetParentID(uint64)
 }
 
-type parentEntry interface {
+type treeNodeEntry interface {
 	entry
 	treeNode
 	ObjectData
 }
-
-type treeNodeEntry = parentEntry
-
 
 type objectDataEntry interface {
 	entry

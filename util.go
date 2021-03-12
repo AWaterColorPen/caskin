@@ -117,10 +117,10 @@ func getIDMap(source interface{}) map[uint64]entry {
 func getTree(source interface{}) map[uint64]uint64 {
 	m := map[uint64]uint64{}
 	linq.From(source).Where(func(v interface{}) bool {
-		_, ok := v.(parentEntry)
+		_, ok := v.(treeNodeEntry)
 		return ok
 	}).ForEach(func(v interface{}) {
-		u := v.(parentEntry)
+		u := v.(treeNodeEntry)
 		if u.GetParentID() != 0 {
 			m[u.GetID()] = u.GetParentID()
 		}

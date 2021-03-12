@@ -4,10 +4,10 @@ type parentEntryUpdater struct {
 	parentsFn      parentsFn
 	addParentFn    addParentFn
 	deleteParentFn deleteParentFn
-	newEntry       func() parentEntry
+	newEntry       func() treeNodeEntry
 }
 
-func (p *parentEntryUpdater) update(item parentEntry, domain Domain) error {
+func (p *parentEntryUpdater) update(item treeNodeEntry, domain Domain) error {
 	var source, target []interface{}
 	if item.GetParentID() != 0 {
 		target = append(target, item.GetParentID())
@@ -35,14 +35,14 @@ func (p *parentEntryUpdater) update(item parentEntry, domain Domain) error {
 	return nil
 }
 
-type parentsFn = func(parentEntry, Domain) []parentEntry
-type addParentFn = func(parentEntry, parentEntry, Domain) error
-type deleteParentFn = func(parentEntry, parentEntry, Domain) error
+type parentsFn = func(treeNodeEntry, Domain) []treeNodeEntry
+type addParentFn = func(treeNodeEntry, treeNodeEntry, Domain) error
+type deleteParentFn = func(treeNodeEntry, treeNodeEntry, Domain) error
 
-func singleParentsFunc(item parentEntry, newEntry func() parentEntry) parentsFn {
-	return func(parentEntry, Domain) []parentEntry {
+func singleParentsFunc(item treeNodeEntry, newEntry func() treeNodeEntry) parentsFn {
+	return func(treeNodeEntry, Domain) []treeNodeEntry {
 		parent := newEntry()
 		parent.SetID(item.GetParentID())
-		return []parentEntry{parent}
+		return []treeNodeEntry{parent}
 	}
 }
