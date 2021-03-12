@@ -17,14 +17,14 @@ func (e *executor) GetUserRolePair() ([]*UserRolePair, error) {
 	us := e.e.GetUsersInDomain(currentDomain)
 	uid := getIDList(us)
 	linq.From(uid).Distinct().ToSlice(&uid)
-	users, err := e.mdb.GetUserByID(uid)
+	users, err := e.db.GetUserByID(uid)
 	if err != nil {
 		return nil, err
 	}
 
 	rs := e.e.GetRolesInDomain(currentDomain)
 	tree := getTree(rs)
-	roles, err := e.mdb.GetRoleInDomain(currentDomain)
+	roles, err := e.db.GetRoleInDomain(currentDomain)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +66,7 @@ func (e *executor) GetUserRolePairByUser(user User) ([]*UserRolePair, error) {
 		return nil, err
 	}
 
-	roles, err := e.mdb.GetRoleInDomain(currentDomain)
+	roles, err := e.db.GetRoleInDomain(currentDomain)
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +103,7 @@ func (e *executor) GetUserRolePairByRole(role Role) ([]*UserRolePair, error) {
 
 	us := e.e.GetUsersForRoleInDomain(role, currentDomain)
 	oid := getIDList(us)
-	users, err := e.mdb.GetUserByID(oid)
+	users, err := e.db.GetUserByID(oid)
 	if err != nil {
 		return nil, err
 	}
@@ -129,7 +129,7 @@ func (e *executor) ModifyUserRolePairPerUser(user User, input []*UserRolePair) e
 		return err
 	}
 
-	if err := e.mdb.Take(user); err != nil {
+	if err := e.db.Take(user); err != nil {
 		return ErrNotExists
 	}
 
@@ -147,7 +147,7 @@ func (e *executor) ModifyUserRolePairPerUser(user User, input []*UserRolePair) e
 	rid = append(rid, rid1...)
 	rid = append(rid, rid2...)
 	linq.From(rid).Distinct().ToSlice(&rid)
-	roles, err := e.mdb.GetRoleByID(rid)
+	roles, err := e.db.GetRoleByID(rid)
 	if err != nil {
 		return err
 	}
@@ -217,7 +217,7 @@ func (e *executor) ModifyUserRolePairPerRole(role Role, input []*UserRolePair) e
 	uid = append(uid, uid1...)
 	uid = append(uid, uid2...)
 	linq.From(uid).Distinct().ToSlice(&uid)
-	users, err := e.mdb.GetUserByID(uid)
+	users, err := e.db.GetUserByID(uid)
 	if err != nil {
 		return err
 	}

@@ -5,7 +5,7 @@ package caskin
 // then create a new one without permission checking
 // 1. create a new domain into metadata database
 func (e *executor) CreateDomain(domain Domain) error {
-	return e.createOrRecoverDomain(domain, e.mdb.Create)
+	return e.createOrRecoverDomain(domain, e.db.Create)
 }
 
 // RecoverDomain
@@ -13,7 +13,7 @@ func (e *executor) CreateDomain(domain Domain) error {
 // then recover it without permission checking
 // 1. recover the soft delete one domain at metadata database
 func (e *executor) RecoverDomain(domain Domain) error {
-	return e.createOrRecoverDomain(domain, e.mdb.Recover)
+	return e.createOrRecoverDomain(domain, e.db.Recover)
 }
 
 // DeleteDomain
@@ -27,7 +27,7 @@ func (e *executor) DeleteDomain(domain Domain) error {
 		if err := e.e.RemoveUsersInDomain(domain); err != nil {
 			return err
 		}
-		return e.mdb.DeleteByID(domain, domain.GetID())
+		return e.db.DeleteByID(domain, domain.GetID())
 	}
 
 	return e.writeDomain(domain, fn)
@@ -38,7 +38,7 @@ func (e *executor) DeleteDomain(domain Domain) error {
 // update domain without permission checking
 // 1. just update domain's properties
 func (e *executor) UpdateDomain(domain Domain) error {
-	return e.writeDomain(domain, e.mdb.Update)
+	return e.writeDomain(domain, e.db.Update)
 }
 
 // ReInitializeDomain
@@ -56,11 +56,11 @@ func (e *executor) ReInitializeDomain(domain Domain) error {
 // GetAllDomain
 // get all domain without permission checking
 func (e *executor) GetAllDomain() ([]Domain, error) {
-	return e.mdb.GetAllDomain()
+	return e.db.GetAllDomain()
 }
 
 func (e *executor) createOrRecoverDomain(domain Domain, fn func(interface{}) error) error {
-	if err := e.mdb.Take(domain); err == nil {
+	if err := e.db.Take(domain); err == nil {
 		return ErrAlreadyExists
 	}
 
@@ -75,7 +75,7 @@ func (e *executor) writeDomain(domain Domain, fn func(interface{}) error) error 
 	tmp := e.factory.NewDomain()
 	tmp.SetID(domain.GetID())
 
-	if err := e.mdb.Take(tmp); err != nil {
+	if err := e.db.Take(tmp); err != nil {
 		return ErrNotExists
 	}
 
@@ -91,24 +91,24 @@ func (e *executor) initializeDomain(domain Domain) error {
 	creator := e.options.DomainCreator(domain)
 	roles, objects := creator.BuildCreator()
 	for _, v := range objects {
-		if err := e.mdb.Upsert(v); err != nil {
+		if err := e.db.Upsert(v); err != nil {
 			return err
 		}
 	}
 	for _, v := range roles {
-		if err := e.mdb.Upsert(v); err != nil {
+		if err := e.db.Upsert(v); err != nil {
 			return err
 		}
 	}
 
 	creator.SetRelation()
 	for _, v := range roles {
-		if err := e.mdb.Upsert(v); err != nil {
+		if err := e.db.Upsert(v); err != nil {
 			return err
 		}
 	}
 	for _, v := range objects {
-		if err := e.mdb.Upsert(v); err != nil {
+		if err := e.db.Upsert(v); err != nil {
 			return err
 		}
 	}

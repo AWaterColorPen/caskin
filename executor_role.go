@@ -7,7 +7,7 @@ package caskin
 // 2. update role to parent's g in the domain
 func (e *executor) CreateRole(role Role) error {
 	fn := func(domain Domain) error {
-		if err := e.mdb.Create(role); err != nil {
+		if err := e.db.Create(role); err != nil {
 			return err
 		}
 		updater := e.roleParentUpdater()
@@ -24,7 +24,7 @@ func (e *executor) CreateRole(role Role) error {
 // 2. update role to parent's g in the domain
 func (e *executor) RecoverRole(role Role) error {
 	fn := func(domain Domain) error {
-		if err := e.mdb.Recover(role); err != nil {
+		if err := e.db.Recover(role); err != nil {
 			return err
 		}
 		updater := e.roleParentUpdater()
@@ -55,7 +55,7 @@ func (e *executor) DeleteRole(role Role) error {
 // 2. update role to parent's g in the domain
 func (e *executor) UpdateRole(role Role) error {
 	fn := func(domain Domain) error {
-		if err := e.mdb.Update(role); err != nil {
+		if err := e.db.Update(role); err != nil {
 			return err
 		}
 		updater := e.roleParentUpdater()
@@ -83,7 +83,7 @@ func (e *executor) GetRoles() (Roles, error) {
 
 	rs := e.e.GetRolesInDomain(currentDomain)
 	tree := getTree(rs)
-	roles, err := e.mdb.GetRoleInDomain(currentDomain)
+	roles, err := e.db.GetRoleInDomain(currentDomain)
 	if err != nil {
 		return nil, err
 	}
