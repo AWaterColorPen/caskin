@@ -46,7 +46,15 @@ func (e *executor) DeleteObject(object Object) error {
 		return deleter.dfs(object, domain)
 	}
 
-	return e.parentEntryFlowHandler(object, e.deleteObjectDataEntryCheck, e.newObject, fn)
+	objectDeleteCheck := func(item objectDataEntry) error {
+		if err := e.deleteObjectDataEntryCheck(item); err != nil {
+			return err
+		}
+		tmp := e.newObject()
+		tmp.SetID(item.GetID())
+		return e.parentEntryCheck(tmp, e.objectParentsFn())
+	}
+	return e.parentEntryFlowHandler(object, objectDeleteCheck, e.newObject, fn)
 }
 
 // UpdateObject

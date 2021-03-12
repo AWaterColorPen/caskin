@@ -166,18 +166,3 @@ func (u UserRolePairs) UserID() []uint64 {
 	}
 	return id
 }
-
-type RolesForUser struct {
-	User  User  `json:"user"`
-	Roles Roles `json:"roles"`
-}
-
-type UsersForRole struct {
-	Role  Role  `json:"role"`
-	Users Users `json:"users"`
-}
-
-type PoliciesForRole struct {
-	Role     Role      `json:"role"`
-	Policies []*Policy `json:"policies"`
-}

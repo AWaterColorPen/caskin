@@ -98,7 +98,7 @@ func TestExecutorObject_CreateSubNode(t *testing.T) {
 	object1.ParentID = 1
 	assert.Equal(t, caskin.ErrNoWritePermission, executor.UpdateObject(object1))
 	object1.ParentID = 5
-	assert.Equal(t, caskin.ErrNotValidObjectType, executor.UpdateObject(object1))
+	assert.Equal(t, caskin.ErrInValidObjectType, executor.UpdateObject(object1))
 	object1.ParentID = 4
 	assert.Equal(t, caskin.ErrObjectTypeObjectIDMustBeItselfID, executor.UpdateObject(object1))
 

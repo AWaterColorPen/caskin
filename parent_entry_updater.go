@@ -41,12 +41,8 @@ type deleteParentFn = func(parentEntry, parentEntry, Domain) error
 
 func singleParentsFunc(item parentEntry, newEntry func() parentEntry) parentsFn {
 	return func(parentEntry, Domain) []parentEntry {
-		var out []parentEntry
-		if item.GetParentID() != 0 {
-			parent := newEntry()
-			parent.SetID(item.GetParentID())
-			out = append(out, parent)
-		}
-		return out
+		parent := newEntry()
+		parent.SetID(item.GetParentID())
+		return []parentEntry{parent}
 	}
 }

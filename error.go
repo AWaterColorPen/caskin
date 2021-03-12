@@ -4,12 +4,13 @@ import "fmt"
 
 var (
 	// errors about entry
-	ErrNil                  = fmt.Errorf("nil data")
-	ErrEmptyID              = fmt.Errorf("empty id")
-	ErrAlreadyExists        = fmt.Errorf("already exists")
-	ErrNotExists            = fmt.Errorf("not exists")
-	ErrNotValidObjectType   = fmt.Errorf("not valid object type")
-	ErrNotValidParentObject = fmt.Errorf("not valid parent object")
+	ErrNil                 = fmt.Errorf("nil data")
+	ErrEmptyID             = fmt.Errorf("empty id")
+	ErrAlreadyExists       = fmt.Errorf("already exists")
+	ErrNotExists           = fmt.Errorf("not exists")
+	ErrInValidObject       = fmt.Errorf("in valid object")
+	ErrInValidObjectType   = fmt.Errorf("in valid object type")
+	ErrInValidParentObject = fmt.Errorf("in valid parent object")
 
 	// errors about permission
 	ErrNoReadPermission  = fmt.Errorf("no read permission")
@@ -37,5 +38,6 @@ var (
 	ErrInputPolicyListNotBelongSameObject = fmt.Errorf("input policy list are not belong to same object")
 
 	// errors about special object
-	ErrObjectTypeObjectIDMustBeItselfID = fmt.Errorf("the object id of object type's object must be itself's id")
+	ErrObjectTypeObjectIDMustBeItselfID         = fmt.Errorf("the object id of object type's object must be itself's id")
+	ErrCanNotOperateRootObjectWithoutSuperadmin = fmt.Errorf("can not operate root object without superadmin")
 )
