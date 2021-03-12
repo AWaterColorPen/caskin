@@ -128,39 +128,41 @@ func TestExecutorObject_CreateSubNode(t *testing.T) {
 func TestExecutorObject_GeneralUpdate(t *testing.T) {
 	stage, _ := newStage(t)
 	provider := caskin.NewCachedProvider(nil, nil)
+	assert.NoError(t, stageAddSubAdmin(stage))
+
 	provider.User = stage.AdminUser
 	provider.Domain = stage.Domain
 	executor := stage.Caskin.GetExecutor(provider)
 
 	object := &example.Object{
-		Name:     "object_01",
-		Type:     ObjectTypeTest,
-		ObjectID: 1,
+		ID:       4,
+		Name:     "object_sub_01_new_name",
+		Type:     caskin.ObjectTypeObject,
 		ParentID: 1,
+		ObjectID: 4,
 	}
-	assert.NoError(t, executor.CreateObject(object))
-
-	object.Name = "object_01_new_name"
-	assert.NoError(t, executor.UpdateObject(object))
-	object.Type = caskin.ObjectTypeObject
 	assert.NoError(t, executor.UpdateObject(object))
 
-	subObject := &example.Object{
-		Name:     "object_01_sub",
-		Type:     ObjectTypeTest,
-		ObjectID: 1,
-		ParentID: object.ID,
-	}
-	assert.NoError(t, executor.CreateObject(subObject))
+	object.Type = caskin.ObjectTypeRole
+	assert.Equal(t, caskin.ErrInValidObjectType, executor.UpdateObject(object))
+
+	object1 := &example.Object{}
+	assert.Equal(t, caskin.ErrEmptyID, executor.UpdateObject(object1))
+
+	object2 := &example.Object{ID: 1, Name: "object_01_new_name", Type: caskin.ObjectTypeObject, ObjectID: 1, ParentID: 0}
+	assert.Equal(t, caskin.ErrCanNotOperateRootObjectWithoutSuperadmin, executor.UpdateObject(object2))
 
 	provider.User = stage.MemberUser
-	subObject.Name = "object_01_sub_new_name"
-	assert.Equal(t, caskin.ErrNoWritePermission, executor.UpdateObject(subObject))
+	object4 := &example.Object{
+		ID:       4,
+		Name:     "object_sub_01_new_name2",
+		Type:     caskin.ObjectTypeObject,
+		ParentID: 1,
+		ObjectID: 4,
+	}
+	assert.Equal(t, caskin.ErrNoWritePermission, executor.UpdateObject(object4))
 
-	subObject.ID = 0
-	assert.Equal(t, caskin.ErrEmptyID, executor.UpdateObject(subObject))
-	subObject.ID = 10
-	assert.Equal(t, caskin.ErrNotExists, executor.UpdateObject(subObject))
+
 }
 
 func TestExecutorObject_GeneralRecover(t *testing.T) {
