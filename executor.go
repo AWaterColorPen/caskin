@@ -26,6 +26,9 @@ func (e *executor) createEntryCheck(item entry) error {
 }
 
 func (e *executor) recoverEntryCheck(item entry) error {
+	if err := isValid(item); err != nil {
+		return err
+	}
 	if err := e.mdb.Take(item); err == nil {
 		return ErrAlreadyExists
 	}
@@ -114,9 +117,19 @@ func (e *executor) updateObjectDataEntryCheck(item objectDataEntry, tmp objectDa
 }
 
 func (e *executor) parentEntryCheck(item parentEntry, parentsFn parentsFn) error {
-	_, domain, _ := e.provider.Get()
+	user, domain, _ := e.provider.Get()
 	parents := parentsFn(item, domain)
 	for _, v := range parents {
+		// special logic: normal user can't operate root object
+		if v.GetID() == 0 {
+			_, ok1 := item.(Object)
+			ok2, _ := e.e.IsSuperAdmin(user)
+			if ok1 && !ok2 {
+				return ErrEmptyParentIdOrNotSuperadmin
+			}
+			return nil
+		}
+
 		if err := e.mdb.Take(v); err != nil {
 			return err
 		}
@@ -127,11 +140,11 @@ func (e *executor) parentEntryCheck(item parentEntry, parentsFn parentsFn) error
 		if u, ok := v.(Object); ok {
 			w := item.(Object)
 			if u.GetObjectType() != w.GetObjectType() {
-				return ErrNotValidObjectType
+				return ErrInValidObjectType
 			}
 		}
-		// role is ObjectData, their object type should be same
-		if u, ok := v.(Role); ok {
+		if _, ok := v.(Object); !ok {
+			u := v.(Role)
 			w := item.(Role)
 			if err := isValidFamily(w, u, e.mdb.Take); err != nil {
 				return err

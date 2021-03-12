@@ -46,7 +46,16 @@ func (e *executor) DeleteObject(object Object) error {
 		return deleter.dfs(object, domain)
 	}
 
-	return e.parentEntryFlowHandler(object, e.deleteObjectDataEntryCheck, e.newObject, fn)
+	objectDeleteCheck := func(item objectDataEntry) error {
+		if err := e.deleteObjectDataEntryCheck(item); err != nil {
+			return err
+		}
+		tmp := e.newObject().(Object)
+		tmp.SetID(item.GetID())
+		tmp.SetObjectType(item.(Object).GetObjectType())
+		return e.parentEntryCheck(tmp, e.objectParentsFn())
+	}
+	return e.parentEntryFlowHandler(object, objectDeleteCheck, e.newObject, fn)
 }
 
 // UpdateObject
@@ -55,6 +64,10 @@ func (e *executor) DeleteObject(object Object) error {
 // 2. update object to parent's g2 in the domain
 func (e *executor) UpdateObject(object Object) error {
 	fn := func(domain Domain) error {
+		if object.GetObjectType() == ObjectTypeObject &&
+			object.GetObject().GetID() != object.GetID() {
+			return ErrObjectTypeObjectIDMustBeItselfID
+		}
 		if err := e.mdb.Update(object); err != nil {
 			return err
 		}

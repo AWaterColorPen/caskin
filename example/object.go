@@ -61,3 +61,7 @@ func (o *Object) SetDomainID(did uint64) {
 func (o *Object) GetObjectType() caskin.ObjectType {
 	return o.Type
 }
+
+func (o *Object) SetObjectType(objectType caskin.ObjectType) {
+	o.Type = objectType
+}

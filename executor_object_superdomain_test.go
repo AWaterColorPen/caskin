@@ -41,7 +41,7 @@ func TestExecutorObject_Superdomain(t *testing.T) {
 		ObjectID: object1.ID,
 		ParentID: 1,
 	}
-	assert.Equal(t, caskin.ErrNotValidObjectType, executor.CreateObject(object2))
+	assert.Equal(t, caskin.ErrInValidObjectType, executor.CreateObject(object2))
 
 	object2.ParentID = object1.ID
 	assert.NoError(t, executor.CreateObject(object2))

@@ -68,13 +68,13 @@ func isValidFamily(data1, data2 ObjectData, take func(interface{}) error) error 
 	o1 := data1.GetObject()
 	o2 := data2.GetObject()
 	if err := take(o1); err != nil {
-		return ErrNotValidParentObject
+		return ErrInValidParentObject
 	}
 	if err := take(o2); err != nil {
-		return ErrNotValidParentObject
+		return ErrInValidParentObject
 	}
 	if o1.GetObjectType() != o2.GetObjectType() {
-		return ErrNotValidParentObject
+		return ErrInValidParentObject
 	}
 	return nil
 }

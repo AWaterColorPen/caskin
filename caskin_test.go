@@ -17,11 +17,11 @@ import (
 type Stage struct {
 	Caskin         *caskin.Caskin  // caskin instance on stage
 	Options        *caskin.Options // caskin options on stage
-	Domain         *example.Domain  // a domain on stage
-	SuperadminUser *example.User    // superadmin user on stage
-	AdminUser      *example.User    // a domain admin user on stage
-	MemberUser     *example.User    // a domain member user on stage
-	SubAdminUser   *example.User    // a domain sub admin user on stage
+	Domain         *example.Domain // a domain on stage
+	SuperadminUser *example.User   // superadmin user on stage
+	AdminUser      *example.User   // a domain admin user on stage
+	MemberUser     *example.User   // a domain member user on stage
+	SubAdminUser   *example.User   // a domain sub admin user on stage
 }
 
 func TestNewCaskin(t *testing.T) {
@@ -37,7 +37,7 @@ func TestNewStage(t *testing.T) {
 
 func getTestDB(tb testing.TB) (*gorm.DB, error) {
 	dsn := filepath.Join(tb.TempDir(), "sqlite")
-	// dsn := filepath.Join("./", "sqlite")
+	//dsn := filepath.Join("./", "sqlite")
 	return gorm.Open(sqlite.Open(dsn), &gorm.Config{})
 }
 
@@ -166,7 +166,7 @@ func newStage(t *testing.T) (*Stage, error) {
 func stageAddSubAdmin(stage *Stage) error {
 	provider := caskin.NewCachedProvider(nil, nil)
 	provider.Domain = stage.Domain
-    provider.User = stage.AdminUser
+	provider.User = stage.AdminUser
 	executor := stage.Caskin.GetExecutor(provider)
 
 	subAdmin := &example.User{
