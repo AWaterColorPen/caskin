@@ -24,10 +24,6 @@ func (s *sampleSuperadminRole) Decode(code string) error {
 	return nil
 }
 
-func (s *sampleSuperadminRole) IsObject() bool {
-	return false
-}
-
 func (s *sampleSuperadminRole) GetObject() Object {
 	return nil
 }
@@ -64,15 +60,4 @@ func (s *sampleSuperAdminDomain) Decode(code string) error {
 		return ErrIsNotSuperAdmin
 	}
 	return nil
-}
-
-func (s *sampleSuperAdminDomain) IsObject() bool {
-	return false
-}
-
-func (s *sampleSuperAdminDomain) GetObject() Object {
-	return nil
-}
-
-func (s *sampleSuperAdminDomain) SetObjectId(uint64) {
 }

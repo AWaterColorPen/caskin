@@ -29,8 +29,7 @@ type Option func(*Options)
 
 // Options configuration for caskin
 type Options struct {
-	// options for configuration
-	SuperadminOption *SuperadminOption `json:"super_admin_option"`
+	SuperadminOption *SuperadminOption `json:"super_admin_option"` // options for configuration
 
 	// options for implementations of the interface
 	DomainCreator DomainCreator

@@ -1,5 +1,10 @@
 package caskin
 
+// CurrentProvider include current user and domain
+type CurrentProvider interface {
+	Get() (User, Domain, error)
+}
+
 type cachedProvider struct {
 	User   User
 	Domain Domain

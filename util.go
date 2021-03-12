@@ -79,12 +79,12 @@ func isValidFamily(data1, data2 ObjectData, take func(interface{}) error) error 
 	return nil
 }
 
-func isValid(e entry) error {
-	if e == nil {
+func isValid(item idInterface) error {
+	if item == nil {
 		return ErrNil
 	}
 
-	if e.GetID() == 0 {
+	if item.GetID() == 0 {
 		return ErrEmptyID
 	}
 

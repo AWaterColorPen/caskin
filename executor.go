@@ -18,24 +18,27 @@ func (e *executor) newRole() parentEntry {
 	return e.factory.NewRole()
 }
 
-func (e *executor) createEntryCheck(item entry) error {
+func (e *executor) createCheck(item interface{}) error {
 	if err := e.mdb.Take(item); err == nil {
 		return ErrAlreadyExists
 	}
 	return nil
 }
 
-func (e *executor) recoverEntryCheck(item entry) error {
+func (e *executor) recoverCheck(item entry) error {
 	if err := isValid(item); err != nil {
 		return err
 	}
 	if err := e.mdb.Take(item); err == nil {
 		return ErrAlreadyExists
 	}
-	return e.mdb.TakeUnscoped(item)
+	if err := e.mdb.TakeUnscoped(item); err != nil {
+		return ErrNotExists
+	}
+	return nil
 }
 
-func (e *executor) getOrModifyEntryCheck(item entry) error {
+func (e *executor) getOrModifyEntryCheck(item idInterface) error {
 	if err := isValid(item); err != nil {
 		return err
 	}
@@ -45,19 +48,19 @@ func (e *executor) getOrModifyEntryCheck(item entry) error {
 	return nil
 }
 
-func (e *executor) deleteEntryCheck(item entry) error {
+func (e *executor) deleteEntryCheck(item idInterface) error {
 	return e.getOrModifyEntryCheck(item)
 }
 
-func (e *executor) getEntryCheck(item entry) error {
+func (e *executor) getEntryCheck(item idInterface) error {
 	return e.getOrModifyEntryCheck(item)
 }
 
-func (e *executor) modifyEntryCheck(item entry) error {
+func (e *executor) modifyEntryCheck(item idInterface) error {
 	return e.getOrModifyEntryCheck(item)
 }
 
-func (e *executor) updateEntryCheck(item entry, tmp entry) error {
+func (e *executor) updateEntryCheck(item idInterface, tmp entry) error {
 	if err := isValid(item); err != nil {
 		return err
 	}
@@ -71,14 +74,14 @@ func (e *executor) updateEntryCheck(item entry, tmp entry) error {
 }
 
 func (e *executor) createObjectDataEntryCheck(item objectDataEntry) error {
-	if err := e.createEntryCheck(item); err != nil {
+	if err := e.createCheck(item); err != nil {
 		return err
 	}
 	return e.check(item, Write)
 }
 
 func (e *executor) recoverObjectDataEntryCheck(item objectDataEntry) error {
-	if err := e.recoverEntryCheck(item); err != nil {
+	if err := e.recoverCheck(item); err != nil {
 		return err
 	}
 	return e.check(item, Write)
@@ -150,23 +153,6 @@ func (e *executor) parentEntryCheck(item parentEntry, parentsFn parentsFn) error
 				return err
 			}
 		}
-	}
-	return nil
-}
-
-func (e *executor) parentEntryCheck2(item parentEntry, newEntry func() parentEntry, parentsFn parentsFn) error {
-	user, domain, _ := e.provider.Get()
-	parents := parentsFn(item, domain)
-	for _, v := range parents {
-		// special logic: normal user can't operate root object
-		if v.GetID() == 0 {
-			_, ok1 := item.(Object)
-			ok2, _ := e.e.IsSuperAdmin(user)
-			if ok1 && !ok2 {
-				return ErrEmptyParentIdOrNotSuperadmin
-			}
-			return nil
-		}
 
 		if err := e.mdb.Take(v); err != nil {
 			return err
@@ -181,6 +167,7 @@ func (e *executor) parentEntryCheck2(item parentEntry, newEntry func() parentEnt
 				return ErrInValidObjectType
 			}
 		}
+		// role is ObjectData, their object type should be same
 		if _, ok := v.(Object); !ok {
 			u := v.(Role)
 			w := item.(Role)
@@ -326,7 +313,3 @@ func (e *executor) check(one ObjectData, action Action) error {
 	return nil
 }
 
-type objectDataEntry interface {
-	entry
-	ObjectData
-}
