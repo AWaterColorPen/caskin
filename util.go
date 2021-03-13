@@ -31,35 +31,23 @@ func Diff(source, target []interface{}) (add, remove []interface{}) {
 func DiffPolicy(source, target []*Policy) (add, remove []*Policy) {
 	sourceMap := make(map[interface{}]*Policy)
 	targetMap := make(map[interface{}]*Policy)
-	var s, t []interface{}
 	for _, v := range source {
-		key := v.Key()
-		s = append(s, key)
-		sourceMap[key] = v
+		sourceMap[v.Key()] = v
 	}
 	for _, v := range target {
-		key := v.Key()
-		t = append(t, key)
-		targetMap[key] = v
+		targetMap[v.Key()] = v
 	}
 
-	// get diff to add and remove
-	a, r := Diff(s, t)
-	for _, v := range a {
-		if p, ok := sourceMap[v]; ok {
-			add = append(add, p)
-		}
-		if p, ok := targetMap[v]; ok {
-			add = append(add, p)
+	for _, v := range source {
+		if _, ok := targetMap[v.Key()]; !ok {
+			remove = append(remove, v)
 		}
 	}
-	for _, v := range r {
-		if p, ok := sourceMap[v]; ok {
-			remove = append(remove, p)
+	for _, v := range target {
+		if _, ok := sourceMap[v.Key()]; !ok {
+			add = append(add, v)
 		}
-		if p, ok := targetMap[v]; ok {
-			remove = append(remove, p)
-		}
+
 	}
 	return
 }

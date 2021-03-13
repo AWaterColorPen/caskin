@@ -1,10 +1,16 @@
 package caskin
 
-import "strings"
+import (
+	"strings"
+
+	"gorm.io/datatypes"
+)
 
 type ObjectType string
 
 type Action string
+
+type CustomizedData = datatypes.JSON
 
 type ObjectData interface {
 	GetID() uint64
@@ -28,6 +34,8 @@ type Object interface {
 	treeNodeEntry
 	GetObjectType() ObjectType
 	SetObjectType(ObjectType)
+	GetCustomizedData() CustomizedData
+	SetCustomizedData(CustomizedData)
 }
 
 type Domain interface {
