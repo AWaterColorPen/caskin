@@ -151,7 +151,6 @@ func TestExecutorObject_GeneralUpdate(t *testing.T) {
 	}
 	assert.Equal(t, caskin.ErrNoWritePermission, executor.UpdateObject(object4))
 
-
 }
 
 func TestExecutorObject_GeneralRecover(t *testing.T) {
@@ -169,7 +168,7 @@ func TestExecutorObject_GeneralRecover(t *testing.T) {
 	assert.NoError(t, executor.DeleteObject(object))
 
 	object1 := &example.Object{}
-	assert.Equal(t, caskin.ErrEmptyID, executor.RecoverObject(object1))
+	assert.Equal(t, caskin.ErrAlreadyExists, executor.RecoverObject(object1))
 
 	provider.User = stage.SuperadminUser
 	assert.NoError(t, executor.RecoverObject(object))
