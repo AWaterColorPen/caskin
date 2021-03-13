@@ -26,7 +26,7 @@ func (b *BaseMetadataDB) Upsert(item interface{}) error {
 		return b.Update(item)
 	}
 	if err := b.Recover(item); err == nil {
-			return nil
+		return nil
 	}
 	return b.Create(item)
 }

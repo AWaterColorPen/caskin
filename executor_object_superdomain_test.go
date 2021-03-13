@@ -9,8 +9,8 @@ import (
 )
 
 func TestExecutorObject_Superdomain(t *testing.T) {
-	stage, _ := newStage(t)
-	assert.NoError(t, stageAddSubAdmin(stage))
+	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
+	assert.NoError(t, stage.AddSubAdmin())
 	provider := caskin.NewCachedProvider(nil, nil)
 	provider.User = stage.SuperadminUser
 	provider.Domain = stage.Options.GetSuperadminDomain()
@@ -58,9 +58,9 @@ func TestExecutorObject_Superdomain(t *testing.T) {
 }
 
 func TestExecutorObject_Superdomain_NoSuperadmin(t *testing.T) {
-	stage, _ := newStage(t)
-	assert.NoError(t, stageAddSubAdmin(stage))
-	assert.NoError(t, noSuperadminStage(stage))
+	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
+	assert.NoError(t, stage.AddSubAdmin())
+	assert.NoError(t, stage.NoSuperadmin())
 	provider := caskin.NewCachedProvider(nil, nil)
 	provider.User = stage.SuperadminUser
 	provider.Domain = stage.Options.GetSuperadminDomain()

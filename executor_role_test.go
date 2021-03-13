@@ -8,7 +8,7 @@ import (
 )
 
 func TestExecutorRole_GeneralCreate(t *testing.T) {
-	stage, _ := newStage(t)
+	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
 	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 
@@ -49,7 +49,7 @@ func TestExecutorRole_GeneralCreate(t *testing.T) {
 }
 
 func TestExecutorRole_CreateSubNode(t *testing.T) {
-	stage, _ := newStage(t)
+	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
 	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 
@@ -89,7 +89,7 @@ func TestExecutorRole_CreateSubNode(t *testing.T) {
 }
 
 func TestExecutorRole_GeneralUpdate(t *testing.T) {
-	stage, _ := newStage(t)
+	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
 	provider := caskin.NewCachedProvider(nil, nil)
 	provider.User = stage.AdminUser
 	provider.Domain = stage.Domain
@@ -111,7 +111,7 @@ func TestExecutorRole_GeneralUpdate(t *testing.T) {
 }
 
 func TestExecutorRole_GeneralRecover(t *testing.T) {
-	stage, _ := newStage(t)
+	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
 	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 
@@ -133,7 +133,7 @@ func TestExecutorRole_GeneralRecover(t *testing.T) {
 }
 
 func TestExecutorRole_GeneralDelete(t *testing.T) {
-	stage, _ := newStage(t)
+	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
 	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 

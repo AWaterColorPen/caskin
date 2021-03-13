@@ -161,7 +161,7 @@ func (e *executor) treeNodeParentCheck(takenItem treeNodeEntry, newEntry func() 
 
 func (e *executor) objectParentUpdater() *parentEntryUpdater {
 	return &parentEntryUpdater{
-		newEntry:  e.newObject,
+		newEntry:    e.newObject,
 		parentGetFn: e.objectParentsFn(),
 		parentAddFn: func(p1 treeNodeEntry, p2 treeNodeEntry, domain Domain) error {
 			return e.e.AddParentForObjectInDomain(p1.(Object), p2.(Object), domain)
@@ -195,7 +195,7 @@ func (e *executor) objectParentsFn() parentGetFn {
 
 func (e *executor) roleParentUpdater() *parentEntryUpdater {
 	return &parentEntryUpdater{
-		newEntry:  e.newRole,
+		newEntry:    e.newRole,
 		parentGetFn: e.roleParentsFn(),
 		parentAddFn: func(p1 treeNodeEntry, p2 treeNodeEntry, domain Domain) error {
 			return e.e.AddParentForRoleInDomain(p1.(Role), p2.(Role), domain)

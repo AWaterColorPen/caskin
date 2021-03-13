@@ -15,6 +15,10 @@ func (c *Caskin) GetExecutor(provider CurrentProvider) *executor {
 	}
 }
 
+func (c *Caskin) GetOptions() *Options {
+	return c.options
+}
+
 func New(options *Options, opts ...Option) (*Caskin, error) {
 	options = options.newOptions(opts...)
 	if options.DomainCreator == nil {

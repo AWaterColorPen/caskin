@@ -9,7 +9,7 @@ import (
 )
 
 func TestExecutorSuperadmin_Add(t *testing.T) {
-	stage, _ := newStage(t)
+	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
 	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 
@@ -28,7 +28,7 @@ func TestExecutorSuperadmin_Add(t *testing.T) {
 }
 
 func TestExecutorSuperadmin_Delete(t *testing.T) {
-	stage, _ := newStage(t)
+	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
 	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 
@@ -53,8 +53,8 @@ func TestExecutorSuperadmin_Delete(t *testing.T) {
 }
 
 func TestExecutorSuperadmin_NoSuperadmin(t *testing.T) {
-	stage, _ := newStage(t)
-	assert.NoError(t, noSuperadminStage(stage))
+	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
+	assert.NoError(t, stage.NoSuperadmin())
 	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 
@@ -67,16 +67,4 @@ func TestExecutorSuperadmin_NoSuperadmin(t *testing.T) {
 	assert.Equal(t, caskin.ErrSuperAdminIsNoEnabled, executor.DeleteSuperadminUser(stage.AdminUser))
 	_, err := executor.GetAllSuperadminUser()
 	assert.Equal(t, caskin.ErrSuperAdminIsNoEnabled, err)
-}
-
-func noSuperadminStage(stage *Stage) error {
-	provider := caskin.NewCachedProvider(nil, nil)
-	executor := stage.Caskin.GetExecutor(provider)
-	if err := executor.DeleteSuperadminUser(stage.SuperadminUser); err != nil {
-		return err
-	}
-
-	stage.SuperadminUser = nil
-	stage.Options.SuperadminOption.Enable = false
-	return nil
 }
