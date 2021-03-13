@@ -1,7 +1,7 @@
 package caskin
 
 type BindExecutor struct {
-	e  executor
+	e  *executor
 	db MetaDBBindObjectAPI
 }
 
@@ -76,11 +76,12 @@ func (b *BindExecutor) DeleteBindObjectData(item ObjectData, bind Object, ty Obj
 		return b.e.deleteEntryCheck(item)
 	}
 
+	// TODO
 	delFn := func(p treeNodeEntry, d Domain) error {
 		if err := b.e.e.RemoveObjectInDomain(p.(Object), d); err != nil {
 			return err
 		}
-		return b.db.DeleteByID(item.GetID(), p.GetID())
+		return b.db.Delete(item, bind)
 	}
 
 	fn := func(domain Domain) error {

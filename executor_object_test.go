@@ -50,22 +50,25 @@ func TestExecutorObject_GeneralCreate(t *testing.T) {
 	assert.Equal(t, caskin.ErrNoWritePermission, executor.CreateObject(object1))
 	provider.User = stage.AdminUser
 	assert.Equal(t, caskin.ErrNoWritePermission, executor.CreateObject(object1))
-
 	object1.ObjectID = 1
 	provider.User = stage.MemberUser
 	assert.Equal(t, caskin.ErrNoWritePermission, executor.CreateObject(object1))
 	provider.User = stage.AdminUser
+	assert.Equal(t, caskin.ErrCanNotOperateRootObjectWithoutSuperadmin, executor.CreateObject(object1))
+	object1.ParentID = 3
+	assert.Equal(t, caskin.ErrInValidObjectType, executor.CreateObject(object1))
+	object1.Type = caskin.ObjectTypeDefault
 	assert.NoError(t, executor.CreateObject(object1))
 
 	object2 := &example.Object{
 		Name: "object_01",
-		Type: ObjectTypeTest,
+		Type: caskin.ObjectTypeDefault,
 	}
 	assert.Equal(t, caskin.ErrAlreadyExists, executor.CreateObject(object2))
 
 	object3 := &example.Object{
 		Name: "object_01",
-		Type: ObjectTypeTest,
+		Type: caskin.ObjectTypeDefault,
 	}
 	assert.Equal(t, caskin.ErrEmptyID, executor.DeleteObject(object3))
 	object3.ID = object1.ID
@@ -73,7 +76,7 @@ func TestExecutorObject_GeneralCreate(t *testing.T) {
 
 	object4 := &example.Object{ID: 10, ObjectID: 1}
 	assert.Equal(t, caskin.ErrNotExists, executor.DeleteObject(object4))
-	assert.NoError(t, executor.CreateObject(object4))
+	assert.Equal(t, caskin.ErrCanNotOperateRootObjectWithoutSuperadmin, executor.CreateObject(object4))
 }
 
 func TestExecutorObject_CreateSubNode(t *testing.T) {
@@ -106,12 +109,20 @@ func TestExecutorObject_CreateSubNode(t *testing.T) {
 	assert.NoError(t, executor.UpdateObject(object1))
 
 	object2 := &example.Object{ID: 4}
-	assert.NoError(t, executor.DeleteObject(object2))
+	assert.Equal(t, caskin.ErrNoWritePermission, executor.DeleteObject(object2))
+	object3 := &example.Object{ID: 6}
+	assert.NoError(t, executor.DeleteObject(object3))
 
 	provider.User = stage.AdminUser
+	assert.NoError(t, executor.DeleteObject(object2))
 	list1, err := executor.GetObjects()
 	assert.NoError(t, err)
 	assert.Len(t, list1, 3)
+
+	provider.User = stage.SuperadminUser
+	list2, err := executor.GetObjects()
+	assert.NoError(t, err)
+	assert.Len(t, list2, 4)
 }
 
 func TestExecutorObject_GeneralUpdate(t *testing.T) {
@@ -155,8 +166,8 @@ func TestExecutorObject_GeneralUpdate(t *testing.T) {
 
 func TestExecutorObject_GeneralRecover(t *testing.T) {
 	stage, _ := newStage(t)
-	provider := caskin.NewCachedProvider(nil, nil)
 	assert.NoError(t, stageAddSubAdmin(stage))
+	provider := caskin.NewCachedProvider(nil, nil)
 	provider.User = stage.AdminUser
 	provider.Domain = stage.Domain
 	executor := stage.Caskin.GetExecutor(provider)
@@ -197,17 +208,18 @@ func TestExecutorObject_GeneralDelete(t *testing.T) {
 	assert.Equal(t, caskin.ErrNoWritePermission, executor.DeleteObject(object1))
 
 	provider.User = stage.AdminUser
-	//assert.Equal(t, caskin.ErrEmptyParentIdOrNotSuperadmin, executor.DeleteObject(object1))
-
-	object2 := &example.Object{ID: 5}
-	assert.NoError(t, executor.DeleteObject(object2))
-
-	object1.ParentID = 1
 	assert.NoError(t, executor.DeleteObject(object1))
 
-	assert.Equal(t, caskin.ErrNotExists, executor.DeleteObject(object1))
+	object2 := &example.Object{ID: 5}
+	assert.Equal(t, caskin.ErrNoWritePermission, executor.DeleteObject(object2))
 
-	provider.User = stage.AdminUser
-	object3 := &example.Object{ID: 5}
-	assert.Equal(t, caskin.ErrNotExists, executor.DeleteObject(object3))
+	object4 := &example.Object{ID: 1}
+	assert.Equal(t, caskin.ErrCanNotOperateRootObjectWithoutSuperadmin, executor.DeleteObject(object4))
+
+	// TODO: if object type == object, it will not recover it by admin user now
+	// want to support it by a special API
+	object3 := &example.Object{ID: 4, ParentID: 1}
+	assert.Equal(t, caskin.ErrNoWritePermission, executor.RecoverObject(object3))
+	provider.User = stage.SuperadminUser
+	assert.NoError(t, executor.RecoverObject(object3))
 }

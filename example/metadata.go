@@ -44,6 +44,10 @@ func (g *gormMDB) TakeUnscoped(item interface{}) error {
 	return g.db.Unscoped().Where(item).Take(item).Error
 }
 
+func (g *gormMDB) DeleteByID(item interface{}, id uint64) error {
+	return g.db.Delete(item, id).Error
+}
+
 func (g *gormMDB) GetUserByID(id []uint64) ([]caskin.User, error) {
 	var user []*User
 	if err := g.db.Find(&user, "id IN ?", id).Error; err != nil {
@@ -53,10 +57,6 @@ func (g *gormMDB) GetUserByID(id []uint64) ([]caskin.User, error) {
 	var ret []caskin.User
 	linq.From(user).ToSlice(&ret)
 	return ret, nil
-}
-
-func (g *gormMDB) DeleteUserByID(id uint64) error {
-	return g.db.Delete(&User{ID: id}).Error
 }
 
 func (g *gormMDB) GetRoleInDomain(domain caskin.Domain) ([]caskin.Role, error) {
@@ -79,10 +79,6 @@ func (g *gormMDB) GetRoleByID(id []uint64) ([]caskin.Role, error) {
 	var ret []caskin.Role
 	linq.From(role).ToSlice(&ret)
 	return ret, nil
-}
-
-func (g *gormMDB) DeleteRoleByID(id uint64) error {
-	return g.db.Delete(&Role{}, id).Error
 }
 
 func (g *gormMDB) GetObjectInDomain(domain caskin.Domain, objectType ...caskin.ObjectType) ([]caskin.Object, error) {
@@ -110,10 +106,6 @@ func (g *gormMDB) GetObjectByID(id []uint64) ([]caskin.Object, error) {
 	var ret []caskin.Object
 	linq.From(object).ToSlice(&ret)
 	return ret, nil
-}
-
-func (g *gormMDB) DeleteObjectByID(id uint64) error {
-	return g.db.Delete(&Object{}, id).Error
 }
 
 func (g *gormMDB) GetAllDomain() ([]caskin.Domain, error) {

@@ -170,12 +170,12 @@ func (t *testCreator) BuildCreator() (caskin.Roles, caskin.Objects) {
 func (t *testCreator) SetRelation() {
 	ooId := t.objects[0].GetID()
 	for _, object := range t.objects {
-		object.SetObjectId(ooId)
+		object.SetObjectID(ooId)
 	}
 
 	roId := t.objects[1].GetID()
 	for _, role := range t.roles {
-		role.SetObjectId(roId)
+		role.SetObjectID(roId)
 	}
 }
 

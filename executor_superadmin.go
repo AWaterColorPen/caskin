@@ -23,7 +23,7 @@ func (e *executor) GetAllSuperadminUser() ([]User, error) {
 	role := e.options.GetSuperadminRole()
 	us := e.e.GetUsersForRoleInDomain(role, domain)
 	id := getIDList(us)
-	return e.mdb.GetUserByID(id)
+	return e.db.GetUserByID(id)
 }
 
 func (e *executor) writeSuperadminUser(user User, fn func(User, Role, Domain) error) error {
@@ -35,7 +35,7 @@ func (e *executor) writeSuperadminUser(user User, fn func(User, Role, Domain) er
 		return err
 	}
 
-	if err := e.mdb.Take(user); err != nil {
+	if err := e.db.Take(user); err != nil {
 		return err
 	}
 

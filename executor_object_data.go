@@ -61,7 +61,7 @@ func (e *executor) writeObjectDataCheck(item ObjectData, ty ObjectType) error {
 		return err
 	}
 	o := item.GetObject()
-	if err := e.mdb.Take(o); err != nil {
+	if err := e.db.Take(o); err != nil {
 		return ErrInValidObject
 	}
 	if o.GetObjectType() != ty {

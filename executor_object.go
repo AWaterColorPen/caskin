@@ -9,7 +9,7 @@ import "github.com/ahmetb/go-linq/v3"
 // 2. update object to parent's g2 in the domain
 func (e *executor) CreateObject(object Object) error {
 	fn := func(domain Domain) error {
-		if err := e.mdb.Create(object); err != nil {
+		if err := e.db.Create(object); err != nil {
 			return err
 		}
 		updater := e.objectParentUpdater()
@@ -26,7 +26,7 @@ func (e *executor) CreateObject(object Object) error {
 // 2. update object to parent's g2 in the domain
 func (e *executor) RecoverObject(object Object) error {
 	fn := func(domain Domain) error {
-		if err := e.mdb.Recover(object); err != nil {
+		if err := e.db.Recover(object); err != nil {
 			return err
 		}
 		updater := e.objectParentUpdater()
@@ -60,7 +60,7 @@ func (e *executor) UpdateObject(object Object) error {
 			object.GetObject().GetID() != object.GetID() {
 			return ErrObjectTypeObjectIDMustBeItselfID
 		}
-		if err := e.mdb.Update(object); err != nil {
+		if err := e.db.Update(object); err != nil {
 			return err
 		}
 		updater := e.objectParentUpdater()
@@ -91,7 +91,7 @@ func (e *executor) GetObjects(ty ...ObjectType) ([]Object, error) {
 
 	ds := e.e.GetObjectsInDomain(currentDomain)
 	tree := getTree(ds)
-	objects, err := e.mdb.GetObjectInDomain(currentDomain, ty...)
+	objects, err := e.db.GetObjectInDomain(currentDomain, ty...)
 	if err != nil {
 		return nil, err
 	}

@@ -4,7 +4,7 @@ import "github.com/ahmetb/go-linq/v3"
 
 type executor struct {
 	e        ienforcer
-	mdb      MetaDB
+	db       MetaDB
 	provider CurrentProvider
 	factory  EntryFactory
 	options  *Options
@@ -19,17 +19,17 @@ func (e *executor) newRole() treeNodeEntry {
 }
 
 func (e *executor) createCheck(item interface{}) error {
-	if err := e.mdb.Take(item); err == nil {
+	if err := e.db.Take(item); err == nil {
 		return ErrAlreadyExists
 	}
 	return nil
 }
 
 func (e *executor) recoverCheck(item interface{}) error {
-	if err := e.mdb.Take(item); err == nil {
+	if err := e.db.Take(item); err == nil {
 		return ErrAlreadyExists
 	}
-	if err := e.mdb.TakeUnscoped(item); err != nil {
+	if err := e.db.TakeUnscoped(item); err != nil {
 		return ErrNotExists
 	}
 	return nil
@@ -39,7 +39,7 @@ func (e *executor) getOrModifyEntryCheck(item idInterface) error {
 	if err := isValid(item); err != nil {
 		return err
 	}
-	if err := e.mdb.Take(item); err != nil {
+	if err := e.db.Take(item); err != nil {
 		return ErrNotExists
 	}
 	return nil
@@ -63,7 +63,7 @@ func (e *executor) updateEntryCheck(item idInterface, tmp entry) error {
 	}
 
 	tmp.SetID(item.GetID())
-	if err := e.mdb.Take(tmp); err != nil {
+	if err := e.db.Take(tmp); err != nil {
 		return ErrNotExists
 	}
 
@@ -151,7 +151,7 @@ func (e *executor) treeNodeParentCheck(takenItem treeNodeEntry, newEntry func() 
 	if _, ok := parent.(Object); !ok {
 		u := parent.(Role)
 		w := takenItem.(Role)
-		if err := isValidFamily(w, u, e.mdb.Take); err != nil {
+		if err := isValidFamily(w, u, e.db.Take); err != nil {
 			return err
 		}
 	}
@@ -177,7 +177,7 @@ func (e *executor) objectDeleteFn() deleteFn {
 		if err := e.e.RemoveObjectInDomain(p.(Object), d); err != nil {
 			return err
 		}
-		return e.mdb.DeleteObjectByID(p.GetID())
+		return e.db.DeleteByID(p, p.GetID())
 	}
 }
 
@@ -211,7 +211,7 @@ func (e *executor) roleDeleteFn() deleteFn {
 		if err := e.e.RemoveRoleInDomain(p.(Role), d); err != nil {
 			return err
 		}
-		return e.mdb.DeleteRoleByID(p.GetID())
+		return e.db.DeleteByID(p, p.GetID())
 	}
 }
 

@@ -9,6 +9,7 @@
   - [ ] (p2) web feature, frontend menu and sub function, backend API, RestFUL API
   - [ ] (p2) abstract features for just like web feature and other feature
   - [ ] (p3) go 1.16
+  - [ ] (p3) if object type == object, it will not recover it by admin user now. we want to support it by a special API
 - bug
   - [ ] (p2) fix issue when modify object data, it will not just filter. it should return no permission
   

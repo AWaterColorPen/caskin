@@ -42,7 +42,7 @@ func (o *Object) GetObject() caskin.Object {
 	return &Object{ID: o.ObjectID}
 }
 
-func (o *Object) SetObjectId(objectId uint64) {
+func (o *Object) SetObjectID(objectId uint64) {
 	o.ObjectID = objectId
 }
 
