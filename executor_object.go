@@ -7,7 +7,7 @@ import "github.com/ahmetb/go-linq/v3"
 // then create a new one
 // 1. create a new object into metadata database
 // 2. update object to parent's g2 in the domain
-func (e *executor) CreateObject(object Object) error {
+func (e *Executor) CreateObject(object Object) error {
 	fn := func(domain Domain) error {
 		if err := e.db.Create(object); err != nil {
 			return err
@@ -24,7 +24,7 @@ func (e *executor) CreateObject(object Object) error {
 // then recover it
 // 1. recover the soft delete one object at metadata database
 // 2. update object to parent's g2 in the domain
-func (e *executor) RecoverObject(object Object) error {
+func (e *Executor) RecoverObject(object Object) error {
 	fn := func(domain Domain) error {
 		if err := e.db.Recover(object); err != nil {
 			return err
@@ -42,7 +42,7 @@ func (e *executor) RecoverObject(object Object) error {
 // 2. delete object's p in the domain
 // 3. soft delete one object in metadata database
 // 4. dfs to delete all son of the object in the domain
-func (e *executor) DeleteObject(object Object) error {
+func (e *Executor) DeleteObject(object Object) error {
 	fn := func(domain Domain) error {
 		deleter := newParentEntryDeleter(e.objectChildrenFn(), e.objectDeleteFn())
 		return deleter.dfs(object, domain)
@@ -54,7 +54,7 @@ func (e *executor) DeleteObject(object Object) error {
 // if current user has object's write permission and there exist the object
 // 1. update object's properties
 // 2. update object to parent's g2 in the domain
-func (e *executor) UpdateObject(object Object) error {
+func (e *Executor) UpdateObject(object Object) error {
 	fn := func(domain Domain) error {
 		if object.GetObjectType() == ObjectTypeObject &&
 			object.GetObject().GetID() != object.GetID() {
@@ -83,7 +83,7 @@ func (e *executor) UpdateObject(object Object) error {
 // GetObject
 // if current user has object's read permission
 // 1. get objects by ty
-func (e *executor) GetObjects(ty ...ObjectType) ([]Object, error) {
+func (e *Executor) GetObjects(ty ...ObjectType) ([]Object, error) {
 	currentUser, currentDomain, err := e.provider.Get()
 	if err != nil {
 		return nil, err

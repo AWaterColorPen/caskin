@@ -2,19 +2,19 @@ package caskin
 
 // AddSuperadminUser
 // add the user as superadmin role in superadmin domain without permission checking
-func (e *executor) AddSuperadminUser(user User) error {
+func (e *Executor) AddSuperadminUser(user User) error {
 	return e.writeSuperadminUser(user, e.e.AddRoleForUserInDomain)
 }
 
 // DeleteSuperadminUser
 // delete a user from superadmin without permission checking
-func (e *executor) DeleteSuperadminUser(user User) error {
+func (e *Executor) DeleteSuperadminUser(user User) error {
 	return e.writeSuperadminUser(user, e.e.RemoveRoleForUserInDomain)
 }
 
 // GetAllSuperadminUser
 // get all superadmin user without permission checking
-func (e *executor) GetAllSuperadminUser() ([]User, error) {
+func (e *Executor) GetAllSuperadminUser() ([]User, error) {
 	if !e.options.IsEnableSuperAdmin() {
 		return nil, ErrSuperAdminIsNoEnabled
 	}
@@ -26,7 +26,7 @@ func (e *executor) GetAllSuperadminUser() ([]User, error) {
 	return e.db.GetUserByID(id)
 }
 
-func (e *executor) writeSuperadminUser(user User, fn func(User, Role, Domain) error) error {
+func (e *Executor) writeSuperadminUser(user User, fn func(User, Role, Domain) error) error {
 	if !e.options.IsEnableSuperAdmin() {
 		return ErrSuperAdminIsNoEnabled
 	}

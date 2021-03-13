@@ -4,7 +4,7 @@ package caskin
 // if there does not exist the user
 // then create a new one without permission checking
 // 1. create a new user into metadata database
-func (e *executor) CreateUser(user User) error {
+func (e *Executor) CreateUser(user User) error {
 	return e.createOrRecoverUser(user, e.db.Create)
 }
 
@@ -12,7 +12,7 @@ func (e *executor) CreateUser(user User) error {
 // if there exist the user but soft deleted
 // then recover it without permission checking
 // 1. recover the soft delete one user at metadata database
-func (e *executor) RecoverUser(user User) error {
+func (e *Executor) RecoverUser(user User) error {
 	return e.createOrRecoverUser(user, e.db.Recover)
 }
 
@@ -21,7 +21,7 @@ func (e *executor) RecoverUser(user User) error {
 // delete user without permission checking
 // 1. delete all user's g in all domain
 // 2. soft delete one user in metadata database
-func (e *executor) DeleteUser(user User) error {
+func (e *Executor) DeleteUser(user User) error {
 	fn := func(interface{}) error {
 		domains, err := e.db.GetAllDomain()
 		if err != nil {
@@ -42,11 +42,11 @@ func (e *executor) DeleteUser(user User) error {
 // if there exist the user
 // update user without permission checking
 // 1. just update user's properties
-func (e *executor) UpdateUser(user User) error {
+func (e *Executor) UpdateUser(user User) error {
 	return e.writeUser(user, e.db.Update)
 }
 
-func (e *executor) createOrRecoverUser(user User, fn func(interface{}) error) error {
+func (e *Executor) createOrRecoverUser(user User, fn func(interface{}) error) error {
 	if err := e.db.Take(user); err == nil {
 		return ErrAlreadyExists
 	}
@@ -54,7 +54,7 @@ func (e *executor) createOrRecoverUser(user User, fn func(interface{}) error) er
 	return fn(user)
 }
 
-func (e *executor) writeUser(user User, fn func(interface{}) error) error {
+func (e *Executor) writeUser(user User, fn func(interface{}) error) error {
 	if err := isValid(user); err != nil {
 		return err
 	}

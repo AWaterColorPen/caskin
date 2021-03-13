@@ -4,9 +4,9 @@ type Caskin struct {
 	options *Options
 }
 
-func (c *Caskin) GetExecutor(provider CurrentProvider) *executor {
+func (c *Caskin) GetExecutor(provider CurrentProvider) *Executor {
 	e := NewEnforcer(c.options.Enforcer, c.options.EntryFactory)
-	return &executor{
+	return &Executor{
 		e:        e,
 		factory:  c.options.EntryFactory,
 		db:       c.options.MetaDB,

@@ -5,7 +5,7 @@ import "github.com/ahmetb/go-linq/v3"
 // GetPolicyList
 // 1. get all policies which current user has role and object's read permission in current domain
 // 2. build role's tree
-func (e *executor) GetPolicyList() ([]*Policy, error) {
+func (e *Executor) GetPolicyList() ([]*Policy, error) {
 	currentUser, currentDomain, err := e.provider.Get()
 	if err != nil {
 		return nil, err
@@ -60,7 +60,7 @@ func (e *executor) GetPolicyList() ([]*Policy, error) {
 // GetPolicyListByRole
 // 1. get policy which current user has role and object's read permission in current domain
 // 2. get user to role 's g as Policy in current domain
-func (e *executor) GetPolicyListByRole(role Role) ([]*Policy, error) {
+func (e *Executor) GetPolicyListByRole(role Role) ([]*Policy, error) {
 	if err := e.getObjectDataEntryCheck(role); err != nil {
 		return nil, err
 	}
@@ -102,7 +102,7 @@ func (e *executor) GetPolicyListByRole(role Role) ([]*Policy, error) {
 // GetPolicyListByObject
 // 1. get policy which current user has role and object's read permission in current domain
 // 2. get user to role 's g as Policy in current domain
-func (e *executor) GetPolicyListByObject(object Object) ([]*Policy, error) {
+func (e *Executor) GetPolicyListByObject(object Object) ([]*Policy, error) {
 	if err := e.getObjectDataEntryCheck(object); err != nil {
 		return nil, err
 	}
@@ -139,7 +139,7 @@ func (e *executor) GetPolicyListByObject(object Object) ([]*Policy, error) {
 // ModifyPolicyListPerRole
 // if current user has role and object's write permission
 // 1. modify role to objects 's p in current domain
-func (e *executor) ModifyPolicyListPerRole(role Role, input []*Policy) error {
+func (e *Executor) ModifyPolicyListPerRole(role Role, input []*Policy) error {
 	if err := e.modifyObjectDataEntryCheck(role); err != nil {
 		return err
 	}
@@ -209,7 +209,7 @@ func (e *executor) ModifyPolicyListPerRole(role Role, input []*Policy) error {
 // ModifyPolicyListPerObject
 // if current user has role and object's write permission
 // 1. modify role to objects 's p in current domain
-func (e *executor) ModifyPolicyListPerObject(object Object, input []*Policy) error {
+func (e *Executor) ModifyPolicyListPerObject(object Object, input []*Policy) error {
 	if err := e.modifyObjectDataEntryCheck(object); err != nil {
 		return err
 	}

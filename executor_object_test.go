@@ -162,6 +162,14 @@ func TestExecutorObject_GeneralUpdate(t *testing.T) {
 	}
 	assert.Equal(t, caskin.ErrNoWritePermission, executor.UpdateObject(object4))
 
+	provider.User = stage.SuperadminUser
+	object5 := &example.Object{
+		ID:       1,
+		Type:     caskin.ObjectTypeDefault,
+		ParentID: 1,
+		ObjectID: 1,
+	}
+	assert.Equal(t, caskin.ErrInValidObjectType, executor.UpdateObject(object5))
 }
 
 func TestExecutorObject_GeneralRecover(t *testing.T) {

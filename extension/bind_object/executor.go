@@ -1,17 +1,18 @@
-package caskin
+package bind_object
 
-//
-//type BindExecutor struct {
-//	e  *executor
-//	DB MetaDBBindObjectAPI
-//}
+import "github.com/awatercolorpen/caskin"
+
+type Executor struct {
+	e  *caskin.Executor
+	DB MetaDBBindObjectAPI
+}
 //
 //// CreateBindObjectData
 //// if current user has object's write permission and there does not exist the pair of object_data and bind object
 //// then create new
 //// 1. create a new pair into metadata database
 //// 2. update bind object to parent's g2 in the domain
-//func (b *BindExecutor) CreateBindObjectData(item ObjectData, bind Object, ty ObjectType) error {
+//func (b *Executor) CreateBindObjectData(item caskin.ObjectData, bind Object, ty ObjectType) error {
 //	check := func(objectDataEntry) error {
 //		if bind.GetObjectType() != ty {
 //			return ErrInValidObjectType
@@ -38,7 +39,7 @@ package caskin
 //// then recover them
 //// 1. recover the soft delete pair at metadata database
 //// 2. update bind object to parent's g2 in the domain
-//func (b *BindExecutor) RecoverBindObjectData(item ObjectData, bind Object, ty ObjectType) error {
+//func (b *Executor) RecoverBindObjectData(item ObjectData, bind Object, ty ObjectType) error {
 //	check := func(objectDataEntry) error {
 //		if bind.GetObjectType() != ty {
 //			return ErrInValidObjectType
@@ -66,7 +67,7 @@ package caskin
 //// 2. delete object's p in the domain
 //// 3. soft delete pair in metadata database
 //// 4. dfs to delete all son of the pairs in the domain
-//func (b *BindExecutor) DeleteBindObjectData(item ObjectData, bind Object, ty ObjectType) error {
+//func (b *Executor) DeleteBindObjectData(item ObjectData, bind Object, ty ObjectType) error {
 //	check := func(objectDataEntry) error {
 //		if bind.GetObjectType() != ty {
 //			return ErrInValidObjectType

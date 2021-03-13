@@ -4,7 +4,7 @@ package caskin
 // if there does not exist the domain
 // then create a new one without permission checking
 // 1. create a new domain into metadata database
-func (e *executor) CreateDomain(domain Domain) error {
+func (e *Executor) CreateDomain(domain Domain) error {
 	return e.createOrRecoverDomain(domain, e.db.Create)
 }
 
@@ -12,7 +12,7 @@ func (e *executor) CreateDomain(domain Domain) error {
 // if there exist the domain but soft deleted
 // then recover it without permission checking
 // 1. recover the soft delete one domain at metadata database
-func (e *executor) RecoverDomain(domain Domain) error {
+func (e *Executor) RecoverDomain(domain Domain) error {
 	return e.createOrRecoverDomain(domain, e.db.Recover)
 }
 
@@ -22,7 +22,7 @@ func (e *executor) RecoverDomain(domain Domain) error {
 // 1. delete all user's g in the domain
 // 2. don't delete any role's g or object's g2 in the domain
 // 3. soft delete one domain in metadata database
-func (e *executor) DeleteDomain(domain Domain) error {
+func (e *Executor) DeleteDomain(domain Domain) error {
 	fn := func(interface{}) error {
 		if err := e.e.RemoveUsersInDomain(domain); err != nil {
 			return err
@@ -37,7 +37,7 @@ func (e *executor) DeleteDomain(domain Domain) error {
 // if there exist the domain
 // update domain without permission checking
 // 1. just update domain's properties
-func (e *executor) UpdateDomain(domain Domain) error {
+func (e *Executor) UpdateDomain(domain Domain) error {
 	return e.writeDomain(domain, e.db.Update)
 }
 
@@ -45,7 +45,7 @@ func (e *executor) UpdateDomain(domain Domain) error {
 // if there exist the domain
 // re initialize the domain without permission checking
 // 1. just re initialize the domain
-func (e *executor) ReInitializeDomain(domain Domain) error {
+func (e *Executor) ReInitializeDomain(domain Domain) error {
 	fn := func(interface{}) error {
 		return e.initializeDomain(domain)
 	}
@@ -55,11 +55,11 @@ func (e *executor) ReInitializeDomain(domain Domain) error {
 
 // GetAllDomain
 // get all domain without permission checking
-func (e *executor) GetAllDomain() ([]Domain, error) {
+func (e *Executor) GetAllDomain() ([]Domain, error) {
 	return e.db.GetAllDomain()
 }
 
-func (e *executor) createOrRecoverDomain(domain Domain, fn func(interface{}) error) error {
+func (e *Executor) createOrRecoverDomain(domain Domain, fn func(interface{}) error) error {
 	if err := e.db.Take(domain); err == nil {
 		return ErrAlreadyExists
 	}
@@ -67,7 +67,7 @@ func (e *executor) createOrRecoverDomain(domain Domain, fn func(interface{}) err
 	return fn(domain)
 }
 
-func (e *executor) writeDomain(domain Domain, fn func(interface{}) error) error {
+func (e *Executor) writeDomain(domain Domain, fn func(interface{}) error) error {
 	if err := isValid(domain); err != nil {
 		return err
 	}
@@ -87,7 +87,7 @@ func (e *executor) writeDomain(domain Domain, fn func(interface{}) error) error 
 // 1. get roles, objects, policies form DomainCreator
 // 2. upsert roles, objects into metadata database
 // 3. add policies as p into casbin
-func (e *executor) initializeDomain(domain Domain) error {
+func (e *Executor) initializeDomain(domain Domain) error {
 	creator := e.options.DomainCreator(domain)
 	roles, objects := creator.BuildCreator()
 	for _, v := range objects {

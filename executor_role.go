@@ -5,7 +5,7 @@ package caskin
 // then create a new one
 // 1. create a new role into metadata database
 // 2. update role to parent's g in the domain
-func (e *executor) CreateRole(role Role) error {
+func (e *Executor) CreateRole(role Role) error {
 	fn := func(domain Domain) error {
 		if err := e.db.Create(role); err != nil {
 			return err
@@ -22,7 +22,7 @@ func (e *executor) CreateRole(role Role) error {
 // then recover it
 // 1. recover the soft delete one role at metadata database
 // 2. update role to parent's g in the domain
-func (e *executor) RecoverRole(role Role) error {
+func (e *Executor) RecoverRole(role Role) error {
 	fn := func(domain Domain) error {
 		if err := e.db.Recover(role); err != nil {
 			return err
@@ -40,7 +40,7 @@ func (e *executor) RecoverRole(role Role) error {
 // 2. delete role's p in the domain
 // 3. soft delete one role in metadata database
 // 4. dfs to delete all son of the role in the domain
-func (e *executor) DeleteRole(role Role) error {
+func (e *Executor) DeleteRole(role Role) error {
 	fn := func(domain Domain) error {
 		deleter := newParentEntryDeleter(e.roleChildrenFn(), e.roleDeleteFn())
 		return deleter.dfs(role, domain)
@@ -53,7 +53,7 @@ func (e *executor) DeleteRole(role Role) error {
 // if current user has role's write permission and there exist the role
 // 1. update role's properties
 // 2. update role to parent's g in the domain
-func (e *executor) UpdateRole(role Role) error {
+func (e *Executor) UpdateRole(role Role) error {
 	fn := func(domain Domain) error {
 		if err := e.db.Update(role); err != nil {
 			return err
@@ -75,7 +75,7 @@ func (e *executor) UpdateRole(role Role) error {
 // GetRoles
 // if current user has role's read permission
 // 1. get roles in the domain
-func (e *executor) GetRoles() (Roles, error) {
+func (e *Executor) GetRoles() (Roles, error) {
 	currentUser, currentDomain, err := e.provider.Get()
 	if err != nil {
 		return nil, err
