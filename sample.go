@@ -3,7 +3,7 @@ package caskin
 type sampleSuperadminRole struct {
 }
 
-func (s *sampleSuperadminRole) SetObjectType(objectType ObjectType) {
+func (s *sampleSuperadminRole) SetObjectType(ObjectType) {
 }
 
 func (s *sampleSuperadminRole) GetID() uint64 {

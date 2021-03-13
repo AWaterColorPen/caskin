@@ -1,8 +1,8 @@
 package caskin
 
-func (e *executor) GetBindExecutor(db MetaDBBindObjectAPI) *BindExecutor {
-	return &BindExecutor{
-		e: e,
-		db: db,
-	}
-}
+//func (e *executor) GetBindExecutor(DB MetaDBBindObjectAPI) *BindExecutor {
+//	return &BindExecutor{
+//		e: e,
+//		DB: DB,
+//	}
+//}
