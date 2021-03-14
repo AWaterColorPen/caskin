@@ -62,7 +62,7 @@ func (e *Executor) UpdateRole(role Role) error {
 		return updater.update(role, domain)
 	}
 
-	roleUpdateCheck := func(item objectDataEntry) error {
+	roleUpdateCheck := func(item ObjectData) error {
 		tmp := e.newRole()
 		if err := e.updateObjectDataEntryCheck(item, tmp); err != nil {
 			return err

@@ -13,7 +13,7 @@ type Action string
 type CustomizedData = datatypes.JSON
 
 type ObjectData interface {
-	GetID() uint64
+	idInterface
 	// get object interface method
 	GetObject() Object
 	// set object

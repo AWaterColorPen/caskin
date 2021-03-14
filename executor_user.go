@@ -5,7 +5,10 @@ package caskin
 // then create a new one without permission checking
 // 1. create a new user into metadata database
 func (e *Executor) CreateUser(user User) error {
-	return e.createOrRecoverUser(user, e.db.Create)
+	if err := e.DBCreateCheck(user); err != nil {
+		return err
+	}
+	return e.db.Create(user)
 }
 
 // RecoverUser
@@ -13,7 +16,10 @@ func (e *Executor) CreateUser(user User) error {
 // then recover it without permission checking
 // 1. recover the soft delete one user at metadata database
 func (e *Executor) RecoverUser(user User) error {
-	return e.createOrRecoverUser(user, e.db.Recover)
+	if err := e.DBRecoverCheck(user); err != nil {
+		return err
+	}
+	return e.db.Recover(user)
 }
 
 // DeleteUser
@@ -22,20 +28,19 @@ func (e *Executor) RecoverUser(user User) error {
 // 1. delete all user's g in all domain
 // 2. soft delete one user in metadata database
 func (e *Executor) DeleteUser(user User) error {
-	fn := func(interface{}) error {
-		domains, err := e.db.GetAllDomain()
-		if err != nil {
+	if err := e.IDInterfaceDeleteCheck(user); err != nil {
+		return err
+	}
+	domains, err := e.db.GetAllDomain()
+	if err != nil {
+		return err
+	}
+	for _, v := range domains {
+		if err := e.e.RemoveUserInDomain(user, v); err != nil {
 			return err
 		}
-		for _, v := range domains {
-			if err := e.e.RemoveUserInDomain(user, v); err != nil {
-				return err
-			}
-		}
-		return e.db.DeleteByID(user, user.GetID())
 	}
-
-	return e.writeUser(user, fn)
+	return e.db.DeleteByID(user, user.GetID())
 }
 
 // UpdateUser
@@ -43,28 +48,9 @@ func (e *Executor) DeleteUser(user User) error {
 // update user without permission checking
 // 1. just update user's properties
 func (e *Executor) UpdateUser(user User) error {
-	return e.writeUser(user, e.db.Update)
-}
-
-func (e *Executor) createOrRecoverUser(user User, fn func(interface{}) error) error {
-	if err := e.db.Take(user); err == nil {
-		return ErrAlreadyExists
-	}
-
-	return fn(user)
-}
-
-func (e *Executor) writeUser(user User, fn func(interface{}) error) error {
-	if err := isValid(user); err != nil {
+	tmp := e.factory.NewUser()
+	if err := e.IDInterfaceUpdateCheck(user, tmp); err != nil {
 		return err
 	}
-
-	tmp := e.factory.NewUser()
-	tmp.SetID(user.GetID())
-
-	if err := e.db.Take(tmp); err != nil {
-		return ErrNotExists
-	}
-
-	return fn(user)
+	return e.db.Update(user)
 }

@@ -1,10 +1,16 @@
 package caskin
 
-type entry interface {
+// idInterface it is only for get id method
+type idInterface interface {
 	// get id method
 	GetID() uint64
-	// get id method
+	// set id method
 	SetID(uint64)
+}
+
+// entry it is casbin entry of User Role Object Domain
+type entry interface {
+	idInterface
 	// encode entry to string method
 	Encode() string
 	// decode string to entry method
@@ -22,14 +28,4 @@ type treeNodeEntry interface {
 	entry
 	treeNode
 	ObjectData
-}
-
-type objectDataEntry interface {
-	entry
-	ObjectData
-}
-
-type idInterface interface {
-	// get id method
-	GetID() uint64
 }

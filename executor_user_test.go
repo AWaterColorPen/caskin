@@ -75,7 +75,7 @@ func TestExecutorUser_GeneralRecover(t *testing.T) {
 	assert.NoError(t, executor.RecoverUser(user2))
 
 	user3 := &example.User{ID: 5}
-	assert.Error(t, executor.RecoverUser(user3))
+	assert.Equal(t, caskin.ErrNotExists, executor.RecoverUser(user3))
 }
 
 func TestExecutorUser_GeneralDelete(t *testing.T) {

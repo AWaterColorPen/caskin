@@ -67,7 +67,7 @@ func (e *Executor) UpdateObject(object Object) error {
 		return updater.update(object, domain)
 	}
 
-	objectUpdateCheck := func(item objectDataEntry) error {
+	objectUpdateCheck := func(item ObjectData) error {
 		tmp := e.newObject()
 		if err := e.updateObjectDataEntryCheck(item, tmp); err != nil {
 			return err

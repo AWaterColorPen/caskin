@@ -13,7 +13,7 @@ type Executor struct {
 //// 1. create a new pair into metadata database
 //// 2. update bind object to parent's g2 in the domain
 //func (b *Executor) CreateBindObjectData(item caskin.ObjectData, bind Object, ty ObjectType) error {
-//	check := func(objectDataEntry) error {
+//	check := func(ObjectData) error {
 //		if bind.GetObjectType() != ty {
 //			return ErrInValidObjectType
 //		}
@@ -40,7 +40,7 @@ type Executor struct {
 //// 1. recover the soft delete pair at metadata database
 //// 2. update bind object to parent's g2 in the domain
 //func (b *Executor) RecoverBindObjectData(item ObjectData, bind Object, ty ObjectType) error {
-//	check := func(objectDataEntry) error {
+//	check := func(ObjectData) error {
 //		if bind.GetObjectType() != ty {
 //			return ErrInValidObjectType
 //		}
@@ -68,7 +68,7 @@ type Executor struct {
 //// 3. soft delete pair in metadata database
 //// 4. dfs to delete all son of the pairs in the domain
 //func (b *Executor) DeleteBindObjectData(item ObjectData, bind Object, ty ObjectType) error {
-//	check := func(objectDataEntry) error {
+//	check := func(ObjectData) error {
 //		if bind.GetObjectType() != ty {
 //			return ErrInValidObjectType
 //		}
@@ -99,7 +99,7 @@ type Executor struct {
 //// 1. update pair's properties
 //// 2. update object to parent's g2 in the domain
 //func (b *BindExecutor) UpdateBindObjectData(item ObjectData, bind Object, ty ObjectType) error {
-//	check := func(objectDataEntry) error {
+//	check := func(ObjectData) error {
 //		if bind.GetObjectType() != ty {
 //			return ErrInValidObjectType
 //		}

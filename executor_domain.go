@@ -5,7 +5,10 @@ package caskin
 // then create a new one without permission checking
 // 1. create a new domain into metadata database
 func (e *Executor) CreateDomain(domain Domain) error {
-	return e.createOrRecoverDomain(domain, e.db.Create)
+	if err := e.DBCreateCheck(domain); err != nil {
+		return err
+	}
+	return e.db.Create(domain)
 }
 
 // RecoverDomain
@@ -13,7 +16,10 @@ func (e *Executor) CreateDomain(domain Domain) error {
 // then recover it without permission checking
 // 1. recover the soft delete one domain at metadata database
 func (e *Executor) RecoverDomain(domain Domain) error {
-	return e.createOrRecoverDomain(domain, e.db.Recover)
+	if err := e.DBRecoverCheck(domain); err != nil {
+		return err
+	}
+	return e.db.Recover(domain)
 }
 
 // DeleteDomain
@@ -23,14 +29,13 @@ func (e *Executor) RecoverDomain(domain Domain) error {
 // 2. don't delete any role's g or object's g2 in the domain
 // 3. soft delete one domain in metadata database
 func (e *Executor) DeleteDomain(domain Domain) error {
-	fn := func(interface{}) error {
-		if err := e.e.RemoveUsersInDomain(domain); err != nil {
-			return err
-		}
-		return e.db.DeleteByID(domain, domain.GetID())
+	if err := e.IDInterfaceDeleteCheck(domain); err != nil {
+		return err
 	}
-
-	return e.writeDomain(domain, fn)
+	if err := e.e.RemoveUsersInDomain(domain); err != nil {
+		return err
+	}
+	return e.db.DeleteByID(domain, domain.GetID())
 }
 
 // UpdateDomain
@@ -38,7 +43,11 @@ func (e *Executor) DeleteDomain(domain Domain) error {
 // update domain without permission checking
 // 1. just update domain's properties
 func (e *Executor) UpdateDomain(domain Domain) error {
-	return e.writeDomain(domain, e.db.Update)
+	tmp := e.factory.NewDomain()
+	if err := e.IDInterfaceUpdateCheck(domain, tmp); err != nil {
+		return err
+	}
+	return e.db.Update(domain)
 }
 
 // ReInitializeDomain
@@ -46,40 +55,17 @@ func (e *Executor) UpdateDomain(domain Domain) error {
 // re initialize the domain without permission checking
 // 1. just re initialize the domain
 func (e *Executor) ReInitializeDomain(domain Domain) error {
-	fn := func(interface{}) error {
-		return e.initializeDomain(domain)
+	tmp := e.factory.NewDomain()
+	if err := e.IDInterfaceUpdateCheck(domain, tmp); err != nil {
+		return err
 	}
-
-	return e.writeDomain(domain, fn)
+	return e.initializeDomain(domain)
 }
 
 // GetAllDomain
 // get all domain without permission checking
 func (e *Executor) GetAllDomain() ([]Domain, error) {
 	return e.db.GetAllDomain()
-}
-
-func (e *Executor) createOrRecoverDomain(domain Domain, fn func(interface{}) error) error {
-	if err := e.db.Take(domain); err == nil {
-		return ErrAlreadyExists
-	}
-
-	return fn(domain)
-}
-
-func (e *Executor) writeDomain(domain Domain, fn func(interface{}) error) error {
-	if err := isValid(domain); err != nil {
-		return err
-	}
-
-	tmp := e.factory.NewDomain()
-	tmp.SetID(domain.GetID())
-
-	if err := e.db.Take(tmp); err != nil {
-		return ErrNotExists
-	}
-
-	return fn(domain)
 }
 
 // initializeDomain
