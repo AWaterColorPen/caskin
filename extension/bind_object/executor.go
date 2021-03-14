@@ -6,6 +6,7 @@ type Executor struct {
 	e  *caskin.Executor
 	DB MetaDBBindObjectAPI
 }
+
 //
 //// CreateBindObjectData
 //// if current user has object's write permission and there does not exist the pair of object_data and bind object

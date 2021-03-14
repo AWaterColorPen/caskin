@@ -3,7 +3,7 @@ package web_feature
 import "github.com/awatercolorpen/caskin"
 
 var (
-	DefaultFeatureRootName        = "feature-root"
+	DefaultFeatureRootName            = "feature-root"
 	DefaultFeatureRootDescriptionName = "root node of feature object"
 	DefaultFeatureRootGroupName       = ""
 )

@@ -48,7 +48,7 @@ func ObjectArray2CustomizedDataPair(objects []Object, factory func() CustomizedD
 	var pair []*CustomizedDataPair
 	for i, v := range objects {
 		pair = append(pair, &CustomizedDataPair{
-			Object: v,
+			Object:               v,
 			ObjectCustomizedData: customized[i],
 		})
 	}

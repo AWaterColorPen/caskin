@@ -41,4 +41,5 @@ var (
 	ErrObjectTypeObjectIDMustBeItselfID  = fmt.Errorf("the object id of object type's object must be itself's id")
 	ErrEmptyParentIdOrNotSuperadmin      = fmt.Errorf("the parent id is empty or you are operating root object without superadmin authority")
 	ErrCustomizedDataIsNotBelongToObject = fmt.Errorf("customized data is not belong to the object")
+	ErrCanOnlyAllowAtValidDomain         = fmt.Errorf("this oparetion can only allow at valid domain")
 )

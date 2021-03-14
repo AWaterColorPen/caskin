@@ -22,11 +22,12 @@ func TestExecutorRole_GeneralCreate(t *testing.T) {
 	assert.Equal(t, caskin.ErrNoWritePermission, executor.CreateRole(role1))
 	provider.User = stage.AdminUser
 	assert.Equal(t, caskin.ErrNoWritePermission, executor.CreateRole(role1))
-
-	role1.ObjectID = 2
+	role1.ObjectID = 3
 	provider.User = stage.MemberUser
 	assert.Equal(t, caskin.ErrNoWritePermission, executor.CreateRole(role1))
 	provider.User = stage.AdminUser
+	assert.Equal(t, caskin.ErrNoWritePermission, executor.CreateRole(role1))
+	role1.ObjectID = 2
 	assert.NoError(t, executor.CreateRole(role1))
 
 	role2 := &example.Role{

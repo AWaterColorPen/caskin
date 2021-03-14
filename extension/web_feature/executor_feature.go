@@ -6,7 +6,9 @@ func (e *Executor) CreateFeature(feature *Feature) error {
 	if err := e.operationPermissionCheck(); err != nil {
 		return err
 	}
-	return e.e.CreateObjectWithCustomizedData(feature, e.objectFactory())
+	object := e.objectFactory()
+	setFeatureParentID(object)
+	return e.e.CreateObjectWithCustomizedData(feature, object)
 }
 
 func (e *Executor) RecoverFeature(feature *Feature) error {
@@ -27,6 +29,7 @@ func (e *Executor) UpdateFeature(feature *Feature, object caskin.Object) error {
 	if err := e.operationPermissionCheck(); err != nil {
 		return err
 	}
+	setFeatureParentID(object)
 	return e.e.UpdateObjectWithCustomizedData(feature, object)
 }
 
