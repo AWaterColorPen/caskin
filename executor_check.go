@@ -1,17 +1,17 @@
 package caskin
 
 func (e *Executor) DBCreateCheck(item interface{}) error {
-	if err := e.db.Take(item); err == nil {
+	if err := e.DB.Take(item); err == nil {
 		return ErrAlreadyExists
 	}
 	return nil
 }
 
 func (e *Executor) DBRecoverCheck(item interface{}) error {
-	if err := e.db.Take(item); err == nil {
+	if err := e.DB.Take(item); err == nil {
 		return ErrAlreadyExists
 	}
-	if err := e.db.TakeUnscoped(item); err != nil {
+	if err := e.DB.TakeUnscoped(item); err != nil {
 		return ErrNotExists
 	}
 	return nil
@@ -26,7 +26,7 @@ func (e *Executor) IDInterfaceUpdateCheck(item idInterface, tmp idInterface) err
 		return err
 	}
 	tmp.SetID(item.GetID())
-	if err := e.db.Take(tmp); err != nil {
+	if err := e.DB.Take(tmp); err != nil {
 		return ErrNotExists
 	}
 	return nil
@@ -36,7 +36,7 @@ func (e *Executor) IDInterfaceValidAndExistsCheck(item idInterface) error {
 	if err := isValid(item); err != nil {
 		return err
 	}
-	if err := e.db.Take(item); err != nil {
+	if err := e.DB.Take(item); err != nil {
 		return ErrNotExists
 	}
 	return nil
@@ -101,7 +101,7 @@ func (e *Executor) treeNodeParentCheck(takenItem treeNodeEntry, newEntry func() 
 	if err := e.ObjectDataModifyCheck(parent); err != nil {
 		return err
 	}
-	return isValidFamily(takenItem, parent, e.db.Take)
+	return isValidFamily(takenItem, parent, e.DB.Take)
 }
 
 func (e *Executor) treeNodeEntryCheckFlow(item treeNodeEntry, check func(ObjectData) error, newEntry func() treeNodeEntry) error {

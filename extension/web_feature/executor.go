@@ -5,9 +5,22 @@ import "github.com/awatercolorpen/caskin"
 type Executor struct {
 	e             *caskin.Executor
 	objectFactory caskin.ObjectFactory
+	options       Options
 }
 
 func (e *Executor) operationPermissionCheck() error {
-	// TODO get user and domain, check super domain and superadmin
+
 	return nil
+}
+
+func (e *Executor) staticFeatureRootObject() caskin.Object {
+	root := &Feature{
+		Name:        DefaultFeatureRootName,
+		Description: DefaultFeatureRootDescriptionName,
+		Group:       DefaultFeatureRootGroupName,
+	}
+	o := e.objectFactory()
+	o.SetDomainID(e.options.Domain.GetID())
+	caskin.CustomizedData2Object(root, o)
+	return o
 }

@@ -4,10 +4,14 @@ import "github.com/ahmetb/go-linq/v3"
 
 type Executor struct {
 	e        ienforcer
-	db       MetaDB
+	DB       MetaDB
 	provider CurrentProvider
 	factory  EntryFactory
 	options  *Options
+}
+
+func (e *Executor) GetCurrentProvider() CurrentProvider {
+	return e.provider
 }
 
 func (e *Executor) newObject() treeNodeEntry {
@@ -36,7 +40,7 @@ func (e *Executor) objectDeleteFn() deleteFn {
 		if err := e.e.RemoveObjectInDomain(p.(Object), d); err != nil {
 			return err
 		}
-		return e.db.DeleteByID(p, p.GetID())
+		return e.DB.DeleteByID(p, p.GetID())
 	}
 }
 
@@ -70,7 +74,7 @@ func (e *Executor) roleDeleteFn() deleteFn {
 		if err := e.e.RemoveRoleInDomain(p.(Role), d); err != nil {
 			return err
 		}
-		return e.db.DeleteByID(p, p.GetID())
+		return e.DB.DeleteByID(p, p.GetID())
 	}
 }
 

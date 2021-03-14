@@ -13,7 +13,7 @@ func (e *Executor) GetPolicyList() ([]*Policy, error) {
 
 	rs := e.e.GetRolesInDomain(currentDomain)
 	tree := getTree(rs)
-	roles, err := e.db.GetRoleInDomain(currentDomain)
+	roles, err := e.DB.GetRoleInDomain(currentDomain)
 	if err != nil {
 		return nil, err
 	}
@@ -23,7 +23,7 @@ func (e *Executor) GetPolicyList() ([]*Policy, error) {
 		roles = append(roles, v.(Role))
 	}
 
-	objects, err := e.db.GetObjectInDomain(currentDomain)
+	objects, err := e.DB.GetObjectInDomain(currentDomain)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +70,7 @@ func (e *Executor) GetPolicyListByRole(role Role) ([]*Policy, error) {
 		return nil, err
 	}
 
-	objects, err := e.db.GetObjectInDomain(currentDomain)
+	objects, err := e.DB.GetObjectInDomain(currentDomain)
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +112,7 @@ func (e *Executor) GetPolicyListByObject(object Object) ([]*Policy, error) {
 		return nil, err
 	}
 
-	roles, err := e.db.GetRoleInDomain(currentDomain)
+	roles, err := e.DB.GetRoleInDomain(currentDomain)
 	if err != nil {
 		return nil, err
 	}
@@ -165,7 +165,7 @@ func (e *Executor) ModifyPolicyListPerRole(role Role, input []*Policy) error {
 	oid = append(oid, oid1...)
 	oid = append(oid, oid2...)
 	linq.From(oid).Distinct().ToSlice(&oid)
-	objects, err := e.db.GetObjectByID(oid)
+	objects, err := e.DB.GetObjectByID(oid)
 	if err != nil {
 		return err
 	}
@@ -235,7 +235,7 @@ func (e *Executor) ModifyPolicyListPerObject(object Object, input []*Policy) err
 	rid = append(rid, rid1...)
 	rid = append(rid, rid2...)
 	linq.From(rid).Distinct().ToSlice(&rid)
-	roles, err := e.db.GetRoleByID(rid)
+	roles, err := e.DB.GetRoleByID(rid)
 	if err != nil {
 		return err
 	}

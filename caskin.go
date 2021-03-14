@@ -9,7 +9,7 @@ func (c *Caskin) GetExecutor(provider CurrentProvider) *Executor {
 	return &Executor{
 		e:        e,
 		factory:  c.options.EntryFactory,
-		db:       c.options.MetaDB,
+		DB:       c.options.MetaDB,
 		provider: provider,
 		options:  c.options,
 	}

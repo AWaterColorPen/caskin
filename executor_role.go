@@ -9,7 +9,7 @@ func (e *Executor) CreateRole(role Role) error {
 	if err := e.treeNodeEntryCheckFlow(role, e.ObjectDataCreateCheck, e.newRole); err != nil {
 		return err
 	}
-	if err := e.db.Create(role); err != nil {
+	if err := e.DB.Create(role); err != nil {
 		return err
 	}
 	_, domain, _ := e.provider.Get()
@@ -26,7 +26,7 @@ func (e *Executor) RecoverRole(role Role) error {
 	if err := e.treeNodeEntryCheckFlow(role, e.ObjectDataRecoverCheck, e.newRole); err != nil {
 		return err
 	}
-	if err := e.db.Recover(role); err != nil {
+	if err := e.DB.Recover(role); err != nil {
 		return err
 	}
 	_, domain, _ := e.provider.Get()
@@ -64,7 +64,7 @@ func (e *Executor) UpdateRole(role Role) error {
 	if err := e.treeNodeEntryCheckFlow(role, func(ObjectData) error { return nil }, e.newRole); err != nil {
 		return err
 	}
-	if err := e.db.Update(role); err != nil {
+	if err := e.DB.Update(role); err != nil {
 		return err
 	}
 	_, domain, _ := e.provider.Get()
@@ -83,7 +83,7 @@ func (e *Executor) GetRoles() (Roles, error) {
 
 	rs := e.e.GetRolesInDomain(currentDomain)
 	tree := getTree(rs)
-	roles, err := e.db.GetRoleInDomain(currentDomain)
+	roles, err := e.DB.GetRoleInDomain(currentDomain)
 	if err != nil {
 		return nil, err
 	}

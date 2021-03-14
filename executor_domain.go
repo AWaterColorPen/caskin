@@ -8,7 +8,7 @@ func (e *Executor) CreateDomain(domain Domain) error {
 	if err := e.DBCreateCheck(domain); err != nil {
 		return err
 	}
-	return e.db.Create(domain)
+	return e.DB.Create(domain)
 }
 
 // RecoverDomain
@@ -19,7 +19,7 @@ func (e *Executor) RecoverDomain(domain Domain) error {
 	if err := e.DBRecoverCheck(domain); err != nil {
 		return err
 	}
-	return e.db.Recover(domain)
+	return e.DB.Recover(domain)
 }
 
 // DeleteDomain
@@ -35,7 +35,7 @@ func (e *Executor) DeleteDomain(domain Domain) error {
 	if err := e.e.RemoveUsersInDomain(domain); err != nil {
 		return err
 	}
-	return e.db.DeleteByID(domain, domain.GetID())
+	return e.DB.DeleteByID(domain, domain.GetID())
 }
 
 // UpdateDomain
@@ -47,7 +47,7 @@ func (e *Executor) UpdateDomain(domain Domain) error {
 	if err := e.IDInterfaceUpdateCheck(domain, tmp); err != nil {
 		return err
 	}
-	return e.db.Update(domain)
+	return e.DB.Update(domain)
 }
 
 // ReInitializeDomain
@@ -65,7 +65,7 @@ func (e *Executor) ReInitializeDomain(domain Domain) error {
 // GetAllDomain
 // get all domain without permission checking
 func (e *Executor) GetAllDomain() ([]Domain, error) {
-	return e.db.GetAllDomain()
+	return e.DB.GetAllDomain()
 }
 
 // initializeDomain
@@ -77,24 +77,24 @@ func (e *Executor) initializeDomain(domain Domain) error {
 	creator := e.options.DomainCreator(domain)
 	roles, objects := creator.BuildCreator()
 	for _, v := range objects {
-		if err := e.db.Upsert(v); err != nil {
+		if err := e.DB.Upsert(v); err != nil {
 			return err
 		}
 	}
 	for _, v := range roles {
-		if err := e.db.Upsert(v); err != nil {
+		if err := e.DB.Upsert(v); err != nil {
 			return err
 		}
 	}
 
 	creator.SetRelation()
 	for _, v := range roles {
-		if err := e.db.Upsert(v); err != nil {
+		if err := e.DB.Upsert(v); err != nil {
 			return err
 		}
 	}
 	for _, v := range objects {
-		if err := e.db.Upsert(v); err != nil {
+		if err := e.DB.Upsert(v); err != nil {
 			return err
 		}
 	}

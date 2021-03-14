@@ -1,21 +1,39 @@
 package web_feature
 
+import "github.com/awatercolorpen/caskin"
+
 func (e *Executor) CreateFeature(feature *Feature) error {
-	return nil
+	if err := e.operationPermissionCheck(); err != nil {
+		return err
+	}
+	return e.e.CreateObjectWithCustomizedData(feature, e.objectFactory())
 }
 
 func (e *Executor) RecoverFeature(feature *Feature) error {
-	return nil
+	if err := e.operationPermissionCheck(); err != nil {
+		return err
+	}
+	return e.e.RecoverObjectWithCustomizedData(feature)
 }
 
-func (e *Executor) DeleteFeature(feature *Feature) error {
-	return nil
+func (e *Executor) DeleteFeature(feature *Feature, object caskin.Object) error {
+	if err := e.operationPermissionCheck(); err != nil {
+		return err
+	}
+	return e.e.DeleteObjectWithCustomizedData(feature, object)
 }
 
-func (e *Executor) UpdateFeature(feature *Feature) error {
-	return nil
+func (e *Executor) UpdateFeature(feature *Feature, object caskin.Object) error {
+	if err := e.operationPermissionCheck(); err != nil {
+		return err
+	}
+	return e.e.UpdateObjectWithCustomizedData(feature, object)
 }
 
-func (e *Executor) GetFeature() []*Feature {
-	return nil
+func (e *Executor) GetFeature() ([]*caskin.CustomizedDataPair, error) {
+	objects, err := e.e.GetObjects(ObjectTypeFeature)
+	if err != nil {
+		return nil, err
+	}
+	return caskin.ObjectArray2CustomizedDataPair(objects, backendFactory)
 }

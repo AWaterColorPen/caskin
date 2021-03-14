@@ -8,7 +8,7 @@ func (e *Executor) CreateUser(user User) error {
 	if err := e.DBCreateCheck(user); err != nil {
 		return err
 	}
-	return e.db.Create(user)
+	return e.DB.Create(user)
 }
 
 // RecoverUser
@@ -19,7 +19,7 @@ func (e *Executor) RecoverUser(user User) error {
 	if err := e.DBRecoverCheck(user); err != nil {
 		return err
 	}
-	return e.db.Recover(user)
+	return e.DB.Recover(user)
 }
 
 // DeleteUser
@@ -31,7 +31,7 @@ func (e *Executor) DeleteUser(user User) error {
 	if err := e.IDInterfaceDeleteCheck(user); err != nil {
 		return err
 	}
-	domains, err := e.db.GetAllDomain()
+	domains, err := e.DB.GetAllDomain()
 	if err != nil {
 		return err
 	}
@@ -40,7 +40,7 @@ func (e *Executor) DeleteUser(user User) error {
 			return err
 		}
 	}
-	return e.db.DeleteByID(user, user.GetID())
+	return e.DB.DeleteByID(user, user.GetID())
 }
 
 // UpdateUser
@@ -52,5 +52,5 @@ func (e *Executor) UpdateUser(user User) error {
 	if err := e.IDInterfaceUpdateCheck(user, tmp); err != nil {
 		return err
 	}
-	return e.db.Update(user)
+	return e.DB.Update(user)
 }

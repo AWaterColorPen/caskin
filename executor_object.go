@@ -11,7 +11,7 @@ func (e *Executor) CreateObject(object Object) error {
 	if err := e.objectCheckFlow(object, e.ObjectDataCreateCheck); err != nil {
 		return err
 	}
-	if err := e.db.Create(object); err != nil {
+	if err := e.DB.Create(object); err != nil {
 		return err
 	}
 	_, domain, _ := e.provider.Get()
@@ -28,7 +28,7 @@ func (e *Executor) RecoverObject(object Object) error {
 	if err := e.objectCheckFlow(object, e.ObjectDataRecoverCheck); err != nil {
 		return err
 	}
-	if err := e.db.Recover(object); err != nil {
+	if err := e.DB.Recover(object); err != nil {
 		return err
 	}
 	_, domain, _ := e.provider.Get()
@@ -71,7 +71,7 @@ func (e *Executor) UpdateObject(object Object) error {
 		object.GetObject().GetID() != object.GetID() {
 		return ErrObjectTypeObjectIDMustBeItselfID
 	}
-	if err := e.db.Update(object); err != nil {
+	if err := e.DB.Update(object); err != nil {
 		return err
 	}
 	_, domain, _ := e.provider.Get()
@@ -90,7 +90,7 @@ func (e *Executor) GetObjects(ty ...ObjectType) ([]Object, error) {
 
 	ds := e.e.GetObjectsInDomain(currentDomain)
 	tree := getTree(ds)
-	objects, err := e.db.GetObjectInDomain(currentDomain, ty...)
+	objects, err := e.DB.GetObjectInDomain(currentDomain, ty...)
 	if err != nil {
 		return nil, err
 	}
