@@ -1,24 +1,24 @@
 package caskin
 
-func (e *Executor) CreateObjectWithCustomizedData(customized ObjectCustomizedData, object Object) error {
-	ObjectCustomizedData2Object(customized, object)
+func (e *Executor) CreateObjectWithCustomizedData(customized CustomizedData, object Object) error {
+	CustomizedData2Object(customized, object)
 	return e.CreateObject(object)
 }
 
-func (e *Executor) RecoverObjectWithCustomizedData(customized ObjectCustomizedData) error {
+func (e *Executor) RecoverObjectWithCustomizedData(customized CustomizedData) error {
 	object := e.newObject().(Object)
-	ObjectCustomizedData2Object(customized, object)
+	CustomizedData2Object(customized, object)
 	return e.RecoverObject(object)
 }
 
-func (e *Executor) DeleteObjectWithCustomizedData(customized ObjectCustomizedData, object Object) error {
-	if !ObjectCustomizedDataEqualObject(customized, object) {
+func (e *Executor) DeleteObjectWithCustomizedData(customized CustomizedData, object Object) error {
+	if !CustomizedDataEqualObject(customized, object) {
 		return ErrCustomizedDataIsNotBelongToObject
 	}
 	return e.DeleteObject(object)
 }
 
-func (e *Executor) UpdateObjectWithCustomizedData(customized ObjectCustomizedData, object Object) error {
-	ObjectCustomizedData2Object(customized, object)
+func (e *Executor) UpdateObjectWithCustomizedData(customized CustomizedData, object Object) error {
+	CustomizedData2Object(customized, object)
 	return e.UpdateObject(object)
 }

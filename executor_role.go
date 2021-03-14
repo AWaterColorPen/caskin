@@ -6,15 +6,15 @@ package caskin
 // 1. create a new role into metadata database
 // 2. update role to parent's g in the domain
 func (e *Executor) CreateRole(role Role) error {
-	fn := func(domain Domain) error {
-		if err := e.db.Create(role); err != nil {
-			return err
-		}
-		updater := e.roleParentUpdater()
-		return updater.update(role, domain)
+	if err := e.treeNodeEntryCheckFlow(role, e.ObjectDataCreateCheck, e.newRole); err != nil {
+		return err
 	}
-
-	return e.parentEntryFlowHandler(role, e.createObjectDataEntryCheck, e.newRole, fn)
+	if err := e.db.Create(role); err != nil {
+		return err
+	}
+	_, domain, _ := e.provider.Get()
+	updater := e.roleParentUpdater()
+	return updater.update(role, domain)
 }
 
 // RecoverRole
@@ -23,15 +23,15 @@ func (e *Executor) CreateRole(role Role) error {
 // 1. recover the soft delete one role at metadata database
 // 2. update role to parent's g in the domain
 func (e *Executor) RecoverRole(role Role) error {
-	fn := func(domain Domain) error {
-		if err := e.db.Recover(role); err != nil {
-			return err
-		}
-		updater := e.roleParentUpdater()
-		return updater.update(role, domain)
+	if err := e.treeNodeEntryCheckFlow(role, e.ObjectDataRecoverCheck, e.newRole); err != nil {
+		return err
 	}
-
-	return e.parentEntryFlowHandler(role, e.recoverObjectDataEntryCheck, e.newRole, fn)
+	if err := e.db.Recover(role); err != nil {
+		return err
+	}
+	_, domain, _ := e.provider.Get()
+	updater := e.roleParentUpdater()
+	return updater.update(role, domain)
 }
 
 // DeleteRole
@@ -41,12 +41,12 @@ func (e *Executor) RecoverRole(role Role) error {
 // 3. soft delete one role in metadata database
 // 4. dfs to delete all son of the role in the domain
 func (e *Executor) DeleteRole(role Role) error {
-	fn := func(domain Domain) error {
-		deleter := newParentEntryDeleter(e.roleChildrenFn(), e.roleDeleteFn())
-		return deleter.dfs(role, domain)
+	if err := e.treeNodeEntryCheckFlow(role, e.ObjectDataDeleteCheck, e.newRole); err != nil {
+		return err
 	}
-
-	return e.parentEntryFlowHandler(role, e.deleteObjectDataEntryCheck, e.newRole, fn)
+	_, domain, _ := e.provider.Get()
+	deleter := newParentEntryDeleter(e.roleChildrenFn(), e.roleDeleteFn())
+	return deleter.dfs(role, domain)
 }
 
 // UpdateRole
@@ -54,22 +54,22 @@ func (e *Executor) DeleteRole(role Role) error {
 // 1. update role's properties
 // 2. update role to parent's g in the domain
 func (e *Executor) UpdateRole(role Role) error {
-	fn := func(domain Domain) error {
-		if err := e.db.Update(role); err != nil {
-			return err
-		}
-		updater := e.roleParentUpdater()
-		return updater.update(role, domain)
+	tmp := e.newRole()
+	if err := e.ObjectDataUpdateCheck(role, tmp); err != nil {
+		return err
 	}
-
-	roleUpdateCheck := func(item ObjectData) error {
-		tmp := e.newRole()
-		if err := e.updateObjectDataEntryCheck(item, tmp); err != nil {
-			return err
-		}
-		return e.treeNodeParentCheck(tmp, e.newRole)
+	if err := e.treeNodeParentCheck(tmp, e.newRole); err != nil {
+		return err
 	}
-	return e.parentEntryFlowHandler(role, roleUpdateCheck, e.newRole, fn)
+	if err := e.treeNodeEntryCheckFlow(role, func(ObjectData) error { return nil }, e.newRole); err != nil {
+		return err
+	}
+	if err := e.db.Update(role); err != nil {
+		return err
+	}
+	_, domain, _ := e.provider.Get()
+	updater := e.roleParentUpdater()
+	return updater.update(role, domain)
 }
 
 // GetRoles

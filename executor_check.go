@@ -50,91 +50,126 @@ func (e *Executor) IDInterfaceModifyCheck(item idInterface) error {
 	return e.IDInterfaceValidAndExistsCheck(item)
 }
 
-func (e *Executor) createObjectDataEntryCheck(item ObjectData) error {
+func (e *Executor) ObjectDataCreateCheck(item ObjectData) error {
 	if err := e.DBCreateCheck(item); err != nil {
 		return err
 	}
 	return e.check(item, Write)
 }
 
-func (e *Executor) recoverObjectDataEntryCheck(item ObjectData) error {
+func (e *Executor) ObjectDataRecoverCheck(item ObjectData) error {
 	if err := e.DBRecoverCheck(item); err != nil {
 		return err
 	}
 	return e.check(item, Write)
 }
 
-func (e *Executor) getOrModifyObjectDataEntryCheck(item ObjectData, actions ...Action) error {
-	if err := e.IDInterfaceValidAndExistsCheck(item); err != nil {
+func (e *Executor) ObjectDataDeleteCheck(item ObjectData) error {
+	if err := e.IDInterfaceDeleteCheck(item); err != nil {
 		return err
 	}
-	for _, action := range actions {
-		if err := e.check(item, action); err != nil {
-			return err
-		}
+	return e.check(item, Write)
+}
+
+func (e *Executor) ObjectDataUpdateCheck(item ObjectData, tmp ObjectData) error {
+	if err := e.IDInterfaceUpdateCheck(item, tmp); err != nil {
+		return err
+	}
+	return e.check(tmp, Write)
+}
+
+func (e *Executor) ObjectDataGetCheck(item ObjectData) error {
+	if err := e.IDInterfaceGetCheck(item); err != nil {
+		return err
+	}
+	return e.check(item, Read)
+}
+
+func (e *Executor) ObjectDataModifyCheck(item ObjectData) error {
+	if err := e.IDInterfaceModifyCheck(item); err != nil {
+		return err
+	}
+	return e.check(item, Write)
+}
+
+func (e *Executor) treeNodeParentCheck(takenItem treeNodeEntry, newEntry func() treeNodeEntry) error {
+	if isRoot(takenItem) {
+		return nil
+	}
+	parent := newEntry()
+	parent.SetID(takenItem.GetParentID())
+	if err := e.ObjectDataModifyCheck(parent); err != nil {
+		return err
+	}
+	return isValidFamily(takenItem, parent, e.db.Take)
+}
+
+func (e *Executor) treeNodeEntryCheckFlow(item treeNodeEntry, check func(ObjectData) error, newEntry func() treeNodeEntry) error {
+	if err := check(item); err != nil {
+		return err
+	}
+
+	if err := e.treeNodeParentCheck(item, newEntry); err != nil {
+		return err
+	}
+
+	_, domain, err := e.provider.Get()
+	if err != nil {
+		return err
+	}
+
+	item.SetDomainID(domain.GetID())
+	return nil
+}
+
+func (e *Executor) objectTreeNodeParentCheck(takenObject Object) error {
+	if isRoot(takenObject) {
+		return e.rootObjectPermissionCheck()
+	}
+	parent := e.factory.NewObject()
+	parent.SetID(takenObject.GetParentID())
+	if err := e.ObjectDataModifyCheck(parent); err != nil {
+		return err
+	}
+	if parent.GetObjectType() != takenObject.GetObjectType() {
+		return ErrInValidObjectType
 	}
 	return nil
 }
 
-func (e *Executor) deleteObjectDataEntryCheck(item ObjectData) error {
-	return e.getOrModifyObjectDataEntryCheck(item, Write)
-}
-
-func (e *Executor) getObjectDataEntryCheck(item ObjectData) error {
-	return e.getOrModifyObjectDataEntryCheck(item, Read)
-}
-
-func (e *Executor) modifyObjectDataEntryCheck(item ObjectData) error {
-	return e.getOrModifyObjectDataEntryCheck(item, Write)
-}
-
-func (e *Executor) updateObjectDataEntryCheck(item ObjectData, tmp ObjectData) error {
-	if err := e.IDInterfaceUpdateCheck(item, tmp); err != nil {
+func (e *Executor) objectCheckFlow(object Object, check func(ObjectData) error) error {
+	if err := check(object); err != nil {
 		return err
 	}
 
-	return e.check(tmp, Write)
-}
-
-func (e *Executor) treeNodeParentCheck(takenItem treeNodeEntry, newEntry func() treeNodeEntry) error {
-	user, _, _ := e.provider.Get()
-
-	// special logic: normal user can't operate root object
-	if isObjectRoot(takenItem) {
-		ok, _ := e.e.IsSuperAdmin(user)
-		if !ok {
-			return ErrCanNotOperateRootObjectWithoutSuperadmin
-		}
-
-		return nil
-	}
-
-	pid := takenItem.GetParentID()
-	parent := newEntry()
-	parent.SetID(pid)
-
-	if err := e.getOrModifyObjectDataEntryCheck(parent, Write); err != nil {
+	if err := e.objectTreeNodeParentCheck(object); err != nil {
 		return err
 	}
 
-	// TODO hanshu
-	// special logic: their object type should be same
-	if u, ok := parent.(Object); ok {
-		w := takenItem.(Object)
-		if u.GetObjectType() != w.GetObjectType() {
-			return ErrInValidObjectType
-		}
+	_, domain, err := e.provider.Get()
+	if err != nil {
+		return err
 	}
 
-	// TODO hanshu
-	// special logic:
-	if _, ok := parent.(Object); !ok {
-		u := parent.(Role)
-		w := takenItem.(Role)
-		if err := isValidFamily(w, u, e.db.Take); err != nil {
-			return err
-		}
-	}
+	object.SetDomainID(domain.GetID())
+	return nil
+}
 
+func (e *Executor) IsSuperadminCheck() error {
+	user, _, err := e.provider.Get()
+	if err != nil {
+		return err
+	}
+	ok, _ := e.e.IsSuperAdmin(user)
+	if !ok {
+		return ErrIsNotSuperAdmin
+	}
+	return nil
+}
+
+func (e *Executor) rootObjectPermissionCheck() error {
+	if err := e.IsSuperadminCheck(); err != nil {
+		return ErrEmptyParentIdOrNotSuperadmin
+	}
 	return nil
 }

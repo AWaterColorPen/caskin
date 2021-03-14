@@ -2,6 +2,7 @@ package web_feature
 
 import (
 	"fmt"
+
 	"github.com/awatercolorpen/caskin"
 )
 
@@ -21,6 +22,6 @@ func (b *Backend) GetObjectType() caskin.ObjectType {
 	return ObjectTypeBackend
 }
 
-func backendFactory() caskin.ObjectCustomizedData {
+func backendFactory() caskin.CustomizedData {
 	return &Backend{}
 }

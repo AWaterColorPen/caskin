@@ -61,7 +61,7 @@ func (e *Executor) GetPolicyList() ([]*Policy, error) {
 // 1. get policy which current user has role and object's read permission in current domain
 // 2. get user to role 's g as Policy in current domain
 func (e *Executor) GetPolicyListByRole(role Role) ([]*Policy, error) {
-	if err := e.getObjectDataEntryCheck(role); err != nil {
+	if err := e.ObjectDataGetCheck(role); err != nil {
 		return nil, err
 	}
 
@@ -103,7 +103,7 @@ func (e *Executor) GetPolicyListByRole(role Role) ([]*Policy, error) {
 // 1. get policy which current user has role and object's read permission in current domain
 // 2. get user to role 's g as Policy in current domain
 func (e *Executor) GetPolicyListByObject(object Object) ([]*Policy, error) {
-	if err := e.getObjectDataEntryCheck(object); err != nil {
+	if err := e.ObjectDataGetCheck(object); err != nil {
 		return nil, err
 	}
 
@@ -140,7 +140,7 @@ func (e *Executor) GetPolicyListByObject(object Object) ([]*Policy, error) {
 // if current user has role and object's write permission
 // 1. modify role to objects 's p in current domain
 func (e *Executor) ModifyPolicyListPerRole(role Role, input []*Policy) error {
-	if err := e.modifyObjectDataEntryCheck(role); err != nil {
+	if err := e.ObjectDataModifyCheck(role); err != nil {
 		return err
 	}
 
@@ -210,7 +210,7 @@ func (e *Executor) ModifyPolicyListPerRole(role Role, input []*Policy) error {
 // if current user has role and object's write permission
 // 1. modify role to objects 's p in current domain
 func (e *Executor) ModifyPolicyListPerObject(object Object, input []*Policy) error {
-	if err := e.modifyObjectDataEntryCheck(object); err != nil {
+	if err := e.ObjectDataModifyCheck(object); err != nil {
 		return err
 	}
 

@@ -29,6 +29,6 @@ func (f *Feature) GetObjectType() caskin.ObjectType {
 	return ObjectTypeFeature
 }
 
-func featureFactory() caskin.ObjectCustomizedData {
+func featureFactory() caskin.CustomizedData {
 	return &Feature{}
 }

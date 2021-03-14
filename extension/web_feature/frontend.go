@@ -28,6 +28,6 @@ func (f *Frontend) GetObjectType() caskin.ObjectType {
 	return ObjectTypeFrontend
 }
 
-func frontendFactory() caskin.ObjectCustomizedData {
+func frontendFactory() caskin.CustomizedData {
 	return &Frontend{}
 }

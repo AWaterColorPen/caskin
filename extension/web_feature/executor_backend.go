@@ -40,5 +40,5 @@ func (e *Executor) GetBackend() ([]*caskin.CustomizedDataPair, error) {
 	if err != nil {
 		return nil, err
 	}
-	return caskin.ObjectArray2Pair(objects, backendFactory)
+	return caskin.ObjectArray2CustomizedDataPair(objects, backendFactory)
 }

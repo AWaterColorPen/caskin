@@ -5,19 +5,19 @@ import (
 	"encoding/json"
 )
 
-type ObjectCustomizedData interface {
+type CustomizedData interface {
 	GetName() string
 	GetObjectType() ObjectType
 }
 
-func ObjectCustomizedData2Object(customized ObjectCustomizedData, object Object) {
+func CustomizedData2Object(customized CustomizedData, object Object) {
 	object.SetName(customized.GetName())
 	object.SetObjectType(customized.GetObjectType())
 	b, _ := json.Marshal(customized)
 	object.SetCustomizedData(b)
 }
 
-func ObjectCustomizedDataEqualObject(customized ObjectCustomizedData, object Object) bool {
+func CustomizedDataEqualObject(customized CustomizedData, object Object) bool {
 	if customized.GetName() != object.GetName() ||
 		customized.GetObjectType() != object.GetObjectType() {
 		return false
@@ -27,8 +27,8 @@ func ObjectCustomizedDataEqualObject(customized ObjectCustomizedData, object Obj
 	return bytes.Compare(b1, b2) == 0
 }
 
-func ObjectArray2ObjectCustomizedDataArray(objects []Object, factory func() ObjectCustomizedData) ([]ObjectCustomizedData, error) {
-	var customized []ObjectCustomizedData
+func ObjectArray2CustomizedDataArray(objects []Object, factory func() CustomizedData) ([]CustomizedData, error) {
+	var customized []CustomizedData
 	for _, v := range objects {
 		from := v.GetCustomizedData()
 		to := factory()
@@ -40,8 +40,8 @@ func ObjectArray2ObjectCustomizedDataArray(objects []Object, factory func() Obje
 	return customized, nil
 }
 
-func ObjectArray2Pair(objects []Object, factory func() ObjectCustomizedData) ([]*CustomizedDataPair, error) {
-	customized, err := ObjectArray2ObjectCustomizedDataArray(objects, factory)
+func ObjectArray2CustomizedDataPair(objects []Object, factory func() CustomizedData) ([]*CustomizedDataPair, error) {
+	customized, err := ObjectArray2CustomizedDataArray(objects, factory)
 	if err != nil {
 		return nil, err
 	}

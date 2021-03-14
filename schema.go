@@ -10,8 +10,6 @@ type ObjectType string
 
 type Action string
 
-type CustomizedData = datatypes.JSON
-
 type ObjectData interface {
 	idInterface
 	// get object interface method
@@ -36,8 +34,8 @@ type Object interface {
 	SetName(string)
 	GetObjectType() ObjectType
 	SetObjectType(ObjectType)
-	GetCustomizedData() CustomizedData
-	SetCustomizedData(CustomizedData)
+	GetCustomizedData() datatypes.JSON
+	SetCustomizedData(datatypes.JSON)
 }
 
 type Domain interface {
@@ -147,6 +145,6 @@ func (u UserRolePairs) UserID() []uint64 {
 }
 
 type CustomizedDataPair struct {
-	Object               Object               `json:"object"`
-	ObjectCustomizedData ObjectCustomizedData `json:"customized_data"`
+	Object               Object         `json:"object"`
+	ObjectCustomizedData CustomizedData `json:"customized_data"`
 }

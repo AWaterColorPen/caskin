@@ -8,15 +8,15 @@ import "github.com/ahmetb/go-linq/v3"
 // 1. create a new object into metadata database
 // 2. update object to parent's g2 in the domain
 func (e *Executor) CreateObject(object Object) error {
-	fn := func(domain Domain) error {
-		if err := e.db.Create(object); err != nil {
-			return err
-		}
-		updater := e.objectParentUpdater()
-		return updater.update(object, domain)
+	if err := e.objectCheckFlow(object, e.ObjectDataCreateCheck); err != nil {
+		return err
 	}
-
-	return e.parentEntryFlowHandler(object, e.createObjectDataEntryCheck, e.newObject, fn)
+	if err := e.db.Create(object); err != nil {
+		return err
+	}
+	_, domain, _ := e.provider.Get()
+	updater := e.objectParentUpdater()
+	return updater.update(object, domain)
 }
 
 // RecoverObject
@@ -25,15 +25,15 @@ func (e *Executor) CreateObject(object Object) error {
 // 1. recover the soft delete one object at metadata database
 // 2. update object to parent's g2 in the domain
 func (e *Executor) RecoverObject(object Object) error {
-	fn := func(domain Domain) error {
-		if err := e.db.Recover(object); err != nil {
-			return err
-		}
-		updater := e.objectParentUpdater()
-		return updater.update(object, domain)
+	if err := e.objectCheckFlow(object, e.ObjectDataRecoverCheck); err != nil {
+		return err
 	}
-
-	return e.parentEntryFlowHandler(object, e.recoverObjectDataEntryCheck, e.newObject, fn)
+	if err := e.db.Recover(object); err != nil {
+		return err
+	}
+	_, domain, _ := e.provider.Get()
+	updater := e.objectParentUpdater()
+	return updater.update(object, domain)
 }
 
 // DeleteObject
@@ -43,11 +43,12 @@ func (e *Executor) RecoverObject(object Object) error {
 // 3. soft delete one object in metadata database
 // 4. dfs to delete all son of the object in the domain
 func (e *Executor) DeleteObject(object Object) error {
-	fn := func(domain Domain) error {
-		deleter := newParentEntryDeleter(e.objectChildrenFn(), e.objectDeleteFn())
-		return deleter.dfs(object, domain)
+	if err := e.objectCheckFlow(object, e.ObjectDataDeleteCheck); err != nil {
+		return err
 	}
-	return e.parentEntryFlowHandler(object, e.deleteObjectDataEntryCheck, e.newObject, fn)
+	_, domain, _ := e.provider.Get()
+	deleter := newParentEntryDeleter(e.objectChildrenFn(), e.objectDeleteFn())
+	return deleter.dfs(object, domain)
 }
 
 // UpdateObject
@@ -55,29 +56,27 @@ func (e *Executor) DeleteObject(object Object) error {
 // 1. update object's properties
 // 2. update object to parent's g2 in the domain
 func (e *Executor) UpdateObject(object Object) error {
-	fn := func(domain Domain) error {
-		if object.GetObjectType() == ObjectTypeObject &&
-			object.GetObject().GetID() != object.GetID() {
-			return ErrObjectTypeObjectIDMustBeItselfID
-		}
-		if err := e.db.Update(object); err != nil {
-			return err
-		}
-		updater := e.objectParentUpdater()
-		return updater.update(object, domain)
+	tmp := e.factory.NewObject()
+	if err := e.ObjectDataUpdateCheck(object, tmp); err != nil {
+		return err
+	}
+	if err := e.objectTreeNodeParentCheck(tmp); err != nil {
+		return err
 	}
 
-	objectUpdateCheck := func(item ObjectData) error {
-		tmp := e.newObject()
-		if err := e.updateObjectDataEntryCheck(item, tmp); err != nil {
-			return err
-		}
-		if item.(Object).GetObjectType() != tmp.(Object).GetObjectType() {
-			return ErrInValidObjectType
-		}
-		return e.treeNodeParentCheck(tmp, e.newObject)
+	if err := e.objectCheckFlow(object, func(ObjectData) error { return nil }); err != nil {
+		return err
 	}
-	return e.parentEntryFlowHandler(object, objectUpdateCheck, e.newObject, fn)
+	if object.GetObjectType() == ObjectTypeObject &&
+		object.GetObject().GetID() != object.GetID() {
+		return ErrObjectTypeObjectIDMustBeItselfID
+	}
+	if err := e.db.Update(object); err != nil {
+		return err
+	}
+	_, domain, _ := e.provider.Get()
+	updater := e.objectParentUpdater()
+	return updater.update(object, domain)
 }
 
 // GetObject
