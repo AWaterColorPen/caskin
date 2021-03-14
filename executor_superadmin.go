@@ -30,15 +30,9 @@ func (e *Executor) writeSuperadminUser(user User, fn func(User, Role, Domain) er
 	if !e.options.IsEnableSuperAdmin() {
 		return ErrSuperAdminIsNoEnabled
 	}
-
-	if err := isValid(user); err != nil {
+	if err := e.IDInterfaceValidAndExistsCheck(user); err != nil {
 		return err
 	}
-
-	if err := e.DB.Take(user); err != nil {
-		return err
-	}
-
 	domain := e.options.GetSuperadminDomain()
 	role := e.options.GetSuperadminRole()
 	return fn(user, role, domain)
