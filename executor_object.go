@@ -8,13 +8,17 @@ import "github.com/ahmetb/go-linq/v3"
 // 1. create a new object into metadata database
 // 2. update object to parent's g2 in the domain
 func (e *Executor) CreateObject(object Object) error {
-	if err := e.objectCheckFlow(object, e.ObjectDataCreateCheck); err != nil {
+	if err := e.ObjectDataCreateCheck(object, ObjectTypeObject); err != nil {
 		return err
 	}
-	if err := e.DB.Create(object); err != nil {
+	if err := e.objectTreeNodeParentCheck(object); err != nil {
 		return err
 	}
 	_, domain, _ := e.provider.Get()
+	object.SetDomainID(domain.GetID())
+	if err := e.DB.Create(object); err != nil {
+		return err
+	}
 	updater := e.objectParentUpdater()
 	return updater.update(object, domain)
 }
@@ -25,13 +29,17 @@ func (e *Executor) CreateObject(object Object) error {
 // 1. recover the soft delete one object at metadata database
 // 2. update object to parent's g2 in the domain
 func (e *Executor) RecoverObject(object Object) error {
-	if err := e.objectCheckFlow(object, e.ObjectDataRecoverCheck); err != nil {
+	if err := e.ObjectDataRecoverCheck(object); err != nil {
 		return err
 	}
-	if err := e.DB.Recover(object); err != nil {
+	if err := e.objectTreeNodeParentCheck(object); err != nil {
 		return err
 	}
 	_, domain, _ := e.provider.Get()
+	object.SetDomainID(domain.GetID())
+	if err := e.DB.Recover(object); err != nil {
+		return err
+	}
 	updater := e.objectParentUpdater()
 	return updater.update(object, domain)
 }
@@ -43,10 +51,14 @@ func (e *Executor) RecoverObject(object Object) error {
 // 3. soft delete one object in metadata database
 // 4. dfs to delete all son of the object in the domain
 func (e *Executor) DeleteObject(object Object) error {
-	if err := e.objectCheckFlow(object, e.ObjectDataDeleteCheck); err != nil {
+	if err := e.ObjectDataDeleteCheck(object); err != nil {
+		return err
+	}
+	if err := e.objectTreeNodeParentCheck(object); err != nil {
 		return err
 	}
 	_, domain, _ := e.provider.Get()
+	object.SetDomainID(domain.GetID())
 	deleter := newParentEntryDeleter(e.objectChildrenFn(), e.objectDeleteFn())
 	return deleter.dfs(object, domain)
 }
@@ -56,25 +68,20 @@ func (e *Executor) DeleteObject(object Object) error {
 // 1. update object's properties
 // 2. update object to parent's g2 in the domain
 func (e *Executor) UpdateObject(object Object) error {
-	tmp := e.factory.NewObject()
-	if err := e.ObjectDataUpdateCheck(object, tmp); err != nil {
+	if err := e.objectTreeNodeUpdateCheck(object, e.factory.NewObject()); err != nil {
 		return err
 	}
-	if err := e.objectTreeNodeParentCheck(tmp); err != nil {
+	if err := e.objectTreeNodeParentCheck(object); err != nil {
 		return err
 	}
-
-	if err := e.objectCheckFlow(object, func(ObjectData) error { return nil }); err != nil {
-		return err
-	}
-	if object.GetObjectType() == ObjectTypeObject &&
-		object.GetObject().GetID() != object.GetID() {
-		return ErrObjectTypeObjectIDMustBeItselfID
-	}
-	if err := e.DB.Update(object); err != nil {
+    if err := isObjectTypeObjectIDBeSelfIDCheck(object); err != nil {
 		return err
 	}
 	_, domain, _ := e.provider.Get()
+	object.SetDomainID(domain.GetID())
+	if err := e.DB.Update(object); err != nil {
+		return err
+	}
 	updater := e.objectParentUpdater()
 	return updater.update(object, domain)
 }

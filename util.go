@@ -83,12 +83,12 @@ func isRoot(node treeNode) bool {
 	return node.GetParentID() == 0
 }
 
-func isObjectRoot(node treeNode) bool {
-	if !isRoot(node) {
-		return false
+func isObjectTypeObjectIDBeSelfIDCheck(object Object) error {
+	if object.GetObjectType() == ObjectTypeObject &&
+		object.GetObject().GetID() != object.GetID() {
+		return ErrObjectTypeObjectIDMustBeItselfID
 	}
-	_, ok := node.(Object)
-	return ok
+	return nil
 }
 
 func getIDList(source interface{}) []uint64 {

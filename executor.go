@@ -98,27 +98,6 @@ func (e *Executor) childrenOrParentGetFn(fn func(treeNodeEntry, Domain) interfac
 	}
 }
 
-func (e *Executor) parentEntryFlowHandler(item treeNodeEntry,
-	check func(ObjectData) error,
-	newEntry func() treeNodeEntry,
-	fn func(Domain) error) error {
-	if err := check(item); err != nil {
-		return err
-	}
-
-	if err := e.treeNodeParentCheck(item, newEntry); err != nil {
-		return err
-	}
-
-	_, domain, err := e.provider.Get()
-	if err != nil {
-		return err
-	}
-
-	item.SetDomainID(domain.GetID())
-	return fn(domain)
-}
-
 func (e *Executor) filter(action Action, source interface{}) ([]interface{}, error) {
 	u, d, err := e.provider.Get()
 	if err != nil {

@@ -23,49 +23,27 @@ func (e *Executor) Enforce(item ObjectData, action Action) error {
 	return e.check(item, action)
 }
 
-// CreateObjectDataCheck
+// CreateObjectDataPermission
 // check permission of creating object_data
-func (e *Executor) CreateObjectDataCheck(item ObjectData, ty ObjectType) error {
-	return e.writeObjectDataCheck(item, ty)
+func (e *Executor) CreateObjectDataPermission(item ObjectData, ty ObjectType) error {
+	return e.ObjectDataCreateCheck(item, ty)
 }
 
-// RecoverObjectDataCheck
+// RecoverObjectDataPermission
 // check permission of recover object_data
-func (e *Executor) RecoverObjectDataCheck(item ObjectData, ty ObjectType) error {
-	return e.writeObjectDataCheck(item, ty)
+func (e *Executor) RecoverObjectDataPermission(item ObjectData) error {
+	return e.ObjectDataRecoverCheck(item)
 }
 
-// UpdateObjectDataCheck
+// UpdateObjectDataPermission
 // check permission of updating object_data's
-func (e *Executor) UpdateObjectDataCheck(item ObjectData, old ObjectData, ty ObjectType) error {
-	list := []ObjectData{item}
-	if item.GetObject().GetID() != old.GetObject().GetID() {
-		list = append(list, old)
-	}
-	for _, v := range list {
-		if err := e.writeObjectDataCheck(v, ty); err != nil {
-			return err
-		}
-	}
-	return nil
+func (e *Executor) UpdateObjectDataPermission(item ObjectData, old ObjectData, ty ObjectType) error {
+	return e.ObjectDataUpdateCheck(item, old, ty)
 }
 
-// DeleteObjectDataCheck
+// DeleteObjectDataPermission
 // check permission of deleting object_data
-func (e *Executor) DeleteObjectDataCheck(item ObjectData, ty ObjectType) error {
-	return e.writeObjectDataCheck(item, ty)
+func (e *Executor) DeleteObjectDataPermission(item ObjectData) error {
+	return e.ObjectDataDeleteCheck(item)
 }
 
-func (e *Executor) writeObjectDataCheck(item ObjectData, ty ObjectType) error {
-	if err := e.check(item, Write); err != nil {
-		return err
-	}
-	o := item.GetObject()
-	if err := e.DB.Take(o); err != nil {
-		return ErrInValidObject
-	}
-	if o.GetObjectType() != ty {
-		return ErrInValidObjectType
-	}
-	return nil
-}

@@ -33,6 +33,8 @@ func TestExecutorObject_Superdomain(t *testing.T) {
 
 	provider.User = stage.SuperadminUser
 	object1.ObjectID = object1.ID
+	assert.Equal(t, caskin.ErrInValidObjectType, executor.UpdateObject(object1))
+	object1.ObjectID = 4
 	assert.NoError(t, executor.UpdateObject(object1))
 
 	object2 := &example.Object{
@@ -42,8 +44,9 @@ func TestExecutorObject_Superdomain(t *testing.T) {
 		ParentID: 1,
 	}
 	assert.Equal(t, caskin.ErrInValidObjectType, executor.CreateObject(object2))
-
 	object2.ParentID = object1.ID
+	assert.Equal(t, caskin.ErrInValidObjectType, executor.CreateObject(object2))
+	object2.ObjectID = 1
 	assert.NoError(t, executor.CreateObject(object2))
 
 	assert.NoError(t, executor.DeleteObject(object1))
