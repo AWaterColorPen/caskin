@@ -32,7 +32,7 @@ func (e *Executor) DeleteDomain(domain Domain) error {
 	if err := e.IDInterfaceDeleteCheck(domain); err != nil {
 		return err
 	}
-	if err := e.e.RemoveUsersInDomain(domain); err != nil {
+	if err := e.Enforcer.RemoveUsersInDomain(domain); err != nil {
 		return err
 	}
 	return e.DB.DeleteByID(domain, domain.GetID())
@@ -101,7 +101,7 @@ func (e *Executor) initializeDomain(domain Domain) error {
 
 	policies := creator.GetPolicy()
 	for _, v := range policies {
-		if err := e.e.AddPolicyInDomain(v.Role, v.Object, v.Domain, v.Action); err != nil {
+		if err := e.Enforcer.AddPolicyInDomain(v.Role, v.Object, v.Domain, v.Action); err != nil {
 			return err
 		}
 	}

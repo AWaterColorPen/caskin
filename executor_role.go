@@ -91,7 +91,7 @@ func (e *Executor) GetRoles() (Roles, error) {
 		return nil, err
 	}
 
-	rs := e.e.GetRolesInDomain(currentDomain)
+	rs := e.Enforcer.GetRolesInDomain(currentDomain)
 	tree := getTree(rs)
 	roles, err := e.DB.GetRoleInDomain(currentDomain)
 	if err != nil {

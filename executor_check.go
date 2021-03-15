@@ -5,7 +5,7 @@ func (e *Executor) IsSuperadminCheck() error {
 	if err != nil {
 		return err
 	}
-	ok, _ := e.e.IsSuperAdmin(user)
+	ok, _ := e.Enforcer.IsSuperAdmin(user)
 	if !ok {
 		return ErrIsNotSuperAdmin
 	}

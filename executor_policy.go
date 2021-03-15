@@ -11,7 +11,7 @@ func (e *Executor) GetPolicyList() ([]*Policy, error) {
 		return nil, err
 	}
 
-	rs := e.e.GetRolesInDomain(currentDomain)
+	rs := e.Enforcer.GetRolesInDomain(currentDomain)
 	tree := getTree(rs)
 	roles, err := e.DB.GetRoleInDomain(currentDomain)
 	if err != nil {
@@ -34,14 +34,14 @@ func (e *Executor) GetPolicyList() ([]*Policy, error) {
 	}
 	om := getIDMap(objects)
 
-	e.e.GetPoliciesInDomain(currentDomain)
+	e.Enforcer.GetPoliciesInDomain(currentDomain)
 	var list []*Policy
 	for _, v := range roles {
 		if p, ok := tree[v.GetID()]; ok {
 			v.SetParentID(p)
 		}
 
-		policy := e.e.GetPoliciesForRoleInDomain(v, currentDomain)
+		policy := e.Enforcer.GetPoliciesForRoleInDomain(v, currentDomain)
 		for _, p := range policy {
 			if object, ok := om[p.Object.GetID()]; ok {
 				list = append(list, &Policy{
@@ -81,10 +81,10 @@ func (e *Executor) GetPolicyListByRole(role Role) ([]*Policy, error) {
 	}
 	om := getIDMap(objects)
 
-	e.e.GetPoliciesInDomain(currentDomain)
+	e.Enforcer.GetPoliciesInDomain(currentDomain)
 	var list []*Policy
 
-	policy := e.e.GetPoliciesForRoleInDomain(role, currentDomain)
+	policy := e.Enforcer.GetPoliciesForRoleInDomain(role, currentDomain)
 	for _, p := range policy {
 		if object, ok := om[p.Object.GetID()]; ok {
 			list = append(list, &Policy{
@@ -121,7 +121,7 @@ func (e *Executor) GetPolicyListByObject(object Object) ([]*Policy, error) {
 	rm := getIDMap(roles)
 
 	var list []*Policy
-	policy := e.e.GetPoliciesForObjectInDomain(object, currentDomain)
+	policy := e.Enforcer.GetPoliciesForObjectInDomain(object, currentDomain)
 	for _, p := range policy {
 		if role, ok := rm[p.Role.GetID()]; ok {
 			list = append(list, &Policy{
@@ -154,7 +154,7 @@ func (e *Executor) ModifyPolicyListPerRole(role Role, input []*Policy) error {
 		return err
 	}
 
-	policy := e.e.GetPoliciesForRoleInDomain(role, currentDomain)
+	policy := e.Enforcer.GetPoliciesForRoleInDomain(role, currentDomain)
 	var oid, oid1, oid2 []uint64
 	for _, v := range policy {
 		oid1 = append(oid1, v.Object.GetID())
@@ -193,12 +193,12 @@ func (e *Executor) ModifyPolicyListPerRole(role Role, input []*Policy) error {
 	// get diff to add and remove
 	add, remove := DiffPolicy(source, target)
 	for _, v := range add {
-		if err := e.e.AddPolicyInDomain(v.Role, v.Object, v.Domain, v.Action); err != nil {
+		if err := e.Enforcer.AddPolicyInDomain(v.Role, v.Object, v.Domain, v.Action); err != nil {
 			return err
 		}
 	}
 	for _, v := range remove {
-		if err := e.e.RemovePolicyInDomain(v.Role, v.Object, v.Domain, v.Action); err != nil {
+		if err := e.Enforcer.RemovePolicyInDomain(v.Role, v.Object, v.Domain, v.Action); err != nil {
 			return err
 		}
 	}
@@ -224,7 +224,7 @@ func (e *Executor) ModifyPolicyListPerObject(object Object, input []*Policy) err
 		return err
 	}
 
-	policy := e.e.GetPoliciesForObjectInDomain(object, currentDomain)
+	policy := e.Enforcer.GetPoliciesForObjectInDomain(object, currentDomain)
 	var rid, rid1, rid2 []uint64
 	for _, v := range policy {
 		rid1 = append(rid1, v.Role.GetID())
@@ -263,12 +263,12 @@ func (e *Executor) ModifyPolicyListPerObject(object Object, input []*Policy) err
 	// get diff to add and remove
 	add, remove := DiffPolicy(source, target)
 	for _, v := range add {
-		if err := e.e.AddPolicyInDomain(v.Role, v.Object, v.Domain, v.Action); err != nil {
+		if err := e.Enforcer.AddPolicyInDomain(v.Role, v.Object, v.Domain, v.Action); err != nil {
 			return err
 		}
 	}
 	for _, v := range remove {
-		if err := e.e.RemovePolicyInDomain(v.Role, v.Object, v.Domain, v.Action); err != nil {
+		if err := e.Enforcer.RemovePolicyInDomain(v.Role, v.Object, v.Domain, v.Action); err != nil {
 			return err
 		}
 	}

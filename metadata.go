@@ -7,6 +7,7 @@ type MetaDB interface {
 	Upsert(interface{}) error
 	Take(interface{}) error
 	TakeUnscoped(interface{}) error
+	Find(items interface{}, cond ...interface{}) error
 	DeleteByID(interface{}, uint64) error
 
 	// User API

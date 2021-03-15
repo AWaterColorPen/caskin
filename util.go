@@ -2,10 +2,11 @@ package caskin
 
 import (
 	"github.com/ahmetb/go-linq/v3"
+	"sort"
 )
 
 // Filter filter source permission by u, d, action
-func Filter(e ienforcer, u User, d Domain, action Action, source interface{}) []interface{} {
+func Filter(e IEnforcer, u User, d Domain, action Action, source interface{}) []interface{} {
 	var result []interface{}
 	linq.From(source).Where(func(v interface{}) bool {
 		return Check(e, u, d, v.(ObjectData), action)
@@ -14,7 +15,7 @@ func Filter(e ienforcer, u User, d Domain, action Action, source interface{}) []
 }
 
 // Check check entry permission by u, d, action
-func Check(e ienforcer, u User, d Domain, one ObjectData, action Action) bool {
+func Check(e IEnforcer, u User, d Domain, one ObjectData, action Action) bool {
 	o := one.GetObject()
 	ok, _ := e.Enforce(u, o, d, action)
 	return ok
@@ -125,5 +126,35 @@ func getTree(source interface{}) map[uint64]uint64 {
 			m[u.GetID()] = u.GetParentID()
 		}
 	})
+	return m
+}
+
+func SortedInheritanceRelations(relations InheritanceRelations) InheritanceRelations {
+	keys := make([]interface{}, len(relations))
+	for k := range relations {
+		keys = append(keys, k)
+	}
+
+	compare := func(x, y interface{}) bool {
+		switch u := x.(type) {
+		case string:
+			return u < y.(string)
+		case uint64:
+			return u < y.(uint64)
+		default:
+			return false
+		}
+	}
+	sort.SliceStable(keys, func(i, j int) bool {
+		return compare(keys[i], keys[j])
+	})
+
+	m := InheritanceRelations{}
+	for _, k := range keys {
+		m[k] = relations[k]
+		sort.SliceStable(m[k], func(i, j int) bool {
+			return compare(m[k][i], m[k][j])
+		})
+	}
 	return m
 }

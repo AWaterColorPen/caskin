@@ -4,7 +4,7 @@ import (
 	"github.com/casbin/casbin/v2"
 )
 
-type ienforcer interface {
+type IEnforcer interface {
 	// check permission
 	Enforce(User, Object, Domain, Action) (bool, error)
 	IsSuperAdmin(User) (bool, error)
@@ -45,6 +45,10 @@ type ienforcer interface {
 	GetRolesInDomain(Domain) []Role
 	GetObjectsInDomain(Domain) []Object
 	GetPoliciesInDomain(Domain) []*Policy
+
+	// get inheritance relation
+	GetRoleInheritanceRelationInDomain(Domain) InheritanceRelations
+	GetObjectInheritanceRelationInDomain(Domain) InheritanceRelations
 
 	// remove entry in domain
 	RemoveUsersInDomain(Domain) error
@@ -368,6 +372,40 @@ func (e *enforcer) GetPoliciesInDomain(domain Domain) []*Policy {
 	return policies
 }
 
+func (e *enforcer) GetRoleInheritanceRelationInDomain(domain Domain) InheritanceRelations {
+	relations := InheritanceRelations{}
+	rules := e.e.GetFilteredGroupingPolicy(2, domain.Encode())
+	for _, rule := range rules {
+		r1 := e.factory.NewRole()
+		if err := r1.Decode(rule[0]); err != nil {
+			continue
+		}
+		r2 := e.factory.NewRole()
+		if err := r2.Decode(rule[1]); err != nil {
+			continue
+		}
+		relations[r1.GetID()] = append(relations[r1.GetID()], r2.GetID())
+	}
+	return relations
+}
+
+func (e *enforcer) GetObjectInheritanceRelationInDomain(domain Domain) InheritanceRelations {
+	relations := InheritanceRelations{}
+	rules := e.e.GetFilteredNamedGroupingPolicy(ObjectPType, 2, domain.Encode())
+	for _, rule := range rules {
+		o1 := e.factory.NewObject()
+		if err := o1.Decode(rule[0]); err != nil {
+			continue
+		}
+		o2 := e.factory.NewObject()
+		if err := o2.Decode(rule[1]); err != nil {
+			continue
+		}
+		relations[o2.GetID()] = append(relations[o2.GetID()], o1.GetID())
+	}
+	return relations
+}
+
 func (e *enforcer) RemoveUsersInDomain(domain Domain) error {
 	user := e.factory.NewUser()
 	gp := e.e.GetFilteredGroupingPolicy(2, domain.Encode())
@@ -382,7 +420,7 @@ func (e *enforcer) RemoveUsersInDomain(domain Domain) error {
 	return err
 }
 
-func NewEnforcer(e casbin.IEnforcer, factory EntryFactory) ienforcer {
+func NewEnforcer(e casbin.IEnforcer, factory EntryFactory) IEnforcer {
 	return &enforcer{
 		e:       e,
 		factory: factory,

@@ -12,7 +12,7 @@ func (e *Executor) FilterObjectData(source interface{}, action Action) ([]Object
 
 	var result []ObjectData
 	linq.From(source).Where(func(v interface{}) bool {
-		return Check(e.e, u, d, v.(ObjectData), action)
+		return Check(e.Enforcer, u, d, v.(ObjectData), action)
 	}).ToSlice(&result)
 	return result, nil
 }

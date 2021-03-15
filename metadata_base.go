@@ -39,6 +39,10 @@ func (b *BaseMetadataDB) TakeUnscoped(item interface{}) error {
 	return b.DB.Unscoped().Where(item).Take(item).Error
 }
 
+func (b *BaseMetadataDB) Find(items interface{}, cond ...interface{}) error {
+	return b.DB.Find(items, cond).Error
+}
+
 func (b *BaseMetadataDB) DeleteByID(item interface{}, id uint64) error {
 	return b.DB.Delete(item, id).Error
 }

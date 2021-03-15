@@ -7,7 +7,7 @@ type Caskin struct {
 func (c *Caskin) GetExecutor(provider CurrentProvider) *Executor {
 	e := NewEnforcer(c.options.Enforcer, c.options.EntryFactory)
 	return &Executor{
-		e:        e,
+		Enforcer: e,
 		factory:  c.options.EntryFactory,
 		DB:       c.options.MetaDB,
 		provider: provider,

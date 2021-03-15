@@ -36,7 +36,7 @@ func (e *Executor) DeleteUser(user User) error {
 		return err
 	}
 	for _, v := range domains {
-		if err := e.e.RemoveUserInDomain(user, v); err != nil {
+		if err := e.Enforcer.RemoveUserInDomain(user, v); err != nil {
 			return err
 		}
 	}

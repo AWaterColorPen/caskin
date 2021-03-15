@@ -95,7 +95,7 @@ func (e *Executor) GetObjects(ty ...ObjectType) ([]Object, error) {
 		return nil, err
 	}
 
-	ds := e.e.GetObjectsInDomain(currentDomain)
+	ds := e.Enforcer.GetObjectsInDomain(currentDomain)
 	tree := getTree(ds)
 	objects, err := e.DB.GetObjectInDomain(currentDomain, ty...)
 	if err != nil {

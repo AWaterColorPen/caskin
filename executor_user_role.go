@@ -14,7 +14,7 @@ func (e *Executor) GetUserRolePair() ([]*UserRolePair, error) {
 		return nil, err
 	}
 
-	us := e.e.GetUsersInDomain(currentDomain)
+	us := e.Enforcer.GetUsersInDomain(currentDomain)
 	uid := getIDList(us)
 	linq.From(uid).Distinct().ToSlice(&uid)
 	users, err := e.DB.GetUserByID(uid)
@@ -22,7 +22,7 @@ func (e *Executor) GetUserRolePair() ([]*UserRolePair, error) {
 		return nil, err
 	}
 
-	rs := e.e.GetRolesInDomain(currentDomain)
+	rs := e.Enforcer.GetRolesInDomain(currentDomain)
 	tree := getTree(rs)
 	roles, err := e.DB.GetRoleInDomain(currentDomain)
 	if err != nil {
@@ -42,7 +42,7 @@ func (e *Executor) GetUserRolePair() ([]*UserRolePair, error) {
 
 	var list []*UserRolePair
 	for _, v := range users {
-		rs := e.e.GetRolesForUserInDomain(v, currentDomain)
+		rs := e.Enforcer.GetRolesForUserInDomain(v, currentDomain)
 		for _, r := range rs {
 			if role, ok := rm[r.GetID()]; ok {
 				list = append(list, &UserRolePair{User: v, Role: role.(Role)})
@@ -78,7 +78,7 @@ func (e *Executor) GetUserRolePairByUser(user User) ([]*UserRolePair, error) {
 	rm := getIDMap(roles)
 
 	var list []*UserRolePair
-	rs := e.e.GetRolesForUserInDomain(user, currentDomain)
+	rs := e.Enforcer.GetRolesForUserInDomain(user, currentDomain)
 	for _, r := range rs {
 		if role, ok := rm[r.GetID()]; ok {
 			list = append(list, &UserRolePair{User: user, Role: role.(Role)})
@@ -101,7 +101,7 @@ func (e *Executor) GetUserRolePairByRole(role Role) ([]*UserRolePair, error) {
 		return nil, err
 	}
 
-	us := e.e.GetUsersForRoleInDomain(role, currentDomain)
+	us := e.Enforcer.GetUsersForRoleInDomain(role, currentDomain)
 	oid := getIDList(us)
 	users, err := e.DB.GetUserByID(oid)
 	if err != nil {
@@ -138,7 +138,7 @@ func (e *Executor) ModifyUserRolePairPerUser(user User, input []*UserRolePair) e
 		return err
 	}
 
-	rs := e.e.GetRolesForUserInDomain(user, currentDomain)
+	rs := e.Enforcer.GetRolesForUserInDomain(user, currentDomain)
 	rid1 := getIDList(rs)
 	rid2 := pairs.RoleID()
 
@@ -176,13 +176,13 @@ func (e *Executor) ModifyUserRolePairPerUser(user User, input []*UserRolePair) e
 	add, remove := Diff(source, target)
 	for _, v := range add {
 		r := rm[v.(uint64)]
-		if err := e.e.AddRoleForUserInDomain(user, r.(Role), currentDomain); err != nil {
+		if err := e.Enforcer.AddRoleForUserInDomain(user, r.(Role), currentDomain); err != nil {
 			return err
 		}
 	}
 	for _, v := range remove {
 		r := rm[v.(uint64)]
-		if err := e.e.RemoveRoleForUserInDomain(user, r.(Role), currentDomain); err != nil {
+		if err := e.Enforcer.RemoveRoleForUserInDomain(user, r.(Role), currentDomain); err != nil {
 			return err
 		}
 	}
@@ -208,7 +208,7 @@ func (e *Executor) ModifyUserRolePairPerRole(role Role, input []*UserRolePair) e
 		return err
 	}
 
-	us := e.e.GetUsersForRoleInDomain(role, currentDomain)
+	us := e.Enforcer.GetUsersForRoleInDomain(role, currentDomain)
 	uid1 := getIDList(us)
 	uid2 := pairs.UserID()
 
@@ -240,13 +240,13 @@ func (e *Executor) ModifyUserRolePairPerRole(role Role, input []*UserRolePair) e
 	add, remove := Diff(source, target)
 	for _, v := range add {
 		u := um[v.(uint64)]
-		if err := e.e.AddRoleForUserInDomain(u.(User), role, currentDomain); err != nil {
+		if err := e.Enforcer.AddRoleForUserInDomain(u.(User), role, currentDomain); err != nil {
 			return err
 		}
 	}
 	for _, v := range remove {
 		u := um[v.(uint64)]
-		if err := e.e.RemoveRoleForUserInDomain(u.(User), role, currentDomain); err != nil {
+		if err := e.Enforcer.RemoveRoleForUserInDomain(u.(User), role, currentDomain); err != nil {
 			return err
 		}
 	}
