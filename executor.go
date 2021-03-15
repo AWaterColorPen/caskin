@@ -120,6 +120,7 @@ func (e *executor) treeNodeParentCheck(takenItem treeNodeEntry, newEntry func() 
 	user, _, _ := e.provider.Get()
 
 	// special logic: normal user can't operate root object
+	// 这里判断object是否为根节点，role不用区分根节点
 	if isObjectRoot(takenItem) {
 		ok, _ := e.e.IsSuperAdmin(user)
 		if !ok {
@@ -133,8 +134,10 @@ func (e *executor) treeNodeParentCheck(takenItem treeNodeEntry, newEntry func() 
 	parent := newEntry()
 	parent.SetID(pid)
 
-	if err := e.getOrModifyObjectDataEntryCheck(parent, Write); err != nil {
-		return err
+	if parent.GetID() != 0 {
+		if err := e.getOrModifyObjectDataEntryCheck(parent, Write); err != nil {
+			return err
+		}
 	}
 
 	// TODO hanshu
