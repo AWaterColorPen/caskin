@@ -23,27 +23,27 @@ func (e *Executor) Enforce(item ObjectData, action Action) error {
 	return e.check(item, action)
 }
 
-// CreateObjectDataPermission
+// CreateObjectDataCheckPermission
 // check permission of creating object_data
-func (e *Executor) CreateObjectDataPermission(item ObjectData, ty ObjectType) error {
+func (e *Executor) CreateObjectDataCheckPermission(item ObjectData, ty ObjectType) error {
 	return e.ObjectDataCreateCheck(item, ty)
 }
 
-// RecoverObjectDataPermission
+// RecoverObjectDataCheckPermission
 // check permission of recover object_data
-func (e *Executor) RecoverObjectDataPermission(item ObjectData) error {
+func (e *Executor) RecoverObjectDataCheckPermission(item ObjectData) error {
 	return e.ObjectDataRecoverCheck(item)
 }
 
-// UpdateObjectDataPermission
+// UpdateObjectDataCheckPermission
 // check permission of updating object_data's
-func (e *Executor) UpdateObjectDataPermission(item ObjectData, old ObjectData, ty ObjectType) error {
+func (e *Executor) UpdateObjectDataCheckPermission(item ObjectData, old ObjectData, ty ObjectType) error {
 	return e.ObjectDataUpdateCheck(item, old, ty)
 }
 
-// DeleteObjectDataPermission
+// DeleteObjectDataCheckPermission
 // check permission of deleting object_data
-func (e *Executor) DeleteObjectDataPermission(item ObjectData) error {
+func (e *Executor) DeleteObjectDataCheckPermission(item ObjectData) error {
 	return e.ObjectDataDeleteCheck(item)
 }
 
