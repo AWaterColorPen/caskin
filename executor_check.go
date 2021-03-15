@@ -119,11 +119,11 @@ func (e *Executor) ObjectDataModifyCheck(item ObjectData) error {
 }
 
 func (e *Executor) treeNodeEntryUpdateCheck(item treeNodeEntry, tmp1 treeNodeEntry, tmp2 treeNodeEntry, ty ObjectType) error {
-	if item.GetID() == item.GetParentID() {
-		return ErrParentCanNotBeItself
-	}
 	if err := e.ObjectDataUpdateCheck(item, tmp1, ty); err != nil {
 		return err
+	}
+	if item.GetID() == item.GetParentID() {
+		return ErrParentCanNotBeItself
 	}
 	return e.treeNodeEntryParentCheck(tmp1, tmp2)
 }
