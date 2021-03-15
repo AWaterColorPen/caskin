@@ -7,50 +7,12 @@ import (
 )
 
 type gormMDB struct {
-	db *gorm.DB
-}
-
-func (g *gormMDB) Create(item interface{}) error {
-	return g.db.Create(item).Error
-}
-
-func (g *gormMDB) Recover(item interface{}) error {
-	if err := g.TakeUnscoped(item); err != nil {
-		return err
-	}
-	return g.db.Model(item).Update("delete_at", nil).Error
-}
-
-func (g *gormMDB) Update(item interface{}) error {
-	return g.db.Updates(item).Error
-}
-
-func (g *gormMDB) Upsert(item interface{}) error {
-	v, ok := item.(entry)
-	if !ok || v.GetID() == 0 {
-		if err := g.Recover(item); err == nil {
-			return nil
-		}
-		return g.Create(item)
-	}
-	return g.Update(item)
-}
-
-func (g *gormMDB) Take(item interface{}) error {
-	return g.db.Where(item).Take(item).Error
-}
-
-func (g *gormMDB) TakeUnscoped(item interface{}) error {
-	return g.db.Unscoped().Where(item).Take(item).Error
-}
-
-func (g *gormMDB) DeleteByID(item interface{}, id uint64) error {
-	return g.db.Delete(item, id).Error
+	caskin.BaseMetadataDB
 }
 
 func (g *gormMDB) GetUserByID(id []uint64) ([]caskin.User, error) {
 	var user []*User
-	if err := g.db.Find(&user, "id IN ?", id).Error; err != nil {
+	if err := g.DB.Find(&user, "id IN ?", id).Error; err != nil {
 		return nil, err
 	}
 
@@ -61,7 +23,7 @@ func (g *gormMDB) GetUserByID(id []uint64) ([]caskin.User, error) {
 
 func (g *gormMDB) GetRoleInDomain(domain caskin.Domain) ([]caskin.Role, error) {
 	var role []*Role
-	if err := g.db.Where(&Role{DomainID: domain.GetID()}).Find(&role).Error; err != nil {
+	if err := g.DB.Where(&Role{DomainID: domain.GetID()}).Find(&role).Error; err != nil {
 		return nil, err
 	}
 
@@ -72,7 +34,7 @@ func (g *gormMDB) GetRoleInDomain(domain caskin.Domain) ([]caskin.Role, error) {
 
 func (g *gormMDB) GetRoleByID(id []uint64) ([]caskin.Role, error) {
 	var role []*Role
-	if err := g.db.Find(&role, "id IN ?", id).Error; err != nil {
+	if err := g.DB.Find(&role, "id IN ?", id).Error; err != nil {
 		return nil, err
 	}
 
@@ -82,7 +44,7 @@ func (g *gormMDB) GetRoleByID(id []uint64) ([]caskin.Role, error) {
 }
 
 func (g *gormMDB) GetObjectInDomain(domain caskin.Domain, objectType ...caskin.ObjectType) ([]caskin.Object, error) {
-	d := g.db.Where("domain_id = ?", domain.GetID())
+	d := g.DB.Where("domain_id = ?", domain.GetID())
 	if len(objectType) > 0 {
 		d = d.Where("type IN ?", objectType)
 	}
@@ -99,7 +61,7 @@ func (g *gormMDB) GetObjectInDomain(domain caskin.Domain, objectType ...caskin.O
 
 func (g *gormMDB) GetObjectByID(id []uint64) ([]caskin.Object, error) {
 	var object []*Object
-	if err := g.db.Find(&object, "id IN ?", id).Error; err != nil {
+	if err := g.DB.Find(&object, "id IN ?", id).Error; err != nil {
 		return nil, err
 	}
 
@@ -110,7 +72,7 @@ func (g *gormMDB) GetObjectByID(id []uint64) ([]caskin.Object, error) {
 
 func (g *gormMDB) GetAllDomain() ([]caskin.Domain, error) {
 	var domain []*Domain
-	if err := g.db.Find(&domain).Error; err != nil {
+	if err := g.DB.Find(&domain).Error; err != nil {
 		return nil, err
 	}
 
@@ -119,14 +81,8 @@ func (g *gormMDB) GetAllDomain() ([]caskin.Domain, error) {
 	return ret, nil
 }
 
-func (g *gormMDB) DeleteDomainByID(id uint64) error {
-	return g.db.Delete(&Domain{}, id).Error
-}
-
 func NewGormMDBByDB(db *gorm.DB) caskin.MetaDB {
-	return &gormMDB{db: db}
-}
-
-type entry interface {
-	GetID() uint64
+	return &gormMDB{
+		BaseMetadataDB: caskin.BaseMetadataDB{DB: db},
+	}
 }

@@ -4,7 +4,7 @@ import "github.com/ahmetb/go-linq/v3"
 
 // FilterObjectData
 // filter object_data with action
-func (e *executor) FilterObjectData(source interface{}, action Action) ([]ObjectData, error) {
+func (e *Executor) FilterObjectData(source interface{}, action Action) ([]ObjectData, error) {
 	u, d, err := e.provider.Get()
 	if err != nil {
 		return nil, err
@@ -19,53 +19,31 @@ func (e *executor) FilterObjectData(source interface{}, action Action) ([]Object
 
 // Enforce
 // check permission of object_data with action
-func (e *executor) Enforce(item ObjectData, action Action) error {
+func (e *Executor) Enforce(item ObjectData, action Action) error {
 	return e.check(item, action)
 }
 
-// CreateObjectDataCheck
+// CreateObjectDataPermission
 // check permission of creating object_data
-func (e *executor) CreateObjectDataCheck(item ObjectData, ty ObjectType) error {
-	return e.writeObjectDataCheck(item, ty)
+func (e *Executor) CreateObjectDataPermission(item ObjectData, ty ObjectType) error {
+	return e.ObjectDataCreateCheck(item, ty)
 }
 
-// RecoverObjectDataCheck
+// RecoverObjectDataPermission
 // check permission of recover object_data
-func (e *executor) RecoverObjectDataCheck(item ObjectData, ty ObjectType) error {
-	return e.writeObjectDataCheck(item, ty)
+func (e *Executor) RecoverObjectDataPermission(item ObjectData) error {
+	return e.ObjectDataRecoverCheck(item)
 }
 
-// UpdateObjectDataCheck
+// UpdateObjectDataPermission
 // check permission of updating object_data's
-func (e *executor) UpdateObjectDataCheck(item ObjectData, old ObjectData, ty ObjectType) error {
-	list := []ObjectData{item}
-	if item.GetObject().GetID() != old.GetObject().GetID() {
-		list = append(list, old)
-	}
-	for _, v := range list {
-		if err := e.writeObjectDataCheck(v, ty); err != nil {
-			return err
-		}
-	}
-	return nil
+func (e *Executor) UpdateObjectDataPermission(item ObjectData, old ObjectData, ty ObjectType) error {
+	return e.ObjectDataUpdateCheck(item, old, ty)
 }
 
-// DeleteObjectDataCheck
+// DeleteObjectDataPermission
 // check permission of deleting object_data
-func (e *executor) DeleteObjectDataCheck(item ObjectData, ty ObjectType) error {
-	return e.writeObjectDataCheck(item, ty)
+func (e *Executor) DeleteObjectDataPermission(item ObjectData) error {
+	return e.ObjectDataDeleteCheck(item)
 }
 
-func (e *executor) writeObjectDataCheck(item ObjectData, ty ObjectType) error {
-	if err := e.check(item, Write); err != nil {
-		return err
-	}
-	o := item.GetObject()
-	if err := e.db.Take(o); err != nil {
-		return ErrInValidObject
-	}
-	if o.GetObjectType() != ty {
-		return ErrInValidObjectType
-	}
-	return nil
-}

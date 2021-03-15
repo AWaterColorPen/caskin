@@ -8,7 +8,7 @@ import (
 // 1. get all user
 // 2. get all role which current user has read permission in current domain
 // 3. get user to roles 's g as UserRolePair in current domain
-func (e *executor) GetUserRolePair() ([]*UserRolePair, error) {
+func (e *Executor) GetUserRolePair() ([]*UserRolePair, error) {
 	currentUser, currentDomain, err := e.provider.Get()
 	if err != nil {
 		return nil, err
@@ -17,14 +17,14 @@ func (e *executor) GetUserRolePair() ([]*UserRolePair, error) {
 	us := e.e.GetUsersInDomain(currentDomain)
 	uid := getIDList(us)
 	linq.From(uid).Distinct().ToSlice(&uid)
-	users, err := e.db.GetUserByID(uid)
+	users, err := e.DB.GetUserByID(uid)
 	if err != nil {
 		return nil, err
 	}
 
 	rs := e.e.GetRolesInDomain(currentDomain)
 	tree := getTree(rs)
-	roles, err := e.db.GetRoleInDomain(currentDomain)
+	roles, err := e.DB.GetRoleInDomain(currentDomain)
 	if err != nil {
 		return nil, err
 	}
@@ -56,8 +56,8 @@ func (e *executor) GetUserRolePair() ([]*UserRolePair, error) {
 // GetUserRolePairByUser
 // 1. get role which current user has read permission in current domain
 // 2. get user to role 's g as UserRolePair in current domain
-func (e *executor) GetUserRolePairByUser(user User) ([]*UserRolePair, error) {
-	if err := e.getEntryCheck(user); err != nil {
+func (e *Executor) GetUserRolePairByUser(user User) ([]*UserRolePair, error) {
+	if err := e.IDInterfaceGetCheck(user); err != nil {
 		return nil, err
 	}
 
@@ -66,7 +66,7 @@ func (e *executor) GetUserRolePairByUser(user User) ([]*UserRolePair, error) {
 		return nil, err
 	}
 
-	roles, err := e.db.GetRoleInDomain(currentDomain)
+	roles, err := e.DB.GetRoleInDomain(currentDomain)
 	if err != nil {
 		return nil, err
 	}
@@ -91,8 +91,8 @@ func (e *executor) GetUserRolePairByUser(user User) ([]*UserRolePair, error) {
 // GetUserRolePairByRole
 // 1. get role which current user has read permission in current domain
 // 2. get user to role 's g as UserRolePair in current domain
-func (e *executor) GetUserRolePairByRole(role Role) ([]*UserRolePair, error) {
-	if err := e.getObjectDataEntryCheck(role); err != nil {
+func (e *Executor) GetUserRolePairByRole(role Role) ([]*UserRolePair, error) {
+	if err := e.ObjectDataGetCheck(role); err != nil {
 		return nil, err
 	}
 
@@ -103,7 +103,7 @@ func (e *executor) GetUserRolePairByRole(role Role) ([]*UserRolePair, error) {
 
 	us := e.e.GetUsersForRoleInDomain(role, currentDomain)
 	oid := getIDList(us)
-	users, err := e.db.GetUserByID(oid)
+	users, err := e.DB.GetUserByID(oid)
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +119,7 @@ func (e *executor) GetUserRolePairByRole(role Role) ([]*UserRolePair, error) {
 // ModifyUserRolePairPerUser
 // if current user has role's write permission
 // 1. modify user to roles 's g in current domain
-func (e *executor) ModifyUserRolePairPerUser(user User, input []*UserRolePair) error {
+func (e *Executor) ModifyUserRolePairPerUser(user User, input []*UserRolePair) error {
 	if err := isValid(user); err != nil {
 		return err
 	}
@@ -129,7 +129,7 @@ func (e *executor) ModifyUserRolePairPerUser(user User, input []*UserRolePair) e
 		return err
 	}
 
-	if err := e.db.Take(user); err != nil {
+	if err := e.DB.Take(user); err != nil {
 		return ErrNotExists
 	}
 
@@ -147,7 +147,7 @@ func (e *executor) ModifyUserRolePairPerUser(user User, input []*UserRolePair) e
 	rid = append(rid, rid1...)
 	rid = append(rid, rid2...)
 	linq.From(rid).Distinct().ToSlice(&rid)
-	roles, err := e.db.GetRoleByID(rid)
+	roles, err := e.DB.GetRoleByID(rid)
 	if err != nil {
 		return err
 	}
@@ -193,8 +193,8 @@ func (e *executor) ModifyUserRolePairPerUser(user User, input []*UserRolePair) e
 // ModifyUserRolePairPerRole
 // if current user has role's write permission
 // 1. modify role's to user 's g in current domain
-func (e *executor) ModifyUserRolePairPerRole(role Role, input []*UserRolePair) error {
-	if err := e.modifyObjectDataEntryCheck(role); err != nil {
+func (e *Executor) ModifyUserRolePairPerRole(role Role, input []*UserRolePair) error {
+	if err := e.ObjectDataModifyCheck(role); err != nil {
 		return err
 	}
 
@@ -217,7 +217,7 @@ func (e *executor) ModifyUserRolePairPerRole(role Role, input []*UserRolePair) e
 	uid = append(uid, uid1...)
 	uid = append(uid, uid2...)
 	linq.From(uid).Distinct().ToSlice(&uid)
-	users, err := e.db.GetUserByID(uid)
+	users, err := e.DB.GetUserByID(uid)
 	if err != nil {
 		return err
 	}

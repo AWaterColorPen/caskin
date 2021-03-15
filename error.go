@@ -4,13 +4,14 @@ import "fmt"
 
 var (
 	// errors about entry
-	ErrNil                 = fmt.Errorf("nil data")
-	ErrEmptyID             = fmt.Errorf("empty id")
-	ErrAlreadyExists       = fmt.Errorf("already exists")
-	ErrNotExists           = fmt.Errorf("not exists")
-	ErrInValidObject       = fmt.Errorf("invalid object")
-	ErrInValidObjectType   = fmt.Errorf("invalid object type")
-	ErrInValidParentObject = fmt.Errorf("invalid parent object")
+	ErrNil                  = fmt.Errorf("nil data")
+	ErrEmptyID              = fmt.Errorf("empty id")
+	ErrAlreadyExists        = fmt.Errorf("already exists")
+	ErrNotExists            = fmt.Errorf("not exists")
+	ErrInValidObject        = fmt.Errorf("invalid object")
+	ErrInValidObjectType    = fmt.Errorf("invalid object type")
+	ErrInValidParentObject  = fmt.Errorf("invalid parent object")
+	ErrParentCanNotBeItself = fmt.Errorf("parent id can't be it self id")
 
 	// errors about permission
 	ErrNoReadPermission  = fmt.Errorf("no read permission")
@@ -38,7 +39,8 @@ var (
 	ErrInputPolicyListNotBelongSameObject = fmt.Errorf("input policy list are not belong to same object")
 
 	// errors about special object
-	ErrObjectTypeObjectIDMustBeItselfID         = fmt.Errorf("the object id of object type's object must be itself's id")
-	ErrEmptyParentIdOrNotSuperadmin             = fmt.Errorf("the parent id is empty or you are operating root object without superadmin authority")
-	ErrCanNotOperateRootObjectWithoutSuperadmin = fmt.Errorf("can not operate root object without superadmin")
+	ErrObjectTypeObjectIDMustBeItselfID  = fmt.Errorf("the object id of object type's object must be itself's id")
+	ErrEmptyParentIdOrNotSuperadmin      = fmt.Errorf("the parent id is empty or you are operating root object without superadmin authority")
+	ErrCustomizedDataIsNotBelongToObject = fmt.Errorf("customized data is not belong to the object")
+	ErrCanOnlyAllowAtValidDomain         = fmt.Errorf("this oparetion can only allow at valid domain")
 )

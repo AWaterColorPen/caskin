@@ -1,21 +1,42 @@
 package web_feature
 
-func (e *executor) CreateFrontend(frontend *Frontend) error {
-	return nil
+import "github.com/awatercolorpen/caskin"
+
+func (e *Executor) CreateFrontend(frontend *Frontend) error {
+	if err := e.operationPermissionCheck(); err != nil {
+		return err
+	}
+	return e.e.CreateObjectWithCustomizedData(frontend, e.objectFactory())
 }
 
-func (e *executor) RecoverFrontend(frontend *Frontend) error {
-	return nil
+func (e *Executor) RecoverFrontend(frontend *Frontend) error {
+	if err := e.operationPermissionCheck(); err != nil {
+		return err
+	}
+	return e.e.RecoverObjectWithCustomizedData(frontend)
 }
 
-func (e *executor) DeleteFrontend(frontend *Frontend) error {
-	return nil
+func (e *Executor) DeleteFrontend(frontend *Frontend, object caskin.Object) error {
+	if err := e.operationPermissionCheck(); err != nil {
+		return err
+	}
+	return e.e.DeleteObjectWithCustomizedData(frontend, object)
 }
 
-func (e *executor) UpdateFrontend(frontend *Frontend) error {
-	return nil
+func (e *Executor) UpdateFrontend(frontend *Frontend, object caskin.Object) error {
+	if err := e.operationPermissionCheck(); err != nil {
+		return err
+	}
+	return e.e.UpdateObjectWithCustomizedData(frontend, object)
 }
 
-func (e *executor) GetFrontend() []*Frontend {
-	return nil
+func (e *Executor) GetFrontend() ([]*caskin.CustomizedDataPair, error) {
+	if err := e.operationPermissionCheck(); err != nil {
+		return nil, err
+	}
+	objects, err := e.e.GetObjects(ObjectTypeFrontend)
+	if err != nil {
+		return nil, err
+	}
+	return caskin.ObjectArray2CustomizedDataPair(objects, frontendFactory)
 }

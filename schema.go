@@ -1,13 +1,17 @@
 package caskin
 
-import "strings"
+import (
+	"strings"
+
+	"gorm.io/datatypes"
+)
 
 type ObjectType string
 
 type Action string
 
 type ObjectData interface {
-	GetID() uint64
+	idInterface
 	// get object interface method
 	GetObject() Object
 	// set object
@@ -26,8 +30,12 @@ type Role interface {
 
 type Object interface {
 	treeNodeEntry
+	GetName() string
+	SetName(string)
 	GetObjectType() ObjectType
 	SetObjectType(ObjectType)
+	GetCustomizedData() datatypes.JSON
+	SetCustomizedData(datatypes.JSON)
 }
 
 type Domain interface {
@@ -41,14 +49,6 @@ type Roles = []Role
 type Objects = []Object
 
 type Domains = []Domain
-
-// EntryFactory
-type EntryFactory interface {
-	NewUser() User
-	NewRole() Role
-	NewObject() Object
-	NewDomain() Domain
-}
 
 // DomainCreator create new domain's function
 type DomainCreator = func(Domain) Creator
@@ -142,4 +142,9 @@ func (u UserRolePairs) UserID() []uint64 {
 		id = append(id, v.User.GetID())
 	}
 	return id
+}
+
+type CustomizedDataPair struct {
+	Object               Object         `json:"object"`
+	ObjectCustomizedData CustomizedData `json:"customized_data"`
 }

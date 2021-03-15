@@ -9,7 +9,7 @@ import (
 )
 
 func TestExecutorRole_GetRoles(t *testing.T) {
-	stage, _ := newStage(t)
+	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
 	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 
@@ -27,7 +27,8 @@ func TestExecutorRole_GetRoles(t *testing.T) {
 }
 
 func TestExecutorRole_GeneralCreate(t *testing.T) {
-	stage, _ := newStage(t)
+	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
+	assert.NoError(t, stage.AddSubAdmin())
 	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 
@@ -45,19 +46,27 @@ func TestExecutorRole_GeneralCreate(t *testing.T) {
 	provider.User = stage.MemberUser
 	assert.Equal(t, caskin.ErrNoWritePermission, executor.CreateRole(role1))
 	provider.User = stage.AdminUser
-	assert.Equal(t, caskin.ErrEmptyID, executor.CreateRole(role1))
-	role1.ParentID = 2
 	assert.NoError(t, executor.CreateRole(role1))
 
 	role2 := &example.Role{
 		Name: "role_01",
 	}
 	assert.Equal(t, caskin.ErrAlreadyExists, executor.CreateRole(role2))
+
+	role3 := &example.Role{
+		Name: "role_03",
+		ObjectID: 5,
+		ParentID: 1,
+	}
+	provider.User = stage.SubAdminUser
+	assert.Equal(t, caskin.ErrNoWritePermission, executor.CreateRole(role3))
+	role3.ObjectID = 4
+	assert.Equal(t, caskin.ErrInValidObjectType, executor.CreateRole(role3))
 }
 
 func TestExecutorRole_CreateSubNode(t *testing.T) {
-	stage, _ := newStage(t)
-	assert.NoError(t, stageAddSubAdmin(stage))
+	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
+	assert.NoError(t, stage.AddSubAdmin())
 	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 
@@ -71,11 +80,11 @@ func TestExecutorRole_CreateSubNode(t *testing.T) {
 	// member can not read or write object5
 	assert.Equal(t, caskin.ErrNoWritePermission, executor.CreateRole(role1))
 
-	// subadmin can read or write object5
+	// subAdmin can read or write object5
 	provider.User = stage.SubAdminUser
 	assert.NoError(t, executor.CreateRole(role1))
 
-	// 将当前的role移动到member下面，subadminuser没有权限
+	// make current role a son of member's, subAdminUser does not own the permission
 	role1.ParentID = 2
 	assert.Equal(t, caskin.ErrNoWritePermission, executor.UpdateRole(role1))
 
@@ -84,25 +93,17 @@ func TestExecutorRole_CreateSubNode(t *testing.T) {
 	role3 := &example.Role{ID: 4}
 	assert.NoError(t, executor.DeleteRole(role3))
 
-	//provider.User = stage.SuperadminUser
-	//list3, err := executor.GetRoles()
-	//assert.NoError(t, err)
-	//bytes,_ := json.Marshal(list3)
-	//fmt.Println(string(bytes))
-
 	provider.User = stage.AdminUser
-	// todo 这里有一个问题
-	// parent为0的role能否被删除
 	assert.NoError(t, executor.DeleteRole(role2))
 	list1, err := executor.GetRoles()
 	assert.NoError(t, err)
-	assert.Len(t, list1, 3)
+	assert.Len(t, list1, 2)
 }
 
 func TestExecutorRole_GeneralUpdate(t *testing.T) {
-	stage, _ := newStage(t)
+	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
 	provider := caskin.NewCachedProvider(nil, nil)
-	assert.NoError(t, stageAddSubAdmin(stage))
+	assert.NoError(t, stage.AddSubAdmin())
 
 	provider.User = stage.AdminUser
 	provider.Domain = stage.Domain
@@ -121,8 +122,8 @@ func TestExecutorRole_GeneralUpdate(t *testing.T) {
 
 	// 这里的问题和上面的一样
 	// 有没有权限操作paretn为0的role
-	role2 := &example.Role{ID: 1, Name: "role_01_new_name", ObjectID: 1, ParentID: 0}
-	assert.Equal(t, caskin.ErrCanNotOperateRootObjectWithoutSuperadmin, executor.UpdateRole(role2))
+	role2 := &example.Role{ID: 2, Name: "member_new_name", ObjectID: 1, ParentID: 0}
+	assert.Equal(t, caskin.ErrInValidObjectType, executor.UpdateRole(role2))
 
 	provider.User = stage.MemberUser
 	role4 := &example.Role{
@@ -135,8 +136,8 @@ func TestExecutorRole_GeneralUpdate(t *testing.T) {
 }
 
 func TestExecutorRole_GeneralRecover(t *testing.T) {
-	stage, _ := newStage(t)
-	assert.NoError(t, stageAddSubAdmin(stage))
+	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
+	assert.NoError(t, stage.AddSubAdmin())
 	provider := caskin.NewCachedProvider(nil, nil)
 	provider.User = stage.AdminUser
 	provider.Domain = stage.Domain
@@ -163,9 +164,9 @@ func TestExecutorRole_GeneralRecover(t *testing.T) {
 }
 
 func TestExecutorRole_GeneralDelete(t *testing.T) {
-	stage, _ := newStage(t)
+	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
 	provider := caskin.NewCachedProvider(nil, nil)
-	assert.NoError(t, stageAddSubAdmin(stage))
+	assert.NoError(t, stage.AddSubAdmin())
 
 	provider.User = stage.SubAdminUser
 	provider.Domain = stage.Domain
@@ -174,6 +175,9 @@ func TestExecutorRole_GeneralDelete(t *testing.T) {
 	role := &example.Role{}
 	assert.Equal(t, caskin.ErrEmptyID, executor.DeleteRole(role))
 
+	role.ID = 4
+	assert.Equal(t, caskin.ErrNotExists, executor.DeleteRole(role))
+
 	role1 := &example.Role{ID: 2}
 	assert.Equal(t, caskin.ErrNoWritePermission, executor.DeleteRole(role1))
 
@@ -181,8 +185,8 @@ func TestExecutorRole_GeneralDelete(t *testing.T) {
 	assert.NoError(t, executor.DeleteRole(role1))
 
 	role4 := &example.Role{ID: 1}
-	assert.Equal(t, caskin.ErrCanNotOperateRootObjectWithoutSuperadmin, executor.DeleteRole(role4))
+	assert.NoError(t, executor.DeleteRole(role4))
 
-	role3 := &example.Role{ID: 4, ParentID: 1}
-	assert.Equal(t, caskin.ErrNotExists, executor.RecoverRole(role3))
+	role3 := &example.Role{ID: 1}
+	assert.Equal(t, caskin.ErrNoWritePermission, executor.RecoverRole(role3))
 }

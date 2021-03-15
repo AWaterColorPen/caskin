@@ -23,10 +23,3 @@ type MetaDB interface {
 	// Domain API
 	GetAllDomain() ([]Domain, error)
 }
-
-type MetaDBBindObjectAPI interface {
-	Create(ObjectData, Object) error
-	Recover(ObjectData, Object) error
-	Update(ObjectData, Object) error
-	Delete(ObjectData, Object) error
-}

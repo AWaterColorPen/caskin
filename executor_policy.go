@@ -5,7 +5,7 @@ import "github.com/ahmetb/go-linq/v3"
 // GetPolicyList
 // 1. get all policies which current user has role and object's read permission in current domain
 // 2. build role's tree
-func (e *executor) GetPolicyList() ([]*Policy, error) {
+func (e *Executor) GetPolicyList() ([]*Policy, error) {
 	currentUser, currentDomain, err := e.provider.Get()
 	if err != nil {
 		return nil, err
@@ -13,7 +13,7 @@ func (e *executor) GetPolicyList() ([]*Policy, error) {
 
 	rs := e.e.GetRolesInDomain(currentDomain)
 	tree := getTree(rs)
-	roles, err := e.db.GetRoleInDomain(currentDomain)
+	roles, err := e.DB.GetRoleInDomain(currentDomain)
 	if err != nil {
 		return nil, err
 	}
@@ -23,7 +23,7 @@ func (e *executor) GetPolicyList() ([]*Policy, error) {
 		roles = append(roles, v.(Role))
 	}
 
-	objects, err := e.db.GetObjectInDomain(currentDomain)
+	objects, err := e.DB.GetObjectInDomain(currentDomain)
 	if err != nil {
 		return nil, err
 	}
@@ -60,8 +60,8 @@ func (e *executor) GetPolicyList() ([]*Policy, error) {
 // GetPolicyListByRole
 // 1. get policy which current user has role and object's read permission in current domain
 // 2. get user to role 's g as Policy in current domain
-func (e *executor) GetPolicyListByRole(role Role) ([]*Policy, error) {
-	if err := e.getObjectDataEntryCheck(role); err != nil {
+func (e *Executor) GetPolicyListByRole(role Role) ([]*Policy, error) {
+	if err := e.ObjectDataGetCheck(role); err != nil {
 		return nil, err
 	}
 
@@ -70,7 +70,7 @@ func (e *executor) GetPolicyListByRole(role Role) ([]*Policy, error) {
 		return nil, err
 	}
 
-	objects, err := e.db.GetObjectInDomain(currentDomain)
+	objects, err := e.DB.GetObjectInDomain(currentDomain)
 	if err != nil {
 		return nil, err
 	}
@@ -102,8 +102,8 @@ func (e *executor) GetPolicyListByRole(role Role) ([]*Policy, error) {
 // GetPolicyListByObject
 // 1. get policy which current user has role and object's read permission in current domain
 // 2. get user to role 's g as Policy in current domain
-func (e *executor) GetPolicyListByObject(object Object) ([]*Policy, error) {
-	if err := e.getObjectDataEntryCheck(object); err != nil {
+func (e *Executor) GetPolicyListByObject(object Object) ([]*Policy, error) {
+	if err := e.ObjectDataGetCheck(object); err != nil {
 		return nil, err
 	}
 
@@ -112,7 +112,7 @@ func (e *executor) GetPolicyListByObject(object Object) ([]*Policy, error) {
 		return nil, err
 	}
 
-	roles, err := e.db.GetRoleInDomain(currentDomain)
+	roles, err := e.DB.GetRoleInDomain(currentDomain)
 	if err != nil {
 		return nil, err
 	}
@@ -139,8 +139,8 @@ func (e *executor) GetPolicyListByObject(object Object) ([]*Policy, error) {
 // ModifyPolicyListPerRole
 // if current user has role and object's write permission
 // 1. modify role to objects 's p in current domain
-func (e *executor) ModifyPolicyListPerRole(role Role, input []*Policy) error {
-	if err := e.modifyObjectDataEntryCheck(role); err != nil {
+func (e *Executor) ModifyPolicyListPerRole(role Role, input []*Policy) error {
+	if err := e.ObjectDataModifyCheck(role); err != nil {
 		return err
 	}
 
@@ -165,7 +165,7 @@ func (e *executor) ModifyPolicyListPerRole(role Role, input []*Policy) error {
 	oid = append(oid, oid1...)
 	oid = append(oid, oid2...)
 	linq.From(oid).Distinct().ToSlice(&oid)
-	objects, err := e.db.GetObjectByID(oid)
+	objects, err := e.DB.GetObjectByID(oid)
 	if err != nil {
 		return err
 	}
@@ -209,8 +209,8 @@ func (e *executor) ModifyPolicyListPerRole(role Role, input []*Policy) error {
 // ModifyPolicyListPerObject
 // if current user has role and object's write permission
 // 1. modify role to objects 's p in current domain
-func (e *executor) ModifyPolicyListPerObject(object Object, input []*Policy) error {
-	if err := e.modifyObjectDataEntryCheck(object); err != nil {
+func (e *Executor) ModifyPolicyListPerObject(object Object, input []*Policy) error {
+	if err := e.ObjectDataModifyCheck(object); err != nil {
 		return err
 	}
 
@@ -235,7 +235,7 @@ func (e *executor) ModifyPolicyListPerObject(object Object, input []*Policy) err
 	rid = append(rid, rid1...)
 	rid = append(rid, rid2...)
 	linq.From(rid).Distinct().ToSlice(&rid)
-	roles, err := e.db.GetRoleByID(rid)
+	roles, err := e.DB.GetRoleByID(rid)
 	if err != nil {
 		return err
 	}

@@ -9,7 +9,7 @@ import (
 )
 
 func TestExecutorObject_GetObjects(t *testing.T) {
-	stage, _ := newStage(t)
+	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
 	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 
@@ -35,7 +35,7 @@ func TestExecutorObject_GetObjects(t *testing.T) {
 }
 
 func TestExecutorObject_GeneralCreate(t *testing.T) {
-	stage, _ := newStage(t)
+	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
 	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 
@@ -54,7 +54,7 @@ func TestExecutorObject_GeneralCreate(t *testing.T) {
 	provider.User = stage.MemberUser
 	assert.Equal(t, caskin.ErrNoWritePermission, executor.CreateObject(object1))
 	provider.User = stage.AdminUser
-	assert.Equal(t, caskin.ErrCanNotOperateRootObjectWithoutSuperadmin, executor.CreateObject(object1))
+	assert.Equal(t, caskin.ErrEmptyParentIdOrNotSuperadmin, executor.CreateObject(object1))
 	object1.ParentID = 3
 	assert.Equal(t, caskin.ErrInValidObjectType, executor.CreateObject(object1))
 	object1.Type = caskin.ObjectTypeDefault
@@ -76,12 +76,12 @@ func TestExecutorObject_GeneralCreate(t *testing.T) {
 
 	object4 := &example.Object{ID: 10, ObjectID: 1}
 	assert.Equal(t, caskin.ErrNotExists, executor.DeleteObject(object4))
-	assert.Equal(t, caskin.ErrCanNotOperateRootObjectWithoutSuperadmin, executor.CreateObject(object4))
+	assert.Equal(t, caskin.ErrEmptyParentIdOrNotSuperadmin, executor.CreateObject(object4))
 }
 
 func TestExecutorObject_CreateSubNode(t *testing.T) {
-	stage, _ := newStage(t)
-	assert.NoError(t, stageAddSubAdmin(stage))
+	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
+	assert.NoError(t, stage.AddSubAdmin())
 	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 
@@ -126,9 +126,9 @@ func TestExecutorObject_CreateSubNode(t *testing.T) {
 }
 
 func TestExecutorObject_GeneralUpdate(t *testing.T) {
-	stage, _ := newStage(t)
+	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
 	provider := caskin.NewCachedProvider(nil, nil)
-	assert.NoError(t, stageAddSubAdmin(stage))
+	assert.NoError(t, stage.AddSubAdmin())
 
 	provider.User = stage.AdminUser
 	provider.Domain = stage.Domain
@@ -150,7 +150,7 @@ func TestExecutorObject_GeneralUpdate(t *testing.T) {
 	assert.Equal(t, caskin.ErrEmptyID, executor.UpdateObject(object1))
 
 	object2 := &example.Object{ID: 1, Name: "object_01_new_name", Type: caskin.ObjectTypeObject, ObjectID: 1, ParentID: 0}
-	assert.Equal(t, caskin.ErrCanNotOperateRootObjectWithoutSuperadmin, executor.UpdateObject(object2))
+	assert.Equal(t, caskin.ErrEmptyParentIdOrNotSuperadmin, executor.UpdateObject(object2))
 
 	provider.User = stage.MemberUser
 	object4 := &example.Object{
@@ -162,11 +162,19 @@ func TestExecutorObject_GeneralUpdate(t *testing.T) {
 	}
 	assert.Equal(t, caskin.ErrNoWritePermission, executor.UpdateObject(object4))
 
+	provider.User = stage.SuperadminUser
+	object5 := &example.Object{
+		ID:       1,
+		Type:     caskin.ObjectTypeDefault,
+		ParentID: 1,
+		ObjectID: 1,
+	}
+	assert.Equal(t, caskin.ErrInValidObjectType, executor.UpdateObject(object5))
 }
 
 func TestExecutorObject_GeneralRecover(t *testing.T) {
-	stage, _ := newStage(t)
-	assert.NoError(t, stageAddSubAdmin(stage))
+	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
+	assert.NoError(t, stage.AddSubAdmin())
 	provider := caskin.NewCachedProvider(nil, nil)
 	provider.User = stage.AdminUser
 	provider.Domain = stage.Domain
@@ -193,9 +201,9 @@ func TestExecutorObject_GeneralRecover(t *testing.T) {
 }
 
 func TestExecutorObject_GeneralDelete(t *testing.T) {
-	stage, _ := newStage(t)
+	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
 	provider := caskin.NewCachedProvider(nil, nil)
-	assert.NoError(t, stageAddSubAdmin(stage))
+	assert.NoError(t, stage.AddSubAdmin())
 
 	provider.User = stage.SubAdminUser
 	provider.Domain = stage.Domain
@@ -214,7 +222,7 @@ func TestExecutorObject_GeneralDelete(t *testing.T) {
 	assert.Equal(t, caskin.ErrNoWritePermission, executor.DeleteObject(object2))
 
 	object4 := &example.Object{ID: 1}
-	assert.Equal(t, caskin.ErrCanNotOperateRootObjectWithoutSuperadmin, executor.DeleteObject(object4))
+	assert.Equal(t, caskin.ErrEmptyParentIdOrNotSuperadmin, executor.DeleteObject(object4))
 
 	// TODO: if object type == object, it will not recover it by admin user now
 	// want to support it by a special API

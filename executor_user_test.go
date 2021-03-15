@@ -9,7 +9,7 @@ import (
 )
 
 func TestExecutorUser_GeneralCreate(t *testing.T) {
-	stage, _ := newStage(t)
+	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
 	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 
@@ -39,7 +39,7 @@ func TestExecutorUser_GeneralCreate(t *testing.T) {
 }
 
 func TestExecutorUser_GeneralUpdate(t *testing.T) {
-	stage, _ := newStage(t)
+	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
 	executor := stage.Caskin.GetExecutor(caskin.NewCachedProvider(nil, nil))
 
 	user1 := &example.User{
@@ -59,7 +59,7 @@ func TestExecutorUser_GeneralUpdate(t *testing.T) {
 }
 
 func TestExecutorUser_GeneralRecover(t *testing.T) {
-	stage, _ := newStage(t)
+	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
 	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 
@@ -75,11 +75,11 @@ func TestExecutorUser_GeneralRecover(t *testing.T) {
 	assert.NoError(t, executor.RecoverUser(user2))
 
 	user3 := &example.User{ID: 5}
-	assert.Error(t, executor.RecoverUser(user3))
+	assert.Equal(t, caskin.ErrNotExists, executor.RecoverUser(user3))
 }
 
 func TestExecutorUser_GeneralDelete(t *testing.T) {
-	stage, _ := newStage(t)
+	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
 	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 

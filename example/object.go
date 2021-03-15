@@ -5,20 +5,22 @@ import (
 	"time"
 
 	"github.com/awatercolorpen/caskin"
+	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
 
 // Object sample for caskin.Object interface
 type Object struct {
-	ID        uint64            `gorm:"column:id;primaryKey"                     json:"id,omitempty"`
-	CreatedAt time.Time         `gorm:"column:created_at"                        json:"created_at,omitempty"`
-	UpdatedAt time.Time         `gorm:"column:updated_at"                        json:"updated_at,omitempty"`
-	DeletedAt gorm.DeletedAt    `gorm:"column:delete_at;index"                   json:"-"`
-	Name      string            `gorm:"column:name;index:idx_object,unique"      json:"name,omitempty"`
-	Type      caskin.ObjectType `gorm:"column:type"                              json:"type,omitempty"`
-	DomainID  uint64            `gorm:"column:domain_id;index:idx_object,unique" json:"domain_id,omitempty"`
-	ObjectID  uint64            `gorm:"column:object_id"                         json:"object_id,omitempty"`
-	ParentID  uint64            `gorm:"column:parent_id"                         json:"parent_id"`
+	ID             uint64            `gorm:"column:id;primaryKey"                     json:"id,omitempty"`
+	CreatedAt      time.Time         `gorm:"column:created_at"                        json:"created_at,omitempty"`
+	UpdatedAt      time.Time         `gorm:"column:updated_at"                        json:"updated_at,omitempty"`
+	DeletedAt      gorm.DeletedAt    `gorm:"column:delete_at;index"                   json:"-"`
+	Name           string            `gorm:"column:name;index:idx_object,unique"      json:"name,omitempty"`
+	Type           caskin.ObjectType `gorm:"column:type"                              json:"type,omitempty"`
+	DomainID       uint64            `gorm:"column:domain_id;index:idx_object,unique" json:"domain_id,omitempty"`
+	ObjectID       uint64            `gorm:"column:object_id"                         json:"object_id,omitempty"`
+	ParentID       uint64            `gorm:"column:parent_id"                         json:"parent_id"`
+	CustomizedData datatypes.JSON    `gorm:"column:customized_data"                   json:"customized_data"`
 }
 
 func (o *Object) GetID() uint64 {
@@ -58,10 +60,26 @@ func (o *Object) SetDomainID(did uint64) {
 	o.DomainID = did
 }
 
+func (o *Object) GetName() string {
+	return o.Name
+}
+
+func (o *Object) SetName(name string) {
+	o.Name = name
+}
+
 func (o *Object) GetObjectType() caskin.ObjectType {
 	return o.Type
 }
 
 func (o *Object) SetObjectType(objectType caskin.ObjectType) {
 	o.Type = objectType
+}
+
+func (o *Object) GetCustomizedData() datatypes.JSON {
+	return o.CustomizedData
+}
+
+func (o *Object) SetCustomizedData(customized datatypes.JSON) {
+	o.CustomizedData = customized
 }
