@@ -189,7 +189,7 @@ func TestExecutorRole_GeneralDelete(t *testing.T) {
 	role.ID = 4
 	assert.Equal(t, caskin.ErrNotExists, executor.DeleteRole(role))
 
-	role1 := &example.Role{ID: 2}
+	role1 := &example.Role{ID: 3}
 	assert.Equal(t, caskin.ErrNoWritePermission, executor.DeleteRole(role1))
 
 	provider.User = stage.AdminUser
