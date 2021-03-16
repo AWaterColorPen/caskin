@@ -66,10 +66,5 @@ func (e *Executor) GetUsers() (Users, error) {
 	us := e.Enforcer.GetUsersInDomain(currentDomain)
 	uid := getIDList(us)
 	linq.From(uid).Distinct().ToSlice(&uid)
-	users, err := e.DB.GetUserByID(uid)
-	if err != nil {
-		return nil, err
-	}
-	return users, nil
-
+	return e.DB.GetUserByID(uid)
 }
