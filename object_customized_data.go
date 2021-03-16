@@ -27,12 +27,17 @@ func CustomizedDataEqualObject(customized CustomizedData, object Object) bool {
 	return bytes.Compare(b1, b2) == 0
 }
 
+func Object2CustomizedData(object Object, factory func() CustomizedData) (CustomizedData, error) {
+	from := object.GetCustomizedData()
+	to := factory()
+	return to, json.Unmarshal(from, to)
+}
+
 func ObjectArray2CustomizedDataArray(objects []Object, factory func() CustomizedData) ([]CustomizedData, error) {
 	var customized []CustomizedData
 	for _, v := range objects {
-		from := v.GetCustomizedData()
-		to := factory()
-		if err := json.Unmarshal(from, to); err != nil {
+		to, err := Object2CustomizedData(v, factory)
+		if err != nil {
 			return nil, err
 		}
 		customized = append(customized, to)

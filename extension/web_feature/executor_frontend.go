@@ -38,5 +38,5 @@ func (e *Executor) GetFrontend() ([]*caskin.CustomizedDataPair, error) {
 	if err != nil {
 		return nil, err
 	}
-	return caskin.ObjectArray2CustomizedDataPair(objects, frontendFactory)
+	return caskin.ObjectArray2CustomizedDataPair(objects, FrontendFactory)
 }

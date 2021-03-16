@@ -38,5 +38,5 @@ func (e *Executor) GetFeature() ([]*caskin.CustomizedDataPair, error) {
 	if err != nil {
 		return nil, err
 	}
-	return caskin.ObjectArray2CustomizedDataPair(objects, backendFactory)
+	return caskin.ObjectArray2CustomizedDataPair(objects, FeatureFactory)
 }

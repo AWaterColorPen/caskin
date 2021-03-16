@@ -7,13 +7,13 @@ import (
 )
 
 var (
-	once              sync.Once
 	featureRootObject caskin.Object
 )
 
 type WebFeature struct {
 	caskin  *caskin.Caskin
 	options *Options
+	once    sync.Once
 }
 
 func (w *WebFeature) GetExecutor(provider caskin.CurrentProvider) *Executor {
@@ -25,7 +25,7 @@ func (w *WebFeature) GetExecutor(provider caskin.CurrentProvider) *Executor {
 }
 
 func (w *WebFeature) operationDomain() caskin.Domain {
-	if w.options.Domain == nil {
+	if w.options == nil || w.options.Domain == nil {
 		return w.caskin.GetOptions().GetSuperadminDomain()
 	}
 	return w.options.Domain
@@ -37,7 +37,7 @@ func New(caskin *caskin.Caskin, options *Options) (w *WebFeature, err error) {
 		options: options,
 	}
 
-	once.Do(func() {
+	w.once.Do(func() {
 		factory := w.caskin.GetOptions().EntryFactory.NewObject
 		featureRootObject = staticFeatureRootObject(factory)
 		domain := w.operationDomain()

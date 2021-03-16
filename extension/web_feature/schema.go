@@ -70,14 +70,14 @@ func (b *Backend) GetObjectType() caskin.ObjectType {
 	return ObjectTypeBackend
 }
 
-func featureFactory() caskin.CustomizedData {
+func FeatureFactory() caskin.CustomizedData {
 	return &Feature{}
 }
 
-func frontendFactory() caskin.CustomizedData {
+func FrontendFactory() caskin.CustomizedData {
 	return &Frontend{}
 }
 
-func backendFactory() caskin.CustomizedData {
+func BackendFactory() caskin.CustomizedData {
 	return &Backend{}
 }
