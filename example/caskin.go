@@ -41,7 +41,8 @@ func NewCaskin(options *caskin.Options, sqlitePath string) (*caskin.Caskin, erro
 		&User{},
 		&Domain{},
 		&Role{},
-		&Object{})
+		&Object{},
+		&OneObjectData{})
 	if err != nil {
 		return nil, err
 	}
