@@ -27,51 +27,51 @@ func TestWebFeature(t *testing.T) {
 	assert.Equal(t, web_feature.DefaultFeatureRootGroupName, customized.(*web_feature.Feature).Group)
 }
 
-func TestGetFeatureRootObject(t *testing.T) {
-	stage, err := example.NewStageWithSqlitePath(t.TempDir())
-	assert.NoError(t, err)
-	assert.Nil(t, web_feature.GetFeatureRootObject())
-
-	var input []int
-	linq.Range(0, 5).ToSlice(&input)
-	out := parallel(input, func(i interface{}) interface{} {
-		_, _ = newWebFeature(stage)
-		return web_feature.GetFeatureRootObject()
-	}, 3)
-
-	for v := range out {
-		assert.NotNil(t, v)
-		assert.Equal(t, v, web_feature.GetFeatureRootObject())
-	}
-}
-
-func TestGetFeatureRootObject_MultiServer(t *testing.T) {
-	stage, err := example.NewStageWithSqlitePath(t.TempDir())
-	assert.NoError(t, err)
-	assert.Nil(t, web_feature.GetFeatureRootObject())
-
-	var input []int
-	linq.Range(0, 5).ToSlice(&input)
-	out := parallel(input, func(i interface{}) interface{} {
-		_, _ = newWebFeature(stage)
-		return web_feature.GetFeatureRootObject()
-	}, 3)
-
-	for v := range out {
-		assert.NotNil(t, v)
-		assert.Equal(t, v, web_feature.GetFeatureRootObject())
-	}
-}
-
 func newWebFeature(stage *example.Stage) (*web_feature.WebFeature, error) {
 	w, err := web_feature.New(stage.Caskin, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	// provider := caskin.NewCachedProvider(stage.SuperadminUser, stage.Options.GetSuperadminDomain())
-	// executor := w.GetExecutor(provider)
-	// executor.
+	provider := caskin.NewCachedProvider(stage.SuperadminUser, stage.Options.GetSuperadminDomain())
+	executor := w.GetExecutor(provider)
+	backend := []*web_feature.Backend{
+		{Path: "api/backend", Method: "GET"},
+		{Path: "api/backend", Method: "POST"},
+		{Path: "api/frontend", Method: "GET"},
+		{Path: "api/frontend", Method: "POST"},
+		{Path: "api/feature", Method: "GET"},
+		{Path: "api/feature", Method: "POST"},
+		{Path: "api/sync", Method: "GET"},
+	}
+	for _, v := range backend {
+		if err := executor.CreateBackend(v); err != nil {
+			return nil, err
+		}
+	}
+	frontend := []*web_feature.Frontend{
+		{Key: "backend", Type: web_feature.FrontendTypeMenu},
+		{Key: "frontend", Type: web_feature.FrontendTypeMenu},
+		{Key: "feature", Type: web_feature.FrontendTypeMenu},
+		{Key: "feature-sync", Type: web_feature.FrontendTypeSubFunction},
+	}
+	for _, v := range frontend {
+		if err := executor.CreateFrontend(v); err != nil {
+			return nil, err
+		}
+	}
+
+	feature := []*web_feature.Feature{
+		{Name: "backend"},
+		{Name: "frontend"},
+		{Name: "feature"},
+		{Name: "feature-sync"},
+	}
+	for _, v := range feature {
+		if err := executor.CreateFeature(v); err != nil {
+			return nil, err
+		}
+	}
 
 	return w, nil
 }
