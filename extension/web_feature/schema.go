@@ -42,7 +42,7 @@ type Frontend struct {
 type FrontendType string
 
 const (
-	FrontendTypeRoot        FrontendType = "root"
+	FrontendTypeNil         FrontendType = ""
 	FrontendTypeMenu        FrontendType = "menu"
 	FrontendTypeSubFunction FrontendType = "sub_function"
 )

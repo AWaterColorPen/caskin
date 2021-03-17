@@ -101,5 +101,23 @@ func newWebFeature(stage *example.Stage) (*web_feature.WebFeature, error) {
 		}
 	}
 
+	pair, err := executor.GetFeature()
+	if err != nil {
+		return nil, err
+	}
+
+	object := []caskin.Object{pair[1].Object, pair[2].Object, pair[3].Object, pair[4].Object}
+	relation := []caskin.InheritanceRelation{
+		{8, 12, 13},
+		{9, 14, 15},
+		{10, 16, 17},
+		{11, 17, 18},
+	}
+	for i := 0; i < 4; i++ {
+		if err := executor.ModifyRelationPerFeature(feature[i], object[i], relation[i]); err != nil {
+			return nil, err
+		}
+	}
+
 	return w, nil
 }

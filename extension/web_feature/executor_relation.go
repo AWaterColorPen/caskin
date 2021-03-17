@@ -23,6 +23,9 @@ func (e *Executor) GetRelationByFeature(feature *Feature, object caskin.Object) 
 	if !caskin.CustomizedDataEqualObject(feature, object) {
 		return nil, caskin.ErrCustomizedDataIsNotBelongToObject
 	}
+	if err := e.e.ObjectDataModifyCheck(object); err != nil {
+		return nil, err
+	}
 	children := e.e.Enforcer.GetChildrenForObjectInDomain(object, e.operationDomain)
 	relation := caskin.InheritanceRelation{}
 	for _, v := range children {
@@ -38,6 +41,9 @@ func (e *Executor) ModifyRelationPerFeature(feature *Feature, object caskin.Obje
 	if !caskin.CustomizedDataEqualObject(feature, object) {
 		return caskin.ErrCustomizedDataIsNotBelongToObject
 	}
+	if err := e.e.ObjectDataModifyCheck(object); err != nil {
+		return err
+	}
 	children := e.e.Enforcer.GetChildrenForObjectInDomain(object, e.operationDomain)
 	old := caskin.InheritanceRelation{}
 	for _, v := range children {
@@ -47,7 +53,7 @@ func (e *Executor) ModifyRelationPerFeature(feature *Feature, object caskin.Obje
 	add, remove := caskin.Diff(old, relation)
 	for _, v := range add {
 		o := e.objectFactory()
-		o.SetID(v.(uint64))
+		o.SetID(toUint64(v))
 		if err := e.e.Enforcer.AddParentForObjectInDomain(o, object, e.operationDomain); err != nil {
 			return err
 		}
@@ -55,7 +61,7 @@ func (e *Executor) ModifyRelationPerFeature(feature *Feature, object caskin.Obje
 
 	for _, v := range remove {
 		o := e.objectFactory()
-		o.SetID(v.(uint64))
+		o.SetID(toUint64(v))
 		if err := e.e.Enforcer.RemoveParentForObjectInDomain(o, object, e.operationDomain); err != nil {
 			return err
 		}
@@ -75,4 +81,19 @@ func (e *Executor) filterInheritanceRelations(relations caskin.InheritanceRelati
 		}
 	}
 	return m
+}
+
+func toUint64(v interface{}) uint64 {
+	switch u := v.(type) {
+	case uint64:
+		return u
+	case int:
+		return uint64(u)
+	case int64:
+		return uint64(u)
+	case uint32:
+		return uint64(u)
+	default:
+		return 0
+	}
 }

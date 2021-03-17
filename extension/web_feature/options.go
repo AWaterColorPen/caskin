@@ -8,7 +8,7 @@ var (
 	DefaultFeatureRootDescription  = "root node of feature object"
 	DefaultFeatureRootGroup        = ""
 	DefaultFrontendRootKey         = "frontend-root"
-	DefaultFrontendRootType        = FrontendTypeRoot
+	DefaultFrontendRootType        = FrontendTypeNil
 	DefaultFrontendRootDescription = "root node of frontend object"
 	DefaultFrontendRootGroup       = ""
 	DefaultBackendRootPath         = "backend-root"
