@@ -112,3 +112,27 @@ func TestExecutorBackend_Update(t *testing.T) {
 	assert.Len(t, list1, 8)
 	assert.Equal(t, "api/test_GET", list1[2].ObjectCustomizedData.GetName())
 }
+
+func TestExecutorBackend_Get(t *testing.T) {
+	stage, err := example.NewStageWithSqlitePath(t.TempDir())
+	assert.NoError(t, err)
+	w, err := newWebFeature(stage)
+	assert.NoError(t, err)
+	provider := caskin.NewCachedProvider(nil, nil)
+	executor := w.GetExecutor(provider)
+
+	_, err = executor.GetBackend()
+	assert.Equal(t, caskin.ErrProviderGet, err)
+	provider.Domain = stage.Domain
+	provider.User = stage.AdminUser
+	_, err = executor.GetBackend()
+	assert.Equal(t, caskin.ErrCanOnlyAllowAtValidDomain, err)
+	provider.Domain = stage.Options.GetSuperadminDomain()
+	list1, err := executor.GetBackend()
+	assert.Len(t, list1, 0)
+	provider.User = stage.SuperadminUser
+	list2, err := executor.GetBackend()
+	assert.NoError(t, err)
+	assert.Len(t, list2, 8)
+	assert.Equal(t, "backend-root_", list2[0].ObjectCustomizedData.GetName())
+}
