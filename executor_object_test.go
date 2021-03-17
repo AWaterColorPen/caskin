@@ -144,7 +144,7 @@ func TestExecutorObject_GeneralUpdate(t *testing.T) {
 	assert.NoError(t, executor.UpdateObject(object))
 
 	object.Type = caskin.ObjectTypeRole
-	assert.Equal(t, caskin.ErrInValidObjectType, executor.UpdateObject(object))
+	assert.Equal(t, caskin.ErrCantChangeObjectType, executor.UpdateObject(object))
 
 	object1 := &example.Object{}
 	assert.Equal(t, caskin.ErrEmptyID, executor.UpdateObject(object1))
@@ -169,7 +169,18 @@ func TestExecutorObject_GeneralUpdate(t *testing.T) {
 		ParentID: 1,
 		ObjectID: 1,
 	}
-	assert.Equal(t, caskin.ErrInValidObjectType, executor.UpdateObject(object5))
+	assert.Equal(t, caskin.ErrParentCanNotBeItself, executor.UpdateObject(object5))
+	object5.ParentID = 0
+	assert.Equal(t, caskin.ErrCantChangeObjectType, executor.UpdateObject(object5))
+
+	object6 := &example.Object{
+		ID:       4,
+		Type:     caskin.ObjectTypeRole,
+		ParentID: 2,
+		ObjectID: 4,
+	}
+	provider.User = stage.AdminUser
+	assert.Equal(t, caskin.ErrCantChangeObjectType, executor.UpdateObject(object6))
 }
 
 func TestExecutorObject_GeneralRecover(t *testing.T) {

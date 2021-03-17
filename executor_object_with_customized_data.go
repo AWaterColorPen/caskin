@@ -12,9 +12,7 @@ func (e *Executor) RecoverObjectWithCustomizedData(customized CustomizedData) er
 }
 
 func (e *Executor) DeleteObjectWithCustomizedData(customized CustomizedData, object Object) error {
-	if !CustomizedDataEqualObject(customized, object) {
-		return ErrCustomizedDataIsNotBelongToObject
-	}
+	object.SetObjectType(customized.GetObjectType())
 	return e.DeleteObject(object)
 }
 

@@ -119,6 +119,11 @@ func TestExecutorObjectData_UpdateCheck(t *testing.T) {
 	provider.User = stage.AdminUser
 	data2.ObjectID = 4
 	assert.Equal(t, caskin.ErrInValidObjectType, executor.UpdateObjectDataCheckPermission(data2, &example.OneObjectData{}, caskin.ObjectTypeRole))
+
+	// it is should not avoid object_data to change type
+	// it maybe want to change type from default to special or from special to default
+	data2.ObjectID = 3
+	assert.NoError(t, executor.UpdateObjectDataCheckPermission(data2, &example.OneObjectData{}, caskin.ObjectTypeDefault))
 }
 
 func TestExecutorObjectData_Enforce(t *testing.T) {

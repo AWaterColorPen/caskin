@@ -123,18 +123,21 @@ func TestExecutorRole_GeneralUpdate(t *testing.T) {
 	assert.Equal(t, caskin.ErrParentCanNotBeItself, executor.UpdateRole(role3))
 
 	provider.User = stage.MemberUser
-	role4 := &example.Role{ID: 3, Name: "admin_sub_01_new_name2", ParentID: 1, ObjectID: 5}
+	role4 := &example.Role{ID: 3, Name: "admin_sub_01_new_name2", ObjectID: 5, ParentID: 1}
 	assert.Equal(t, caskin.ErrNoWritePermission, executor.UpdateRole(role4))
 
 	provider.User = stage.AdminUser
 	assert.NoError(t, executor.UpdateRole(role4))
 
-	role5 := &example.Role{ID: 3, Name: "admin_sub_01", ParentID: 1, ObjectID: 4}
+	role5 := &example.Role{ID: 3, Name: "admin_sub_01", ObjectID: 4, ParentID: 1}
 	assert.Equal(t, caskin.ErrInValidObjectType, executor.UpdateRole(role5))
 
+	role6 := &example.Role{ID: 2, Name: "member_new_name", ObjectID: 1, ParentID: 1}
+	assert.Equal(t, caskin.ErrInValidObjectType, executor.UpdateRole(role6))
+
 	provider.User = stage.SubAdminUser
-	role6 := &example.Role{ID: 3, Name: "member_sub_01", ParentID: 2, ObjectID: 5}
-	assert.Equal(t, caskin.ErrNoWritePermission, executor.UpdateRole(role6))
+	role7 := &example.Role{ID: 3, Name: "member_sub_01", ObjectID: 5, ParentID: 2}
+	assert.Equal(t, caskin.ErrNoWritePermission, executor.UpdateRole(role7))
 
 }
 

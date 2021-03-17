@@ -6,7 +6,9 @@ func (e *Executor) CreateFrontend(frontend *Frontend) error {
 	if err := e.operationPermissionCheck(); err != nil {
 		return err
 	}
-	return e.e.CreateObjectWithCustomizedData(frontend, e.objectFactory())
+	object := e.objectFactory()
+	setFrontendRoot(object)
+	return e.e.CreateObjectWithCustomizedData(frontend, object)
 }
 
 func (e *Executor) RecoverFrontend(frontend *Frontend) error {
@@ -16,17 +18,18 @@ func (e *Executor) RecoverFrontend(frontend *Frontend) error {
 	return e.e.RecoverObjectWithCustomizedData(frontend)
 }
 
-func (e *Executor) DeleteFrontend(frontend *Frontend, object caskin.Object) error {
+func (e *Executor) DeleteFrontend(object caskin.Object) error {
 	if err := e.operationPermissionCheck(); err != nil {
 		return err
 	}
-	return e.e.DeleteObjectWithCustomizedData(frontend, object)
+	return e.e.DeleteObjectWithCustomizedData(&Frontend{}, object)
 }
 
 func (e *Executor) UpdateFrontend(frontend *Frontend, object caskin.Object) error {
 	if err := e.operationPermissionCheck(); err != nil {
 		return err
 	}
+	setFrontendRoot(object)
 	return e.e.UpdateObjectWithCustomizedData(frontend, object)
 }
 

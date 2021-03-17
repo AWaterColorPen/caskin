@@ -8,7 +8,9 @@ func (e *Executor) CreateBackend(backend *Backend) error {
 	if err := e.operationPermissionCheck(); err != nil {
 		return err
 	}
-	return e.e.CreateObjectWithCustomizedData(backend, e.objectFactory())
+	object := e.objectFactory()
+	setBackendRoot(object)
+	return e.e.CreateObjectWithCustomizedData(backend, object)
 }
 
 func (e *Executor) RecoverBackend(backend *Backend) error {
@@ -18,17 +20,18 @@ func (e *Executor) RecoverBackend(backend *Backend) error {
 	return e.e.RecoverObjectWithCustomizedData(backend)
 }
 
-func (e *Executor) DeleteBackend(backend *Backend, object caskin.Object) error {
+func (e *Executor) DeleteBackend(object caskin.Object) error {
 	if err := e.operationPermissionCheck(); err != nil {
 		return err
 	}
-	return e.e.DeleteObjectWithCustomizedData(backend, object)
+	return e.e.DeleteObjectWithCustomizedData(&Backend{}, object)
 }
 
 func (e *Executor) UpdateBackend(backend *Backend, object caskin.Object) error {
 	if err := e.operationPermissionCheck(); err != nil {
 		return err
 	}
+	setBackendRoot(object)
 	return e.e.UpdateObjectWithCustomizedData(backend, object)
 }
 

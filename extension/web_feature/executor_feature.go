@@ -1,13 +1,15 @@
 package web_feature
 
-import "github.com/awatercolorpen/caskin"
+import (
+	"github.com/awatercolorpen/caskin"
+)
 
 func (e *Executor) CreateFeature(feature *Feature) error {
 	if err := e.operationPermissionCheck(); err != nil {
 		return err
 	}
 	object := e.objectFactory()
-	setFeatureParentID(object)
+	setFeatureRoot(object)
 	return e.e.CreateObjectWithCustomizedData(feature, object)
 }
 
@@ -18,18 +20,18 @@ func (e *Executor) RecoverFeature(feature *Feature) error {
 	return e.e.RecoverObjectWithCustomizedData(feature)
 }
 
-func (e *Executor) DeleteFeature(feature *Feature, object caskin.Object) error {
+func (e *Executor) DeleteFeature(object caskin.Object) error {
 	if err := e.operationPermissionCheck(); err != nil {
 		return err
 	}
-	return e.e.DeleteObjectWithCustomizedData(feature, object)
+	return e.e.DeleteObjectWithCustomizedData(&Feature{}, object)
 }
 
 func (e *Executor) UpdateFeature(feature *Feature, object caskin.Object) error {
 	if err := e.operationPermissionCheck(); err != nil {
 		return err
 	}
-	setFeatureParentID(object)
+	setFeatureRoot(object)
 	return e.e.UpdateObjectWithCustomizedData(feature, object)
 }
 

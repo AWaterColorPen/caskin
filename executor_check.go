@@ -41,6 +41,7 @@ func (e *Executor) IDInterfaceUpdateCheck(item idInterface, tmp idInterface) err
 	if err := e.DB.Take(tmp); err != nil {
 		return ErrNotExists
 	}
+
 	return nil
 }
 
@@ -143,6 +144,12 @@ func (e *Executor) objectTreeNodeUpdateCheck(item Object, tmp Object) error {
 	if err := e.ObjectDataUpdateCheck(item, tmp, ObjectTypeObject); err != nil {
 		return err
 	}
+	if item.GetID() != 0 && item.GetID() == item.GetParentID() {
+		return ErrParentCanNotBeItself
+	}
+	if item.GetObjectType() != tmp.GetObjectType() {
+		return ErrCantChangeObjectType
+	}
 	return e.objectTreeNodeParentCheck(tmp)
 }
 
@@ -158,24 +165,6 @@ func (e *Executor) objectTreeNodeParentCheck(object Object) error {
 	if parent.GetObjectType() != object.GetObjectType() {
 		return ErrInValidObjectType
 	}
-	return nil
-}
-
-func (e *Executor) objectCheckFlow(object Object, check func(ObjectData, ObjectType) error) error {
-	if err := check(object, ObjectTypeObject); err != nil {
-		return err
-	}
-
-	if err := e.objectTreeNodeParentCheck(object); err != nil {
-		return err
-	}
-
-	_, domain, err := e.provider.Get()
-	if err != nil {
-		return err
-	}
-
-	object.SetDomainID(domain.GetID())
 	return nil
 }
 
