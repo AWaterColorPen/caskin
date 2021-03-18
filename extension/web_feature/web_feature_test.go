@@ -11,8 +11,8 @@ import (
 
 const (
 	frontendStartID = 8
-	backendStartID = 12
-	featureStartID = 19
+	backendStartID  = 12
+	featureStartID  = 19
 )
 
 func TestWebFeature(t *testing.T) {
@@ -23,7 +23,7 @@ func TestWebFeature(t *testing.T) {
 
 	object1 := web_feature.GetFeatureRootObject()
 	assert.NotNil(t, object1)
-	assert.Equal(t, uint64(frontendStartID - 3), object1.GetID())
+	assert.Equal(t, uint64(frontendStartID-3), object1.GetID())
 	feature, err := caskin.Object2CustomizedData(object1, web_feature.FeatureFactory)
 	assert.NoError(t, err)
 	assert.Equal(t, web_feature.DefaultFeatureRootName, feature.(*web_feature.Feature).Name)
@@ -32,7 +32,7 @@ func TestWebFeature(t *testing.T) {
 
 	object2 := web_feature.GetFrontendRootObject()
 	assert.NotNil(t, object2)
-	assert.Equal(t, uint64(frontendStartID - 2), object2.GetID())
+	assert.Equal(t, uint64(frontendStartID-2), object2.GetID())
 	frontend, err := caskin.Object2CustomizedData(object2, web_feature.FrontendFactory)
 	assert.NoError(t, err)
 	assert.Equal(t, web_feature.DefaultFrontendRootKey, frontend.(*web_feature.Frontend).Key)
@@ -42,7 +42,7 @@ func TestWebFeature(t *testing.T) {
 
 	object3 := web_feature.GetBackendRootObject()
 	assert.NotNil(t, object3)
-	assert.Equal(t, uint64(frontendStartID - 1), object3.GetID())
+	assert.Equal(t, uint64(frontendStartID-1), object3.GetID())
 	backend, err := caskin.Object2CustomizedData(object3, web_feature.BackendFactory)
 	assert.NoError(t, err)
 	assert.Equal(t, web_feature.DefaultBackendRootPath, backend.(*web_feature.Backend).Path)

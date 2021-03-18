@@ -8,11 +8,11 @@ import (
 )
 
 var (
-	superRootObject caskin.Object
-	featureRootObject    caskin.Object
-	frontendRootObject   caskin.Object
-	backendRootObject    caskin.Object
-	once                 sync.Once
+	superRootObject    caskin.Object
+	featureRootObject  caskin.Object
+	frontendRootObject caskin.Object
+	backendRootObject  caskin.Object
+	once               sync.Once
 )
 
 func StaticFeatureRoot() caskin.CustomizedData {
@@ -42,10 +42,10 @@ func StaticBackendRoot() caskin.CustomizedData {
 }
 
 func StaticSuperRootObject(factory caskin.ObjectFactory) caskin.Object {
-    o := factory()
-    o.SetName(DefaultSuperRootName)
-    o.SetObjectType(caskin.ObjectTypeObject)
-    return o
+	o := factory()
+	o.SetName(DefaultSuperRootName)
+	o.SetObjectType(caskin.ObjectTypeObject)
+	return o
 }
 
 func StaticRootObject(customized caskin.CustomizedData, factory caskin.ObjectFactory) caskin.Object {
@@ -88,18 +88,18 @@ func setBackendRoot(object caskin.Object) {
 }
 
 func ManualCreateRootObject(db caskin.MetaDB, factory caskin.ObjectFactory, domain caskin.Domain) (err error) {
-    superRootObject = StaticSuperRootObject(factory)
-    superRootObject.SetDomainID(domain.GetID())
-    if err = doOnce(db, superRootObject); err != nil {
-        return err
-    }
+	superRootObject = StaticSuperRootObject(factory)
+	superRootObject.SetDomainID(domain.GetID())
+	if err = doOnce(db, superRootObject); err != nil {
+		return err
+	}
 
 	featureRootObject = StaticRootObject(StaticFeatureRoot(), factory)
 	frontendRootObject = StaticRootObject(StaticFrontendRoot(), factory)
 	backendRootObject = StaticRootObject(StaticBackendRoot(), factory)
 	for _, v := range []caskin.Object{featureRootObject, frontendRootObject, backendRootObject} {
 		v.SetDomainID(domain.GetID())
-        v.SetObjectID(superRootObject.GetID())
+		v.SetObjectID(superRootObject.GetID())
 		if err = doOnce(db, v); err != nil {
 			return err
 		}

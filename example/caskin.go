@@ -13,7 +13,7 @@ import (
 
 func getDB(path string) (*gorm.DB, error) {
 	dsn := filepath.Join(path, "sqlite")
-	//dsn := filepath.Join("./", "sqlite")
+	// dsn := filepath.Join("/Users/slyao/src/caskin", "sqlite")
 	return gorm.Open(sqlite.Open(dsn), &gorm.Config{})
 }
 

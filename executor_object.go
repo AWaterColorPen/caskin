@@ -74,7 +74,7 @@ func (e *Executor) UpdateObject(object Object) error {
 	if err := e.objectTreeNodeParentCheck(object); err != nil {
 		return err
 	}
-    if err := isObjectTypeObjectIDBeSelfIDCheck(object); err != nil {
+	if err := isObjectTypeObjectIDBeSelfIDCheck(object); err != nil {
 		return err
 	}
 	_, domain, _ := e.provider.Get()

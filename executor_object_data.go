@@ -46,4 +46,3 @@ func (e *Executor) UpdateObjectDataCheckPermission(item ObjectData, old ObjectDa
 func (e *Executor) DeleteObjectDataCheckPermission(item ObjectData) error {
 	return e.ObjectDataDeleteCheck(item)
 }
-

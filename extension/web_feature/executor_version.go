@@ -10,13 +10,10 @@ func (e *Executor) BuildVersion() error {
 	if err := e.versionPermissionCheck(); err != nil {
 		return err
 	}
-	relations, err := e.GetFeatureRelation()
-	if err != nil {
-		return err
-	}
+	relations := e.e.Enforcer.GetObjectInheritanceRelationInDomain(e.operationDomain)
 	metadata := Relations(relations)
 	version := &WebFeatureVersion{
-		SHA256: metadata.Version(),
+		SHA256:   metadata.Version(),
 		MetaData: metadata,
 	}
 	return e.e.DB.Create(version)
@@ -38,7 +35,7 @@ func (e *Executor) GetLatestVersion() (*WebFeatureVersion, error) {
 	if len(versions) == 0 {
 		return nil, caskin.ErrNotExists
 	}
-	return versions[len(versions) - 1], nil
+	return versions[len(versions)-1], nil
 }
 
 func (e *Executor) SyncLatestVersionToAllDomain() error {

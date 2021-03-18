@@ -19,11 +19,11 @@ type OneObjectData struct {
 }
 
 func (o *OneObjectData) GetID() uint64 {
-    return o.ID
+	return o.ID
 }
 
 func (o *OneObjectData) SetID(id uint64) {
-    o.ID = id
+	o.ID = id
 }
 
 func (o *OneObjectData) GetObject() caskin.Object {
@@ -37,4 +37,3 @@ func (o *OneObjectData) SetObjectID(objectId uint64) {
 func (o *OneObjectData) SetDomainID(did uint64) {
 	o.DomainID = did
 }
-

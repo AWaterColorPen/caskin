@@ -14,7 +14,7 @@ func TestExecutorObjectData_CreateCheck(t *testing.T) {
 	executor := stage.Caskin.GetExecutor(provider)
 
 	data1 := &example.OneObjectData{
-		Name: "object_data_1",
+		Name:     "object_data_1",
 		ObjectID: 3,
 	}
 	assert.Equal(t, caskin.ErrProviderGet, executor.CreateObjectDataCheckPermission(data1, ObjectTypeTest))
@@ -25,7 +25,7 @@ func TestExecutorObjectData_CreateCheck(t *testing.T) {
 	assert.NoError(t, executor.CreateObjectDataCheckPermission(data1, caskin.ObjectTypeDefault))
 
 	data2 := &example.OneObjectData{
-		Name: "object_data_2",
+		Name:     "object_data_2",
 		ObjectID: 2,
 	}
 	assert.Equal(t, caskin.ErrNoWritePermission, executor.CreateObjectDataCheckPermission(data2, caskin.ObjectTypeRole))
@@ -42,7 +42,7 @@ func TestExecutorObjectData_RecoverCheck(t *testing.T) {
 	executor := stage.Caskin.GetExecutor(provider)
 
 	data1 := &example.OneObjectData{
-		Name: "object_data_1",
+		Name:     "object_data_1",
 		ObjectID: 3,
 	}
 	assert.Equal(t, caskin.ErrNotExists, executor.RecoverObjectDataCheckPermission(data1))
@@ -107,7 +107,7 @@ func TestExecutorObjectData_UpdateCheck(t *testing.T) {
 	assert.NoError(t, executor.DB.Create(data1))
 
 	data2 := &example.OneObjectData{
-		ID: 1,
+		ID:   1,
 		Name: "object_data_3",
 	}
 	provider.User = stage.SubAdminUser
@@ -135,7 +135,7 @@ func TestExecutorObjectData_Enforce(t *testing.T) {
 	provider.Domain = stage.Domain
 	provider.User = stage.MemberUser
 	data1 := &example.OneObjectData{
-		Name: "object_data_1",
+		Name:     "object_data_1",
 		ObjectID: 3,
 	}
 	assert.NoError(t, executor.CreateObjectDataCheckPermission(data1, caskin.ObjectTypeDefault))
@@ -143,7 +143,7 @@ func TestExecutorObjectData_Enforce(t *testing.T) {
 	assert.NoError(t, executor.Enforce(data1, caskin.Write))
 
 	data2 := &example.OneObjectData{
-		Name: "object_data_2",
+		Name:     "object_data_2",
 		ObjectID: 2,
 	}
 	provider.User = stage.AdminUser
@@ -162,18 +162,18 @@ func TestExecutorObjectData_FilterObjectData(t *testing.T) {
 	executor := stage.Caskin.GetExecutor(provider)
 
 	data1 := &example.OneObjectData{
-		Name: "object_data_1",
+		Name:     "object_data_1",
 		ObjectID: 3,
 	}
 	data2 := &example.OneObjectData{
-		Name: "object_data_2",
+		Name:     "object_data_2",
 		ObjectID: 2,
 	}
 	data3 := &example.OneObjectData{
-		Name: "object_data_3",
+		Name:     "object_data_3",
 		ObjectID: 5,
 	}
-	list := []interface{} {data1, data2, data3}
+	list := []interface{}{data1, data2, data3}
 
 	provider.Domain = stage.Domain
 	provider.User = stage.AdminUser

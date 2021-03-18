@@ -48,7 +48,6 @@ func (o *Options) IsDisableSuperAdmin() bool {
 	return o.SuperadminOption != nil && o.SuperadminOption.Disable
 }
 
-
 func (o *Options) GetSuperadminRole() Role {
 	if o.IsDisableSuperAdmin() {
 		return nil

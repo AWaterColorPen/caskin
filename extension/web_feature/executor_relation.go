@@ -80,7 +80,7 @@ func (e *Executor) featureRelationInternalHelpFunc(object caskin.Object) (Featur
 	return relation, pair, nil
 }
 
-func filterInheritanceRelationsToFeatureRelations(relations caskin.InheritanceRelations, pair []*caskin.CustomizedDataPair) FeatureRelations{
+func filterInheritanceRelationsToFeatureRelations(relations caskin.InheritanceRelations, pair []*caskin.CustomizedDataPair) FeatureRelations {
 	om := map[interface{}]bool{}
 	for _, v := range pair {
 		if v.Object.GetName() == GetFeatureRootObject().GetName() {
@@ -99,9 +99,9 @@ func filterInheritanceRelationsToFeatureRelations(relations caskin.InheritanceRe
 
 func filterInheritanceRelationToFeatureRelation(relation caskin.InheritanceRelation, pair []*caskin.CustomizedDataPair) FeatureRelation {
 	om := map[interface{}]bool{
-		GetFeatureRootObject().GetID(): true,
+		GetFeatureRootObject().GetID():  true,
 		GetFrontendRootObject().GetID(): true,
-		GetBackendRootObject().GetID(): true,
+		GetBackendRootObject().GetID():  true,
 	}
 	for _, v := range pair {
 		om[v.Object.GetID()] = true

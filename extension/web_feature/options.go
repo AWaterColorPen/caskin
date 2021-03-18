@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	DefaultSuperRootName           = "super-root"
+	DefaultSuperRootName           = "github.com/awatercolorpen/caskin/web_feature"
 	DefaultFeatureRootName         = "feature-root"
 	DefaultFeatureRootDescription  = "root node of feature object"
 	DefaultFeatureRootGroup        = ""
@@ -27,7 +27,6 @@ var (
 	// local cache for
 	LocalCache = cache.New(2*time.Minute, 5*time.Minute)
 )
-
 
 // Options configuration for web_feature
 type Options struct {

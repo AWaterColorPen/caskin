@@ -29,7 +29,7 @@ func TestExecutorVersion_BuildVersion(t *testing.T) {
 	list1, err := executor.GetVersion()
 	assert.NoError(t, err)
 	assert.Len(t, list1, 1)
-	assert.Equal(t, "120ad3c5248955adf7d18a5d797214e7a24f58cd959f517a6d524dca0ca7eea7", list1[0].SHA256)
+	assert.Equal(t, "3d421dcae2b1033717353d208b6bc49f62a118eb6452e42d5098f2631a446d99", list1[0].SHA256)
 }
 
 func TestExecutorVersion_SyncVersionToAllDomain(t *testing.T) {
