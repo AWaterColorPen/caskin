@@ -92,7 +92,7 @@ func (s *Stage) NoSuperadmin() error {
 	}
 
 	s.SuperadminUser = nil
-	s.Options.SuperadminOption.Enable = false
+	s.Options.SuperadminOption = &caskin.SuperadminOption{Disable: true}
 	return nil
 }
 
@@ -159,13 +159,7 @@ func NewStageWithCaskin(c *caskin.Caskin) (*Stage, error) {
 }
 
 func NewStageWithSqlitePath(sqlitePath string) (*Stage, error) {
-	options := &caskin.Options{
-		SuperadminOption: &caskin.SuperadminOption{
-			Enable: true,
-		},
-	}
-
-	c, err := NewCaskin(options, sqlitePath)
+	c, err := NewCaskin(&caskin.Options{}, sqlitePath)
 	if err != nil {
 		return nil, err
 	}

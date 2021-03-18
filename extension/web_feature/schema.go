@@ -12,10 +12,6 @@ const (
 	ObjectTypeBackend  caskin.ObjectType = "backend"
 )
 
-var (
-	DefaultSeparator = "_"
-)
-
 // Feature
 type Feature struct {
 	Name        string `json:"name"`

@@ -110,7 +110,7 @@ func TestExecutorFrontend_Update(t *testing.T) {
 	list1, err := executor.GetFrontend()
 	assert.NoError(t, err)
 	assert.Len(t, list1, 5)
-	assert.Equal(t, "backend_sub_function", list1[2].ObjectCustomizedData.GetName())
+	assert.Equal(t, "backend$$sub_function", list1[2].ObjectCustomizedData.GetName())
 }
 
 func TestExecutorFrontend_Get(t *testing.T) {
@@ -129,10 +129,11 @@ func TestExecutorFrontend_Get(t *testing.T) {
 	assert.Equal(t, caskin.ErrCanOnlyAllowAtValidDomain, err)
 	provider.Domain = stage.Options.GetSuperadminDomain()
 	list1, err := executor.GetFrontend()
+	assert.NoError(t, err)
 	assert.Len(t, list1, 0)
 	provider.User = stage.SuperadminUser
 	list2, err := executor.GetFrontend()
 	assert.NoError(t, err)
 	assert.Len(t, list2, 5)
-	assert.Equal(t, "frontend-root_", list2[0].ObjectCustomizedData.GetName())
+	assert.Equal(t, "frontend-root$$", list2[0].ObjectCustomizedData.GetName())
 }

@@ -8,10 +8,12 @@ import (
 )
 
 func CasbinModel(options *Options) (model.Model, error) {
-	if options.IsEnableSuperAdmin() {
+	switch options.IsDisableSuperAdmin() {
+	case true:
+		return CasbinModelNoSuperadmin()
+	default:
 		return CasbinModelSuperadmin()
 	}
-	return CasbinModelNoSuperadmin()
 }
 
 func CasbinModelSuperadmin() (model.Model, error) {

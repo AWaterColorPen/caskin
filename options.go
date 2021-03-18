@@ -19,9 +19,9 @@ var (
 
 // SuperadminOption option of superadmin
 type SuperadminOption struct {
-	Enable bool          `json:"enable"` // default is false
-	Role   func() Role   `json:"-"`      // provide superadmin Role
-	Domain func() Domain `json:"-"`      // provide superadmin Domain
+	Disable bool          `json:"disable"` // default is false
+	Role    func() Role   `json:"-"`       // provide superadmin Role
+	Domain  func() Domain `json:"-"`       // provide superadmin Domain
 }
 
 type Option func(*Options)
@@ -44,16 +44,17 @@ func (o *Options) newOptions(opts ...Option) *Options {
 	return o
 }
 
-func (o *Options) IsEnableSuperAdmin() bool {
-	return o.SuperadminOption != nil && o.SuperadminOption.Enable
+func (o *Options) IsDisableSuperAdmin() bool {
+	return o.SuperadminOption != nil && o.SuperadminOption.Disable
 }
 
+
 func (o *Options) GetSuperadminRole() Role {
-	if !o.IsEnableSuperAdmin() {
+	if o.IsDisableSuperAdmin() {
 		return nil
 	}
 
-	if o.SuperadminOption.Role != nil {
+	if o.SuperadminOption != nil && o.SuperadminOption.Role != nil {
 		return o.SuperadminOption.Role()
 	}
 
@@ -61,11 +62,11 @@ func (o *Options) GetSuperadminRole() Role {
 }
 
 func (o *Options) GetSuperadminDomain() Domain {
-	if !o.IsEnableSuperAdmin() {
+	if o.IsDisableSuperAdmin() {
 		return nil
 	}
 
-	if o.SuperadminOption.Domain != nil {
+	if o.SuperadminOption != nil && o.SuperadminOption.Domain != nil {
 		return o.SuperadminOption.Domain()
 	}
 

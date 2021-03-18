@@ -15,6 +15,8 @@ var (
 	DefaultBackendRootMethod       = ""
 	DefaultBackendRootDescription  = "root node of backend object"
 	DefaultBackendRootGroup        = ""
+
+	DefaultSeparator = caskin.DefaultSeparator
 )
 
 // Options configuration for web_feature

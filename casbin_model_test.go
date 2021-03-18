@@ -12,7 +12,7 @@ func TestCasbinModel(t *testing.T) {
 	assert.NoError(t, err1)
 	_, err2 := caskin.CasbinModel(&caskin.Options{
 		SuperadminOption: &caskin.SuperadminOption{
-			Enable: true,
+			Disable: true,
 		},
 	})
 	assert.NoError(t, err2)
