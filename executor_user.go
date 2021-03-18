@@ -1,7 +1,5 @@
 package caskin
 
-import "github.com/ahmetb/go-linq/v3"
-
 // CreateUser
 // if there does not exist the user
 // then create a new one without permission checking
@@ -55,16 +53,4 @@ func (e *Executor) UpdateUser(user User) error {
 		return err
 	}
 	return e.DB.Update(user)
-}
-
-func (e *Executor) GetUsers() (Users, error) {
-	_, currentDomain, err := e.provider.Get()
-	if err != nil {
-		return nil, err
-	}
-
-	us := e.Enforcer.GetUsersInDomain(currentDomain)
-	uid := getIDList(us)
-	linq.From(uid).Distinct().ToSlice(&uid)
-	return e.DB.GetUserByID(uid)
 }

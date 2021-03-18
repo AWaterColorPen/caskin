@@ -22,5 +22,6 @@ type MetaDB interface {
 	GetObjectByID([]uint64) ([]Object, error)
 
 	// Domain API
+	GetDomainByID([]uint64) ([]Domain, error)
 	GetAllDomain() ([]Domain, error)
 }

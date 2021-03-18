@@ -9,6 +9,9 @@ type IEnforcer interface {
 	Enforce(User, Object, Domain, Action) (bool, error)
 	IsSuperAdmin(User) (bool, error)
 
+	// get user's domain
+	GetDomainsIncludeUser(User) []Domain
+
 	// get grouping entry in domain
 	GetRolesForUserInDomain(User, Domain) []Role
 	GetUsersForRoleInDomain(Role, Domain) []User
@@ -65,6 +68,19 @@ func (e *enforcer) Enforce(user User, object Object, domain Domain, action Actio
 
 func (e *enforcer) IsSuperAdmin(user User) (bool, error) {
 	return e.e.HasRoleForUser(user.Encode(), SuperadminRole, SuperadminDomain)
+}
+
+func (e *enforcer) GetDomainsIncludeUser(user User) []Domain {
+	var domains []Domain
+	rules := e.e.GetFilteredGroupingPolicy(0, user.Encode())
+	for _, rule := range rules {
+		d := e.factory.NewDomain()
+		if err := d.Decode(rule[2]); err != nil {
+			continue
+		}
+		domains = append(domains, d)
+	}
+	return domains
 }
 
 func (e *enforcer) GetRolesForUserInDomain(user User, domain Domain) []Role {

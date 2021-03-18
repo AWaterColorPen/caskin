@@ -10,7 +10,7 @@ func (e *Executor) BuildVersion() error {
 	if err := e.operationPermissionCheck(); err != nil {
 		return err
 	}
-	relations, err := e.GetRelation()
+	relations, err := e.GetFeatureRelation()
 	if err != nil {
 		return err
 	}

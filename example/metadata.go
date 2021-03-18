@@ -70,6 +70,17 @@ func (g *gormMDB) GetObjectByID(id []uint64) ([]caskin.Object, error) {
 	return ret, nil
 }
 
+func (g *gormMDB) GetDomainByID(id []uint64) ([]caskin.Domain, error) {
+	var domain []*Domain
+	if err := g.DB.Find(&domain, "id IN ?", id).Error; err != nil {
+		return nil, err
+	}
+
+	var ret []caskin.Domain
+	linq.From(domain).ToSlice(&ret)
+	return ret, nil
+}
+
 func (g *gormMDB) GetAllDomain() ([]caskin.Domain, error) {
 	var domain []*Domain
 	if err := g.DB.Find(&domain).Error; err != nil {

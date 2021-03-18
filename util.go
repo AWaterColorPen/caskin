@@ -130,7 +130,7 @@ func getTree(source interface{}) map[uint64]uint64 {
 }
 
 func SortedInheritanceRelations(relations InheritanceRelations) InheritanceRelations {
-	keys := make([]interface{}, len(relations))
+	var keys []interface{}
 	for k := range relations {
 		keys = append(keys, k)
 	}
@@ -152,9 +152,24 @@ func SortedInheritanceRelations(relations InheritanceRelations) InheritanceRelat
 	m := InheritanceRelations{}
 	for _, k := range keys {
 		m[k] = relations[k]
-		sort.SliceStable(m[k], func(i, j int) bool {
-			return compare(m[k][i], m[k][j])
-		})
+		m[k] = SortedInheritanceRelation(m[k])
 	}
 	return m
+}
+
+func SortedInheritanceRelation(relation InheritanceRelation) InheritanceRelation {
+	compare := func(x, y interface{}) bool {
+		switch u := x.(type) {
+		case string:
+			return u < y.(string)
+		case uint64:
+			return u < y.(uint64)
+		default:
+			return false
+		}
+	}
+	sort.SliceStable(relation, func(i, j int) bool {
+		return compare(relation[i], relation[j])
+	})
+	return relation
 }
