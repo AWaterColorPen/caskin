@@ -18,17 +18,17 @@ func TestExecutorFrontend_Create(t *testing.T) {
 	executor := w.GetExecutor(provider)
 
 	frontend1 := &web_feature.Frontend{Key: "backend", Type: web_feature.FrontendTypeSubFunction}
-	assert.Equal(t, caskin.ErrProviderGet, executor.CreateFrontend(frontend1))
+	assert.Equal(t, caskin.ErrProviderGet, executor.CreateFrontend(frontend1, &example.Object{}))
 	provider.Domain = stage.Domain
 	provider.User = stage.AdminUser
-	assert.Equal(t, caskin.ErrCanOnlyAllowAtValidDomain, executor.CreateFrontend(frontend1))
+	assert.Equal(t, caskin.ErrCanOnlyAllowAtValidDomain, executor.CreateFrontend(frontend1, &example.Object{}))
 	provider.Domain = stage.Options.GetSuperadminDomain()
-	assert.Equal(t, caskin.ErrNoWritePermission, executor.CreateFrontend(frontend1))
+	assert.Equal(t, caskin.ErrNoWritePermission, executor.CreateFrontend(frontend1, &example.Object{}))
 	provider.User = stage.SuperadminUser
-	assert.NoError(t, executor.CreateFrontend(frontend1))
+	assert.NoError(t, executor.CreateFrontend(frontend1, &example.Object{}))
 
 	frontend2 := &web_feature.Frontend{Key: "backend", Type: web_feature.FrontendTypeMenu}
-	assert.Equal(t, caskin.ErrAlreadyExists, executor.CreateFrontend(frontend2))
+	assert.Equal(t, caskin.ErrAlreadyExists, executor.CreateFrontend(frontend2, &example.Object{}))
 }
 
 func TestExecutorFrontend_Recover(t *testing.T) {

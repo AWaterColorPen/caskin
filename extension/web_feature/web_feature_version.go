@@ -43,7 +43,7 @@ func (r Relations) Value() (driver.Value, error) {
 	return string(bytes), err
 }
 
-func (r *Relations) Version() string {
+func (r Relations) Version() string {
 	h := sha256.New()
 	b, _ := json.Marshal(r)
 	h.Write(b)

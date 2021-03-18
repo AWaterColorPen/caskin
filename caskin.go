@@ -33,5 +33,12 @@ func New(options *Options, opts ...Option) (*Caskin, error) {
 	if options.MetaDB == nil {
 		return nil, ErrInitializationNilMetaDB
 	}
+	if err := options.MetaDB.AutoMigrate(
+		options.EntryFactory.NewUser(),
+		options.EntryFactory.NewDomain(),
+		options.EntryFactory.NewRole(),
+		options.EntryFactory.NewObject()); err != nil {
+		return nil, err
+	}
 	return &Caskin{options: options}, nil
 }

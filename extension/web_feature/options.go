@@ -1,6 +1,10 @@
 package web_feature
 
-import "github.com/awatercolorpen/caskin"
+import (
+	"github.com/awatercolorpen/caskin"
+	"github.com/patrickmn/go-cache"
+	"time"
+)
 
 var (
 	DefaultSuperRootName           = "super-root"
@@ -19,7 +23,14 @@ var (
 	DefaultSeparator = caskin.DefaultSeparator
 )
 
+var (
+	// local cache for
+	LocalCache = cache.New(2*time.Minute, 5*time.Minute)
+)
+
+
 // Options configuration for web_feature
 type Options struct {
-	Domain caskin.Domain `json:"domain"`
+	DisableCache bool          `json:"disable_cache"`
+	Domain       caskin.Domain `json:"domain"`
 }

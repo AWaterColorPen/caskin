@@ -150,7 +150,7 @@ type CustomizedDataPair struct {
 }
 
 // InheritanceRelation value is sons' id list
-type InheritanceRelation = []interface{}
+type InheritanceRelation = []uint64
 
 // InheritanceRelations key is parent id, value is sons' id list
-type InheritanceRelations = map[interface{}]InheritanceRelation
+type InheritanceRelations = map[uint64]InheritanceRelation

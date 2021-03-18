@@ -4,11 +4,13 @@ import (
 	"github.com/awatercolorpen/caskin"
 )
 
-func (e *Executor) CreateFeature(feature *Feature) error {
+func (e *Executor) CreateFeature(feature *Feature, object caskin.Object) error {
 	if err := e.operationPermissionCheck(); err != nil {
 		return err
 	}
-	object := e.objectFactory()
+	if err := isEmptyObject(object); err != nil {
+		return err
+	}
 	setFeatureRoot(object)
 	return e.e.CreateObjectWithCustomizedData(feature, object)
 }

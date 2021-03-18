@@ -6,6 +6,10 @@ type BaseMetadataDB struct {
 	DB *gorm.DB
 }
 
+func (b *BaseMetadataDB) AutoMigrate(dst ...interface{}) error {
+	return b.DB.AutoMigrate(dst...)
+}
+
 func (b *BaseMetadataDB) Create(item interface{}) error {
 	return b.DB.Create(item).Error
 }

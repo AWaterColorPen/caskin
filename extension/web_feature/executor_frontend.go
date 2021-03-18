@@ -2,11 +2,13 @@ package web_feature
 
 import "github.com/awatercolorpen/caskin"
 
-func (e *Executor) CreateFrontend(frontend *Frontend) error {
+func (e *Executor) CreateFrontend(frontend *Frontend, object caskin.Object) error {
 	if err := e.operationPermissionCheck(); err != nil {
 		return err
 	}
-	object := e.objectFactory()
+	if err := isEmptyObject(object); err != nil {
+		return err
+	}
 	setFrontendRoot(object)
 	return e.e.CreateObjectWithCustomizedData(frontend, object)
 }

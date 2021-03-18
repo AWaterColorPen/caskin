@@ -4,11 +4,13 @@ import (
 	"github.com/awatercolorpen/caskin"
 )
 
-func (e *Executor) CreateBackend(backend *Backend) error {
+func (e *Executor) CreateBackend(backend *Backend, object caskin.Object) error {
 	if err := e.operationPermissionCheck(); err != nil {
 		return err
 	}
-	object := e.objectFactory()
+	if err := isEmptyObject(object); err != nil {
+		return err
+	}
 	setBackendRoot(object)
 	return e.e.CreateObjectWithCustomizedData(backend, object)
 }
@@ -44,4 +46,17 @@ func (e *Executor) GetBackend() ([]*caskin.CustomizedDataPair, error) {
 		return nil, err
 	}
 	return caskin.ObjectArray2CustomizedDataPair(objects, BackendFactory)
+}
+
+func (e *Executor) takeBackend(backend *Backend) (caskin.Object, error) {
+	object := e.objectFactory()
+	caskin.CustomizedData2Object(backend, object)
+	return object, e.e.DB.Take(object)
+}
+
+func isEmptyObject(object caskin.Object) error {
+	if object.GetID() != 0 {
+		return caskin.ErrInValidObject
+	}
+	return nil
 }

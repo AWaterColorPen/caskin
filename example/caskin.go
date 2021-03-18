@@ -37,12 +37,7 @@ func NewCaskin(options *caskin.Options, sqlitePath string) (*caskin.Caskin, erro
 		return nil, err
 	}
 
-	err = db.AutoMigrate(
-		&User{},
-		&Domain{},
-		&Role{},
-		&Object{},
-		&OneObjectData{})
+	err = db.AutoMigrate(&OneObjectData{})
 	if err != nil {
 		return nil, err
 	}

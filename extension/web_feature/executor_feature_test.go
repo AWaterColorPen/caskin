@@ -18,17 +18,17 @@ func TestExecutorFeature_Create(t *testing.T) {
 	executor := w.GetExecutor(provider)
 
 	feature1 := &web_feature.Feature{Name: "new-feature"}
-	assert.Equal(t, caskin.ErrProviderGet, executor.CreateFeature(feature1))
+	assert.Equal(t, caskin.ErrProviderGet, executor.CreateFeature(feature1, &example.Object{}))
 	provider.Domain = stage.Domain
 	provider.User = stage.AdminUser
-	assert.Equal(t, caskin.ErrCanOnlyAllowAtValidDomain, executor.CreateFeature(feature1))
+	assert.Equal(t, caskin.ErrCanOnlyAllowAtValidDomain, executor.CreateFeature(feature1, &example.Object{}))
 	provider.Domain = stage.Options.GetSuperadminDomain()
-	assert.Equal(t, caskin.ErrNoWritePermission, executor.CreateFeature(feature1))
+	assert.Equal(t, caskin.ErrNoWritePermission, executor.CreateFeature(feature1, &example.Object{}))
 	provider.User = stage.SuperadminUser
-	assert.NoError(t, executor.CreateFeature(feature1))
+	assert.NoError(t, executor.CreateFeature(feature1, &example.Object{}))
 
 	feature2 := &web_feature.Feature{Name: "feature"}
-	assert.Equal(t, caskin.ErrAlreadyExists, executor.CreateFeature(feature2))
+	assert.Equal(t, caskin.ErrAlreadyExists, executor.CreateFeature(feature2, &example.Object{}))
 }
 
 func TestExecutorFeature_Recover(t *testing.T) {

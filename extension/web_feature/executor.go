@@ -5,10 +5,11 @@ import (
 )
 
 type Executor struct {
-	e                 *caskin.Executor
-	objectFactory     caskin.ObjectFactory
-	operationDomain   caskin.Domain
-	FeatureRootObject func() caskin.Object
+	e                         *caskin.Executor
+	objectFactory             caskin.ObjectFactory
+	operationDomain           caskin.Domain
+	enableBackendAPIAuthCache bool
+	FeatureRootObject         func() caskin.Object
 }
 
 func (e *Executor) operationPermissionCheck() error {

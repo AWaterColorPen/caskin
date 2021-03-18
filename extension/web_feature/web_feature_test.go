@@ -71,7 +71,7 @@ func newWebFeature(stage *example.Stage) (*web_feature.WebFeature, error) {
 		{Key: "feature-sync", Type: web_feature.FrontendTypeSubFunction},
 	}
 	for _, v := range frontend {
-		if err := executor.CreateFrontend(v); err != nil {
+		if err := executor.CreateFrontend(v, &example.Object{}); err != nil {
 			return nil, err
 		}
 	}
@@ -85,7 +85,7 @@ func newWebFeature(stage *example.Stage) (*web_feature.WebFeature, error) {
 		{Path: "api/sync", Method: "GET"},
 	}
 	for _, v := range backend {
-		if err := executor.CreateBackend(v); err != nil {
+		if err := executor.CreateBackend(v, &example.Object{}); err != nil {
 			return nil, err
 		}
 	}
@@ -96,7 +96,7 @@ func newWebFeature(stage *example.Stage) (*web_feature.WebFeature, error) {
 		{Name: "feature-sync"},
 	}
 	for _, v := range feature {
-		if err := executor.CreateFeature(v); err != nil {
+		if err := executor.CreateFeature(v, &example.Object{}); err != nil {
 			return nil, err
 		}
 	}
@@ -120,4 +120,68 @@ func newWebFeature(stage *example.Stage) (*web_feature.WebFeature, error) {
 	}
 
 	return w, nil
+}
+
+func reinitializeDomainWithWebFeature(stage *example.Stage) error {
+	stage.Options.DomainCreator = NewTestCreator
+	provider := caskin.NewCachedProvider(stage.SuperadminUser, stage.Options.GetSuperadminDomain())
+	executor := stage.Caskin.GetExecutor(provider)
+	return executor.ReInitializeDomain(stage.Domain)
+}
+
+type testCreator struct {
+	domain  caskin.Domain
+	objects caskin.Objects
+	roles   caskin.Roles
+}
+
+func NewTestCreator(domain caskin.Domain) caskin.Creator {
+	return &testCreator{domain: domain}
+}
+
+func (t *testCreator) BuildCreator() (caskin.Roles, caskin.Objects) {
+	role0 := &example.Role{Name: "admin", DomainID: t.domain.GetID()}
+	role1 := &example.Role{Name: "member", DomainID: t.domain.GetID()}
+	t.roles = []caskin.Role{role0, role1}
+
+	object0 := &example.Object{Name: string(caskin.ObjectTypeObject), Type: caskin.ObjectTypeObject, DomainID: t.domain.GetID()}
+	object1 := &example.Object{Name: string(caskin.ObjectTypeRole), Type: caskin.ObjectTypeRole, DomainID: t.domain.GetID()}
+	object2 := &example.Object{Name: string(caskin.ObjectTypeDefault), Type: caskin.ObjectTypeDefault, DomainID: t.domain.GetID()}
+	t.objects = []caskin.Object{object0, object1, object2}
+
+	return t.roles, t.objects
+}
+
+func (t *testCreator) SetRelation() {
+	ooId := t.objects[0].GetID()
+	for _, object := range t.objects {
+		object.SetObjectID(ooId)
+	}
+
+	roId := t.objects[1].GetID()
+	for _, role := range t.roles {
+		role.SetObjectID(roId)
+	}
+}
+
+func (t *testCreator) GetRoles() caskin.Roles {
+	return t.roles
+}
+
+func (t *testCreator) GetObjects() caskin.Objects {
+	return t.objects
+}
+
+func (t *testCreator) GetPolicy() []*caskin.Policy {
+	return []*caskin.Policy{
+		{t.roles[0], web_feature.GetFeatureRootObject(), t.domain, caskin.Read},
+		{t.roles[0], t.objects[0], t.domain, caskin.Read},
+		{t.roles[0], t.objects[0], t.domain, caskin.Write},
+		{t.roles[0], t.objects[1], t.domain, caskin.Read},
+		{t.roles[0], t.objects[1], t.domain, caskin.Write},
+		{t.roles[0], t.objects[2], t.domain, caskin.Read},
+		{t.roles[0], t.objects[2], t.domain, caskin.Write},
+		{t.roles[1], t.objects[2], t.domain, caskin.Read},
+		{t.roles[1], t.objects[2], t.domain, caskin.Write},
+	}
 }

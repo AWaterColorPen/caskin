@@ -1,6 +1,8 @@
 package caskin
 
 type MetaDB interface {
+	AutoMigrate(...interface{}) error
+
 	Create(interface{}) error
 	Recover(interface{}) error
 	Update(interface{}) error

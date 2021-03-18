@@ -15,8 +15,10 @@ var (
 	ErrParentCanNotBeItself = fmt.Errorf("parent id can't be it self id")
 
 	// errors about permission
-	ErrNoReadPermission  = fmt.Errorf("no read permission")
-	ErrNoWritePermission = fmt.Errorf("no write permission")
+	ErrNoReadPermission       = fmt.Errorf("no read permission")
+	ErrNoWritePermission      = fmt.Errorf("no write permission")
+	ErrNoBackendAPIPermission = fmt.Errorf("no backend api permission")
+	ErrNoAPPAPIPermission     = fmt.Errorf("no app api permission")
 
 	// errors about superadmin
 	ErrIsNotSuperAdmin       = fmt.Errorf("is not superadmin")
@@ -42,6 +44,6 @@ var (
 	// errors about special object
 	ErrObjectTypeObjectIDMustBeItselfID  = fmt.Errorf("the object id of object type's object must be itself's id")
 	ErrEmptyParentIdOrNotSuperadmin      = fmt.Errorf("the parent id is empty or you are operating root object without superadmin authority")
-	// ErrCustomizedDataIsNotBelongToObject = fmt.Errorf("customized data is not belong to the object")
+	ErrCustomizedDataIsNotBelongToObject = fmt.Errorf("customized data is not belong to the object")
 	ErrCanOnlyAllowAtValidDomain         = fmt.Errorf("this oparetion can only allow at valid domain")
 )

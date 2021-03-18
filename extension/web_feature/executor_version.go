@@ -7,7 +7,7 @@ import (
 )
 
 func (e *Executor) BuildVersion() error {
-	if err := e.operationPermissionCheck(); err != nil {
+	if err := e.versionPermissionCheck(); err != nil {
 		return err
 	}
 	relations, err := e.GetFeatureRelation()
@@ -23,14 +23,48 @@ func (e *Executor) BuildVersion() error {
 }
 
 func (e *Executor) GetVersion() ([]*WebFeatureVersion, error) {
-	if err := e.operationPermissionCheck(); err != nil {
+	if err := e.versionPermissionCheck(); err != nil {
 		return nil, err
 	}
 	var versions []*WebFeatureVersion
 	return versions, e.e.DB.Find(&versions)
 }
 
+func (e *Executor) GetLatestVersion() (*WebFeatureVersion, error) {
+	versions, err := e.GetVersion()
+	if err != nil {
+		return nil, err
+	}
+	if len(versions) == 0 {
+		return nil, caskin.ErrNotExists
+	}
+	return versions[len(versions) - 1], nil
+}
+
+func (e *Executor) SyncLatestVersionToAllDomain() error {
+	if err := e.versionPermissionCheck(); err != nil {
+		return err
+	}
+	version, err := e.GetLatestVersion()
+	if err != nil {
+		return err
+	}
+	domains, err := e.e.GetAllDomain()
+	if err != nil {
+		return err
+	}
+	for _, v := range domains {
+		if err := e.SyncVersionToOneDomain(version, v); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (e *Executor) SyncVersionToAllDomain(version *WebFeatureVersion) error {
+	if err := e.versionPermissionCheck(); err != nil {
+		return err
+	}
 	domains, err := e.e.GetAllDomain()
 	if err != nil {
 		return err
@@ -44,11 +78,10 @@ func (e *Executor) SyncVersionToAllDomain(version *WebFeatureVersion) error {
 }
 
 func (e *Executor) SyncVersionToOneDomain(version *WebFeatureVersion, domain caskin.Domain) error {
-	if err := e.operationPermissionCheck(); err != nil {
+	if err := e.versionPermissionCheck(); err != nil {
 		return err
 	}
-	version, err := e.getValidVersion(version)
-	if err != nil {
+	if err := e.isValidVersion(version); err != nil {
 		return err
 	}
 	set := e.getRootAndDescendant(GetFeatureRootObject(), domain)
@@ -109,23 +142,6 @@ func (e *Executor) SyncVersionToOneDomain(version *WebFeatureVersion, domain cas
 	return nil
 }
 
-func (e *Executor) getValidVersion(version *WebFeatureVersion) (*WebFeatureVersion, error) {
-	if version != nil {
-		if err := e.e.DB.Take(version); err != nil {
-			return nil, err
-		}
-		return version, nil
-	}
-	versions, err := e.GetVersion()
-	if err != nil {
-		return nil, err
-	}
-	if len(versions) == 0 {
-		return nil, caskin.ErrNotExists
-	}
-	return versions[len(versions) - 1], nil
-}
-
 func (e *Executor) getRootAndDescendant(object caskin.Object, domain caskin.Domain) map[interface{}]bool {
 	list := []caskin.Object{object}
 	visit := map[interface{}]bool{
@@ -143,4 +159,15 @@ func (e *Executor) getRootAndDescendant(object caskin.Object, domain caskin.Doma
 	}
 
 	return visit
+}
+
+func (e *Executor) isValidVersion(version *WebFeatureVersion) error {
+	return e.e.DB.Take(version)
+}
+
+func (e *Executor) versionPermissionCheck() error {
+	if err := e.operationPermissionCheck(); err != nil {
+		return err
+	}
+	return e.e.IsSuperadminCheck()
 }

@@ -1,6 +1,9 @@
 package web_feature
 
-import "github.com/awatercolorpen/caskin"
+import (
+	"github.com/ahmetb/go-linq/v3"
+	"github.com/awatercolorpen/caskin"
+)
 
 // GetFeatureRelation
 // 1. get all feature to backend and frontend 's relations, not inheritance relations
@@ -34,7 +37,10 @@ func (e *Executor) ModifyFeatureRelationPerFeature(object caskin.Object, relatio
 	}
 	relation = filterInheritanceRelationToFeatureRelation(relation, pair)
 
-	add, remove := caskin.Diff(old, relation)
+	var source, target []interface{}
+	linq.From(old).ToSlice(&source)
+	linq.From(relation).ToSlice(&target)
+	add, remove := caskin.Diff(source, target)
 	for _, v := range add {
 		o := e.objectFactory()
 		o.SetID(toUint64(v))

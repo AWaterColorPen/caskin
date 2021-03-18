@@ -18,17 +18,17 @@ func TestExecutorBackend_Create(t *testing.T) {
 	executor := w.GetExecutor(provider)
 
 	backend1 := &web_feature.Backend{Path: "api/test-1", Method: "GET"}
-	assert.Equal(t, caskin.ErrProviderGet, executor.CreateBackend(backend1))
+	assert.Equal(t, caskin.ErrProviderGet, executor.CreateBackend(backend1, &example.Object{}))
 	provider.Domain = stage.Domain
 	provider.User = stage.AdminUser
-	assert.Equal(t, caskin.ErrCanOnlyAllowAtValidDomain, executor.CreateBackend(backend1))
+	assert.Equal(t, caskin.ErrCanOnlyAllowAtValidDomain, executor.CreateBackend(backend1, &example.Object{}))
 	provider.Domain = stage.Options.GetSuperadminDomain()
-	assert.Equal(t, caskin.ErrNoWritePermission, executor.CreateBackend(backend1))
+	assert.Equal(t, caskin.ErrNoWritePermission, executor.CreateBackend(backend1, &example.Object{}))
 	provider.User = stage.SuperadminUser
-	assert.NoError(t, executor.CreateBackend(backend1))
+	assert.NoError(t, executor.CreateBackend(backend1, &example.Object{}))
 
 	backend2 := &web_feature.Backend{Path: "api/backend", Method: "GET"}
-	assert.Equal(t, caskin.ErrAlreadyExists, executor.CreateBackend(backend2))
+	assert.Equal(t, caskin.ErrAlreadyExists, executor.CreateBackend(backend2, &example.Object{}))
 }
 
 func TestExecutorBackend_Recover(t *testing.T) {
