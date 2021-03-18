@@ -11,12 +11,12 @@ func (e *Executor) GetFeatureRelation() (FeatureRelations, error) {
 	if err := e.operationPermissionCheck(); err != nil {
 		return nil, err
 	}
-	relations := e.e.Enforcer.GetObjectInheritanceRelationInDomain(e.operationDomain)
+	all := e.allWebFeatureRelation(e.operationDomain)
 	pair, err := e.GetFeature()
 	if err != nil {
 		return nil, err
 	}
-	relations = filterInheritanceRelationsToFeatureRelations(relations, pair)
+	relations := filterInheritancesToFeatureRelations(all, pair)
 	relations = caskin.SortedInheritanceRelations(relations)
 	return relations, nil
 }
@@ -35,7 +35,8 @@ func (e *Executor) ModifyFeatureRelationPerFeature(object caskin.Object, relatio
 	if err != nil {
 		return err
 	}
-	relation = filterInheritanceRelationToFeatureRelation(relation, pair)
+	// TODO avoid id not in feature backend frontend
+	relation = filterInheritanceToFeatureRelation(relation, pair)
 
 	var source, target []interface{}
 	linq.From(old).ToSlice(&source)
@@ -43,14 +44,14 @@ func (e *Executor) ModifyFeatureRelationPerFeature(object caskin.Object, relatio
 	add, remove := caskin.Diff(source, target)
 	for _, v := range add {
 		o := e.objectFactory()
-		o.SetID(toUint64(v))
+		o.SetID(v.(uint64))
 		if err := e.e.Enforcer.AddParentForObjectInDomain(o, object, e.operationDomain); err != nil {
 			return err
 		}
 	}
 	for _, v := range remove {
 		o := e.objectFactory()
-		o.SetID(toUint64(v))
+		o.SetID(v.(uint64))
 		if err := e.e.Enforcer.RemoveParentForObjectInDomain(o, object, e.operationDomain); err != nil {
 			return err
 		}
@@ -75,12 +76,35 @@ func (e *Executor) featureRelationInternalHelpFunc(object caskin.Object) (Featur
 	if err != nil {
 		return nil, nil, err
 	}
-	relation = filterInheritanceRelationToFeatureRelation(relation, pair)
+	relation = filterInheritanceToFeatureRelation(relation, pair)
 	relation = caskin.SortedInheritanceRelation(relation)
 	return relation, pair, nil
 }
 
-func filterInheritanceRelationsToFeatureRelations(relations caskin.InheritanceRelations, pair []*caskin.CustomizedDataPair) FeatureRelations {
+func (e *Executor) allWebFeatureRelation(domain caskin.Domain) caskin.InheritanceRelations {
+	queue := []caskin.Object{GetFeatureRootObject(), GetBackendRootObject(), GetFrontendRootObject()}
+	inQueue := map[uint64]bool{}
+	for _, v := range queue {
+		inQueue[v.GetID()] = true
+	}
+
+	m := caskin.InheritanceRelations{}
+	for i := 0; i < len(queue); i++ {
+		m[queue[i].GetID()] = caskin.InheritanceRelation{}
+		ll := e.e.Enforcer.GetChildrenForObjectInDomain(queue[i], domain)
+		for _, v := range ll {
+			if _, ok := inQueue[v.GetID()]; !ok {
+				queue = append(queue, v)
+				inQueue[v.GetID()] = true
+			}
+			m[queue[i].GetID()] = append(m[queue[i].GetID()], v.GetID())
+		}
+	}
+
+	return m
+}
+
+func filterInheritancesToFeatureRelations(relations caskin.InheritanceRelations, pair []*caskin.CustomizedDataPair) FeatureRelations {
 	om := map[interface{}]bool{}
 	for _, v := range pair {
 		if v.Object.GetName() == GetFeatureRootObject().GetName() {
@@ -91,13 +115,13 @@ func filterInheritanceRelationsToFeatureRelations(relations caskin.InheritanceRe
 	m := FeatureRelations{}
 	for k, v := range relations {
 		if _, ok := om[k]; ok {
-			m[k] = filterInheritanceRelationToFeatureRelation(v, pair)
+			m[k] = filterInheritanceToFeatureRelation(v, pair)
 		}
 	}
 	return m
 }
 
-func filterInheritanceRelationToFeatureRelation(relation caskin.InheritanceRelation, pair []*caskin.CustomizedDataPair) FeatureRelation {
+func filterInheritanceToFeatureRelation(relation caskin.InheritanceRelation, pair []*caskin.CustomizedDataPair) FeatureRelation {
 	om := map[interface{}]bool{
 		GetFeatureRootObject().GetID():  true,
 		GetFrontendRootObject().GetID(): true,
@@ -113,19 +137,4 @@ func filterInheritanceRelationToFeatureRelation(relation caskin.InheritanceRelat
 		}
 	}
 	return m
-}
-
-func toUint64(v interface{}) uint64 {
-	switch u := v.(type) {
-	case uint64:
-		return u
-	case int:
-		return uint64(u)
-	case int64:
-		return uint64(u)
-	case uint32:
-		return uint64(u)
-	default:
-		return 0
-	}
 }

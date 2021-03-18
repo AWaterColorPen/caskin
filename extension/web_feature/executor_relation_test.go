@@ -81,7 +81,7 @@ func TestExecutorRelation_ModifyFeatureRelationPerFeature(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Len(t, feature, 5)
 
-	relation1 := web_feature.FeatureRelation{uint64(7), uint64(8), uint64(12), uint64(14)}
+	relation1 := web_feature.FeatureRelation{uint64(1), uint64(7), uint64(8), uint64(12), uint64(14)}
 	assert.NoError(t, executor.ModifyFeatureRelationPerFeature(feature[1].Object, relation1))
 	list1, err := executor.GetFeatureRelationByFeature(feature[1].Object)
 	assert.NoError(t, err)

@@ -33,4 +33,6 @@ func TestExecutorAuthBackend_Enforce(t *testing.T) {
 
 	provider.User = stage.MemberUser
 	assert.Equal(t, caskin.ErrNoBackendAPIPermission, executor.AuthBackendAPIEnforce(&web_feature.Backend{Path: "api/backend", Method: "GET"}))
+
+	// TODO modify member role 's policy
 }

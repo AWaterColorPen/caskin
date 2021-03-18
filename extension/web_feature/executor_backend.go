@@ -53,10 +53,3 @@ func (e *Executor) takeBackend(backend *Backend) (caskin.Object, error) {
 	caskin.CustomizedData2Object(backend, object)
 	return object, e.e.DB.Take(object)
 }
-
-func isEmptyObject(object caskin.Object) error {
-	if object.GetID() != 0 {
-		return caskin.ErrInValidObject
-	}
-	return nil
-}

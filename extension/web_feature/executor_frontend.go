@@ -45,3 +45,11 @@ func (e *Executor) GetFrontend() ([]*caskin.CustomizedDataPair, error) {
 	}
 	return caskin.ObjectArray2CustomizedDataPair(objects, FrontendFactory)
 }
+
+func (e *Executor) getFrontend() ([]*caskin.CustomizedDataPair, error) {
+	objects, err := e.e.DB.GetObjectInDomain(e.operationDomain, ObjectTypeFrontend)
+	if err != nil {
+		return nil, err
+	}
+	return caskin.ObjectArray2CustomizedDataPair(objects, FrontendFactory)
+}

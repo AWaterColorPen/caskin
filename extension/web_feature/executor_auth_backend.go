@@ -45,9 +45,3 @@ func (e *Executor) getCacheBackendAPIObject(backend *Backend) (caskin.Object, er
 func (e *Executor) getSyncBackendAPIObject(backend *Backend) (caskin.Object, error) {
 	return e.takeBackend(backend)
 }
-
-func (e *Executor) check(object caskin.Object) error {
-	o := e.objectFactory()
-	o.SetObjectID(object.GetID())
-	return e.e.Enforce(o, caskin.Read)
-}

@@ -23,3 +23,16 @@ func (e *Executor) operationPermissionCheck() error {
 	}
 	return nil
 }
+
+func (e *Executor) check(object caskin.Object) error {
+	o := e.objectFactory()
+	o.SetObjectID(object.GetID())
+	return e.e.Enforce(o, caskin.Read)
+}
+
+func isEmptyObject(object caskin.Object) error {
+	if object.GetID() != 0 {
+		return caskin.ErrInValidObject
+	}
+	return nil
+}

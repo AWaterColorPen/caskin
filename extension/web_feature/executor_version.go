@@ -10,7 +10,8 @@ func (e *Executor) BuildVersion() error {
 	if err := e.versionPermissionCheck(); err != nil {
 		return err
 	}
-	relations := e.e.Enforcer.GetObjectInheritanceRelationInDomain(e.operationDomain)
+	all := e.allWebFeatureRelation(e.operationDomain)
+	relations := caskin.SortedInheritanceRelations(all)
 	metadata := Relations(relations)
 	version := &WebFeatureVersion{
 		SHA256:   metadata.Version(),
@@ -81,7 +82,23 @@ func (e *Executor) SyncVersionToOneDomain(version *WebFeatureVersion, domain cas
 	if err := e.isValidVersion(version); err != nil {
 		return err
 	}
-	set := e.getRootAndDescendant(GetFeatureRootObject(), domain)
+	if v, ok := domain.(VersionedDomain); ok {
+		if v.GetVersion() == version.SHA256 {
+			return nil
+		}
+	}
+	if err := e.syncVersionToOneDomain(version, domain); err != nil {
+		return err
+	}
+	if v, ok := domain.(VersionedDomain); ok {
+		v.SetVersion(version.SHA256)
+		return e.e.DB.Update(v)
+	}
+	return nil
+}
+
+func (e *Executor) syncVersionToOneDomain(version *WebFeatureVersion, domain caskin.Domain) error {
+	set := e.getRootAndDescendant(domain)
 	relations := e.e.Enforcer.GetObjectInheritanceRelationInDomain(domain)
 
 	encode := func(k, v interface{}) string {
@@ -139,10 +156,11 @@ func (e *Executor) SyncVersionToOneDomain(version *WebFeatureVersion, domain cas
 	return nil
 }
 
-func (e *Executor) getRootAndDescendant(object caskin.Object, domain caskin.Domain) map[interface{}]bool {
-	list := []caskin.Object{object}
-	visit := map[interface{}]bool{
-		object.GetID(): true,
+func (e *Executor) getRootAndDescendant(domain caskin.Domain) map[interface{}]bool {
+	list := []caskin.Object{GetFeatureRootObject(), GetBackendRootObject(), GetFrontendRootObject()}
+	visit := map[interface{}]bool{}
+	for _, v := range list {
+		visit[v.GetID()] = true
 	}
 
 	for i := 0; i < len(list); i++ {

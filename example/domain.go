@@ -37,6 +37,9 @@ func (d *Domain) Decode(code string) error {
 }
 
 func (d *Domain) GetVersion() string {
+	if d.Meta == nil {
+		return ""
+	}
 	return d.Meta.WebFeatureVersion
 }
 
