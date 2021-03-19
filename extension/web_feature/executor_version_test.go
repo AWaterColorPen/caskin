@@ -82,6 +82,8 @@ func TestExecutorVersion_SyncLatestVersionToAllDomain(t *testing.T) {
 
 	assert.NoError(t, reinitializeDomainWithWebFeature(stage))
 
+	// TODO change feature relation, and test re sync will bu jian rong
+
 	list2, err := executor.GetFeature()
 	assert.NoError(t, err)
 	assert.Len(t, list2, 0)
@@ -102,4 +104,6 @@ func TestExecutorVersion_SyncLatestVersionToAllDomain(t *testing.T) {
 	list14, err := executor.NormalDomainGetPolicyList()
 	assert.NoError(t, err)
 	assert.Len(t, list14, 0)
+
+	// TODO change feature relation, and test re sync will delete some relation
 }

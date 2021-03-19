@@ -3,7 +3,7 @@ package main
 import "flag"
 
 var (
-	configPath = flag.String("config_path", "web.config.json", "")
+	configPath = flag.String("config_path", "", "")
 )
 
 func main() {

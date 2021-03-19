@@ -42,11 +42,61 @@ type Domain interface {
 	entry
 }
 
-type Users = []User
+type Users []User
+
+func (u Users) ID() []uint64 {
+	var m []uint64
+	for _, v := range u {
+		m = append(m, v.GetID())
+	}
+	return m
+}
+
+func (u Users) IDMap() map[uint64]User {
+	m := map[uint64]User{}
+	for _, v := range u {
+		m[v.GetID()] = v
+	}
+	return m
+}
 
 type Roles []Role
 
+func (r Roles) ID() []uint64 {
+	var m []uint64
+	for _, v := range r {
+		m = append(m, v.GetID())
+	}
+	return m
+}
+
+func (r Roles) IDMap() map[uint64]Role {
+	m := map[uint64]Role{}
+	for _, v := range r {
+		m[v.GetID()] = v
+	}
+	return m
+}
+
+func (r Roles) Tree() map[uint64]uint64 {
+	m := map[uint64]uint64{}
+	for _, v := range r {
+		if v.GetParentID() != 0 {
+			m[v.GetID()] = v.GetParentID()
+		}
+	}
+	return m
+}
+
 type Objects []Object
+
+func (o Objects) ID() []uint64 {
+	var m []uint64
+	for _, v := range o {
+		m = append(m, v.GetID())
+	}
+	return m
+}
 
 func (o Objects) IDMap() map[uint64]Object {
 	m := map[uint64]Object{}
@@ -56,7 +106,25 @@ func (o Objects) IDMap() map[uint64]Object {
 	return m
 }
 
-type Domains = []Domain
+func (o Objects) Tree() map[uint64]uint64 {
+	m := map[uint64]uint64{}
+	for _, v := range o {
+		if v.GetParentID() != 0 {
+			m[v.GetID()] = v.GetParentID()
+		}
+	}
+	return m
+}
+
+type Domains []Domain
+
+func (d Domains) ID() []uint64 {
+	var m []uint64
+	for _, v := range d {
+		m = append(m, v.GetID())
+	}
+	return m
+}
 
 // DomainCreator create new domain's function
 type DomainCreator = func(Domain) Creator

@@ -1,9 +1,35 @@
 package caskin
 
 import (
-	"github.com/ahmetb/go-linq/v3"
 	"sort"
+
+	"github.com/ahmetb/go-linq/v3"
 )
+
+func SortedInheritanceRelations(relations InheritanceRelations) InheritanceRelations {
+	var keys []uint64
+	for k := range relations {
+		keys = append(keys, k)
+	}
+
+	sort.SliceStable(keys, func(i, j int) bool {
+		return keys[i] < keys[j]
+	})
+
+	m := InheritanceRelations{}
+	for _, k := range keys {
+		m[k] = relations[k]
+		m[k] = SortedInheritanceRelation(m[k])
+	}
+	return m
+}
+
+func SortedInheritanceRelation(relation InheritanceRelation) InheritanceRelation {
+	sort.SliceStable(relation, func(i, j int) bool {
+		return relation[i] < relation[j]
+	})
+	return relation
+}
 
 // Filter filter source permission by u, d, action
 func Filter(e IEnforcer, u User, d Domain, action Action, source interface{}) []interface{} {
@@ -90,66 +116,4 @@ func isObjectTypeObjectIDBeSelfIDCheck(object Object) error {
 		return ErrObjectTypeObjectIDMustBeItselfID
 	}
 	return nil
-}
-
-func getIDList(source interface{}) []uint64 {
-	var id []uint64
-	linq.From(source).Where(func(v interface{}) bool {
-		_, ok := v.(entry)
-		return ok
-	}).Select(func(v interface{}) interface{} {
-		return v.(entry).GetID()
-	}).ToSlice(&id)
-	return id
-}
-
-func getIDMap(source interface{}) map[uint64]entry {
-	m := map[uint64]entry{}
-	linq.From(source).Where(func(v interface{}) bool {
-		_, ok := v.(entry)
-		return ok
-	}).ForEach(func(v interface{}) {
-		u := v.(entry)
-		m[u.GetID()] = u
-	})
-	return m
-}
-
-func getTree(source interface{}) map[uint64]uint64 {
-	m := map[uint64]uint64{}
-	linq.From(source).Where(func(v interface{}) bool {
-		_, ok := v.(treeNodeEntry)
-		return ok
-	}).ForEach(func(v interface{}) {
-		u := v.(treeNodeEntry)
-		if u.GetParentID() != 0 {
-			m[u.GetID()] = u.GetParentID()
-		}
-	})
-	return m
-}
-
-func SortedInheritanceRelations(relations InheritanceRelations) InheritanceRelations {
-	var keys []uint64
-	for k := range relations {
-		keys = append(keys, k)
-	}
-
-	sort.SliceStable(keys, func(i, j int) bool {
-		return keys[i] < keys[j]
-	})
-
-	m := InheritanceRelations{}
-	for _, k := range keys {
-		m[k] = relations[k]
-		m[k] = SortedInheritanceRelation(m[k])
-	}
-	return m
-}
-
-func SortedInheritanceRelation(relation InheritanceRelation) InheritanceRelation {
-	sort.SliceStable(relation, func(i, j int) bool {
-		return relation[i] < relation[j]
-	})
-	return relation
 }

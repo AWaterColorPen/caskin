@@ -11,7 +11,7 @@ func (e *Executor) GetUserInDomain() ([]User, error) {
 	}
 
 	us := e.Enforcer.GetUsersInDomain(currentDomain)
-	uid := getIDList(us)
+	uid := Users(us).ID()
 	linq.From(uid).Distinct().ToSlice(&uid)
 	return e.DB.GetUserByID(uid)
 }
@@ -35,7 +35,7 @@ func (e *Executor) GetDomainByUser() ([]Domain, error) {
 	}
 
 	ds := e.Enforcer.GetDomainsIncludeUser(currentUser)
-	did := getIDList(ds)
+	did := Domains(ds).ID()
 	linq.From(did).Distinct().ToSlice(&did)
 	return e.DB.GetDomainByID(did)
 }

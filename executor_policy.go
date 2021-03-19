@@ -24,7 +24,7 @@ func (e *Executor) GetPolicyList() ([]*Policy, error) {
 	}
 	out2 := e.filterWithNoError(currentUser, currentDomain, Read, objects)
 	linq.From(out2).ToSlice(&objects)
-	om := getIDMap(objects)
+	om := Objects(objects).IDMap()
 
 	var list []*Policy
 	for _, v := range roles {
@@ -63,7 +63,7 @@ func (e *Executor) GetPolicyListByRole(role Role) ([]*Policy, error) {
 	}
 	out := e.filterWithNoError(currentUser, currentDomain, Read, objects)
 	linq.From(out).ToSlice(&objects)
-	om := getIDMap(objects)
+	om := Objects(objects).IDMap()
 
 	var list []*Policy
 	policy := e.Enforcer.GetPoliciesForRoleInDomain(role, currentDomain)
@@ -100,7 +100,7 @@ func (e *Executor) GetPolicyListByObject(object Object) ([]*Policy, error) {
 	}
 	out := e.filterWithNoError(currentUser, currentDomain, Read, roles)
 	linq.From(out).ToSlice(&roles)
-	rm := getIDMap(roles)
+	rm := Roles(roles).IDMap()
 
 	var list []*Policy
 	policy := e.Enforcer.GetPoliciesForObjectInDomain(object, currentDomain)
@@ -154,7 +154,7 @@ func (e *Executor) ModifyPolicyListPerRole(role Role, input []*Policy) error {
 
 	out := e.filterWithNoError(currentUser, currentDomain, Write, objects)
 	linq.From(out).ToSlice(&objects)
-	om := getIDMap(objects)
+	om := Objects(objects).IDMap()
 
 	// make source and target role id list
 	var source, target []*Policy
@@ -224,7 +224,7 @@ func (e *Executor) ModifyPolicyListPerObject(object Object, input []*Policy) err
 	for _, v := range rs {
 		roles = append(roles, v.(Role))
 	}
-	rm := getIDMap(roles)
+	rm := Roles(roles).IDMap()
 
 	// make source and target role id list
 	var source, target []*Policy

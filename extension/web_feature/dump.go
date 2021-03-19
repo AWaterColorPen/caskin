@@ -5,6 +5,7 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"fmt"
+	"os"
 
 	"github.com/awatercolorpen/caskin"
 )
@@ -101,4 +102,108 @@ func (d *DumpRelation) Scan(value interface{}) error {
 func (d DumpRelation) Value() (driver.Value, error) {
 	bytes, err := json.Marshal(d)
 	return string(bytes), err
+}
+
+type DumpFileStruct struct {
+	Feature                     []*Feature  `json:"feature"`
+	Frontend                    []*Frontend `json:"frontend"`
+	Backend                     []*Backend  `json:"backend"`
+	VirtualIndexFeatureTree     Relations   `json:"virtual_index_feature_tree"`
+	VirtualIndexFrontendTree    Relations   `json:"virtual_index_frontend_tree"`
+	VirtualIndexBackendTree     Relations   `json:"virtual_index_backend_tree"`
+	VirtualIndexFeatureRelation Relations   `json:"virtual_index_feature_relation"`
+}
+
+func (d *DumpFileStruct) IsValid() error {
+	if len(d.Feature) != len(d.VirtualIndexFeatureTree) {
+		return caskin.ErrInCompatible
+	}
+	if len(d.Frontend) != len(d.VirtualIndexFrontendTree) {
+		return caskin.ErrInCompatible
+	}
+	if len(d.Backend) != len(d.VirtualIndexBackendTree) {
+		return caskin.ErrInCompatible
+	}
+	if len(d.VirtualIndexFeatureRelation) != len(d.VirtualIndexFeatureTree) {
+		return caskin.ErrInCompatible
+	}
+	return nil
+}
+
+func (d *DumpFileStruct) ImportFromDump(dump *Dump) error {
+	d.VirtualIndexFeatureTree = Relations{}
+	d.VirtualIndexFrontendTree = Relations{}
+	d.VirtualIndexBackendTree = Relations{}
+	d.VirtualIndexFeatureRelation = Relations{}
+
+	indexFe, indexFr, indexBa := map[uint64]uint64{}, map[uint64]uint64{}, map[uint64]uint64{}
+
+	for i, v := range dump.Feature {
+		d.Feature = append(d.Feature, v.ObjectCustomizedData.(*Feature))
+		indexFe[v.Object.GetID()] = uint64(i)
+	}
+	for i, v := range dump.Frontend {
+		d.Frontend = append(d.Frontend, v.ObjectCustomizedData.(*Frontend))
+		indexFr[v.Object.GetID()] = uint64(i)
+	}
+	for i, v := range dump.Backend {
+		d.Backend = append(d.Backend, v.ObjectCustomizedData.(*Backend))
+		indexBa[v.Object.GetID()] = uint64(i)
+	}
+
+	for k, node := range dump.FeatureTree {
+		var tree []uint64
+		for _, v := range node {
+			tree = append(tree, indexFe[v])
+		}
+		d.VirtualIndexFeatureTree[indexFe[k]] = tree
+	}
+	for k, node := range dump.FrontendTree {
+		var tree []uint64
+		for _, v := range node {
+			tree = append(tree, indexFr[v])
+		}
+		d.VirtualIndexFrontendTree[indexFr[k]] = tree
+	}
+	for k, node := range dump.BackendTree {
+		var tree []uint64
+		for _, v := range node {
+			tree = append(tree, indexBa[v])
+		}
+		d.VirtualIndexBackendTree[indexBa[k]] = tree
+	}
+
+	for k, node := range dump.FeatureRelation {
+		var tree []uint64
+		for _, v := range node {
+			if u, ok := indexFr[v]; ok {
+				tree = append(tree, u)
+			}
+			if u, ok := indexBa[v]; ok {
+				tree = append(tree, u)
+			}
+		}
+		d.VirtualIndexFeatureRelation[indexFe[k]] = tree
+	}
+	return nil
+}
+
+func (d *DumpFileStruct) ImportFromFile(name string) error {
+	b, err := os.ReadFile(name)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(b, d)
+}
+
+func (d *DumpFileStruct) ExportToWebFeature(w *WebFeature) error {
+	return nil
+}
+
+func (d *DumpFileStruct) ExportToFile(name string) error {
+	b, err := json.Marshal(d)
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(name, b, 0644)
 }
