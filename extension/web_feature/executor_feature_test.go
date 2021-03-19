@@ -40,21 +40,21 @@ func TestExecutorFeature_Recover(t *testing.T) {
 	executor := w.GetExecutor(provider)
 
 	feature1 := &web_feature.Feature{Name: "backend"}
-	assert.Equal(t, caskin.ErrProviderGet, executor.RecoverFeature(feature1))
+	assert.Equal(t, caskin.ErrProviderGet, executor.RecoverFeature(feature1, &example.Object{}))
 	provider.Domain = stage.Domain
 	provider.User = stage.AdminUser
-	assert.Equal(t, caskin.ErrCanOnlyAllowAtValidDomain, executor.RecoverFeature(feature1))
+	assert.Equal(t, caskin.ErrCanOnlyAllowAtValidDomain, executor.RecoverFeature(feature1, &example.Object{}))
 	provider.Domain = stage.Options.GetSuperadminDomain()
-	assert.Equal(t, caskin.ErrAlreadyExists, executor.RecoverFeature(feature1))
+	assert.Equal(t, caskin.ErrAlreadyExists, executor.RecoverFeature(feature1, &example.Object{}))
 	provider.User = stage.SuperadminUser
 	assert.NoError(t, executor.DeleteFeature(&example.Object{ID: featureStartID}))
 	provider.User = stage.AdminUser
-	assert.Equal(t, caskin.ErrNoWritePermission, executor.RecoverFeature(feature1))
+	assert.Equal(t, caskin.ErrNoWritePermission, executor.RecoverFeature(feature1, &example.Object{}))
 	provider.User = stage.SuperadminUser
-	assert.NoError(t, executor.RecoverFeature(feature1))
+	assert.NoError(t, executor.RecoverFeature(feature1, &example.Object{}))
 
 	feature2 := &web_feature.Feature{Name: "new-feature"}
-	assert.Equal(t, caskin.ErrNotExists, executor.RecoverFeature(feature2))
+	assert.Equal(t, caskin.ErrNotExists, executor.RecoverFeature(feature2, &example.Object{}))
 }
 
 func TestExecutorFeature_Delete(t *testing.T) {

@@ -13,11 +13,14 @@ func (e *Executor) CreateFrontend(frontend *Frontend, object caskin.Object) erro
 	return e.e.CreateObjectWithCustomizedData(frontend, object)
 }
 
-func (e *Executor) RecoverFrontend(frontend *Frontend) error {
+func (e *Executor) RecoverFrontend(frontend *Frontend, object caskin.Object) error {
 	if err := e.operationPermissionCheck(); err != nil {
 		return err
 	}
-	return e.e.RecoverObjectWithCustomizedData(frontend)
+	if err := isEmptyObject(object); err != nil {
+		return err
+	}
+	return e.e.RecoverObjectWithCustomizedData(frontend, object)
 }
 
 func (e *Executor) DeleteFrontend(object caskin.Object) error {

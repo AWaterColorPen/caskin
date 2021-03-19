@@ -5,8 +5,7 @@ func (e *Executor) CreateObjectWithCustomizedData(customized CustomizedData, obj
 	return e.CreateObject(object)
 }
 
-func (e *Executor) RecoverObjectWithCustomizedData(customized CustomizedData) error {
-	object := e.newObject().(Object)
+func (e *Executor) RecoverObjectWithCustomizedData(customized CustomizedData, object Object) error {
 	CustomizedData2Object(customized, object)
 	return e.RecoverObject(object)
 }

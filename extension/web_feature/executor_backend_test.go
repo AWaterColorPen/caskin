@@ -40,21 +40,21 @@ func TestExecutorBackend_Recover(t *testing.T) {
 	executor := w.GetExecutor(provider)
 
 	backend1 := &web_feature.Backend{Path: "api/backend", Method: "GET"}
-	assert.Equal(t, caskin.ErrProviderGet, executor.RecoverBackend(backend1))
+	assert.Equal(t, caskin.ErrProviderGet, executor.RecoverBackend(backend1, &example.Object{}))
 	provider.Domain = stage.Domain
 	provider.User = stage.AdminUser
-	assert.Equal(t, caskin.ErrCanOnlyAllowAtValidDomain, executor.RecoverBackend(backend1))
+	assert.Equal(t, caskin.ErrCanOnlyAllowAtValidDomain, executor.RecoverBackend(backend1, &example.Object{}))
 	provider.Domain = stage.Options.GetSuperadminDomain()
-	assert.Equal(t, caskin.ErrAlreadyExists, executor.RecoverBackend(backend1))
+	assert.Equal(t, caskin.ErrAlreadyExists, executor.RecoverBackend(backend1, &example.Object{}))
 	provider.User = stage.SuperadminUser
 	assert.NoError(t, executor.DeleteBackend(&example.Object{ID: backendStartID}))
 	provider.User = stage.AdminUser
-	assert.Equal(t, caskin.ErrNoWritePermission, executor.RecoverBackend(backend1))
+	assert.Equal(t, caskin.ErrNoWritePermission, executor.RecoverBackend(backend1, &example.Object{}))
 	provider.User = stage.SuperadminUser
-	assert.NoError(t, executor.RecoverBackend(backend1))
+	assert.NoError(t, executor.RecoverBackend(backend1, &example.Object{}))
 
 	backend2 := &web_feature.Backend{Path: "api/backend"}
-	assert.Equal(t, caskin.ErrNotExists, executor.RecoverBackend(backend2))
+	assert.Equal(t, caskin.ErrNotExists, executor.RecoverBackend(backend2, &example.Object{}))
 }
 
 func TestExecutorBackend_Delete(t *testing.T) {

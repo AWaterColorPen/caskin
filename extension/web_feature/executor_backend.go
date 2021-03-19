@@ -15,11 +15,14 @@ func (e *Executor) CreateBackend(backend *Backend, object caskin.Object) error {
 	return e.e.CreateObjectWithCustomizedData(backend, object)
 }
 
-func (e *Executor) RecoverBackend(backend *Backend) error {
+func (e *Executor) RecoverBackend(backend *Backend, object caskin.Object) error {
 	if err := e.operationPermissionCheck(); err != nil {
 		return err
 	}
-	return e.e.RecoverObjectWithCustomizedData(backend)
+	if err := isEmptyObject(object); err != nil {
+		return err
+	}
+	return e.e.RecoverObjectWithCustomizedData(backend, object)
 }
 
 func (e *Executor) DeleteBackend(object caskin.Object) error {
