@@ -29,6 +29,10 @@ func TestExecutorBackend_Create(t *testing.T) {
 
 	backend2 := &web_feature.Backend{Path: "api/backend", Method: "GET"}
 	assert.Equal(t, caskin.ErrAlreadyExists, executor.CreateBackend(backend2, &example.Object{}))
+	backend3 := &web_feature.Backend{Path: "api/test-2", Method: "GET"}
+	assert.Equal(t, caskin.ErrInValidObject, executor.CreateBackend(backend3, &example.Object{ID: 10}))
+	assert.Equal(t, caskin.ErrInValidObjectType, executor.CreateBackend(backend3, &example.Object{ParentID: frontendStartID}))
+	assert.NoError(t, executor.CreateBackend(backend3, &example.Object{ParentID: backendStartID}))
 }
 
 func TestExecutorBackend_Recover(t *testing.T) {
@@ -51,6 +55,7 @@ func TestExecutorBackend_Recover(t *testing.T) {
 	provider.User = stage.AdminUser
 	assert.Equal(t, caskin.ErrNoWritePermission, executor.RecoverBackend(backend1, &example.Object{}))
 	provider.User = stage.SuperadminUser
+	assert.Equal(t, caskin.ErrInValidObject, executor.RecoverBackend(backend1, &example.Object{ID: 10}))
 	assert.NoError(t, executor.RecoverBackend(backend1, &example.Object{}))
 
 	backend2 := &web_feature.Backend{Path: "api/backend"}
@@ -97,7 +102,9 @@ func TestExecutorBackend_Update(t *testing.T) {
 	provider.User = stage.SuperadminUser
 	assert.Error(t, executor.UpdateBackend(backend1, object1))
 	object1.ID = backendStartID
+	object1.ObjectID = 1
 	assert.NoError(t, executor.UpdateBackend(backend1, object1))
+	assert.Equal(t, superObjectID, object1.ObjectID)
 
 	backend2 := &web_feature.Backend{Path: "api/test", Method: "GET"}
 	object2 := &example.Object{ID: featureStartID}

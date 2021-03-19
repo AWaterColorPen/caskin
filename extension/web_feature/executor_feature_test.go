@@ -29,6 +29,10 @@ func TestExecutorFeature_Create(t *testing.T) {
 
 	feature2 := &web_feature.Feature{Name: "feature"}
 	assert.Equal(t, caskin.ErrAlreadyExists, executor.CreateFeature(feature2, &example.Object{}))
+	feature3 := &web_feature.Feature{Name: "new-feature-2"}
+	assert.Equal(t, caskin.ErrInValidObject, executor.CreateFeature(feature3, &example.Object{ID: 10}))
+	assert.Equal(t, caskin.ErrInValidObjectType, executor.CreateFeature(feature3, &example.Object{ParentID: frontendStartID}))
+	assert.NoError(t, executor.CreateFeature(feature3, &example.Object{ParentID: featureStartID}))
 }
 
 func TestExecutorFeature_Recover(t *testing.T) {
@@ -51,10 +55,12 @@ func TestExecutorFeature_Recover(t *testing.T) {
 	provider.User = stage.AdminUser
 	assert.Equal(t, caskin.ErrNoWritePermission, executor.RecoverFeature(feature1, &example.Object{}))
 	provider.User = stage.SuperadminUser
+	assert.Equal(t, caskin.ErrInValidObject, executor.RecoverFeature(feature1, &example.Object{ID: 10}))
 	assert.NoError(t, executor.RecoverFeature(feature1, &example.Object{}))
 
 	feature2 := &web_feature.Feature{Name: "new-feature"}
 	assert.Equal(t, caskin.ErrNotExists, executor.RecoverFeature(feature2, &example.Object{}))
+
 }
 
 func TestExecutorFeature_Delete(t *testing.T) {
@@ -97,7 +103,9 @@ func TestExecutorFeature_Update(t *testing.T) {
 	provider.User = stage.SuperadminUser
 	assert.Error(t, executor.UpdateFeature(feature1, object1))
 	object1.ID = featureStartID
+	object1.ObjectID = 1
 	assert.NoError(t, executor.UpdateFeature(feature1, object1))
+	assert.Equal(t, superObjectID, object1.ObjectID)
 
 	feature2 := &web_feature.Feature{Name: "new-feature"}
 	object2 := &example.Object{ID: backendStartID}

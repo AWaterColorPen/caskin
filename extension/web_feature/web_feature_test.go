@@ -10,9 +10,10 @@ import (
 )
 
 const (
-	frontendStartID = 8
-	backendStartID  = 12
-	featureStartID  = 19
+	superObjectID   = uint64(4)
+	frontendStartID = uint64(8)
+	backendStartID  = uint64(12)
+	featureStartID  = uint64(19)
 )
 
 func TestWebFeature(t *testing.T) {

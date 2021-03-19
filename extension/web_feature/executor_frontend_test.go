@@ -29,6 +29,10 @@ func TestExecutorFrontend_Create(t *testing.T) {
 
 	frontend2 := &web_feature.Frontend{Key: "backend", Type: web_feature.FrontendTypeMenu}
 	assert.Equal(t, caskin.ErrAlreadyExists, executor.CreateFrontend(frontend2, &example.Object{}))
+	frontend3 := &web_feature.Frontend{Key: "backend-1", Type: web_feature.FrontendTypeSubFunction}
+	assert.Equal(t, caskin.ErrInValidObject, executor.CreateFrontend(frontend3, &example.Object{ID: 10}))
+	assert.Equal(t, caskin.ErrInValidObjectType, executor.CreateFrontend(frontend3, &example.Object{ParentID: backendStartID}))
+	assert.NoError(t, executor.CreateFrontend(frontend3, &example.Object{ParentID: frontendStartID}))
 }
 
 func TestExecutorFrontend_Recover(t *testing.T) {
@@ -51,10 +55,12 @@ func TestExecutorFrontend_Recover(t *testing.T) {
 	provider.User = stage.AdminUser
 	assert.Equal(t, caskin.ErrNoWritePermission, executor.RecoverFrontend(frontend1, &example.Object{}))
 	provider.User = stage.SuperadminUser
+	assert.Equal(t, caskin.ErrInValidObject, executor.RecoverFrontend(frontend1, &example.Object{ID: 10}))
 	assert.NoError(t, executor.RecoverFrontend(frontend1, &example.Object{}))
 
 	frontend2 := &web_feature.Frontend{Key: "backend"}
 	assert.Equal(t, caskin.ErrNotExists, executor.RecoverFrontend(frontend2, &example.Object{}))
+
 }
 
 func TestExecutorFrontend_Delete(t *testing.T) {
@@ -97,7 +103,9 @@ func TestExecutorFrontend_Update(t *testing.T) {
 	provider.User = stage.SuperadminUser
 	assert.Error(t, executor.UpdateFrontend(frontend1, object1))
 	object1.ID = frontendStartID
+	object1.ObjectID = 1
 	assert.NoError(t, executor.UpdateFrontend(frontend1, object1))
+	assert.Equal(t, superObjectID, object1.ObjectID)
 
 	frontend2 := &web_feature.Frontend{Key: "backend", Type: web_feature.FrontendTypeSubFunction}
 	object2 := &example.Object{ID: featureStartID}

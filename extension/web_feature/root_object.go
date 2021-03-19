@@ -70,9 +70,7 @@ func setRootID(object caskin.Object, root caskin.Object) {
 	if object.GetParentID() == 0 {
 		object.SetParentID(root.GetID())
 	}
-	if object.GetObject().GetID() == 0 {
-		object.SetObjectID(superRootObject.GetID())
-	}
+	object.SetObjectID(superRootObject.GetID())
 }
 
 func setFeatureRoot(object caskin.Object) {
