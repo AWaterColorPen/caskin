@@ -111,7 +111,7 @@ func (e *enforcer) GetUsersForRoleInDomain(role Role, domain Domain) []User {
 
 func (e *enforcer) GetParentsForRoleInDomain(role Role, domain Domain) []Role {
 	var roles []Role
-	rs := e.e.GetRolesForUserInDomain(role.Encode(), domain.Encode())
+	rs := e.e.GetUsersForRoleInDomain(role.Encode(), domain.Encode())
 	for _, v := range rs {
 		r := e.factory.NewRole()
 		if err := r.Decode(v); err == nil {
@@ -124,7 +124,7 @@ func (e *enforcer) GetParentsForRoleInDomain(role Role, domain Domain) []Role {
 
 func (e *enforcer) GetChildrenForRoleInDomain(role Role, domain Domain) []Role {
 	var roles []Role
-	rs, _ := e.e.GetModel()["g"][ObjectPType].RM.GetRoles(role.Encode(), domain.Encode())
+	rs := e.e.GetRolesForUserInDomain(role.Encode(), domain.Encode())
 	for _, v := range rs {
 		r := e.factory.NewRole()
 		if err := r.Decode(v); err == nil {

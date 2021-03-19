@@ -98,8 +98,7 @@ func (e *Executor) SyncVersionToOneDomain(version *WebFeatureVersion, domain cas
 }
 
 func (e *Executor) syncVersionToOneDomain(version *WebFeatureVersion, domain caskin.Domain) error {
-	set := e.getRootAndDescendant(domain)
-	relations := e.e.Enforcer.GetObjectInheritanceRelationInDomain(domain)
+	relations := e.allWebFeatureRelation(domain)
 
 	encode := func(k, v interface{}) string {
 		return fmt.Sprintf("%v%v%v", k, caskin.DefaultSeparator, v)
@@ -109,16 +108,25 @@ func (e *Executor) syncVersionToOneDomain(version *WebFeatureVersion, domain cas
 		_, err = fmt.Sscanf(in.(string), format, &x, &y)
 		return
 	}
+	fn := func(in []interface{}, f func(caskin.Object, caskin.Object, caskin.Domain) error) error {
+		for _, v := range in {
+			x, y, err := decode(v)
+			if err != nil {
+				return err
+			}
+			ox, oy := e.objectFactory(), e.objectFactory()
+			ox.SetID(x)
+			oy.SetID(y)
+			if err := f(oy, ox, domain); err != nil {
+				return err
+			}
+		}
+		return nil
+	}
 
 	var source, target []interface{}
 	for k, relation := range relations {
-		if _, ok := set[k]; !ok {
-			continue
-		}
 		for _, v := range relation {
-			if _, ok := set[v]; !ok {
-				continue
-			}
 			source = append(source, encode(k, v))
 		}
 	}
@@ -128,52 +136,16 @@ func (e *Executor) syncVersionToOneDomain(version *WebFeatureVersion, domain cas
 		}
 	}
 	add, remove := caskin.Diff(source, target)
-	for _, v := range add {
-		x, y, err := decode(v)
-		if err != nil {
-			return err
-		}
-		ox, oy := e.objectFactory(), e.objectFactory()
-		ox.SetID(x)
-		oy.SetID(y)
-		if err := e.e.Enforcer.AddParentForObjectInDomain(oy, ox, domain); err != nil {
-			return err
-		}
+
+	if err := fn(add, e.e.Enforcer.AddParentForObjectInDomain); err != nil {
+		return err
 	}
-	for _, v := range remove {
-		x, y, err := decode(v)
-		if err != nil {
-			return err
-		}
-		ox, oy := e.objectFactory(), e.objectFactory()
-		ox.SetID(x)
-		oy.SetID(y)
-		if err := e.e.Enforcer.RemoveParentForObjectInDomain(oy, ox, domain); err != nil {
-			return err
-		}
+
+	if err := fn(remove, e.e.Enforcer.RemoveParentForObjectInDomain); err != nil {
+		return err
 	}
 
 	return nil
-}
-
-func (e *Executor) getRootAndDescendant(domain caskin.Domain) map[interface{}]bool {
-	list := []caskin.Object{GetFeatureRootObject(), GetBackendRootObject(), GetFrontendRootObject()}
-	visit := map[interface{}]bool{}
-	for _, v := range list {
-		visit[v.GetID()] = true
-	}
-
-	for i := 0; i < len(list); i++ {
-		ll := e.e.Enforcer.GetChildrenForObjectInDomain(list[i], domain)
-		for _, v := range ll {
-			if _, ok := visit[v.GetID()]; !ok {
-				visit[v] = true
-				list = append(list, v)
-			}
-		}
-	}
-
-	return visit
 }
 
 func (e *Executor) isValidVersion(version *WebFeatureVersion) error {

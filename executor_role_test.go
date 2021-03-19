@@ -204,3 +204,35 @@ func TestExecutorRole_GeneralDelete(t *testing.T) {
 	role3 := &example.Role{ID: 1}
 	assert.Equal(t, caskin.ErrNoWritePermission, executor.RecoverRole(role3))
 }
+
+func TestExecutorRole_DeleteSubNode(t *testing.T) {
+	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
+	provider := caskin.NewCachedProvider(nil, nil)
+	assert.NoError(t, stage.AddSubAdmin())
+
+	provider.User = stage.AdminUser
+	provider.Domain = stage.Domain
+	executor := stage.Caskin.GetExecutor(provider)
+
+	role1 := &example.Role{
+		Name:     "role_sub_02",
+		ObjectID: 5,
+		ParentID: 3,
+	}
+	assert.NoError(t, executor.CreateRole(role1))
+	pair1, err := executor.GetUserRolePairByUser(stage.SubAdminUser)
+	assert.NoError(t, err)
+	pair1 = append(pair1, &caskin.UserRolePair{User: stage.SubAdminUser, Role: role1})
+	assert.NoError(t, executor.ModifyUserRolePairPerUser(stage.SubAdminUser, pair1))
+
+	pair2, err := executor.GetUserRolePairByUser(stage.SubAdminUser)
+	assert.NoError(t, err)
+	assert.Len(t, pair2, 2)
+
+	role2 := &example.Role{ID: 3}
+	assert.NoError(t, executor.DeleteRole(role2))
+
+	pair3, err := executor.GetUserRolePairByUser(stage.SubAdminUser)
+	assert.NoError(t, err)
+	assert.Len(t, pair3, 0)
+}

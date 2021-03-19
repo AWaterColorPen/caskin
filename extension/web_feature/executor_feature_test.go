@@ -145,4 +145,5 @@ func TestExecutorFeature_Get(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Len(t, list4, 5)
 	assert.Equal(t, "feature-root", list4[0].ObjectCustomizedData.GetName())
+	assert.Equal(t, uint64(5), list4[1].Object.GetParentID())
 }

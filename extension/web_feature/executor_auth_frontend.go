@@ -20,18 +20,22 @@ func (e *Executor) AuthFrontend() []*Frontend {
 	return res
 }
 
-func (e *Executor) AuthFrontendCaskinStruct(subject string) *CasbinStruct {
+func (e *Executor) AuthFrontendCaskinStruct(subject string) (*CasbinStruct, error) {
 	casbin := &CasbinStruct{}
-	// TODO get domain, superadmin
-	var domain caskin.Domain
+	provider := e.e.GetCurrentProvider()
+	_, domain, err := provider.Get()
+	if err != nil {
+		return nil, err
+	}
+
 	if e.e.IsSuperadminCheck() == nil && domain.Encode() == e.operationDomain.Encode() {
 		casbin.G = append(casbin.G, []string{"g", subject, caskin.SuperadminRole, e.operationDomain.Encode()})
-		return casbin
+		return casbin, nil
 	}
 
 	frontend := e.AuthFrontend()
 	for _, v := range frontend {
 		casbin.P = append(casbin.P, []string{"p", subject, domain.Encode(), v.GetName(), string(caskin.Read)})
 	}
-	return casbin
+	return casbin, nil
 }

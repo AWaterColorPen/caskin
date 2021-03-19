@@ -24,14 +24,14 @@ func (e *Executor) GetFeatureRelation() (FeatureRelations, error) {
 // GetFeatureRelationByFeature
 // 1. get one feature to backend and frontend 's relation, not inheritance relation
 func (e *Executor) GetFeatureRelationByFeature(object caskin.Object) (FeatureRelation, error) {
-	relation, _, err := e.featureRelationInternalHelpFunc(object)
+	relation, _, err := e.featureRelationPerFeatureInternal(object)
 	return relation, err
 }
 
 // ModifyFeatureRelationPerFeature
 // 1. modify one feature to backend and frontend 's relation, not inheritance relation
 func (e *Executor) ModifyFeatureRelationPerFeature(object caskin.Object, relation FeatureRelation) error {
-	old, pair, err := e.featureRelationInternalHelpFunc(object)
+	old, pair, err := e.featureRelationPerFeatureInternal(object)
 	if err != nil {
 		return err
 	}
@@ -59,7 +59,7 @@ func (e *Executor) ModifyFeatureRelationPerFeature(object caskin.Object, relatio
 	return nil
 }
 
-func (e *Executor) featureRelationInternalHelpFunc(object caskin.Object) (FeatureRelation, []*caskin.CustomizedDataPair, error) {
+func (e *Executor) featureRelationPerFeatureInternal(object caskin.Object) (FeatureRelation, []*caskin.CustomizedDataPair, error) {
 	if err := e.operationPermissionCheck(); err != nil {
 		return nil, nil, err
 	}
