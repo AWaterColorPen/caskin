@@ -44,9 +44,17 @@ type Domain interface {
 
 type Users = []User
 
-type Roles = []Role
+type Roles []Role
 
-type Objects = []Object
+type Objects []Object
+
+func (o Objects) IDMap() map[uint64]Object {
+	m := map[uint64]Object{}
+	for _, v := range o {
+		m[v.GetID()] = v
+	}
+	return m
+}
 
 type Domains = []Domain
 
@@ -55,11 +63,11 @@ type DomainCreator = func(Domain) Creator
 
 // Creator interface to create a domain
 type Creator interface {
-	BuildCreator() (Roles, Objects)
+	BuildCreator() ([]Role, []Object)
 	SetRelation()
 	GetPolicy() []*Policy
-	GetRoles() Roles
-	GetObjects() Objects
+	GetRoles() []Role
+	GetObjects() []Object
 }
 
 // Policy tuple of role-object-domain-action

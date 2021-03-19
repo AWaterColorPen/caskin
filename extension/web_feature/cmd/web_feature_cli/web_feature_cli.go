@@ -3,10 +3,10 @@ package main
 import "flag"
 
 var (
-    configPath = flag.String("config_path", "web.config.json", "")
+	configPath = flag.String("config_path", "web.config.json", "")
 )
 
-func main()  {
-    flag.Parse()
+func main() {
+	flag.Parse()
 
 }

@@ -141,8 +141,8 @@ func TestExecutorDomain_Initialize(t *testing.T) {
 
 type testCreator struct {
 	domain  caskin.Domain
-	objects caskin.Objects
-	roles   caskin.Roles
+	objects []caskin.Object
+	roles   []caskin.Role
 }
 
 func NewTestCreator(domain caskin.Domain) caskin.Creator {
@@ -153,7 +153,7 @@ const (
 	ObjectTypeTest caskin.ObjectType = "test"
 )
 
-func (t *testCreator) BuildCreator() (caskin.Roles, caskin.Objects) {
+func (t *testCreator) BuildCreator() ([]caskin.Role, []caskin.Object) {
 	role0 := &example.Role{Name: "admin", DomainID: t.domain.GetID()}
 	role1 := &example.Role{Name: "member", DomainID: t.domain.GetID()}
 	t.roles = []caskin.Role{role0, role1}
@@ -179,11 +179,11 @@ func (t *testCreator) SetRelation() {
 	}
 }
 
-func (t *testCreator) GetRoles() caskin.Roles {
+func (t *testCreator) GetRoles() []caskin.Role {
 	return t.roles
 }
 
-func (t *testCreator) GetObjects() caskin.Objects {
+func (t *testCreator) GetObjects() []caskin.Object {
 	return t.objects
 }
 

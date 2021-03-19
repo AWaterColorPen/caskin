@@ -1,5 +1,7 @@
 package caskin
 
+import "github.com/ahmetb/go-linq/v3"
+
 // CreateRole
 // if current user has role's write permission and there does not exist the role
 // then create a new one
@@ -91,23 +93,11 @@ func (e *Executor) GetRoles() (Roles, error) {
 		return nil, err
 	}
 
-	rs := e.Enforcer.GetRolesInDomain(currentDomain)
-	tree := getTree(rs)
 	roles, err := e.DB.GetRoleInDomain(currentDomain)
 	if err != nil {
 		return nil, err
 	}
-	r := e.filterWithNoError(currentUser, currentDomain, Read, roles)
-	roles = []Role{}
-	for _, v := range r {
-		roles = append(roles, v.(Role))
-	}
-
-	for _, v := range roles {
-		if p, ok := tree[v.GetID()]; ok {
-			v.SetParentID(p)
-		}
-	}
-
+	out := e.filterWithNoError(currentUser, currentDomain, Read, roles)
+	linq.From(out).ToSlice(&roles)
 	return roles, nil
 }

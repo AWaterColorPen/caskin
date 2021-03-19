@@ -11,36 +11,23 @@ func (e *Executor) GetPolicyList() ([]*Policy, error) {
 		return nil, err
 	}
 
-	rs := e.Enforcer.GetRolesInDomain(currentDomain)
-	tree := getTree(rs)
 	roles, err := e.DB.GetRoleInDomain(currentDomain)
 	if err != nil {
 		return nil, err
 	}
-	r := e.filterWithNoError(currentUser, currentDomain, Read, roles)
-	roles = []Role{}
-	for _, v := range r {
-		roles = append(roles, v.(Role))
-	}
+	out1 := e.filterWithNoError(currentUser, currentDomain, Read, roles)
+	linq.From(out1).ToSlice(&roles)
 
 	objects, err := e.DB.GetObjectInDomain(currentDomain)
 	if err != nil {
 		return nil, err
 	}
-	os := e.filterWithNoError(currentUser, currentDomain, Read, objects)
-	objects = []Object{}
-	for _, v := range os {
-		objects = append(objects, v.(Object))
-	}
+	out2 := e.filterWithNoError(currentUser, currentDomain, Read, objects)
+	linq.From(out2).ToSlice(&objects)
 	om := getIDMap(objects)
 
-	e.Enforcer.GetPoliciesInDomain(currentDomain)
 	var list []*Policy
 	for _, v := range roles {
-		if p, ok := tree[v.GetID()]; ok {
-			v.SetParentID(p)
-		}
-
 		policy := e.Enforcer.GetPoliciesForRoleInDomain(v, currentDomain)
 		for _, p := range policy {
 			if object, ok := om[p.Object.GetID()]; ok {
@@ -74,16 +61,11 @@ func (e *Executor) GetPolicyListByRole(role Role) ([]*Policy, error) {
 	if err != nil {
 		return nil, err
 	}
-	os := e.filterWithNoError(currentUser, currentDomain, Read, objects)
-	objects = []Object{}
-	for _, v := range os {
-		objects = append(objects, v.(Object))
-	}
+	out := e.filterWithNoError(currentUser, currentDomain, Read, objects)
+	linq.From(out).ToSlice(&objects)
 	om := getIDMap(objects)
 
-	e.Enforcer.GetPoliciesInDomain(currentDomain)
 	var list []*Policy
-
 	policy := e.Enforcer.GetPoliciesForRoleInDomain(role, currentDomain)
 	for _, p := range policy {
 		if object, ok := om[p.Object.GetID()]; ok {
@@ -170,11 +152,8 @@ func (e *Executor) ModifyPolicyListPerRole(role Role, input []*Policy) error {
 		return err
 	}
 
-	os := e.filterWithNoError(currentUser, currentDomain, Write, objects)
-	objects = []Object{}
-	for _, v := range os {
-		objects = append(objects, v.(Object))
-	}
+	out := e.filterWithNoError(currentUser, currentDomain, Write, objects)
+	linq.From(out).ToSlice(&objects)
 	om := getIDMap(objects)
 
 	// make source and target role id list

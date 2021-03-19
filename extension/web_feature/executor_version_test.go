@@ -71,6 +71,8 @@ func TestExecutorVersion_SyncLatestVersionToAllDomain(t *testing.T) {
 
 	assert.NoError(t, executor.BuildVersion())
 	assert.NoError(t, executor.SyncLatestVersionToAllDomain())
+	// test twice
+	assert.NoError(t, executor.SyncLatestVersionToAllDomain())
 
 	provider.Domain = stage.Domain
 	provider.User = stage.AdminUser
@@ -87,4 +89,17 @@ func TestExecutorVersion_SyncLatestVersionToAllDomain(t *testing.T) {
 	list3, err := executor.NormalDomainGetFeature()
 	assert.NoError(t, err)
 	assert.Len(t, list3, 5)
+
+	list4, err := executor.NormalDomainGetPolicyList()
+	assert.NoError(t, err)
+	assert.Len(t, list4, 1)
+
+	provider.User = stage.MemberUser
+	list13, err := executor.NormalDomainGetFeature()
+	assert.NoError(t, err)
+	assert.Len(t, list13, 0)
+
+	list14, err := executor.NormalDomainGetPolicyList()
+	assert.NoError(t, err)
+	assert.Len(t, list14, 0)
 }

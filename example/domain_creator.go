@@ -6,15 +6,15 @@ import (
 
 type DomainCreator struct {
 	domain  caskin.Domain
-	objects caskin.Objects
-	roles   caskin.Roles
+	objects []caskin.Object
+	roles   []caskin.Role
 }
 
 func NewDomainCreator(domain caskin.Domain) caskin.Creator {
 	return &DomainCreator{domain: domain}
 }
 
-func (d *DomainCreator) BuildCreator() (caskin.Roles, caskin.Objects) {
+func (d *DomainCreator) BuildCreator() ([]caskin.Role, []caskin.Object) {
 	role0 := &Role{Name: "admin", DomainID: d.domain.GetID()}
 	role1 := &Role{Name: "member", DomainID: d.domain.GetID()}
 	d.roles = []caskin.Role{role0, role1}
@@ -39,11 +39,11 @@ func (d *DomainCreator) SetRelation() {
 	}
 }
 
-func (d *DomainCreator) GetRoles() caskin.Roles {
+func (d *DomainCreator) GetRoles() []caskin.Role {
 	return d.roles
 }
 
-func (d *DomainCreator) GetObjects() caskin.Objects {
+func (d *DomainCreator) GetObjects() []caskin.Object {
 	return d.objects
 }
 
