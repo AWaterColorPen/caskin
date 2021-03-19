@@ -32,7 +32,12 @@ func TestExecutorRelation_GetFeatureRelation(t *testing.T) {
 	provider.User = stage.SuperadminUser
 	relation2, err := executor.GetFeatureRelation()
 	assert.NoError(t, err)
-	assert.Len(t, relation2, 4)
+	assert.Len(t, relation2, 5)
+	assert.Len(t, relation2[5], 0)
+	assert.Len(t, relation2[featureStartID], 3)
+	assert.Len(t, relation2[featureStartID+1], 3)
+	assert.Len(t, relation2[featureStartID+2], 3)
+	assert.Len(t, relation2[featureStartID+3], 3)
 }
 
 func TestExecutorRelation_GetFeatureRelationByFeature(t *testing.T) {
@@ -81,12 +86,13 @@ func TestExecutorRelation_ModifyFeatureRelationPerFeature(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Len(t, feature, 5)
 
-	relation1 := web_feature.FeatureRelation{uint64(1), uint64(7), uint64(8), uint64(12), uint64(14)}
+	relation1 := web_feature.Relation{uint64(1), uint64(7), uint64(8), uint64(12), uint64(14)}
 	assert.NoError(t, executor.ModifyFeatureRelationPerFeature(feature[1].Object, relation1))
 	list1, err := executor.GetFeatureRelationByFeature(feature[1].Object)
 	assert.NoError(t, err)
-	assert.Len(t, list1, 3)
-	assert.Equal(t, list1[0], uint64(8))
-	assert.Equal(t, list1[1], uint64(12))
-	assert.Equal(t, list1[2], uint64(14))
+	assert.Len(t, list1, 4)
+	assert.Equal(t, list1[0], uint64(7))
+	assert.Equal(t, list1[1], uint64(8))
+	assert.Equal(t, list1[2], uint64(12))
+	assert.Equal(t, list1[3], uint64(14))
 }

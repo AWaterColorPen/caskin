@@ -108,7 +108,7 @@ func newWebFeature(stage *example.Stage) (*web_feature.WebFeature, error) {
 	}
 
 	object := []caskin.Object{pair[1].Object, pair[2].Object, pair[3].Object, pair[4].Object}
-	relation := []web_feature.FeatureRelation{
+	relation := []web_feature.Relation{
 		{8, 12, 13},
 		{9, 14, 15},
 		{10, 16, 17},

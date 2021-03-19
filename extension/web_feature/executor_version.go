@@ -1,8 +1,6 @@
 package web_feature
 
 import (
-	"fmt"
-
 	"github.com/awatercolorpen/caskin"
 )
 
@@ -10,9 +8,11 @@ func (e *Executor) BuildVersion() error {
 	if err := e.versionPermissionCheck(); err != nil {
 		return err
 	}
-	all := e.allWebFeatureRelation(e.operationDomain)
-	relations := caskin.SortedInheritanceRelations(all)
-	metadata := Relations(relations)
+	dump, err := e.Dump()
+	if err != nil {
+		return err
+	}
+	metadata := dump.ToRelation()
 	version := &WebFeatureVersion{
 		SHA256:   metadata.Version(),
 		MetaData: metadata,
@@ -63,12 +63,15 @@ func (e *Executor) SyncVersionToAllDomain(version *WebFeatureVersion) error {
 	if err := e.versionPermissionCheck(); err != nil {
 		return err
 	}
+	if err := e.isValidVersion(version); err != nil {
+		return err
+	}
 	domains, err := e.e.GetAllDomain()
 	if err != nil {
 		return err
 	}
 	for _, v := range domains {
-		if err := e.SyncVersionToOneDomain(version, v); err != nil {
+		if err := e.syncVersionToOneDomain(version, v); err != nil {
 			return err
 		}
 	}
@@ -82,12 +85,16 @@ func (e *Executor) SyncVersionToOneDomain(version *WebFeatureVersion, domain cas
 	if err := e.isValidVersion(version); err != nil {
 		return err
 	}
+	return e.syncVersionToOneDomain(version, domain)
+}
+
+func (e *Executor) syncVersionToOneDomain(version *WebFeatureVersion, domain caskin.Domain) error {
 	if v, ok := domain.(VersionedDomain); ok {
 		if v.GetVersion() == version.SHA256 {
 			return nil
 		}
 	}
-	if err := e.syncVersionToOneDomain(version, domain); err != nil {
+	if err := e.syncVersionToOneDomainInternal(version, domain); err != nil {
 		return err
 	}
 	if v, ok := domain.(VersionedDomain); ok {
@@ -97,59 +104,58 @@ func (e *Executor) SyncVersionToOneDomain(version *WebFeatureVersion, domain cas
 	return nil
 }
 
-func (e *Executor) syncVersionToOneDomain(version *WebFeatureVersion, domain caskin.Domain) error {
+func (e *Executor) syncVersionToOneDomainInternal(version *WebFeatureVersion, domain caskin.Domain) error {
 	relations := e.allWebFeatureRelation(domain)
-
-	encode := func(k, v interface{}) string {
-		return fmt.Sprintf("%v%v%v", k, caskin.DefaultSeparator, v)
-	}
-	decode := func(in interface{}) (x, y uint64, err error) {
-		format := fmt.Sprintf("%%d%v%%d", caskin.DefaultSeparator)
-		_, err = fmt.Sscanf(in.(string), format, &x, &y)
-		return
-	}
-	fn := func(in []interface{}, f func(caskin.Object, caskin.Object, caskin.Domain) error) error {
-		for _, v := range in {
-			x, y, err := decode(v)
-			if err != nil {
-				return err
-			}
-			ox, oy := e.objectFactory(), e.objectFactory()
-			ox.SetID(x)
-			oy.SetID(y)
-			if err := f(oy, ox, domain); err != nil {
-				return err
-			}
-		}
-		return nil
-	}
-
 	var source, target []interface{}
 	for k, relation := range relations {
 		for _, v := range relation {
-			source = append(source, encode(k, v))
+			source = append(source, relationEncode(k, v))
 		}
 	}
-	for k, relation := range version.MetaData {
+	targetRelations := version.MetaData.MergedRelation()
+	for k, relation := range targetRelations {
 		for _, v := range relation {
-			target = append(target, encode(k, v))
+			target = append(target, relationEncode(k, v))
 		}
 	}
-	add, remove := caskin.Diff(source, target)
 
-	if err := fn(add, e.e.Enforcer.AddParentForObjectInDomain); err != nil {
+	add, remove := caskin.Diff(source, target)
+	if err := relationsAction(add, domain, e.objectFactory, e.e.Enforcer.AddParentForObjectInDomain); err != nil {
+		return err
+	}
+	if err := relationsAction(remove, domain, e.objectFactory, e.e.Enforcer.RemoveParentForObjectInDomain); err != nil {
 		return err
 	}
 
-	if err := fn(remove, e.e.Enforcer.RemoveParentForObjectInDomain); err != nil {
-		return err
+	var toDelete []uint64
+	for k := range relations {
+		if _, ok := targetRelations[k]; !ok {
+			toDelete = append(toDelete, k)
+		}
+	}
+	for _, v := range toDelete {
+		o := e.objectFactory()
+		o.SetID(v)
+		if err := e.e.Enforcer.RemoveObjectInDomain(o, domain); err != nil {
+			return err
+		}
 	}
 
 	return nil
 }
 
 func (e *Executor) isValidVersion(version *WebFeatureVersion) error {
-	return e.e.DB.Take(version)
+	if err := e.e.DB.Take(version); err != nil {
+		return err
+	}
+	dump, err := e.Dump()
+	if err != nil {
+		return err
+	}
+	if !version.IsCompatible(dump) {
+		return caskin.ErrInCompatible
+	}
+	return nil
 }
 
 func (e *Executor) versionPermissionCheck() error {

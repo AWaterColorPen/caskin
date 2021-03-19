@@ -30,9 +30,38 @@ func (e *Executor) check(object caskin.Object) error {
 	return e.e.Enforce(o, caskin.Read)
 }
 
-func isEmptyObject(object caskin.Object) error {
-	if object.GetID() != 0 {
-		return caskin.ErrInValidObject
+func (e *Executor) get3pair() (feature, frontend, backend []*caskin.CustomizedDataPair, err error) {
+	feature, err = e.GetFeature()
+	if err != nil {
+		return
 	}
-	return nil
+	frontend, err = e.GetFrontend()
+	if err != nil {
+		return
+	}
+	backend, err = e.GetBackend()
+	return
+}
+
+func (e *Executor) allWebFeatureRelation(domain caskin.Domain) caskin.InheritanceRelations {
+	queue := []caskin.Object{GetFeatureRootObject(), GetBackendRootObject(), GetFrontendRootObject()}
+	inQueue := map[uint64]bool{}
+	for _, v := range queue {
+		inQueue[v.GetID()] = true
+	}
+
+	m := caskin.InheritanceRelations{}
+	for i := 0; i < len(queue); i++ {
+		m[queue[i].GetID()] = caskin.InheritanceRelation{}
+		ll := e.e.Enforcer.GetChildrenForObjectInDomain(queue[i], domain)
+		for _, v := range ll {
+			if _, ok := inQueue[v.GetID()]; !ok {
+				queue = append(queue, v)
+				inQueue[v.GetID()] = true
+			}
+			m[queue[i].GetID()] = append(m[queue[i].GetID()], v.GetID())
+		}
+	}
+
+	return m
 }
