@@ -94,22 +94,11 @@ func (e *Executor) GetObjects(ty ...ObjectType) ([]Object, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	// ds := e.Enforcer.GetObjectsInDomain(currentDomain)
-	// tree := getTree(ds)
 	objects, err := e.DB.GetObjectInDomain(currentDomain, ty...)
 	if err != nil {
 		return nil, err
 	}
-
 	os := e.filterWithNoError(currentUser, currentDomain, Read, objects)
 	linq.From(os).ToSlice(&objects)
-
-	// for _, v := range objects {
-	// 	if p, ok := tree[v.GetID()]; ok {
-	// 		v.SetParentID(p)
-	// 	}
-	// }
-
 	return objects, nil
 }

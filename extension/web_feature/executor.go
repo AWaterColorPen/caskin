@@ -1,6 +1,7 @@
 package web_feature
 
 import (
+	"github.com/ahmetb/go-linq/v3"
 	"github.com/awatercolorpen/caskin"
 )
 
@@ -10,24 +11,6 @@ type Executor struct {
 	operationDomain           caskin.Domain
 	enableBackendAPIAuthCache bool
 	FeatureRootObject         func() caskin.Object
-}
-
-func (e *Executor) operationPermissionCheck() error {
-	provider := e.e.GetCurrentProvider()
-	_, domain, err := provider.Get()
-	if err != nil {
-		return err
-	}
-	if domain.Encode() != e.operationDomain.Encode() {
-		return caskin.ErrCanOnlyAllowAtValidDomain
-	}
-	return nil
-}
-
-func (e *Executor) check(object caskin.Object) error {
-	o := e.objectFactory()
-	o.SetObjectID(object.GetID())
-	return e.e.Enforce(o, caskin.Read)
 }
 
 func (e *Executor) get3pair() (feature, frontend, backend []*caskin.CustomizedDataPair, err error) {
@@ -64,4 +47,30 @@ func (e *Executor) allWebFeatureRelation(domain caskin.Domain) caskin.Inheritanc
 	}
 
 	return m
+}
+
+func (e *Executor) operationPermissionCheck() error {
+	provider := e.e.GetCurrentProvider()
+	_, domain, err := provider.Get()
+	if err != nil {
+		return err
+	}
+	if domain.Encode() != e.operationDomain.Encode() {
+		return caskin.ErrCanOnlyAllowAtValidDomain
+	}
+	return nil
+}
+
+func (e *Executor) filterWithNoError(source interface{}) []interface{} {
+	var result []interface{}
+	linq.From(source).Where(func(v interface{}) bool {
+		return e.check(v.(caskin.Object)) == nil
+	}).ToSlice(&result)
+	return result
+}
+
+func (e *Executor) check(object caskin.Object) error {
+	o := e.objectFactory()
+	o.SetObjectID(object.GetID())
+	return e.e.Enforce(o, caskin.Read)
 }

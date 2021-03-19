@@ -22,23 +22,20 @@ func (e *Executor) GetUserRolePair() ([]*UserRolePair, error) {
 		return nil, err
 	}
 
-	rs := e.Enforcer.GetRolesInDomain(currentDomain)
-	tree := getTree(rs)
+	// rs := e.Enforcer.GetRolesInDomain(currentDomain)
+	// tree := getTree(rs)
 	roles, err := e.DB.GetRoleInDomain(currentDomain)
 	if err != nil {
 		return nil, err
 	}
-	r := e.filterWithNoError(currentUser, currentDomain, Read, roles)
-	roles = []Role{}
-	for _, v := range r {
-		roles = append(roles, v.(Role))
-	}
+	rs := e.filterWithNoError(currentUser, currentDomain, Read, roles)
+	linq.From(rs).ToSlice(&roles)
 	rm := getIDMap(roles)
-	for _, v := range roles {
-		if p, ok := tree[v.GetID()]; ok {
-			v.SetParentID(p)
-		}
-	}
+	// for _, v := range roles {
+	// 	if p, ok := tree[v.GetID()]; ok {
+	// 		v.SetParentID(p)
+	// 	}
+	// }
 
 	var list []*UserRolePair
 	for _, v := range users {
@@ -71,10 +68,7 @@ func (e *Executor) GetUserRolePairByUser(user User) ([]*UserRolePair, error) {
 		return nil, err
 	}
 	out := e.filterWithNoError(currentUser, currentDomain, Read, roles)
-	roles = []Role{}
-	for _, v := range out {
-		roles = append(roles, v.(Role))
-	}
+	linq.From(out).ToSlice(&roles)
 	rm := getIDMap(roles)
 
 	var list []*UserRolePair
@@ -151,12 +145,8 @@ func (e *Executor) ModifyUserRolePairPerUser(user User, input []*UserRolePair) e
 	if err != nil {
 		return err
 	}
-	r := e.filterWithNoError(currentUser, currentDomain, Write, roles)
-	roles = []Role{}
-	for _, v := range r {
-		roles = append(roles, v.(Role))
-
-	}
+	out := e.filterWithNoError(currentUser, currentDomain, Write, roles)
+	linq.From(out).ToSlice(&roles)
 	rm := getIDMap(roles)
 
 	// make source and target role id list

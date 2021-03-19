@@ -83,4 +83,8 @@ func TestExecutorVersion_SyncLatestVersionToAllDomain(t *testing.T) {
 	list2, err := executor.GetFeature()
 	assert.NoError(t, err)
 	assert.Len(t, list2, 0)
+
+	list3, err := executor.NormalDomainGetFeature()
+	assert.NoError(t, err)
+	assert.Len(t, list3, 5)
 }
