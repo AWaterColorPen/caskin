@@ -84,32 +84,25 @@ func TestExecutorVersion_SyncLatestVersionToAllDomain(t *testing.T) {
 
 	provider.Domain = stage.Domain
 	provider.User = stage.AdminUser
-	list1, err := executor.GetFeature()
+	list1, err := executor.NormalDomainGetFeatureObject()
 	assert.NoError(t, err)
 	assert.Len(t, list1, 0)
 
 	assert.NoError(t, reinitializeDomainWithWebFeature(stage))
-
-	list2, err := executor.GetFeature()
+	list2, err := executor.NormalDomainGetFeatureObject()
 	assert.NoError(t, err)
-	assert.Len(t, list2, 0)
-
-	list3, err := executor.NormalDomainGetFeatureObject()
+	assert.Len(t, list2, 5)
+	list3, err := executor.NormalDomainGetPolicyList()
 	assert.NoError(t, err)
-	assert.Len(t, list3, 5)
-
-	list4, err := executor.NormalDomainGetPolicyList()
-	assert.NoError(t, err)
-	assert.Len(t, list4, 1)
+	assert.Len(t, list3, 1)
 
 	provider.User = stage.MemberUser
-	list13, err := executor.NormalDomainGetFeatureObject()
+	list4, err := executor.NormalDomainGetFeatureObject()
 	assert.NoError(t, err)
-	assert.Len(t, list13, 0)
-
-	list14, err := executor.NormalDomainGetPolicyList()
+	assert.Len(t, list4, 0)
+	list5, err := executor.NormalDomainGetPolicyList()
 	assert.NoError(t, err)
-	assert.Len(t, list14, 0)
+	assert.Len(t, list5, 0)
 
 	// TODO change feature relation, and test re sync will delete some relation
 }

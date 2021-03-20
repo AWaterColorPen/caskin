@@ -41,6 +41,9 @@ func (e *Executor) UpdateFeature(feature *Feature, object caskin.Object) error {
 }
 
 func (e *Executor) GetFeature() ([]*caskin.CustomizedDataPair, error) {
+	if err := e.operationPermissionCheck(); err != nil {
+		return nil, err
+	}
 	objects, err := e.e.GetObjects(ObjectTypeFeature)
 	if err != nil {
 		return nil, err

@@ -140,6 +140,15 @@ func TestExecutorFeature_Get(t *testing.T) {
 	assert.Equal(t, caskin.ErrProviderGet, err)
 	provider.Domain = stage.Domain
 	provider.User = stage.AdminUser
+	_, err = executor.GetFeature()
+	assert.Equal(t, caskin.ErrCanOnlyAllowAtValidDomain, err)
+
+	provider.User = stage.SuperadminUser
+	_, err = executor.GetFeature()
+	assert.Equal(t, caskin.ErrCanOnlyAllowAtValidDomain, err)
+
+	provider.Domain = stage.Options.GetSuperadminDomain()
+	provider.User = stage.AdminUser
 	list1, err := executor.GetFeature()
 	assert.NoError(t, err)
 	assert.Len(t, list1, 0)
@@ -147,18 +156,7 @@ func TestExecutorFeature_Get(t *testing.T) {
 	provider.User = stage.SuperadminUser
 	list2, err := executor.GetFeature()
 	assert.NoError(t, err)
-	assert.Len(t, list2, 0)
-
-	provider.Domain = stage.Options.GetSuperadminDomain()
-	provider.User = stage.AdminUser
-	list3, err := executor.GetFeature()
-	assert.NoError(t, err)
-	assert.Len(t, list3, 0)
-
-	provider.User = stage.SuperadminUser
-	list4, err := executor.GetFeature()
-	assert.NoError(t, err)
-	assert.Len(t, list4, 5)
-	assert.Equal(t, "feature-root", list4[0].ObjectCustomizedData.GetName())
-	assert.Equal(t, superObjectID+1, list4[1].Object.GetParentID())
+	assert.Len(t, list2, 5)
+	assert.Equal(t, "feature-root", list2[0].ObjectCustomizedData.GetName())
+	assert.Equal(t, superObjectID+1, list2[1].Object.GetParentID())
 }
