@@ -79,6 +79,13 @@ func TestExecutorFeature_Delete(t *testing.T) {
 	assert.Equal(t, caskin.ErrNoWritePermission, executor.DeleteFeature(&example.Object{ID: featureStartID}))
 	provider.User = stage.SuperadminUser
 	assert.NoError(t, executor.DeleteFeature(&example.Object{ID: featureStartID}))
+	// it can't delete frontend and backend when it delete feature
+	list1, err := executor.GetFrontend()
+	assert.NoError(t, err)
+	assert.Len(t, list1, 5)
+	list2, err := executor.GetBackend()
+	assert.NoError(t, err)
+	assert.Len(t, list2, 8)
 
 	assert.Equal(t, caskin.ErrNotExists, executor.DeleteFeature(&example.Object{ID: frontendStartID}))
 	assert.Equal(t, caskin.ErrNotExists, executor.DeleteFeature(&example.Object{ID: frontendStartID - 1}))

@@ -55,6 +55,14 @@ func TestExecutorVersion_SyncVersionToAllDomain(t *testing.T) {
 		SHA256: "sha256",
 	}
 	assert.Error(t, executor.SyncVersionToAllDomain(version))
+
+	assert.NoError(t, executor.BuildVersion())
+	versions, err := executor.GetVersion()
+	assert.NoError(t, err)
+	assert.Len(t, versions, 1)
+	assert.NoError(t, executor.SyncVersionToAllDomain(versions[0]))
+	// test twice
+	assert.NoError(t, executor.SyncVersionToAllDomain(versions[0]))
 }
 
 func TestExecutorVersion_SyncLatestVersionToAllDomain(t *testing.T) {

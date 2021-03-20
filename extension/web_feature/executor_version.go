@@ -152,10 +152,7 @@ func (e *Executor) isValidVersion(version *WebFeatureVersion) error {
 	if err != nil {
 		return err
 	}
-	if !version.IsCompatible(dump) {
-		return caskin.ErrInCompatible
-	}
-	return nil
+	return version.IsCompatible(dump)
 }
 
 func (e *Executor) versionPermissionCheck() error {

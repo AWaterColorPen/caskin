@@ -16,17 +16,17 @@ type WebFeatureVersion struct {
 	MetaData  *DumpRelation  `gorm:"column:metadata"        json:"metadata,omitempty"`
 }
 
-func (w *WebFeatureVersion) IsCompatible(dump *Dump) bool {
+func (w *WebFeatureVersion) IsCompatible(dump *Dump) error {
 	if !isCompatible(w.MetaData.FeatureTree, dump.FeatureTree) {
-		return false
+		return caskin.ErrInCompatible
 	}
 	if !isCompatible(w.MetaData.FrontendTree, dump.FrontendTree) {
-		return false
+		return caskin.ErrInCompatible
 	}
 	if !isCompatible(w.MetaData.BackendTree, dump.BackendTree) {
-		return false
+		return caskin.ErrInCompatible
 	}
-	return true
+	return nil
 }
 
 type Relation = caskin.InheritanceRelation
