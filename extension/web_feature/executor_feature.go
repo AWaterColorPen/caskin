@@ -29,6 +29,21 @@ func (e *Executor) DeleteFeature(object caskin.Object) error {
 	if err := e.operationPermissionCheck(); err != nil {
 		return err
 	}
+	object.SetObjectType((&Feature{}).GetObjectType())
+	if err := e.e.ObjectDataDeleteCheck(object); err != nil {
+		return err
+	}
+	// TODO public Check And TreeNodeEntryDeleter
+	//if err := e.objectTreeNodeParentCheck(object); err != nil {
+	//	return err
+	//}
+
+	provider := e.e.GetCurrentProvider()
+	_, domain, _ := provider.Get()
+	object.SetDomainID(domain.GetID())
+	//deleter := newParentEntryDeleter(e.objectChildrenFn(), e.objectDeleteFn())
+	//return deleter.dfs(object, domain)
+
 	return e.e.DeleteObjectWithCustomizedData(&Feature{}, object)
 }
 
