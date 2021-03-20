@@ -123,10 +123,13 @@ func (e *Executor) syncVersionToOneDomainInternal(version *WebFeatureVersion, do
 	if err := relationsAction(add, domain, e.objectFactory, e.e.Enforcer.AddParentForObjectInDomain); err != nil {
 		return err
 	}
+
+	// TODO issue 6: remove feature's relation, should from leaf to root
 	if err := relationsAction(remove, domain, e.objectFactory, e.e.Enforcer.RemoveParentForObjectInDomain); err != nil {
 		return err
 	}
 
+	// TODO issue 7: remove feature's relation, maybe delete policy before relation
 	var toDelete []uint64
 	for k := range relations {
 		if _, ok := targetRelations[k]; !ok {

@@ -21,7 +21,8 @@ var (
 	DefaultBackendRootDescription  = "root node of backend object"
 	DefaultBackendRootGroup        = ""
 
-	DefaultSeparator = caskin.DefaultSeparator
+	DefaultSeparator                  = caskin.DefaultSeparator
+	DefaultWebFeatureVersionTableName = "caskin_web_feature_versions"
 )
 
 var (

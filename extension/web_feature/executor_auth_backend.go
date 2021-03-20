@@ -27,6 +27,9 @@ func (e *Executor) getBackendAPIObject(backend *Backend) (caskin.Object, error) 
 func (e *Executor) getCacheBackendAPIObject(backend *Backend) (caskin.Object, error) {
 	key := backend.GetName()
 	if u, ok := LocalCache.Get(key); ok {
+		if u == nil {
+			return nil, nil
+		}
 		return u.(caskin.Object), nil
 	} else {
 		object, err := e.getSyncBackendAPIObject(backend)

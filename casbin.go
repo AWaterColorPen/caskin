@@ -225,6 +225,8 @@ func (e *enforcer) RemoveUserInDomain(user User, domain Domain) error {
 }
 
 func (e *enforcer) RemoveRoleInDomain(role Role, domain Domain) error {
+	// TODO issue 4: delete role's relation, should you yi ding de shun xun
+	// to check the delete logic
 	us := e.GetUsersForRoleInDomain(role, domain)
 	for _, v := range us {
 		if err := e.RemoveRoleForUserInDomain(v, role, domain); err != nil {
@@ -251,6 +253,8 @@ func (e *enforcer) RemoveRoleInDomain(role Role, domain Domain) error {
 }
 
 func (e *enforcer) RemoveObjectInDomain(object Object, domain Domain) error {
+	// TODO issue 5: delete object's relation, should you yi ding de shun xun
+	// to check the delete logic
 	ps := e.GetParentsForObjectInDomain(object, domain)
 	for _, v := range ps {
 		if err := e.RemoveParentForObjectInDomain(object, v, domain); err != nil {
