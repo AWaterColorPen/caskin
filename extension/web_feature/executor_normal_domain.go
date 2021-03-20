@@ -5,7 +5,7 @@ import (
 	"github.com/awatercolorpen/caskin"
 )
 
-func (e *Executor) NormalDomainGetFeature() ([]caskin.Object, error) {
+func (e *Executor) NormalDomainGetFeatureObject() ([]caskin.Object, error) {
 	objects, err := e.e.DB.GetObjectInDomain(e.operationDomain, ObjectTypeFeature)
 	if err != nil {
 		return nil, err
@@ -129,6 +129,10 @@ func (e *Executor) NormalDomainModifyPolicyListPerRole(role caskin.Role, input [
 		if _, ok := om[v.Object.GetID()]; ok {
 			target = append(target, v)
 		}
+	}
+
+	if err := isPolicyListValidAction(target); err != nil {
+		return err
 	}
 
 	// get diff to add and remove

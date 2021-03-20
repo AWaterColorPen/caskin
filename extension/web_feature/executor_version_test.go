@@ -29,7 +29,7 @@ func TestExecutorVersion_BuildVersion(t *testing.T) {
 	list1, err := executor.GetVersion()
 	assert.NoError(t, err)
 	assert.Len(t, list1, 1)
-	assert.Equal(t, "77d8f619d743d9674b3c9f8ae64223f0ef4972fa7965f80741537501887967c6", list1[0].SHA256)
+	assert.Equal(t, "aa2a319fdc891c2d66f0e1a866ea66ef01ee22e74a2f66ff58dae879e98ecdf8", list1[0].SHA256)
 
 	assert.Error(t, executor.BuildVersion())
 }
@@ -82,13 +82,11 @@ func TestExecutorVersion_SyncLatestVersionToAllDomain(t *testing.T) {
 
 	assert.NoError(t, reinitializeDomainWithWebFeature(stage))
 
-	// TODO change feature relation, and test re sync will bu jian rong
-
 	list2, err := executor.GetFeature()
 	assert.NoError(t, err)
 	assert.Len(t, list2, 0)
 
-	list3, err := executor.NormalDomainGetFeature()
+	list3, err := executor.NormalDomainGetFeatureObject()
 	assert.NoError(t, err)
 	assert.Len(t, list3, 5)
 
@@ -97,7 +95,7 @@ func TestExecutorVersion_SyncLatestVersionToAllDomain(t *testing.T) {
 	assert.Len(t, list4, 1)
 
 	provider.User = stage.MemberUser
-	list13, err := executor.NormalDomainGetFeature()
+	list13, err := executor.NormalDomainGetFeatureObject()
 	assert.NoError(t, err)
 	assert.Len(t, list13, 0)
 

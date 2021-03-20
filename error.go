@@ -13,6 +13,7 @@ var (
 	ErrCantChangeObjectType = fmt.Errorf("can't change object type")
 	ErrInValidParentObject  = fmt.Errorf("invalid parent object")
 	ErrParentCanNotBeItself = fmt.Errorf("parent id can't be it self id")
+	ErrInValidAction        = fmt.Errorf("invalid action")
 
 	// errors about permission
 	ErrNoReadPermission       = fmt.Errorf("no read permission")

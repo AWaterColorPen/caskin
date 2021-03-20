@@ -8,11 +8,8 @@ import (
 
 func (e *Executor) AuthBackendAPIEnforce(backend *Backend) error {
 	object, err := e.getBackendAPIObject(backend)
-	if err != nil {
-		return err
-	}
-	if object == nil {
-		return caskin.ErrNoBackendAPIPermission
+	if err != nil || object == nil{
+		object = &caskin.SampleNoPermissionObject{}
 	}
 	if e.check(object) != nil {
 		return caskin.ErrNoBackendAPIPermission

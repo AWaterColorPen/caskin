@@ -12,6 +12,7 @@ var (
 
 	DefaultSuperadminRoleName   = "superadmin_role"
 	DefaultSuperadminDomainName = "superadmin_domain"
+	DefaultNoPermissionObject   = "no_permission_object"
 
 	// default
 	DefaultSeparator = "$$"
@@ -57,7 +58,7 @@ func (o *Options) GetSuperadminRole() Role {
 		return o.SuperadminOption.Role()
 	}
 
-	return &sampleSuperadminRole{}
+	return &SampleSuperadminRole{}
 }
 
 func (o *Options) GetSuperadminDomain() Domain {
@@ -69,7 +70,7 @@ func (o *Options) GetSuperadminDomain() Domain {
 		return o.SuperadminOption.Domain()
 	}
 
-	return &sampleSuperAdminDomain{}
+	return &SampleSuperAdminDomain{}
 }
 
 // DomainCreatorOption set the DomainCreator for the options

@@ -235,7 +235,7 @@ func TestExecutorObject_GeneralDelete(t *testing.T) {
 	object4 := &example.Object{ID: 1}
 	assert.Equal(t, caskin.ErrEmptyParentIdOrNotSuperadmin, executor.DeleteObject(object4))
 
-	// TODO: if object type == object, it will not recover it by admin user now
+	// TODO issue 2: if object type == object, it will not recover it by admin user now. we want to support it by a special API
 	// want to support it by a special API
 	object3 := &example.Object{ID: 4, ParentID: 1}
 	assert.Equal(t, caskin.ErrNoWritePermission, executor.RecoverObject(object3))

@@ -86,13 +86,13 @@ func TestExecutorRelation_ModifyFeatureRelationPerFeature(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Len(t, feature, 5)
 
-	relation1 := web_feature.Relation{uint64(1), uint64(7), uint64(8), uint64(12), uint64(14)}
+	relation1 := web_feature.Relation{uint64(1), superObjectID+3, frontendStartID, backendStartID, backendStartID+2}
 	assert.NoError(t, executor.ModifyFeatureRelationPerFeature(feature[1].Object, relation1))
 	list1, err := executor.GetFeatureRelationByFeature(feature[1].Object)
 	assert.NoError(t, err)
 	assert.Len(t, list1, 4)
-	assert.Equal(t, list1[0], uint64(7))
-	assert.Equal(t, list1[1], uint64(8))
-	assert.Equal(t, list1[2], uint64(12))
-	assert.Equal(t, list1[3], uint64(14))
+	assert.Equal(t, list1[0], superObjectID+3)
+	assert.Equal(t, list1[1], frontendStartID)
+	assert.Equal(t, list1[2], backendStartID)
+	assert.Equal(t, list1[3], backendStartID+2)
 }

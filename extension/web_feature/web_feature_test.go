@@ -10,10 +10,10 @@ import (
 )
 
 const (
-	superObjectID   = uint64(4)
-	frontendStartID = uint64(8)
-	backendStartID  = uint64(12)
-	featureStartID  = uint64(19)
+	superObjectID   = uint64(6)
+	frontendStartID = uint64(10)
+	backendStartID  = uint64(14)
+	featureStartID  = uint64(21)
 )
 
 func TestWebFeature(t *testing.T) {
@@ -24,7 +24,7 @@ func TestWebFeature(t *testing.T) {
 
 	object1 := web_feature.GetFeatureRootObject()
 	assert.NotNil(t, object1)
-	assert.Equal(t, uint64(frontendStartID-3), object1.GetID())
+	assert.Equal(t, frontendStartID-3, object1.GetID())
 	feature, err := caskin.Object2CustomizedData(object1, web_feature.FeatureFactory)
 	assert.NoError(t, err)
 	assert.Equal(t, web_feature.DefaultFeatureRootName, feature.(*web_feature.Feature).Name)
@@ -33,7 +33,7 @@ func TestWebFeature(t *testing.T) {
 
 	object2 := web_feature.GetFrontendRootObject()
 	assert.NotNil(t, object2)
-	assert.Equal(t, uint64(frontendStartID-2), object2.GetID())
+	assert.Equal(t, frontendStartID-2, object2.GetID())
 	frontend, err := caskin.Object2CustomizedData(object2, web_feature.FrontendFactory)
 	assert.NoError(t, err)
 	assert.Equal(t, web_feature.DefaultFrontendRootKey, frontend.(*web_feature.Frontend).Key)
@@ -43,7 +43,7 @@ func TestWebFeature(t *testing.T) {
 
 	object3 := web_feature.GetBackendRootObject()
 	assert.NotNil(t, object3)
-	assert.Equal(t, uint64(frontendStartID-1), object3.GetID())
+	assert.Equal(t, frontendStartID-1, object3.GetID())
 	backend, err := caskin.Object2CustomizedData(object3, web_feature.BackendFactory)
 	assert.NoError(t, err)
 	assert.Equal(t, web_feature.DefaultBackendRootPath, backend.(*web_feature.Backend).Path)
@@ -53,6 +53,9 @@ func TestWebFeature(t *testing.T) {
 }
 
 func newWebFeature(stage *example.Stage) (*web_feature.WebFeature, error) {
+	if err := stage.AddSubAdmin(); err != nil {
+		return nil, err
+	}
 	w, err := web_feature.New(stage.Caskin, nil)
 	if err != nil {
 		return nil, err
@@ -109,10 +112,10 @@ func newWebFeature(stage *example.Stage) (*web_feature.WebFeature, error) {
 
 	object := []caskin.Object{pair[1].Object, pair[2].Object, pair[3].Object, pair[4].Object}
 	relation := []web_feature.Relation{
-		{8, 12, 13},
-		{9, 14, 15},
-		{10, 16, 17},
-		{11, 17, 18},
+		{frontendStartID, backendStartID, backendStartID+1},
+		{frontendStartID+1, backendStartID+2, backendStartID+3},
+		{frontendStartID+2, backendStartID+4, backendStartID+5},
+		{frontendStartID+3, backendStartID+5, backendStartID+6},
 	}
 	for i := 0; i < 4; i++ {
 		if err := executor.ModifyFeatureRelationPerFeature(object[i], relation[i]); err != nil {

@@ -98,3 +98,23 @@ func relationsAction(in []interface{}, domain caskin.Domain, factory func() cask
 	}
 	return nil
 }
+
+func isValidAction(action caskin.Action) error {
+	if action != caskin.Read {
+		return caskin.ErrInValidAction
+	}
+	return nil
+}
+
+func isPolicyValidAction(policy *caskin.Policy) error {
+	return isValidAction(policy.Action)
+}
+
+func isPolicyListValidAction(list []*caskin.Policy) error {
+	for _, v := range list {
+		if err := isPolicyValidAction(v); err != nil {
+			return err
+		}
+	}
+	return nil
+}
