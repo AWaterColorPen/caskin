@@ -35,15 +35,21 @@ func SortedInheritanceRelation(relation InheritanceRelation) InheritanceRelation
 func Filter(e IEnforcer, u User, d Domain, action Action, source interface{}) []interface{} {
 	var result []interface{}
 	linq.From(source).Where(func(v interface{}) bool {
-		return Check(e, u, d, v.(ObjectData), action)
+		return CheckObjectData(e, u, d, v.(ObjectData), action)
 	}).ToSlice(&result)
 	return result
 }
 
-// Check check entry permission by u, d, action
-func Check(e IEnforcer, u User, d Domain, one ObjectData, action Action) bool {
+// CheckObjectData check object_data permission by u, d, action
+func CheckObjectData(e IEnforcer, u User, d Domain, one ObjectData, action Action) bool {
 	o := one.GetObject()
 	ok, _ := e.Enforce(u, o, d, action)
+	return ok
+}
+
+// CheckObject check object permission by u, d, action
+func CheckObject(e IEnforcer, u User, d Domain, one Object, action Action) bool {
+	ok, _ := e.Enforce(u, one, d, action)
 	return ok
 }
 

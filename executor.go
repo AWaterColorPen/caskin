@@ -32,13 +32,25 @@ func (e *Executor) filterWithNoError(user User, domain Domain, action Action, so
 	return Filter(e.Enforcer, user, domain, action, source)
 }
 
-func (e *Executor) check(one ObjectData, action Action) error {
+func (e *Executor) checkObjectData(one ObjectData, action Action) error {
+	return e.checkInternal(func(enforcer IEnforcer, user User, domain Domain) bool {
+		return CheckObjectData(e.Enforcer, user, domain, one, action)
+	}, action)
+}
+
+func (e *Executor) checkObject(one Object, action Action) error {
+	return e.checkInternal(func(enforcer IEnforcer, user User, domain Domain) bool {
+		return CheckObject(e.Enforcer, user, domain, one, action)
+	}, action)
+}
+
+func (e *Executor) checkInternal(fn func(IEnforcer, User, Domain) bool, action Action) error {
 	u, d, err := e.provider.Get()
 	if err != nil {
 		return err
 	}
 
-	if ok := Check(e.Enforcer, u, d, one, action); !ok {
+	if ok := fn(e.Enforcer, u, d); !ok {
 		switch action {
 		case Read:
 			return ErrNoReadPermission

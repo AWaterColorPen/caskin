@@ -139,8 +139,8 @@ func TestExecutorObjectData_Enforce(t *testing.T) {
 		ObjectID: 3,
 	}
 	assert.NoError(t, executor.CreateObjectDataCheckPermission(data1, caskin.ObjectTypeDefault))
-	assert.NoError(t, executor.Enforce(data1, caskin.Read))
-	assert.NoError(t, executor.Enforce(data1, caskin.Write))
+	assert.NoError(t, executor.EnforceObjectData(data1, caskin.Read))
+	assert.NoError(t, executor.EnforceObjectData(data1, caskin.Write))
 
 	data2 := &example.OneObjectData{
 		Name:     "object_data_2",
@@ -148,11 +148,11 @@ func TestExecutorObjectData_Enforce(t *testing.T) {
 	}
 	provider.User = stage.AdminUser
 	assert.NoError(t, executor.CreateObjectDataCheckPermission(data2, caskin.ObjectTypeRole))
-	assert.NoError(t, executor.Enforce(data2, caskin.Read))
-	assert.NoError(t, executor.Enforce(data2, caskin.Write))
+	assert.NoError(t, executor.EnforceObjectData(data2, caskin.Read))
+	assert.NoError(t, executor.EnforceObjectData(data2, caskin.Write))
 	provider.User = stage.SubAdminUser
-	assert.Equal(t, caskin.ErrNoReadPermission, executor.Enforce(data2, caskin.Read))
-	assert.Equal(t, caskin.ErrNoWritePermission, executor.Enforce(data2, caskin.Write))
+	assert.Equal(t, caskin.ErrNoReadPermission, executor.EnforceObjectData(data2, caskin.Read))
+	assert.Equal(t, caskin.ErrNoWritePermission, executor.EnforceObjectData(data2, caskin.Write))
 }
 
 func TestExecutorObjectData_FilterObjectData(t *testing.T) {

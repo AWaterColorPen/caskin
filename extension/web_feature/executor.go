@@ -72,5 +72,5 @@ func (e *Executor) filterWithNoError(source interface{}) []interface{} {
 func (e *Executor) check(object caskin.Object) error {
 	o := e.objectFactory()
 	o.SetObjectID(object.GetID())
-	return e.e.Enforce(o, caskin.Read)
+	return e.e.EnforceObjectData(o, caskin.Read)
 }

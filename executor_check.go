@@ -64,7 +64,7 @@ func (e *Executor) IDInterfaceModifyCheck(item idInterface) error {
 }
 
 func (e *Executor) objectDataWriteCheck(item ObjectData, ty ObjectType) error {
-	if err := e.check(item, Write); err != nil {
+	if err := e.checkObjectData(item, Write); err != nil {
 		return err
 	}
 	o := item.GetObject()
@@ -88,14 +88,14 @@ func (e *Executor) ObjectDataRecoverCheck(item ObjectData) error {
 	if err := e.DBRecoverCheck(item); err != nil {
 		return err
 	}
-	return e.check(item, Write)
+	return e.checkObjectData(item, Write)
 }
 
 func (e *Executor) ObjectDataDeleteCheck(item ObjectData) error {
 	if err := e.IDInterfaceDeleteCheck(item); err != nil {
 		return err
 	}
-	return e.check(item, Write)
+	return e.checkObjectData(item, Write)
 }
 
 func (e *Executor) ObjectDataUpdateCheck(item ObjectData, tmp ObjectData, ty ObjectType) error {
@@ -109,14 +109,14 @@ func (e *Executor) ObjectDataGetCheck(item ObjectData) error {
 	if err := e.IDInterfaceGetCheck(item); err != nil {
 		return err
 	}
-	return e.check(item, Read)
+	return e.checkObjectData(item, Read)
 }
 
 func (e *Executor) ObjectDataModifyCheck(item ObjectData) error {
 	if err := e.IDInterfaceModifyCheck(item); err != nil {
 		return err
 	}
-	return e.check(item, Write)
+	return e.checkObjectData(item, Write)
 }
 
 func (e *Executor) treeNodeEntryUpdateCheck(item TreeNodeEntry, tmp1 TreeNodeEntry, tmp2 TreeNodeEntry, ty ObjectType) error {

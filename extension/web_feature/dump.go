@@ -204,6 +204,7 @@ func (d *DumpFileStruct) ExportToWebFeature(w *WebFeature) error {
 		}
 		indexBa[uint64(i)] = o.GetID()
 	}
+	
 	return nil
 }
 
@@ -226,3 +227,12 @@ func treeToVirtualIndexTree(tree, viTree Relations, index map[uint64]uint64) {
 		viTree[index[k]] = vi
 	}
 }
+
+// func topSort(tree Relations)  {
+// 	inDegree := map[uint64]int{}
+// 	for k := range tree {
+// 		inDegree[k] = 0
+// 	}
+//
+// 	for _,
+// }
