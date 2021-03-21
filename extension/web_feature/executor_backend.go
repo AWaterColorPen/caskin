@@ -53,6 +53,7 @@ func (e *Executor) GetBackend() ([]*caskin.CustomizedDataPair, error) {
 
 func (e *Executor) takeBackend(backend *Backend) (caskin.Object, error) {
 	object := e.objectFactory()
-	caskin.CustomizedData2Object(backend, object)
+	object.SetName(backend.GetName())
+	object.SetObjectType(backend.GetObjectType())
 	return object, e.e.DB.Take(object)
 }

@@ -28,6 +28,7 @@ func TestExecutorAuthBackend_Enforce(t *testing.T) {
 	provider.Domain = stage.Domain
 	provider.User = stage.AdminUser
 	assert.NoError(t, executor.AuthBackendAPIEnforce(&web_feature.Backend{Path: "api/backend", Method: "GET"}))
+	assert.NoError(t, executor.AuthBackendAPIEnforce(&web_feature.Backend{Path: "api/backend", Method: "GET", Group: "xxx"}))
 	assert.Equal(t, caskin.ErrNoBackendAPIPermission, executor.AuthBackendAPIEnforce(&web_feature.Backend{Path: "api/backend"}))
 
 	provider.User = stage.SubAdminUser
