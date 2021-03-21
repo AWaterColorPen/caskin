@@ -40,7 +40,7 @@ func (e *Executor) DefaultObjectParentDelFunc() TreeNodeEntryParentDelFunc {
 }
 
 func (e *Executor) DefaultRoleUpdater() *treeNodeEntryUpdater {
-	return NewTreeNodeEntryUpdater(e.newObject, e.DefaultRoleParentGetFunc(), e.DefaultRoleParentAddFunc(), e.DefaultRoleParentDelFunc())
+	return NewTreeNodeEntryUpdater(e.newRole, e.DefaultRoleParentGetFunc(), e.DefaultRoleParentAddFunc(), e.DefaultRoleParentDelFunc())
 }
 
 func (e *Executor) DefaultRoleDeleteFunc() TreeNodeEntryDeleteFunc {
