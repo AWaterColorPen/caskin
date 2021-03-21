@@ -5,7 +5,7 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"fmt"
-	"os"
+	"io/ioutil"
 
 	"github.com/awatercolorpen/caskin"
 )
@@ -151,27 +151,9 @@ func (d *DumpFileStruct) ImportFromDump(dump *Dump) error {
 		indexBa[v.Object.GetID()] = uint64(i)
 	}
 
-	for k, node := range dump.FeatureTree {
-		var tree []uint64
-		for _, v := range node {
-			tree = append(tree, indexFe[v])
-		}
-		d.VirtualIndexFeatureTree[indexFe[k]] = tree
-	}
-	for k, node := range dump.FrontendTree {
-		var tree []uint64
-		for _, v := range node {
-			tree = append(tree, indexFr[v])
-		}
-		d.VirtualIndexFrontendTree[indexFr[k]] = tree
-	}
-	for k, node := range dump.BackendTree {
-		var tree []uint64
-		for _, v := range node {
-			tree = append(tree, indexBa[v])
-		}
-		d.VirtualIndexBackendTree[indexBa[k]] = tree
-	}
+	treeToVirtualIndexTree(dump.FeatureTree, d.VirtualIndexFeatureTree, indexFe)
+	treeToVirtualIndexTree(dump.FrontendTree, d.VirtualIndexFrontendTree, indexFr)
+	treeToVirtualIndexTree(dump.BackendTree, d.VirtualIndexBackendTree, indexBa)
 
 	for k, node := range dump.FeatureRelation {
 		var tree []uint64
@@ -189,7 +171,9 @@ func (d *DumpFileStruct) ImportFromDump(dump *Dump) error {
 }
 
 func (d *DumpFileStruct) ImportFromFile(name string) error {
-	b, err := os.ReadFile(name)
+	// go 1.16
+	// b, err := os.ReadFile(name)
+	b, err := ioutil.ReadFile(name)
 	if err != nil {
 		return err
 	}
@@ -197,6 +181,29 @@ func (d *DumpFileStruct) ImportFromFile(name string) error {
 }
 
 func (d *DumpFileStruct) ExportToWebFeature(w *WebFeature) error {
+	var executor *Executor
+	indexFe, indexFr, indexBa := map[uint64]uint64{}, map[uint64]uint64{}, map[uint64]uint64{}
+	for i, v := range d.Feature {
+		o := executor.objectFactory()
+		if err := executor.CreateFeature(v, o); err != nil {
+			return err
+		}
+		indexFe[uint64(i)] = o.GetID()
+	}
+	for i, v := range d.Frontend {
+		o := executor.objectFactory()
+		if err := executor.CreateFrontend(v, o); err != nil {
+			return err
+		}
+		indexFr[uint64(i)] = o.GetID()
+	}
+	for i, v := range d.Backend {
+		o := executor.objectFactory()
+		if err := executor.CreateBackend(v, o); err != nil {
+			return err
+		}
+		indexBa[uint64(i)] = o.GetID()
+	}
 	return nil
 }
 
@@ -205,5 +212,17 @@ func (d *DumpFileStruct) ExportToFile(name string) error {
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(name, b, 0644)
+	return ioutil.WriteFile(name, b, 0644)
+	// go 1.16
+	// return os.WriteFile(name, b, 0644)
+}
+
+func treeToVirtualIndexTree(tree, viTree Relations, index map[uint64]uint64) {
+	for k, node := range tree {
+		var vi []uint64
+		for _, v := range node {
+			vi = append(vi, index[v])
+		}
+		viTree[index[k]] = vi
+	}
 }
