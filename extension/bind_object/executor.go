@@ -121,7 +121,7 @@ type Executor struct {
 //	}
 //
 //	fn := func(domain Domain) error {
-//		if err := b.DB.Update(item, bind); err != nil {
+//		if err := b.DB.Run(item, bind); err != nil {
 //			return err
 //		}
 //		updater := b.e.objectParentUpdater()

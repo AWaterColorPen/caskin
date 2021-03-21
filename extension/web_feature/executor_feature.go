@@ -29,22 +29,22 @@ func (e *Executor) DeleteFeature(object caskin.Object) error {
 	if err := e.operationPermissionCheck(); err != nil {
 		return err
 	}
+
 	object.SetObjectType((&Feature{}).GetObjectType())
 	if err := e.e.ObjectDataDeleteCheck(object); err != nil {
 		return err
 	}
-	// TODO public Check And TreeNodeEntryDeleter
-	//if err := e.objectTreeNodeParentCheck(object); err != nil {
-	//	return err
-	//}
+
+	if err := e.e.ObjectTreeNodeParentCheck(object); err != nil {
+		return err
+	}
 
 	provider := e.e.GetCurrentProvider()
 	_, domain, _ := provider.Get()
 	object.SetDomainID(domain.GetID())
-	//deleter := newParentEntryDeleter(e.objectChildrenFn(), e.objectDeleteFn())
-	//return deleter.dfs(object, domain)
+	deleter := caskin.NewTreeNodeEntryDeleter(e.featureChildrenGetFunc(), e.e.DefaultObjectDeleteFunc())
 
-	return e.e.DeleteObjectWithCustomizedData(&Feature{}, object)
+	return deleter.Run(object, domain)
 }
 
 func (e *Executor) UpdateFeature(feature *Feature, object caskin.Object) error {
@@ -64,4 +64,19 @@ func (e *Executor) GetFeature() ([]*caskin.CustomizedDataPair, error) {
 		return nil, err
 	}
 	return caskin.ObjectArray2CustomizedDataPair(objects, FeatureFactory)
+}
+
+func (e *Executor) featureChildrenGetFunc() caskin.TreeNodeEntryChildrenGetFunc {
+	feature, _ := e.GetFeature()
+	index := initTreeMapFromPair(feature)
+	return func(p caskin.TreeNodeEntry, domain caskin.Domain) []caskin.TreeNodeEntry {
+		var out []caskin.TreeNodeEntry
+		in := e.e.Enforcer.GetChildrenForObjectInDomain(p.(caskin.Object), domain)
+		for _, v := range in {
+			if _, ok := index[v.GetID()]; ok {
+				out = append(out, v)
+			}
+		}
+		return out
+	}
 }

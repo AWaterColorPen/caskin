@@ -23,9 +23,3 @@ type treeNode interface {
 	// set parent id method
 	SetParentID(uint64)
 }
-
-type treeNodeEntry interface {
-	entry
-	treeNode
-	ObjectData
-}

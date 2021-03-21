@@ -222,9 +222,10 @@ func TestExecutorRole_DeleteSubNode(t *testing.T) {
 	assert.NoError(t, executor.CreateRole(role1))
 	pair1, err := executor.GetUserRolePairByUser(stage.SubAdminUser)
 	assert.NoError(t, err)
+	assert.Len(t, pair1, 1)
+
 	pair1 = append(pair1, &caskin.UserRolePair{User: stage.SubAdminUser, Role: role1})
 	assert.NoError(t, executor.ModifyUserRolePairPerUser(stage.SubAdminUser, pair1))
-
 	pair2, err := executor.GetUserRolePairByUser(stage.SubAdminUser)
 	assert.NoError(t, err)
 	assert.Len(t, pair2, 2)

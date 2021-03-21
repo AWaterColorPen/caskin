@@ -20,16 +20,22 @@ type ObjectData interface {
 	SetDomainID(uint64)
 }
 
+type TreeNodeEntry interface {
+	entry
+	treeNode
+	ObjectData
+}
+
 type User interface {
 	entry
 }
 
 type Role interface {
-	treeNodeEntry
+	TreeNodeEntry
 }
 
 type Object interface {
-	treeNodeEntry
+	TreeNodeEntry
 	GetName() string
 	SetName(string)
 	GetObjectType() ObjectType

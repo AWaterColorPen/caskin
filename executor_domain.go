@@ -40,8 +40,8 @@ func (e *Executor) DeleteDomain(domain Domain) error {
 
 // UpdateDomain
 // if there exist the domain
-// update domain without permission checking
-// 1. just update domain's properties
+// Run domain without permission checking
+// 1. just Run domain's properties
 func (e *Executor) UpdateDomain(domain Domain) error {
 	tmp := e.factory.NewDomain()
 	if err := e.IDInterfaceUpdateCheck(domain, tmp); err != nil {

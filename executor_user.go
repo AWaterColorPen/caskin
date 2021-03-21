@@ -45,8 +45,8 @@ func (e *Executor) DeleteUser(user User) error {
 
 // UpdateUser
 // if there exist the user
-// update user without permission checking
-// 1. just update user's properties
+// Run user without permission checking
+// 1. just Run user's properties
 func (e *Executor) UpdateUser(user User) error {
 	tmp := e.factory.NewUser()
 	if err := e.IDInterfaceUpdateCheck(user, tmp); err != nil {

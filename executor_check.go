@@ -119,7 +119,7 @@ func (e *Executor) ObjectDataModifyCheck(item ObjectData) error {
 	return e.check(item, Write)
 }
 
-func (e *Executor) treeNodeEntryUpdateCheck(item treeNodeEntry, tmp1 treeNodeEntry, tmp2 treeNodeEntry, ty ObjectType) error {
+func (e *Executor) treeNodeEntryUpdateCheck(item TreeNodeEntry, tmp1 TreeNodeEntry, tmp2 TreeNodeEntry, ty ObjectType) error {
 	if err := e.ObjectDataUpdateCheck(item, tmp1, ty); err != nil {
 		return err
 	}
@@ -129,7 +129,7 @@ func (e *Executor) treeNodeEntryUpdateCheck(item treeNodeEntry, tmp1 treeNodeEnt
 	return e.treeNodeEntryParentCheck(tmp1, tmp2)
 }
 
-func (e *Executor) treeNodeEntryParentCheck(item treeNodeEntry, parent treeNodeEntry) error {
+func (e *Executor) treeNodeEntryParentCheck(item TreeNodeEntry, parent TreeNodeEntry) error {
 	if isRoot(item) {
 		return nil
 	}
@@ -150,10 +150,10 @@ func (e *Executor) objectTreeNodeUpdateCheck(item Object, tmp Object) error {
 	if item.GetObjectType() != tmp.GetObjectType() {
 		return ErrCantChangeObjectType
 	}
-	return e.objectTreeNodeParentCheck(tmp)
+	return e.ObjectTreeNodeParentCheck(tmp)
 }
 
-func (e *Executor) objectTreeNodeParentCheck(object Object) error {
+func (e *Executor) ObjectTreeNodeParentCheck(object Object) error {
 	if isRoot(object) {
 		return e.rootObjectPermissionCheck()
 	}
