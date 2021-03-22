@@ -88,7 +88,7 @@ func (e *Executor) UpdateObject(object Object) error {
 
 // GetObject
 // if current user has object's read permission
-// 1. get objects by ty
+// 1. get objects by type
 func (e *Executor) GetObjects(ty ...ObjectType) ([]Object, error) {
 	currentUser, currentDomain, err := e.provider.Get()
 	if err != nil {
@@ -104,9 +104,9 @@ func (e *Executor) GetObjects(ty ...ObjectType) ([]Object, error) {
 }
 
 // GetExplicitObjects
-// if current user has explicit object's read permission
-// 1. get objects by ty
-func (e *Executor) GetExplicitObjects(ty ...ObjectType) ([]Object, error) {
+// if current user has explicit object's action permission
+// 1. get objects by type and action
+func (e *Executor) GetExplicitObjects(action Action, ty ...ObjectType) ([]Object, error) {
 	_, currentDomain, err := e.provider.Get()
 	if err != nil {
 		return nil, err
@@ -115,6 +115,6 @@ func (e *Executor) GetExplicitObjects(ty ...ObjectType) ([]Object, error) {
 	if err != nil {
 		return nil, err
 	}
-	return e.FilterObject(objects, Read)
+	return e.FilterObject(objects, action)
 }
 
