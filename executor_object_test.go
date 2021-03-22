@@ -34,6 +34,24 @@ func TestExecutorObject_GetObjects(t *testing.T) {
 	assert.Len(t, objects4, 0)
 }
 
+func TestExecutorObject_GetExplicitObjects(t *testing.T) {
+	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
+	provider := caskin.NewCachedProvider(nil, nil)
+	executor := stage.Caskin.GetExecutor(provider)
+
+	provider.Domain = stage.Domain
+	provider.User = stage.AdminUser
+	objects1, err := executor.GetExplicitObjects(caskin.ObjectTypeObject, caskin.ObjectTypeRole)
+	assert.NoError(t, err)
+	assert.Len(t, objects1, 2)
+
+	provider.Domain = stage.Domain
+	provider.User = stage.MemberUser
+	objects2, err := executor.GetExplicitObjects()
+	assert.NoError(t, err)
+	assert.Len(t, objects2, 1)
+}
+
 func TestExecutorObject_GeneralCreate(t *testing.T) {
 	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
 	provider := caskin.NewCachedProvider(nil, nil)

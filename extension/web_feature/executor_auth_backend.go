@@ -11,7 +11,7 @@ func (e *Executor) AuthBackendAPIEnforce(backend *Backend) error {
 	if err != nil || object == nil{
 		object = &caskin.SampleNoPermissionObject{}
 	}
-	if e.check(object) != nil {
+	if e.e.EnforceObject(object, caskin.Read) != nil {
 		return caskin.ErrNoBackendAPIPermission
 	}
 	return nil

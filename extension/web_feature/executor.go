@@ -1,7 +1,6 @@
 package web_feature
 
 import (
-	"github.com/ahmetb/go-linq/v3"
 	"github.com/awatercolorpen/caskin"
 )
 
@@ -59,18 +58,4 @@ func (e *Executor) operationPermissionCheck() error {
 		return caskin.ErrCanOnlyAllowAtValidDomain
 	}
 	return nil
-}
-
-func (e *Executor) filterWithNoError(source interface{}) []interface{} {
-	var result []interface{}
-	linq.From(source).Where(func(v interface{}) bool {
-		return e.check(v.(caskin.Object)) == nil
-	}).ToSlice(&result)
-	return result
-}
-
-func (e *Executor) check(object caskin.Object) error {
-	o := e.objectFactory()
-	o.SetObjectID(object.GetID())
-	return e.e.EnforceObjectData(o, caskin.Read)
 }

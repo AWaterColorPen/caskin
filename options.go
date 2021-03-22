@@ -1,14 +1,12 @@
 package caskin
 
 import (
-	"math"
-
 	"github.com/casbin/casbin/v2"
 )
 
 var (
-	DefaultSuperadminRoleID   uint64 = math.MaxInt32
-	DefaultSuperadminDomainID uint64 = math.MaxInt32
+	DefaultSuperadminRoleID   uint64 = 0
+	DefaultSuperadminDomainID uint64 = 0
 
 	DefaultSuperadminRoleName   = "superadmin_role"
 	DefaultSuperadminDomainName = "superadmin_domain"

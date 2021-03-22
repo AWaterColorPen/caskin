@@ -22,8 +22,6 @@ func (e *Executor) GetUserRolePair() ([]*UserRolePair, error) {
 		return nil, err
 	}
 
-	// rs := e.Enforcer.GetRolesInDomain(currentDomain)
-	// tree := getTree(rs)
 	roles, err := e.DB.GetRoleInDomain(currentDomain)
 	if err != nil {
 		return nil, err
@@ -31,11 +29,6 @@ func (e *Executor) GetUserRolePair() ([]*UserRolePair, error) {
 	rs := e.filterWithNoError(currentUser, currentDomain, Read, roles)
 	linq.From(rs).ToSlice(&roles)
 	rm := Roles(roles).IDMap()
-	// for _, v := range roles {
-	// 	if p, ok := tree[v.GetID()]; ok {
-	// 		v.SetParentID(p)
-	// 	}
-	// }
 
 	var list []*UserRolePair
 	for _, v := range users {

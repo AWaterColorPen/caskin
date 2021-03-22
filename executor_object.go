@@ -102,3 +102,19 @@ func (e *Executor) GetObjects(ty ...ObjectType) ([]Object, error) {
 	linq.From(os).ToSlice(&objects)
 	return objects, nil
 }
+
+// GetExplicitObjects
+// if current user has explicit object's read permission
+// 1. get objects by ty
+func (e *Executor) GetExplicitObjects(ty ...ObjectType) ([]Object, error) {
+	_, currentDomain, err := e.provider.Get()
+	if err != nil {
+		return nil, err
+	}
+	objects, err := e.DB.GetObjectInDomain(currentDomain, ty...)
+	if err != nil {
+		return nil, err
+	}
+	return e.FilterObject(objects, Read)
+}
+

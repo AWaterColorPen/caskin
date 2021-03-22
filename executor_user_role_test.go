@@ -165,6 +165,7 @@ func TestExecutorUserRole_ModifyUserRolePairPerRole(t *testing.T) {
 	list1, err := executor.GetUserRolePair()
 	assert.NoError(t, err)
 	assert.Len(t, list1, 2)
+	assert.NoError(t, executor.ModifyUserRolePairPerRole(roles1[0], pair2))
 
 	provider.User = stage.AdminUser
 	pair3 := []*caskin.UserRolePair{

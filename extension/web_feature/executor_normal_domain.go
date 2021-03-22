@@ -10,9 +10,7 @@ func (e *Executor) NormalDomainGetFeatureObject() ([]caskin.Object, error) {
 	if err != nil {
 		return nil, err
 	}
-	os := e.filterWithNoError(objects)
-	linq.From(os).ToSlice(&objects)
-	return objects, nil
+	return e.e.FilterObject(objects, caskin.Read)
 }
 
 func (e *Executor) NormalDomainGetPolicyList() ([]*caskin.Policy, error) {
@@ -36,8 +34,10 @@ func (e *Executor) NormalDomainGetPolicyList() ([]*caskin.Policy, error) {
 	if err != nil {
 		return nil, err
 	}
-	out2 := e.filterWithNoError(objects)
-	linq.From(out2).ToSlice(&objects)
+	objects, err = e.e.FilterObject(objects, caskin.Read)
+	if err != nil {
+		return nil, err
+	}
 	om := caskin.Objects(objects).IDMap()
 
 	var list []*caskin.Policy
@@ -73,8 +73,10 @@ func (e *Executor) NormalDomainGetPolicyListByRole(role caskin.Role) ([]*caskin.
 	if err != nil {
 		return nil, err
 	}
-	out2 := e.filterWithNoError(objects)
-	linq.From(out2).ToSlice(&objects)
+	objects, err = e.e.FilterObject(objects, caskin.Read)
+	if err != nil {
+		return nil, err
+	}
 	om := caskin.Objects(objects).IDMap()
 
 	var list []*caskin.Policy
@@ -114,8 +116,10 @@ func (e *Executor) NormalDomainModifyPolicyListPerRole(role caskin.Role, input [
 	if err != nil {
 		return err
 	}
-	out2 := e.filterWithNoError(objects)
-	linq.From(out2).ToSlice(&objects)
+	objects, err = e.e.FilterObject(objects, caskin.Read)
+	if err != nil {
+		return err
+	}
 	om := caskin.Objects(objects).IDMap()
 
 	// make source and target role id list

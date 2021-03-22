@@ -13,7 +13,7 @@ func (e *Executor) AuthFrontend() []*Frontend {
 	var res []*Frontend
 	frontend, _ := e.getFrontend()
 	for _, v := range frontend {
-		if e.check(v.Object) == nil {
+		if e.e.EnforceObject(v.Object, caskin.Read) == nil {
 			res = append(res, v.ObjectCustomizedData.(*Frontend))
 		}
 	}
