@@ -112,10 +112,10 @@ func newWebFeature(stage *example.Stage) (*web_feature.WebFeature, error) {
 
 	object := []caskin.Object{pair[1].Object, pair[2].Object, pair[3].Object, pair[4].Object}
 	relation := []web_feature.Relation{
-		{frontendStartID, backendStartID, backendStartID+1},
-		{frontendStartID+1, backendStartID+2, backendStartID+3},
-		{frontendStartID+2, backendStartID+4, backendStartID+5},
-		{frontendStartID+3, backendStartID+5, backendStartID+6},
+		{frontendStartID, backendStartID, backendStartID + 1},
+		{frontendStartID + 1, backendStartID + 2, backendStartID + 3},
+		{frontendStartID + 2, backendStartID + 4, backendStartID + 5},
+		{frontendStartID + 3, backendStartID + 5, backendStartID + 6},
 	}
 	for i := 0; i < 4; i++ {
 		if err := executor.ModifyFeatureRelationPerFeature(object[i], relation[i]); err != nil {

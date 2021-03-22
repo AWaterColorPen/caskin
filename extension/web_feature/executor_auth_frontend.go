@@ -37,5 +37,7 @@ func (e *Executor) AuthFrontendCaskinStruct(subject string) (*CasbinStruct, erro
 	for _, v := range frontend {
 		casbin.P = append(casbin.P, []string{"p", subject, domain.Encode(), v.GetName(), string(caskin.Read)})
 	}
+
+	casbin.M = e.modelText
 	return casbin, nil
 }

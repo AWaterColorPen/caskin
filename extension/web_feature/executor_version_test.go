@@ -122,7 +122,7 @@ func TestExecutorVersion_SyncCompatible(t *testing.T) {
 	provider.Domain = stage.Options.GetSuperadminDomain()
 	provider.User = stage.SuperadminUser
 	assert.NoError(t, executor.DeleteFeature(&example.Object{ID: featureStartID}))
-	assert.NoError(t, executor.DeleteBackend(&example.Object{ID: backendStartID+1}))
+	assert.NoError(t, executor.DeleteBackend(&example.Object{ID: backendStartID + 1}))
 
 	provider.Domain = stage.Options.GetSuperadminDomain()
 	provider.User = stage.SuperadminUser
@@ -161,7 +161,7 @@ func TestExecutorVersion_SyncToUpdateAuth(t *testing.T) {
 	provider.Domain = stage.Options.GetSuperadminDomain()
 	provider.User = stage.SuperadminUser
 	assert.NoError(t, executor.DeleteFeature(&example.Object{ID: featureStartID}))
-	assert.NoError(t, executor.DeleteBackend(&example.Object{ID: backendStartID+1}))
+	assert.NoError(t, executor.DeleteBackend(&example.Object{ID: backendStartID + 1}))
 
 	// before sync, it should have permission if the object of backend and frontend is not deleted
 	// before sync, it can not manage feature policy any more

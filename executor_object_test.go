@@ -41,13 +41,13 @@ func TestExecutorObject_GetExplicitObjects(t *testing.T) {
 
 	provider.Domain = stage.Domain
 	provider.User = stage.AdminUser
-	objects1, err := executor.GetExplicitObjects(caskin.ObjectTypeObject, caskin.ObjectTypeRole)
+	objects1, err := executor.GetExplicitObjects(caskin.Read, caskin.ObjectTypeObject, caskin.ObjectTypeRole)
 	assert.NoError(t, err)
 	assert.Len(t, objects1, 2)
 
 	provider.Domain = stage.Domain
 	provider.User = stage.MemberUser
-	objects2, err := executor.GetExplicitObjects()
+	objects2, err := executor.GetExplicitObjects(caskin.Read)
 	assert.NoError(t, err)
 	assert.Len(t, objects2, 1)
 }

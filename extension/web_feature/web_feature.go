@@ -5,8 +5,9 @@ import (
 )
 
 type WebFeature struct {
-	caskin  *caskin.Caskin
-	options *Options
+	caskin    *caskin.Caskin
+	options   *Options
+	modelText string
 }
 
 func (w *WebFeature) GetExecutor(provider caskin.CurrentProvider) *Executor {
@@ -16,6 +17,7 @@ func (w *WebFeature) GetExecutor(provider caskin.CurrentProvider) *Executor {
 		objectFactory:             w.caskin.GetOptions().EntryFactory.NewObject,
 		operationDomain:           w.operationDomain(),
 		enableBackendAPIAuthCache: w.enableBackendAPIAuthCache(),
+		modelText:                 w.modelText,
 	}
 }
 
@@ -30,10 +32,15 @@ func (w *WebFeature) enableBackendAPIAuthCache() bool {
 	return !(w.options != nil && w.options.DisableCache)
 }
 
-func New(caskin *caskin.Caskin, options *Options) (w *WebFeature, err error) {
+func New(c *caskin.Caskin, options *Options) (w *WebFeature, err error) {
+	modelText, err := caskin.CasbinModelText(c.GetOptions())
+	if err != nil {
+		return
+	}
 	w = &WebFeature{
-		caskin:  caskin,
-		options: options,
+		caskin:    c,
+		options:   options,
+		modelText: modelText,
 	}
 
 	err = w.caskin.GetOptions().MetaDB.AutoMigrate(&WebFeatureVersion{})

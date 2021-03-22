@@ -204,7 +204,7 @@ func (d *DumpFileStruct) ExportToWebFeature(w *WebFeature) error {
 		}
 		indexBa[uint64(i)] = o.GetID()
 	}
-	
+
 	return nil
 }
 

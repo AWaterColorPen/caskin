@@ -117,4 +117,3 @@ func (e *Executor) GetExplicitObjects(action Action, ty ...ObjectType) ([]Object
 	}
 	return e.FilterObject(objects, action)
 }
-

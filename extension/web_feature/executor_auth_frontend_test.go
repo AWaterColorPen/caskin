@@ -29,7 +29,7 @@ func TestExecutorAuthFrontend_CaskinStruct(t *testing.T) {
 
 	c1, err := executor.AuthFrontendCaskinStruct("abc")
 	assert.NoError(t, err)
-	assert.Equal(t, "", c1.M)
+	assert.Len(t, c1.M, 324)
 	assert.Len(t, c1.G, 0)
 	assert.Len(t, c1.G2, 0)
 	assert.Len(t, c1.P, 4)

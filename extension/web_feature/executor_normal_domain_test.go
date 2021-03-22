@@ -112,8 +112,8 @@ func TestExecutorNormalDomain_PolicyList(t *testing.T) {
 	// can modify feature policy by WebFeature.Executor
 	input2 := []*caskin.Policy{
 		policy1[0], policy1[1], policy1[2], policy1[3],
-		{roles[2], &example.Object{ID: featureStartID+1}, stage.Domain, caskin.Read},
-		{roles[2], &example.Object{ID: featureStartID+1}, stage.Domain, caskin.Write},
+		{roles[2], &example.Object{ID: featureStartID + 1}, stage.Domain, caskin.Read},
+		{roles[2], &example.Object{ID: featureStartID + 1}, stage.Domain, caskin.Write},
 	}
 	provider.User = stage.AdminUser
 	assert.Equal(t, caskin.ErrInValidAction, executor.NormalDomainModifyPolicyListPerRole(roles[2], input2))
