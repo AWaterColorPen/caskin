@@ -21,13 +21,12 @@ func (e *Executor) AuthFrontend() []*Frontend {
 }
 
 func (e *Executor) AuthFrontendCaskinStruct(subject string) (*CasbinStruct, error) {
-	casbin := &CasbinStruct{}
+	casbin := &CasbinStruct{M: e.modelText}
 	provider := e.e.GetCurrentProvider()
 	_, domain, err := provider.Get()
 	if err != nil {
-		return nil, err
+		return casbin, err
 	}
-	casbin.M = e.modelText
 	if e.e.IsSuperadminCheck() == nil && domain.Encode() == e.operationDomain.Encode() {
 		casbin.G = append(casbin.G, []string{"g", subject, caskin.SuperadminRole, e.operationDomain.Encode()})
 		return casbin, nil
