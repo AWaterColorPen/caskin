@@ -49,6 +49,7 @@ func TestExecutorAuthFrontend_CaskinStruct(t *testing.T) {
 	provider.Domain = stage.Options.GetSuperadminDomain()
 	c4, err := executor.AuthFrontendCaskinStruct("abc")
 	assert.NoError(t, err)
+	assert.Len(t, c1.M, 324)
 	assert.Len(t, c4.G, 1)
 	assert.Len(t, c4.G2, 0)
 	assert.Len(t, c4.P, 0)

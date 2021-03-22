@@ -27,7 +27,7 @@ func (e *Executor) AuthFrontendCaskinStruct(subject string) (*CasbinStruct, erro
 	if err != nil {
 		return nil, err
 	}
-
+	casbin.M = e.modelText
 	if e.e.IsSuperadminCheck() == nil && domain.Encode() == e.operationDomain.Encode() {
 		casbin.G = append(casbin.G, []string{"g", subject, caskin.SuperadminRole, e.operationDomain.Encode()})
 		return casbin, nil
@@ -37,7 +37,5 @@ func (e *Executor) AuthFrontendCaskinStruct(subject string) (*CasbinStruct, erro
 	for _, v := range frontend {
 		casbin.P = append(casbin.P, []string{"p", subject, domain.Encode(), v.GetName(), string(caskin.Read)})
 	}
-
-	casbin.M = e.modelText
 	return casbin, nil
 }
