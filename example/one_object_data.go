@@ -34,6 +34,10 @@ func (o *OneObjectData) SetObjectID(objectId uint64) {
 	o.ObjectID = objectId
 }
 
+func (o *OneObjectData) GetDomainID() uint64 {
+	return o.DomainID
+}
+
 func (o *OneObjectData) SetDomainID(did uint64) {
 	o.DomainID = did
 }

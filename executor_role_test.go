@@ -21,9 +21,15 @@ func TestExecutorRole_GetRoles(t *testing.T) {
 
 	provider.Domain = stage.Domain
 	provider.User = stage.MemberUser
-	roles4, err := executor.GetRoles()
+	roles2, err := executor.GetRoles()
 	assert.NoError(t, err)
-	assert.Len(t, roles4, 0)
+	assert.Len(t, roles2, 0)
+
+	provider.Domain = stage.Options.GetSuperadminDomain()
+	provider.User = stage.SuperadminUser
+	roles3, err := executor.GetRoles()
+	assert.NoError(t, err)
+	assert.Len(t, roles3, 0)
 }
 
 func TestExecutorRole_GeneralCreate(t *testing.T) {

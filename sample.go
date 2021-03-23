@@ -37,7 +37,18 @@ func (s *SampleSuperadminRole) GetParentID() uint64 {
 func (s *SampleSuperadminRole) SetParentID(uint64) {
 }
 
+func (s *SampleSuperadminRole) GetDomainID() uint64 {
+	return DefaultSuperadminDomainID
+}
+
 func (s *SampleSuperadminRole) SetDomainID(uint64) {
+}
+
+func (s *SampleSuperadminRole) GetName() string {
+	return DefaultSuperadminRoleName
+}
+
+func (s *SampleSuperadminRole) SetName(string) {
 }
 
 type SampleSuperAdminDomain struct {
@@ -94,6 +105,10 @@ func (s *SampleNoPermissionObject) GetObject() Object {
 }
 
 func (s *SampleNoPermissionObject) SetObjectID(uint64) {
+}
+
+func (s *SampleNoPermissionObject) GetDomainID() uint64 {
+	return 0
 }
 
 func (s *SampleNoPermissionObject) SetDomainID(uint64) {

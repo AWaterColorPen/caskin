@@ -53,6 +53,18 @@ func (r *Role) SetParentID(pid uint64) {
 	r.ParentID = pid
 }
 
+func (r *Role) GetDomainID() uint64 {
+	return r.DomainID
+}
+
 func (r *Role) SetDomainID(did uint64) {
 	r.DomainID = did
+}
+
+func (r *Role) GetName() string {
+	return r.Name
+}
+
+func (r *Role) SetName(name string) {
+	r.Name = name
 }

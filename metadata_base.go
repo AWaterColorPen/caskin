@@ -22,7 +22,7 @@ func (b *BaseMetadataDB) Recover(item interface{}) error {
 }
 
 func (b *BaseMetadataDB) Update(item interface{}) error {
-	return b.DB.Updates(item).Error
+	return b.DB.Debug().Updates(item).Error
 }
 
 func (b *BaseMetadataDB) Upsert(item interface{}) error {
@@ -36,11 +36,11 @@ func (b *BaseMetadataDB) Upsert(item interface{}) error {
 }
 
 func (b *BaseMetadataDB) Take(item interface{}) error {
-	return b.DB.Where(item).Take(item).Error
+	return b.DB.Debug().Where(item).Take(item).Error
 }
 
 func (b *BaseMetadataDB) TakeUnscoped(item interface{}) error {
-	return b.DB.Unscoped().Where(item).Take(item).Error
+	return b.DB.Debug().Unscoped().Where(item).Take(item).Error
 }
 
 func (b *BaseMetadataDB) Find(items interface{}, cond ...interface{}) error {

@@ -126,10 +126,13 @@ func TestExecutorDomain_Initialize(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Len(t, objects2, 3)
 
+
+	// delete a object before initialize
+	provider.Domain = stage.Domain
+	assert.NoError(t, executor.DeleteObject(&example.Object{ID: 3}))
 	// initialize with new domain creator
 	stage.Options.DomainCreator = NewTestCreator
 	assert.NoError(t, executor.ReInitializeDomain(stage.Domain))
-	provider.Domain = stage.Domain
 	provider.User = stage.AdminUser
 	roles3, err := executor.GetRoles()
 	assert.NoError(t, err)
@@ -137,6 +140,7 @@ func TestExecutorDomain_Initialize(t *testing.T) {
 	objects3, err := executor.GetObjects()
 	assert.NoError(t, err)
 	assert.Len(t, objects3, 4)
+	assert.Equal(t, ObjectTypeTest, objects3[2].GetObjectType())
 }
 
 type testCreator struct {
@@ -160,7 +164,7 @@ func (t *testCreator) BuildCreator() ([]caskin.Role, []caskin.Object) {
 
 	object0 := &example.Object{Name: string(caskin.ObjectTypeObject), Type: caskin.ObjectTypeObject, DomainID: t.domain.GetID()}
 	object1 := &example.Object{Name: string(caskin.ObjectTypeRole), Type: caskin.ObjectTypeRole, DomainID: t.domain.GetID()}
-	object2 := &example.Object{Name: string(caskin.ObjectTypeDefault), Type: caskin.ObjectTypeDefault, DomainID: t.domain.GetID()}
+	object2 := &example.Object{Name: string(caskin.ObjectTypeDefault), Type: ObjectTypeTest, DomainID: t.domain.GetID()}
 	object3 := &example.Object{Name: string(ObjectTypeTest), Type: ObjectTypeTest, DomainID: t.domain.GetID()}
 	t.objects = []caskin.Object{object0, object1, object2, object3}
 

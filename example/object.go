@@ -56,6 +56,10 @@ func (o *Object) SetParentID(pid uint64) {
 	o.ParentID = pid
 }
 
+func (o *Object) GetDomainID() uint64 {
+	return o.DomainID
+}
+
 func (o *Object) SetDomainID(did uint64) {
 	o.DomainID = did
 }

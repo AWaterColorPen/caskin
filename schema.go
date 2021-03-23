@@ -16,6 +16,8 @@ type ObjectData interface {
 	GetObject() Object
 	// set object
 	SetObjectID(uint64)
+	// get domain id method
+	GetDomainID() uint64
 	// set domain id method
 	SetDomainID(uint64)
 }
@@ -32,12 +34,12 @@ type User interface {
 
 type Role interface {
 	TreeNodeEntry
+	nameInterface
 }
 
 type Object interface {
 	TreeNodeEntry
-	GetName() string
-	SetName(string)
+	nameInterface
 	GetObjectType() ObjectType
 	SetObjectType(ObjectType)
 	GetCustomizedData() datatypes.JSON

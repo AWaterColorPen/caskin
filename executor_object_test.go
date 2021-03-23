@@ -32,6 +32,12 @@ func TestExecutorObject_GetObjects(t *testing.T) {
 	objects4, err := executor.GetObjects()
 	assert.NoError(t, err)
 	assert.Len(t, objects4, 0)
+
+	provider.Domain = stage.Options.GetSuperadminDomain()
+	provider.User = stage.SuperadminUser
+	objects5, err := executor.GetObjects()
+	assert.NoError(t, err)
+	assert.Len(t, objects5, 0)
 }
 
 func TestExecutorObject_GetExplicitObjects(t *testing.T) {
@@ -50,6 +56,12 @@ func TestExecutorObject_GetExplicitObjects(t *testing.T) {
 	objects2, err := executor.GetExplicitObjects(caskin.Read)
 	assert.NoError(t, err)
 	assert.Len(t, objects2, 1)
+
+	provider.Domain = stage.Options.GetSuperadminDomain()
+	provider.User = stage.SuperadminUser
+	objects3, err := executor.GetExplicitObjects(caskin.Read)
+	assert.NoError(t, err)
+	assert.Len(t, objects3, 0)
 }
 
 func TestExecutorObject_GeneralCreate(t *testing.T) {

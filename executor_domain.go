@@ -77,24 +77,24 @@ func (e *Executor) initializeDomain(domain Domain) error {
 	creator := e.options.DomainCreator(domain)
 	roles, objects := creator.BuildCreator()
 	for _, v := range objects {
-		if err := e.DB.Upsert(v); err != nil {
+		if err := e.dbUpdateRoleOrObjectWhenInitializeDomain(v, e.factory.NewObject()); err != nil {
 			return err
 		}
 	}
 	for _, v := range roles {
-		if err := e.DB.Upsert(v); err != nil {
+		if err := e.dbUpdateRoleOrObjectWhenInitializeDomain(v, e.factory.NewRole()); err != nil {
 			return err
 		}
 	}
 
 	creator.SetRelation()
 	for _, v := range roles {
-		if err := e.DB.Upsert(v); err != nil {
+		if err := e.dbUpdateRoleOrObjectWhenInitializeDomain(v, e.factory.NewRole()); err != nil {
 			return err
 		}
 	}
 	for _, v := range objects {
-		if err := e.DB.Upsert(v); err != nil {
+		if err := e.dbUpdateRoleOrObjectWhenInitializeDomain(v, e.factory.NewObject()); err != nil {
 			return err
 		}
 	}
@@ -107,4 +107,27 @@ func (e *Executor) initializeDomain(domain Domain) error {
 	}
 
 	return nil
+}
+
+func (e *Executor) dbUpdateRoleOrObjectWhenInitializeDomain(item roleOrObject, tmp roleOrObject) error {
+	tmp.SetName(item.GetName())
+	tmp.SetDomainID(item.GetDomainID())
+	switch e.DBRecoverCheck(tmp) {
+	case ErrAlreadyExists:
+		item.SetID(tmp.GetID())
+		return e.DB.Update(item)
+	case ErrNotExists:
+		return e.DB.Create(item)
+	default:
+		if err := e.DB.Recover(tmp); err != nil {
+			return err
+		}
+		item.SetID(tmp.GetID())
+		return e.DB.Update(item)
+	}
+}
+
+type roleOrObject interface {
+	TreeNodeEntry
+	nameInterface
 }
