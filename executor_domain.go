@@ -112,18 +112,20 @@ func (e *Executor) initializeDomain(domain Domain) error {
 func (e *Executor) dbUpdateRoleOrObjectWhenInitializeDomain(item roleOrObject, tmp roleOrObject) error {
 	tmp.SetName(item.GetName())
 	tmp.SetDomainID(item.GetDomainID())
-	switch e.DBRecoverCheck(tmp) {
-	case ErrAlreadyExists:
-		item.SetID(tmp.GetID())
-		return e.DB.Update(item)
-	case ErrNotExists:
+	switch e.DB.UpsertType(tmp) {
+	case UpsertTypeCreate:
 		return e.DB.Create(item)
-	default:
+	case UpsertTypeRecover:
 		if err := e.DB.Recover(tmp); err != nil {
 			return err
 		}
 		item.SetID(tmp.GetID())
 		return e.DB.Update(item)
+	case UpsertTypeUpdate:
+		item.SetID(tmp.GetID())
+		return e.DB.Update(item)
+	default:
+		return nil
 	}
 }
 

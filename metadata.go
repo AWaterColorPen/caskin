@@ -1,5 +1,7 @@
 package caskin
 
+type UpsertType string
+
 type MetaDB interface {
 	AutoMigrate(...interface{}) error
 
@@ -8,6 +10,7 @@ type MetaDB interface {
 	Update(interface{}) error
 	Upsert(interface{}) error
 	Take(interface{}) error
+	UpsertType(interface{}) UpsertType
 	TakeUnscoped(interface{}) error
 	Find(items interface{}, cond ...interface{}) error
 	DeleteByID(interface{}, uint64) error
