@@ -2,21 +2,28 @@ package db
 
 import (
 	"github.com/awatercolorpen/caskin"
+	"gorm.io/gorm"
 )
 
 type Factory struct {
-	db MetaDB
+	agent   *Agent
+	factory caskin.EntryFactory
 }
 
 func (f *Factory) NewCreator(domain caskin.Domain) *Creator {
-	return &Creator{db: f.db, domain: domain}
+	return &Creator{
+		snapshot: f.agent.Snapshot,
+		factory: f.factory,
+		domain: domain,
+	}
 }
 
-func NewFactory(db MetaDB) (*Factory, error) {
+func NewFactory(db *gorm.DB, factory caskin.EntryFactory) (*Factory, error) {
 	if err := db.AutoMigrate(&DomainCreatorObject{}, &DomainCreatorRole{}, &DomainCreatorPolicy{}); err != nil {
 		return nil, err
 	}
-	return &Factory{db: db}, nil
+	agent := &Agent{db: db}
+	return &Factory{agent: agent}, nil
 }
 
-// func GetAllDomainCreatorObject()
+type SnapshotFunc = func() ([]*DomainCreatorObject, []*DomainCreatorRole, []*DomainCreatorPolicy)

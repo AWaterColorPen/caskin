@@ -1,6 +1,7 @@
 package db
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/awatercolorpen/caskin"
@@ -9,38 +10,77 @@ import (
 )
 
 var (
-	DefaultDomainCreatorObjectTableName = "caskin_domain_creator_objects"
-	DefaultDomainCreatorRoleTableName   = "caskin_domain_creator_roles"
+	DefaultDomainCreatorObjectTableName        = "caskin_domain_creator_objects"
+	DefaultDomainCreatorRoleTableName          = "caskin_domain_creator_roles"
+	DefaultDomainCreatorPolicyTableName        = "caskin_domain_creator_policies"
+	ErrRelativeIDAndAbsoluteRoleIDInCompatible = fmt.Errorf("relative_id and absolute_id is in compatible")
+	ErrNotSupport                              = fmt.Errorf("not sopport")
 )
 
 type DomainCreatorObject struct {
-	ID             uint64            `gorm:"column:id;primaryKey"   json:"id,omitempty"`
-	CreatedAt      time.Time         `gorm:"column:created_at"      json:"created_at,omitempty"`
-	UpdatedAt      time.Time         `gorm:"column:updated_at"      json:"updated_at,omitempty"`
-	DeletedAt      gorm.DeletedAt    `gorm:"column:delete_at;index" json:"-"`
-	Name           string            `gorm:"column:name;unique"     json:"name,omitempty"`
-	Type           caskin.ObjectType `gorm:"column:type"            json:"type,omitempty"`
-	ObjectID       uint64            `gorm:"column:object_id"       json:"object_id,omitempty"`
-	ParentID       uint64            `gorm:"column:parent_id"       json:"parent_id"`
-	CustomizedData datatypes.JSON    `gorm:"column:customized_data" json:"customized_data"`
+	ID               uint64            `gorm:"column:id;primaryKey"      json:"id,omitempty"`
+	CreatedAt        time.Time         `gorm:"column:created_at"         json:"created_at,omitempty"`
+	UpdatedAt        time.Time         `gorm:"column:updated_at"         json:"updated_at,omitempty"`
+	DeletedAt        gorm.DeletedAt    `gorm:"column:delete_at;index"    json:"-"`
+	Name             string            `gorm:"column:name;unique"        json:"name,omitempty"`
+	Type             caskin.ObjectType `gorm:"column:type"               json:"type,omitempty"`
+	RelativeObjectID uint64            `gorm:"column:relative_object_id" json:"relative_object_id,omitempty"`
+	RelativeParentID uint64            `gorm:"column:relative_parent_id" json:"relative_parent_id"`
+	AbsoluteObjectID uint64            `gorm:"column:absolute_object_id" json:"absolute_object_id,omitempty"`
+	AbsoluteParentID uint64            `gorm:"column:absolute_parent_id" json:"absolute_parent_id,omitempty"`
+	CustomizedData   datatypes.JSON    `gorm:"column:customized_data"    json:"customized_data"`
 }
 
 func (d *DomainCreatorObject) TableName() string {
 	return DefaultDomainCreatorObjectTableName
 }
 
+func (d *DomainCreatorObject) IsValid() error {
+	if d.RelativeObjectID == 0 && d.AbsoluteObjectID == 0 {
+		return ErrRelativeIDAndAbsoluteRoleIDInCompatible
+	}
+	if d.RelativeObjectID != 0 && d.AbsoluteObjectID != 0 {
+		return ErrRelativeIDAndAbsoluteRoleIDInCompatible
+	}
+	if d.RelativeParentID != 0 && d.AbsoluteParentID != 0 {
+		return ErrRelativeIDAndAbsoluteRoleIDInCompatible
+	}
+	if d.RelativeParentID != 0 || d.AbsoluteParentID != 0 {
+		return ErrNotSupport
+	}
+	return nil
+}
+
 type DomainCreatorRole struct {
-	ID        uint64         `gorm:"column:id;primaryKey"   json:"id,omitempty"`
-	CreatedAt time.Time      `gorm:"column:created_at"      json:"created_at,omitempty"`
-	UpdatedAt time.Time      `gorm:"column:updated_at"      json:"updated_at,omitempty"`
-	DeletedAt gorm.DeletedAt `gorm:"column:delete_at;index" json:"-"`
-	Name      string         `gorm:"column:name;unique"     json:"name,omitempty"`
-	ObjectID  uint64         `gorm:"column:object_id"       json:"object_id,omitempty"`
-	ParentID  uint64         `gorm:"column:parent_id"       json:"parent_id"`
+	ID               uint64         `gorm:"column:id;primaryKey"      json:"id,omitempty"`
+	CreatedAt        time.Time      `gorm:"column:created_at"         json:"created_at,omitempty"`
+	UpdatedAt        time.Time      `gorm:"column:updated_at"         json:"updated_at,omitempty"`
+	DeletedAt        gorm.DeletedAt `gorm:"column:delete_at;index"    json:"-"`
+	Name             string         `gorm:"column:name;unique"        json:"name,omitempty"`
+	RelativeObjectID uint64         `gorm:"column:relative_object_id" json:"relative_object_id,omitempty"`
+	RelativeParentID uint64         `gorm:"column:relative_parent_id" json:"relative_parent_id"`
+	AbsoluteObjectID uint64         `gorm:"column:absolute_object_id" json:"absolute_object_id,omitempty"`
+	AbsoluteParentID uint64         `gorm:"column:absolute_parent_id" json:"absolute_parent_id,omitempty"`
 }
 
 func (d *DomainCreatorRole) TableName() string {
 	return DefaultDomainCreatorRoleTableName
+}
+
+func (d *DomainCreatorRole) IsValid() error {
+	if d.RelativeObjectID == 0 && d.AbsoluteObjectID == 0 {
+		return ErrRelativeIDAndAbsoluteRoleIDInCompatible
+	}
+	if d.RelativeObjectID != 0 && d.AbsoluteObjectID != 0 {
+		return ErrRelativeIDAndAbsoluteRoleIDInCompatible
+	}
+	if d.RelativeParentID != 0 && d.AbsoluteParentID != 0 {
+		return ErrRelativeIDAndAbsoluteRoleIDInCompatible
+	}
+	if d.RelativeParentID != 0 || d.AbsoluteParentID != 0 {
+		return ErrNotSupport
+	}
+	return nil
 }
 
 type DomainCreatorPolicy struct {
@@ -55,17 +95,38 @@ type DomainCreatorPolicy struct {
 	Action           caskin.Action  `gorm:"column:action"             json:"action"`
 }
 
+func (d *DomainCreatorPolicy) TableName() string {
+	return DefaultDomainCreatorPolicyTableName
+}
+
+func (d *DomainCreatorPolicy) IsValid() error {
+	if d.RelativeRoleID == 0 && d.AbsoluteRoleID == 0 {
+		return ErrRelativeIDAndAbsoluteRoleIDInCompatible
+	}
+	if d.RelativeRoleID != 0 && d.AbsoluteRoleID != 0 {
+		return ErrRelativeIDAndAbsoluteRoleIDInCompatible
+	}
+	if d.RelativeObjectID == 0 && d.AbsoluteObjectID == 0 {
+		return ErrRelativeIDAndAbsoluteRoleIDInCompatible
+	}
+	if d.RelativeObjectID != 0 && d.AbsoluteObjectID != 0 {
+		return ErrRelativeIDAndAbsoluteRoleIDInCompatible
+	}
+	return nil
+}
+
+type relativeIDAndAbsoluteID interface {
+	IsValid() error
+}
+
 type MetaDB interface {
 	AutoMigrate(...interface{}) error
 
 	Create(interface{}) error
 	Recover(interface{}) error
 	Update(interface{}) error
-	Upsert(interface{}) error
 	Take(interface{}) error
 	TakeUnscoped(interface{}) error
 	Find(items interface{}, cond ...interface{}) error
 	DeleteByID(interface{}, uint64) error
 }
-
-
