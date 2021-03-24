@@ -1,11 +1,9 @@
 package bind_object
 
-import "github.com/awatercolorpen/caskin"
-
-type Executor struct {
-	e  *caskin.Executor
-	DB MetaDBBindObjectAPI
-}
+// type Executor struct {
+// 	e  *caskin.Executor
+// 	DB MetaDBBindObjectAPI
+// }
 
 //
 //// CreateBindObjectData
