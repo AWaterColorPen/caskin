@@ -1,9 +1,9 @@
 package example
 
 import (
-	"github.com/awatercolorpen/caskin"
 	"time"
 
+	"github.com/awatercolorpen/caskin"
 	"gorm.io/gorm"
 )
 

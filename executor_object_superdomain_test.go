@@ -1,9 +1,9 @@
 package caskin_test
 
 import (
-	"github.com/awatercolorpen/caskin"
 	"testing"
 
+	"github.com/awatercolorpen/caskin"
 	"github.com/awatercolorpen/caskin/example"
 	"github.com/stretchr/testify/assert"
 )

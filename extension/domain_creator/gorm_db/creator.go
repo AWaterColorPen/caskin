@@ -1,12 +1,12 @@
-package db
+package gorm_db
 
 import (
 	"github.com/awatercolorpen/caskin"
 )
 
 type Creator struct {
-	snapshot     SnapshotFunc
-	factory      caskin.EntryFactory
+	snapshot       SnapshotFunc
+	factory        caskin.EntryFactory
 	snapshotObject []*DomainCreatorObject
 	snapshotRole   []*DomainCreatorRole
 	snapshotPolicy []*DomainCreatorPolicy
@@ -14,6 +14,9 @@ type Creator struct {
 	domain  caskin.Domain
 	objects caskin.Objects
 	roles   caskin.Roles
+
+	oIndex map[uint64]uint64
+	rIndex map[uint64]uint64
 }
 
 func (c *Creator) BuildCreator() ([]caskin.Role, []caskin.Object) {
@@ -25,6 +28,7 @@ func (c *Creator) BuildCreator() ([]caskin.Role, []caskin.Object) {
 		o.SetObjectID(v.AbsoluteObjectID)
 		o.SetDomainID(c.domain.GetID())
 		o.SetParentID(v.AbsoluteParentID)
+		o.SetCustomizedData(v.CustomizedData)
 		c.objects = append(c.objects, o)
 	}
 	for _, v := range c.snapshotRole {
@@ -39,20 +43,23 @@ func (c *Creator) BuildCreator() ([]caskin.Role, []caskin.Object) {
 }
 
 func (c *Creator) SetRelation() {
+	c.buildIndex()
 	for i, v := range c.objects {
-		if c.snapshotObject[i].RelativeObjectID != 0 {
-			v.SetObjectID(c.objects[c.snapshotObject[i].RelativeObjectID].GetID())
+		o := c.snapshotObject[i]
+		if o.RelativeObjectID != 0 {
+			v.SetObjectID(c.oIndex[o.RelativeObjectID])
 		}
-		if c.snapshotObject[i].RelativeParentID != 0 {
-			v.SetParentID(c.objects[c.snapshotObject[i].RelativeParentID].GetID())
+		if o.RelativeParentID != 0 {
+			v.SetParentID(c.oIndex[o.RelativeParentID])
 		}
 	}
 	for i, v := range c.roles {
-		if c.snapshotRole[i].RelativeObjectID != 0 {
-			v.SetObjectID(c.roles[c.snapshotRole[i].RelativeObjectID].GetID())
+		r := c.snapshotRole[i]
+		if r.RelativeObjectID != 0 {
+			v.SetObjectID(c.rIndex[r.RelativeObjectID])
 		}
-		if c.snapshotRole[i].RelativeParentID != 0 {
-			v.SetParentID(c.roles[c.snapshotRole[i].RelativeParentID].GetID())
+		if r.RelativeParentID != 0 {
+			v.SetParentID(c.rIndex[r.RelativeParentID])
 		}
 	}
 }
@@ -62,13 +69,14 @@ func (c *Creator) GetPolicy() []*caskin.Policy {
 	for _, v := range c.snapshotPolicy {
 		r := c.factory.NewRole()
 		o := c.factory.NewObject()
+
 		if v.RelativeRoleID != 0 {
-			r = c.roles[v.RelativeRoleID]
+			r.SetID(c.rIndex[v.RelativeRoleID])
 		} else {
 			r.SetID(v.AbsoluteRoleID)
 		}
 		if v.RelativeObjectID != 0 {
-			o = c.objects[v.RelativeObjectID]
+			o.SetID(c.oIndex[v.RelativeObjectID])
 		} else {
 			o.SetID(v.AbsoluteObjectID)
 		}
@@ -86,4 +94,15 @@ func (c *Creator) GetRoles() []caskin.Role {
 
 func (c *Creator) GetObjects() []caskin.Object {
 	return c.objects
+}
+
+func (c *Creator) buildIndex() {
+	c.oIndex = map[uint64]uint64{}
+	for i, v := range c.snapshotObject {
+		c.oIndex[v.ID] = c.objects[i].GetID()
+	}
+	c.rIndex = map[uint64]uint64{}
+	for i, v := range c.snapshotRole {
+		c.rIndex[v.ID] = c.roles[i].GetID()
+	}
 }

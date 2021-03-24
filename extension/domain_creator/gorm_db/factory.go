@@ -1,4 +1,4 @@
-package db
+package gorm_db
 
 import (
 	"github.com/awatercolorpen/caskin"
@@ -10,11 +10,15 @@ type Factory struct {
 	factory caskin.EntryFactory
 }
 
-func (f *Factory) NewCreator(domain caskin.Domain) *Creator {
+func (f *Factory) GetAgent() *Agent {
+	return f.agent
+}
+
+func (f *Factory) NewCreator(domain caskin.Domain) caskin.Creator {
 	return &Creator{
 		snapshot: f.agent.Snapshot,
-		factory: f.factory,
-		domain: domain,
+		factory:  f.factory,
+		domain:   domain,
 	}
 }
 
@@ -23,7 +27,7 @@ func NewFactory(db *gorm.DB, factory caskin.EntryFactory) (*Factory, error) {
 		return nil, err
 	}
 	agent := &Agent{db: db}
-	return &Factory{agent: agent}, nil
+	return &Factory{agent: agent, factory: factory}, nil
 }
 
 type SnapshotFunc = func() ([]*DomainCreatorObject, []*DomainCreatorRole, []*DomainCreatorPolicy)

@@ -126,7 +126,6 @@ func TestExecutorDomain_Initialize(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Len(t, objects2, 3)
 
-
 	// delete a object before initialize
 	provider.Domain = stage.Domain
 	assert.NoError(t, executor.DeleteObject(&example.Object{ID: 3}))

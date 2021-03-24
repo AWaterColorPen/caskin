@@ -1,4 +1,4 @@
-package db
+package gorm_db
 
 import (
 	"fmt"
@@ -15,6 +15,7 @@ var (
 	DefaultDomainCreatorPolicyTableName        = "caskin_domain_creator_policies"
 	ErrRelativeIDAndAbsoluteRoleIDInCompatible = fmt.Errorf("relative_id and absolute_id is in compatible")
 	ErrNotSupport                              = fmt.Errorf("not sopport")
+	ErrRelativeIDOutOfIndex                    = fmt.Errorf("relative_id out of index")
 )
 
 type DomainCreatorObject struct {
@@ -117,16 +118,4 @@ func (d *DomainCreatorPolicy) IsValid() error {
 
 type relativeIDAndAbsoluteID interface {
 	IsValid() error
-}
-
-type MetaDB interface {
-	AutoMigrate(...interface{}) error
-
-	Create(interface{}) error
-	Recover(interface{}) error
-	Update(interface{}) error
-	Take(interface{}) error
-	TakeUnscoped(interface{}) error
-	Find(items interface{}, cond ...interface{}) error
-	DeleteByID(interface{}, uint64) error
 }

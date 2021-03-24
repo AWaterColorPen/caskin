@@ -1,11 +1,11 @@
 package web_feature_test
 
 import (
-	"github.com/awatercolorpen/caskin"
-	"github.com/awatercolorpen/caskin/extension/web_feature"
 	"testing"
 
+	"github.com/awatercolorpen/caskin"
 	"github.com/awatercolorpen/caskin/example"
+	"github.com/awatercolorpen/caskin/extension/web_feature"
 	"github.com/stretchr/testify/assert"
 )
 
