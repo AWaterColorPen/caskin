@@ -228,11 +228,31 @@ func treeToVirtualIndexTree(tree, viTree Relations, index map[uint64]uint64) {
 	}
 }
 
-// func topSort(tree Relations)  {
-// 	inDegree := map[uint64]int{}
-// 	for k := range tree {
-// 		inDegree[k] = 0
-// 	}
-//
-// 	for _,
-// }
+// TopSort root first
+func TopSort(tree Relations) []uint64 {
+	inDegree := map[uint64]int{}
+	for k := range tree {
+		inDegree[k] = 0
+	}
+	for _, node := range tree {
+		for _, v := range node {
+			inDegree[v]++
+		}
+	}
+
+	var queue []uint64
+	for k, v := range inDegree {
+		if v == 0 {
+			queue = append(queue, k)
+		}
+	}
+	for i := 0; i < len(queue); i++ {
+		for _, v := range tree[queue[i]] {
+			inDegree[v]--
+			if inDegree[v] == 0 {
+				queue = append(queue, v)
+			}
+		}
+	}
+	return queue
+}
