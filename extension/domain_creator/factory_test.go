@@ -1,12 +1,12 @@
-package gorm_db_test
+package domain_creator_test
 
 import (
+	"github.com/awatercolorpen/caskin/extension/domain_creator"
 	"path/filepath"
 	"testing"
 
 	"github.com/awatercolorpen/caskin"
 	"github.com/awatercolorpen/caskin/example"
-	"github.com/awatercolorpen/caskin/extension/domain_creator/gorm_db"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -17,17 +17,17 @@ func TestFactory(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-func newFactory(sqlitePath string) (*gorm_db.Factory, error) {
+func newFactory(sqlitePath string) (*domain_creator.Factory, error) {
 	gormDB, err := getDB(sqlitePath)
 	if err != nil {
 		return nil, err
 	}
-	factory, err := gorm_db.NewFactory(gormDB, &example.EntryFactory{})
+	factory, err := domain_creator.NewFactory(gormDB, &example.EntryFactory{})
 	if err != nil {
 		return nil, err
 	}
 	agent := factory.GetAgent()
-	object := []*gorm_db.DomainCreatorObject{
+	object := []*domain_creator.DomainCreatorObject{
 		{Name: string(caskin.ObjectTypeObject), Type: caskin.ObjectTypeObject, RelativeObjectID: 1},
 		{Name: string(caskin.ObjectTypeRole), Type: caskin.ObjectTypeRole, RelativeObjectID: 2},
 		{Name: string(caskin.ObjectTypeDefault), Type: caskin.ObjectTypeDefault, RelativeObjectID: 3},
@@ -37,7 +37,7 @@ func newFactory(sqlitePath string) (*gorm_db.Factory, error) {
 			return nil, err
 		}
 	}
-	role := []*gorm_db.DomainCreatorRole{
+	role := []*domain_creator.DomainCreatorRole{
 		{Name: "admin", RelativeObjectID: 2},
 		{Name: "member", RelativeObjectID: 2},
 	}
@@ -46,7 +46,7 @@ func newFactory(sqlitePath string) (*gorm_db.Factory, error) {
 			return nil, err
 		}
 	}
-	policy := []*gorm_db.DomainCreatorPolicy{
+	policy := []*domain_creator.DomainCreatorPolicy{
 		{RelativeRoleID: 1, RelativeObjectID: 1, Action: caskin.Read},
 		{RelativeRoleID: 1, RelativeObjectID: 1, Action: caskin.Write},
 		{RelativeRoleID: 1, RelativeObjectID: 2, Action: caskin.Read},

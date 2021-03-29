@@ -1,4 +1,4 @@
-package gorm_db_test
+package domain_creator_test
 
 import (
 	"testing"

@@ -1,4 +1,4 @@
-package gorm_db
+package domain_creator
 
 import "gorm.io/gorm"
 
