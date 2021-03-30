@@ -44,7 +44,7 @@ const (
 )
 
 func (f *Frontend) GetName() string {
-	return fmt.Sprint(f.Key, DefaultSeparator, f.Type)
+	return fmt.Sprint(f.Key, caskin.DefaultSeparator, f.Type)
 }
 
 func (f *Frontend) GetObjectType() caskin.ObjectType {
@@ -60,7 +60,7 @@ type Backend struct {
 }
 
 func (b *Backend) GetName() string {
-	return fmt.Sprint(b.Path, DefaultSeparator, b.Method)
+	return fmt.Sprint(b.Path, caskin.DefaultSeparator, b.Method)
 }
 
 func (b *Backend) GetObjectType() caskin.ObjectType {

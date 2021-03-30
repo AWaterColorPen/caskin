@@ -8,20 +8,18 @@ import (
 )
 
 var (
-	DefaultSuperRootName           = "github.com/awatercolorpen/caskin/web_feature"
-	DefaultFeatureRootName         = "feature-root"
-	DefaultFeatureRootDescription  = "root node of feature object"
-	DefaultFeatureRootGroup        = ""
-	DefaultFrontendRootKey         = "frontend-root"
-	DefaultFrontendRootType        = FrontendTypeNil
-	DefaultFrontendRootDescription = "root node of frontend object"
-	DefaultFrontendRootGroup       = ""
-	DefaultBackendRootPath         = "backend-root"
-	DefaultBackendRootMethod       = ""
-	DefaultBackendRootDescription  = "root node of backend object"
-	DefaultBackendRootGroup        = ""
-
-	DefaultSeparator                  = caskin.DefaultSeparator
+	DefaultSuperRootName              = "github.com/awatercolorpen/caskin/web_feature"
+	DefaultFeatureRootName            = "feature-root"
+	DefaultFeatureRootDescription     = "root node of feature object"
+	DefaultFeatureRootGroup           = ""
+	DefaultFrontendRootKey            = "frontend-root"
+	DefaultFrontendRootType           = FrontendTypeNil
+	DefaultFrontendRootDescription    = "root node of frontend object"
+	DefaultFrontendRootGroup          = ""
+	DefaultBackendRootPath            = "backend-root"
+	DefaultBackendRootMethod          = ""
+	DefaultBackendRootDescription     = "root node of backend object"
+	DefaultBackendRootGroup           = ""
 	DefaultWebFeatureVersionTableName = "caskin_web_feature_versions"
 )
 
