@@ -3,7 +3,6 @@ package caskin
 import (
 	"bytes"
 	"net/http"
-	"sync"
 
 	"github.com/casbin/casbin/v2/model"
 )
@@ -11,10 +10,37 @@ import (
 var (
 	casbinModel1 *casbinModel
 	casbinModel2 *casbinModel
-	err1         error
-	err2         error
-	once1        sync.Once
-	once2        sync.Once
+
+	casbinModelText1 = `[request_definition]
+r = sub, dom, obj, act
+
+[policy_definition]
+p = sub, dom, obj, act
+
+[role_definition]
+g = _, _, _
+g2 = _, _, _
+
+[policy_effect]
+e = some(where (p.eft == allow))
+
+[matchers]
+m = g(r.sub, p.sub, r.dom) && g2(r.obj, p.obj, r.dom) && r.dom == p.dom && r.act == p.act || g(r.sub, "superadmin", "superdomain")`
+	casbinModelText2 = `[request_definition]
+r = sub, dom, obj, act
+
+[policy_definition]
+p = sub, dom, obj, act
+
+[role_definition]
+g = _, _, _
+g2 = _, _, _
+
+[policy_effect]
+e = some(where (p.eft == allow))
+
+[matchers]
+m = g(r.sub, p.sub, r.dom) && g2(r.obj, p.obj, r.dom) && r.dom == p.dom && r.act == p.act`
 )
 
 type casbinModel struct {
@@ -41,43 +67,19 @@ func CasbinModelText(options *Options) (string, error) {
 }
 
 func CasbinModelSuperadmin() (model.Model, error) {
-	once1.Do(func() {
-		casbinModel1, err1 = getCasbinModelFromUrl(ModelConfPathSuperadmin)
-	})
-	if err1 != nil {
-		return nil, err1
-	}
-	return casbinModel1.m, nil
+	return model.NewModelFromString(casbinModelText1)
 }
 
 func CasbinModelTextSuperadmin() (string, error) {
-	once1.Do(func() {
-		casbinModel1, err1 = getCasbinModelFromUrl(ModelConfPathSuperadmin)
-	})
-	if err1 != nil {
-		return "", err1
-	}
-	return casbinModel1.text, nil
+	return casbinModelText1, nil
 }
 
 func CasbinModelNoSuperadmin() (model.Model, error) {
-	once2.Do(func() {
-		casbinModel2, err2 = getCasbinModelFromUrl(ModelConfPathNoSuperadmin)
-	})
-	if err2 != nil {
-		return nil, err2
-	}
-	return casbinModel2.m, nil
+	return model.NewModelFromString(casbinModelText2)
 }
 
 func CasbinModelTextNoSuperadmin() (string, error) {
-	once2.Do(func() {
-		casbinModel2, err2 = getCasbinModelFromUrl(ModelConfPathNoSuperadmin)
-	})
-	if err2 != nil {
-		return "", err2
-	}
-	return casbinModel2.text, nil
+	return casbinModelText2, nil
 }
 
 func getCasbinModelTextFromUrl(url string) (string, error) {
