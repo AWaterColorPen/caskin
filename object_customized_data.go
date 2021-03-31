@@ -3,11 +3,14 @@ package caskin
 import (
 	"bytes"
 	"encoding/json"
+	
+	"gorm.io/datatypes"
 )
 
 type CustomizedData interface {
 	GetName() string
 	GetObjectType() ObjectType
+	JSONQuery() []*datatypes.JSONQueryExpression
 }
 
 func CustomizedData2Object(customized CustomizedData, object Object) {

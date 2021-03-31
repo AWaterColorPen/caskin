@@ -8,9 +8,6 @@ import (
 )
 
 var (
-	casbinModel1 *casbinModel
-	casbinModel2 *casbinModel
-
 	casbinModelText1 = `[request_definition]
 r = sub, dom, obj, act
 
@@ -26,6 +23,7 @@ e = some(where (p.eft == allow))
 
 [matchers]
 m = g(r.sub, p.sub, r.dom) && g2(r.obj, p.obj, r.dom) && r.dom == p.dom && r.act == p.act || g(r.sub, "superadmin", "superdomain")`
+
 	casbinModelText2 = `[request_definition]
 r = sub, dom, obj, act
 

@@ -24,33 +24,7 @@ func (b *BaseMetadataDB) Recover(item interface{}) error {
 }
 
 func (b *BaseMetadataDB) Update(item interface{}) error {
-	return b.DB.Debug().Updates(item).Error
-}
-
-func (b *BaseMetadataDB) Take(item interface{}) error {
-	return b.DB.Debug().Where(item).Take(item).Error
-}
-
-func (b *BaseMetadataDB) TakeUnscoped(item interface{}) error {
-	return b.DB.Debug().Unscoped().Where(item).Take(item).Error
-}
-
-func (b *BaseMetadataDB) Find(items interface{}, cond ...interface{}) error {
-	return b.DB.Find(items, cond).Error
-}
-
-func (b *BaseMetadataDB) DeleteByID(item interface{}, id uint64) error {
-	return b.DB.Delete(item, id).Error
-}
-
-func (b *BaseMetadataDB) Upsert(item interface{}) (err error) {
-	if v, ok := item.(idInterface); ok && v.GetID() != 0 {
-		return b.Update(item)
-	}
-	if err := b.Recover(item); err == nil {
-		return nil
-	}
-	return b.Create(item)
+	return b.DB.Updates(item).Error
 }
 
 func (b *BaseMetadataDB) UpsertType(item interface{}) UpsertType {
@@ -61,4 +35,24 @@ func (b *BaseMetadataDB) UpsertType(item interface{}) UpsertType {
 		return UpsertTypeRecover
 	}
 	return UpsertTypeCreate
+}
+
+func (b *BaseMetadataDB) Take(item interface{}) error {
+	return b.DB.Where(item).Take(item).Error
+}
+
+func (b *BaseMetadataDB) TakeUnscoped(item interface{}) error {
+	return b.DB.Unscoped().Where(item).Take(item).Error
+}
+
+func (b *BaseMetadataDB) First(item interface{}, cond ...interface{}) error {
+	return b.DB.First(item, cond...).Error
+}
+
+func (b *BaseMetadataDB) Find(items interface{}, cond ...interface{}) error {
+	return b.DB.Find(items, cond...).Error
+}
+
+func (b *BaseMetadataDB) DeleteByID(item interface{}, id uint64) error {
+	return b.DB.Delete(item, id).Error
 }

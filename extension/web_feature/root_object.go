@@ -1,6 +1,7 @@
 package web_feature
 
 import (
+	"github.com/ahmetb/go-linq/v3"
 	"sync"
 	"time"
 
@@ -15,7 +16,7 @@ var (
 	once               sync.Once
 )
 
-func StaticFeatureRoot() caskin.CustomizedData {
+func staticFeatureRoot() caskin.CustomizedData {
 	return &Feature{
 		Name:        DefaultFeatureRootName,
 		Description: DefaultFeatureRootDescription,
@@ -23,7 +24,7 @@ func StaticFeatureRoot() caskin.CustomizedData {
 	}
 }
 
-func StaticFrontendRoot() caskin.CustomizedData {
+func staticFrontendRoot() caskin.CustomizedData {
 	return &Frontend{
 		Key:         DefaultFrontendRootKey,
 		Type:        DefaultFrontendRootType,
@@ -32,7 +33,7 @@ func StaticFrontendRoot() caskin.CustomizedData {
 	}
 }
 
-func StaticBackendRoot() caskin.CustomizedData {
+func staticBackendRoot() caskin.CustomizedData {
 	return &Backend{
 		Path:        DefaultBackendRootPath,
 		Method:      DefaultBackendRootMethod,
@@ -41,16 +42,17 @@ func StaticBackendRoot() caskin.CustomizedData {
 	}
 }
 
-func StaticSuperRootObject(factory caskin.ObjectFactory) caskin.Object {
+func staticSuperRootObject(factory caskin.ObjectFactory) caskin.Object {
 	o := factory()
 	o.SetName(DefaultSuperRootName)
 	o.SetObjectType(caskin.ObjectTypeObject)
 	return o
 }
 
-func StaticRootObject(customized caskin.CustomizedData, factory caskin.ObjectFactory) caskin.Object {
+func staticRootObject(customized caskin.CustomizedData, factory caskin.ObjectFactory) caskin.Object {
 	o := factory()
-	caskin.CustomizedData2Object(customized, o)
+	o.SetName(customized.GetName())
+	o.SetObjectType(customized.GetObjectType())
 	return o
 }
 
@@ -86,31 +88,61 @@ func setBackendRoot(object caskin.Object) {
 }
 
 func ManualCreateRootObject(db caskin.MetaDB, factory caskin.ObjectFactory, domain caskin.Domain) (err error) {
-	superRootObject = StaticSuperRootObject(factory)
+	superRootObject = staticSuperRootObject(factory)
 	superRootObject.SetDomainID(domain.GetID())
-	if err = doOnce(db, superRootObject); err != nil {
+	if err = doOnceSuperRoot(db, superRootObject); err != nil {
 		return err
 	}
 
-	featureRootObject = StaticRootObject(StaticFeatureRoot(), factory)
-	frontendRootObject = StaticRootObject(StaticFrontendRoot(), factory)
-	backendRootObject = StaticRootObject(StaticBackendRoot(), factory)
+	featureRootObject = staticRootObject(staticFeatureRoot(), factory)
+	frontendRootObject = staticRootObject(staticFrontendRoot(), factory)
+	backendRootObject = staticRootObject(staticBackendRoot(), factory)
 	for _, v := range []caskin.Object{featureRootObject, frontendRootObject, backendRootObject} {
 		v.SetDomainID(domain.GetID())
 		v.SetObjectID(superRootObject.GetID())
-		if err = doOnce(db, v); err != nil {
-			return err
-		}
+	}
+
+	if err = doOnceCustomizedData(db, featureRootObject, staticFeatureRoot(), factory); err != nil {
+		return err
+	}
+	if err = doOnceCustomizedData(db, frontendRootObject, staticFrontendRoot(), factory); err != nil {
+		return err
+	}
+	if err = doOnceCustomizedData(db, backendRootObject, staticBackendRoot(), factory); err != nil {
+		return err
 	}
 	return
 }
 
-func doOnce(db caskin.MetaDB, item interface{}) (err error) {
+func doOnceSuperRoot(db caskin.MetaDB, item interface{}) (err error) {
 	for j := 0; j < 3; j++ {
 		if err = db.Take(item); err == nil {
 			return
 		}
-		if err = db.Upsert(item); err == nil {
+		if err = db.Create(item); err == nil {
+			return
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+	return
+}
+
+func doOnceCustomizedData(db caskin.MetaDB, item caskin.Object, customized caskin.CustomizedData, factory caskin.ObjectFactory) (err error) {
+	var cond []interface{}
+	linq.From(customized.JSONQuery()).ToSlice(&cond)
+	cond = append(cond, item)
+	for j := 0; j < 3; j++ {
+		item.SetCustomizedData(nil)
+		o := factory()
+		if err = db.First(o, cond...); err == nil {
+			item.SetID(o.GetID())
+			item.SetParentID(o.GetParentID())
+			item.SetCustomizedData(o.GetCustomizedData())
+			return
+		}
+
+		caskin.CustomizedData2Object(customized, item)
+		if err = db.Create(item); err == nil {
 			return
 		}
 		time.Sleep(10 * time.Millisecond)

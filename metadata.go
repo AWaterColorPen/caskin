@@ -8,11 +8,11 @@ type MetaDB interface {
 	Create(interface{}) error
 	Recover(interface{}) error
 	Update(interface{}) error
-	Upsert(interface{}) error
-	Take(interface{}) error
 	UpsertType(interface{}) UpsertType
+	Take(interface{}) error
 	TakeUnscoped(interface{}) error
-	Find(items interface{}, cond ...interface{}) error
+	First(interface{}, ...interface{}) error
+	Find(interface{}, ...interface{}) error
 	DeleteByID(interface{}, uint64) error
 
 	// User API
