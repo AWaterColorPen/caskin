@@ -3,6 +3,7 @@ package manager
 import (
 	"github.com/awatercolorpen/caskin"
 	"github.com/casbin/casbin/v2"
+	"gorm.io/gorm"
 )
 
 type Configuration struct {
@@ -37,8 +38,8 @@ type Configuration struct {
 	// configurations for superadmin
 	SuperadminDisable bool `json:"superadmin_disable" yaml:"superadmin_disable"`
 
-	// configurations for web_feature
-	WebFeatureCacheDisable bool `json:"web_feature_cache_disable" yaml:"web_feature_cache_disable"`
+	// dependencies
+	DB *gorm.DB
 
 	// implementations of the caskin interface
 	DomainCreator caskin.DomainCreator

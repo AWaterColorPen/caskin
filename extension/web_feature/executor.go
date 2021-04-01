@@ -8,7 +8,6 @@ type Executor struct {
 	e                         *caskin.Executor
 	objectFactory             caskin.ObjectFactory
 	operationDomain           caskin.Domain
-	enableBackendAPIAuthCache bool
 	modelText                 string
 	FeatureRootObject         func() caskin.Object
 }

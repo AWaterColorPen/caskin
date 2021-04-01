@@ -21,15 +21,14 @@ var (
 	DefaultBackendRootDescription     = "root node of backend object"
 	DefaultBackendRootGroup           = ""
 	DefaultWebFeatureVersionTableName = "caskin_web_feature_versions"
-)
 
-var (
-	// local cache for
-	LocalCache = cache.New(2*time.Minute, 5*time.Minute)
+	// local cache
+	LocalCacheDefaultExpiration = 2 * time.Minute
+	LocalCacheCleanupInterval   = 5 * time.Minute
+	LocalCache                  = cache.New(LocalCacheDefaultExpiration, LocalCacheCleanupInterval)
 )
 
 // Options configuration for web_feature
 type Options struct {
-	DisableCache bool          `json:"disable_cache"`
 	Domain       caskin.Domain `json:"domain"`
 }

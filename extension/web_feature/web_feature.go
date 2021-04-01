@@ -16,7 +16,6 @@ func (w *WebFeature) GetExecutor(provider caskin.CurrentProvider) *Executor {
 		e:                         e,
 		objectFactory:             w.caskin.GetOptions().EntryFactory.NewObject,
 		operationDomain:           w.operationDomain(),
-		enableBackendAPIAuthCache: w.enableBackendAPIAuthCache(),
 		modelText:                 w.modelText,
 	}
 }
@@ -26,10 +25,6 @@ func (w *WebFeature) operationDomain() caskin.Domain {
 		return w.caskin.GetOptions().GetSuperadminDomain()
 	}
 	return w.options.Domain
-}
-
-func (w *WebFeature) enableBackendAPIAuthCache() bool {
-	return !(w.options != nil && w.options.DisableCache)
 }
 
 func New(c *caskin.Caskin, options *Options) (w *WebFeature, err error) {
