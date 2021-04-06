@@ -92,7 +92,7 @@ func (s *Stage) NoSuperadmin() error {
 	}
 
 	s.SuperadminUser = nil
-	s.Options.SuperadminOption = &caskin.SuperadminOption{Disable: true}
+	s.Options.SuperadminDisable = true
 	return nil
 }
 

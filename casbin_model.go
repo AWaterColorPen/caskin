@@ -32,8 +32,8 @@ type casbinModel struct {
 	text string
 }
 
-func CasbinModel(options *Options) (model.Model, error) {
-	switch options.IsDisableSuperAdmin() {
+func CasbinModel(isDisableSuperadmin bool) (model.Model, error) {
+	switch isDisableSuperadmin {
 	case true:
 		return CasbinModelNoSuperadmin()
 	default:
@@ -41,8 +41,8 @@ func CasbinModel(options *Options) (model.Model, error) {
 	}
 }
 
-func CasbinModelText(options *Options) (string, error) {
-	switch options.IsDisableSuperAdmin() {
+func CasbinModelText(isDisableSuperadmin bool) (string, error) {
+	switch isDisableSuperadmin {
 	case true:
 		return CasbinModelTextNoSuperadmin()
 	default:

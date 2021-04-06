@@ -4,49 +4,39 @@ import (
 	"github.com/awatercolorpen/caskin"
 )
 
+type Options struct {
+	Caskin        *caskin.Caskin
+	DomainFactory caskin.DomainFactory
+	ObjectFactory caskin.ObjectFactory
+	MetaDB        caskin.MetaDB
+	ModelText     string
+}
+
 type WebFeature struct {
-	caskin    *caskin.Caskin
-	options   *Options
-	modelText string
+	options *Options
 }
 
 func (w *WebFeature) GetExecutor(provider caskin.CurrentProvider) *Executor {
-	e := w.caskin.GetExecutor(provider)
+	e := w.options.Caskin.GetExecutor(provider)
 	return &Executor{
-		e:                         e,
-		objectFactory:             w.caskin.GetOptions().EntryFactory.NewObject,
-		operationDomain:           w.operationDomain(),
-		modelText:                 w.modelText,
+		e:               e,
+		objectFactory:   w.options.ObjectFactory,
+		operationDomain: w.options.DomainFactory(),
+		modelText:       w.options.ModelText,
 	}
 }
 
-func (w *WebFeature) operationDomain() caskin.Domain {
-	if w.options == nil || w.options.Domain == nil {
-		return w.caskin.GetOptions().GetSuperadminDomain()
-	}
-	return w.options.Domain
-}
-
-func New(c *caskin.Caskin, options *Options) (w *WebFeature, err error) {
-	modelText, err := caskin.CasbinModelText(c.GetOptions())
-	if err != nil {
-		return
-	}
-	w = &WebFeature{
-		caskin:    c,
-		options:   options,
-		modelText: modelText,
-	}
-
-	err = w.caskin.GetOptions().MetaDB.AutoMigrate(&WebFeatureVersion{})
+func New(options *Options) (w *WebFeature, err error) {
+	err = options.MetaDB.AutoMigrate(&WebFeatureVersion{})
 	if err != nil {
 		return
 	}
 
+	w = &WebFeature{options: options}
 	once.Do(func() {
-		factory := w.caskin.GetOptions().EntryFactory.NewObject
-		domain := w.operationDomain()
-		db := w.caskin.GetOptions().MetaDB
+		factory := options.ObjectFactory
+		domain := options.DomainFactory()
+		db := options.MetaDB
 		err = ManualCreateRootObject(db, factory, domain)
 	})
 

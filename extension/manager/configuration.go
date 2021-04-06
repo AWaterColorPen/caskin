@@ -38,6 +38,9 @@ type Configuration struct {
 	// configurations for superadmin
 	SuperadminDisable bool `json:"superadmin_disable" yaml:"superadmin_disable"`
 
+	// configurations for extension
+	Extension *Extension `json:"extension" yaml:"extension"`
+
 	// dependencies
 	DB *gorm.DB
 
@@ -50,4 +53,9 @@ type Configuration struct {
 	// implementations of the caskin superadmin interface
 	SuperadminDomain caskin.DomainFactory
 	SuperadminRole   caskin.RoleFactory
+}
+
+type Extension struct {
+	DomainCreator interface{} `json:"domain_creator" yaml:"domain_creator"`
+	WebFeature    interface{} `json:"web_feature"    yaml:"web_feature"`
 }

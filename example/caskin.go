@@ -19,9 +19,9 @@ func getDB(path string) (*gorm.DB, error) {
 var casbinModelMap = map[bool]model.Model{}
 
 func GetCasbinModel(options *caskin.Options) (model.Model, error) {
-	k := options.IsDisableSuperAdmin()
+	k := options.IsDisableSuperadmin()
 	if _, ok := casbinModelMap[k]; !ok {
-		m, err := caskin.CasbinModel(options)
+		m, err := caskin.CasbinModel(options.IsDisableSuperadmin())
 		if err != nil {
 			return nil, err
 		}

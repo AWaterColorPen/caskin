@@ -56,7 +56,20 @@ func newWebFeature(stage *example.Stage) (*web_feature.WebFeature, error) {
 	if err := stage.AddSubAdmin(); err != nil {
 		return nil, err
 	}
-	w, err := web_feature.New(stage.Caskin, nil)
+	model, err := caskin.CasbinModelText(false)
+	if err != nil {
+		return nil, err
+	}
+
+	options := &web_feature.Options{
+		Caskin: stage.Caskin,
+		DomainFactory: stage.Options.GetSuperadminDomain,
+		ObjectFactory: stage.Options.EntryFactory.NewObject,
+		MetaDB: stage.Options.MetaDB,
+		ModelText: model,
+	}
+
+	w, err := web_feature.New(options)
 	if err != nil {
 		return nil, err
 	}

@@ -8,13 +8,9 @@ import (
 )
 
 func TestCasbinModel(t *testing.T) {
-	_, err1 := caskin.CasbinModel(&caskin.Options{})
+	_, err1 := caskin.CasbinModel(false)
 	assert.NoError(t, err1)
-	_, err2 := caskin.CasbinModel(&caskin.Options{
-		SuperadminOption: &caskin.SuperadminOption{
-			Disable: true,
-		},
-	})
+	_, err2 := caskin.CasbinModel(true)
 	assert.NoError(t, err2)
 }
 

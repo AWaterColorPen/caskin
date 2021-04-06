@@ -8,5 +8,4 @@ var (
 
 func main() {
 	flag.Parse()
-
 }

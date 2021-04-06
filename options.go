@@ -16,24 +16,20 @@ var (
 	DefaultSeparator = "$$"
 )
 
-// SuperadminOption option of superadmin
-type SuperadminOption struct {
-	Disable bool          `json:"disable"` // default is false
-	Role    func() Role   `json:"-"`       // provide superadmin Role
-	Domain  func() Domain `json:"-"`       // provide superadmin Domain
-}
-
 type Option func(*Options)
 
 // Options configuration for caskin
 type Options struct {
-	SuperadminOption *SuperadminOption `json:"super_admin_option"` // options for configuration
+	// options of superadmin
+	SuperadminDisable bool          `json:"superadmin_disable"` // default is false
+	SuperadminRole    RoleFactory   `json:"-"`                  // provide superadmin Role
+	SuperadminDomain  DomainFactory `json:"-"`                  // provide superadmin Domain
 
 	// options for implementations of the interface
-	DomainCreator DomainCreator
-	Enforcer      casbin.IEnforcer
-	EntryFactory  EntryFactory
-	MetaDB        MetaDB
+	DomainCreator DomainCreator    `json:"-"`
+	Enforcer      casbin.IEnforcer `json:"-"`
+	EntryFactory  EntryFactory     `json:"-"`
+	MetaDB        MetaDB           `json:"-"`
 }
 
 func (o *Options) newOptions(opts ...Option) *Options {
@@ -43,29 +39,29 @@ func (o *Options) newOptions(opts ...Option) *Options {
 	return o
 }
 
-func (o *Options) IsDisableSuperAdmin() bool {
-	return o.SuperadminOption != nil && o.SuperadminOption.Disable
+func (o *Options) IsDisableSuperadmin() bool {
+	return o.SuperadminDisable
 }
 
 func (o *Options) GetSuperadminRole() Role {
-	if o.IsDisableSuperAdmin() {
+	if o.IsDisableSuperadmin() {
 		return nil
 	}
 
-	if o.SuperadminOption != nil && o.SuperadminOption.Role != nil {
-		return o.SuperadminOption.Role()
+	if o.SuperadminRole != nil {
+		return o.SuperadminRole()
 	}
 
 	return &SampleSuperadminRole{}
 }
 
 func (o *Options) GetSuperadminDomain() Domain {
-	if o.IsDisableSuperAdmin() {
+	if o.IsDisableSuperadmin() {
 		return nil
 	}
 
-	if o.SuperadminOption != nil && o.SuperadminOption.Domain != nil {
-		return o.SuperadminOption.Domain()
+	if o.SuperadminDomain != nil {
+		return o.SuperadminDomain()
 	}
 
 	return &SampleSuperAdminDomain{}
