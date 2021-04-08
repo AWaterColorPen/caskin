@@ -14,31 +14,33 @@ type Options struct {
 
 type WebFeature struct {
 	options *Options
+	root    *Root
+}
+
+func (w *WebFeature) GetRoot() *Root {
+	return w.root
 }
 
 func (w *WebFeature) GetExecutor(provider caskin.CurrentProvider) *Executor {
 	e := w.options.Caskin.GetExecutor(provider)
 	return &Executor{
 		e:               e,
+		root:            w.root,
 		objectFactory:   w.options.ObjectFactory,
 		operationDomain: w.options.DomainFactory(),
 		modelText:       w.options.ModelText,
 	}
 }
 
-func New(options *Options) (w *WebFeature, err error) {
-	err = options.MetaDB.AutoMigrate(&WebFeatureVersion{})
-	if err != nil {
-		return
+func New(options *Options) (*WebFeature, error) {
+	if err := options.MetaDB.AutoMigrate(&WebFeatureVersion{}); err != nil {
+		return nil, err
 	}
 
-	w = &WebFeature{options: options}
-	once.Do(func() {
-		factory := options.ObjectFactory
-		domain := options.DomainFactory()
-		db := options.MetaDB
-		err = ManualCreateRootObject(db, factory, domain)
-	})
+	root, err := InitRootObject(options.MetaDB, options.ObjectFactory, options.DomainFactory())
+	if err != nil {
+		return nil, err
+	}
 
-	return
+	return &WebFeature{options: options, root: root}, nil
 }

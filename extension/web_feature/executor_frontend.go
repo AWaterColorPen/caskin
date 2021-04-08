@@ -9,7 +9,7 @@ func (e *Executor) CreateFrontend(frontend *Frontend, object caskin.Object) erro
 	if err := isEmptyObject(object); err != nil {
 		return err
 	}
-	setFrontendRoot(object)
+	e.setFrontendRoot(object)
 	return e.e.CreateObjectWithCustomizedData(frontend, object)
 }
 
@@ -34,7 +34,7 @@ func (e *Executor) UpdateFrontend(frontend *Frontend, object caskin.Object) erro
 	if err := e.operationPermissionCheck(); err != nil {
 		return err
 	}
-	setFrontendRoot(object)
+	e.setFrontendRoot(object)
 	return e.e.UpdateObjectWithCustomizedData(frontend, object)
 }
 

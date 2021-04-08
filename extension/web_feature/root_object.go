@@ -1,58 +1,76 @@
 package web_feature
 
 import (
-	"github.com/ahmetb/go-linq/v3"
-	"sync"
 	"time"
 
+	"github.com/ahmetb/go-linq/v3"
 	"github.com/awatercolorpen/caskin"
 )
 
-var (
-	superRootObject    caskin.Object
-	featureRootObject  caskin.Object
-	frontendRootObject caskin.Object
-	backendRootObject  caskin.Object
-	once               sync.Once
-)
-
-func GetFeatureRootObject() caskin.Object {
-	return featureRootObject
+type Root struct {
+	Super    caskin.Object `json:"super"`
+	Feature  caskin.Object `json:"feature"`
+	Frontend caskin.Object `json:"frontend"`
+	Backend  caskin.Object `json:"backend"`
 }
 
-func GetFrontendRootObject() caskin.Object {
-	return frontendRootObject
+func (r *Root) GetFeatureRootObject() caskin.Object {
+	return r.Feature
 }
 
-func GetBackendRootObject() caskin.Object {
-	return backendRootObject
+func (r *Root) GetFrontendRootObject() caskin.Object {
+	return r.Frontend
 }
 
-func ManualCreateRootObject(db caskin.MetaDB, factory caskin.ObjectFactory, domain caskin.Domain) (err error) {
-	superRootObject = staticSuperRootObject(factory)
-	superRootObject.SetDomainID(domain.GetID())
-	if err = doOnceSuperRoot(db, superRootObject); err != nil {
-		return err
+func (r *Root) GetBackendRootObject() caskin.Object {
+	return r.Backend
+}
+
+func (r *Root) SetFeatureRoot(object caskin.Object) {
+	r.setRootID(object, r.Feature)
+}
+
+func (r *Root) SetFrontendRoot(object caskin.Object) {
+	r.setRootID(object, r.Frontend)
+}
+
+func (r *Root) SetBackendRoot(object caskin.Object) {
+	r.setRootID(object, r.Backend)
+}
+
+func (r *Root) setRootID(object caskin.Object, root caskin.Object) {
+	if object.GetParentID() == 0 {
+		object.SetParentID(root.GetID())
+	}
+	object.SetObjectID(r.Super.GetID())
+}
+
+func InitRootObject(db caskin.MetaDB, factory caskin.ObjectFactory, domain caskin.Domain) (*Root, error) {
+	r := &Root{}
+	r.Super = staticSuperRootObject(factory)
+	r.Super.SetDomainID(domain.GetID())
+	if err := doOnceSuperRoot(db, r.Super); err != nil {
+		return nil, err
 	}
 
-	featureRootObject = staticRootObject(staticFeatureRoot(), factory)
-	frontendRootObject = staticRootObject(staticFrontendRoot(), factory)
-	backendRootObject = staticRootObject(staticBackendRoot(), factory)
-	for _, v := range []caskin.Object{featureRootObject, frontendRootObject, backendRootObject} {
+	r.Feature = staticRootObject(staticFeatureRoot(), factory)
+	r.Frontend = staticRootObject(staticFrontendRoot(), factory)
+	r.Backend = staticRootObject(staticBackendRoot(), factory)
+	for _, v := range []caskin.Object{r.Feature, r.Frontend, r.Backend} {
 		v.SetDomainID(domain.GetID())
-		v.SetObjectID(superRootObject.GetID())
+		v.SetObjectID(r.Super.GetID())
 	}
 
-	if err = doOnceCustomizedData(db, featureRootObject, staticFeatureRoot(), factory); err != nil {
-		return err
+	if err := doOnceCustomizedData(db, r.Feature, staticFeatureRoot(), factory); err != nil {
+		return nil, err
 	}
-	if err = doOnceCustomizedData(db, frontendRootObject, staticFrontendRoot(), factory); err != nil {
-		return err
+	if err := doOnceCustomizedData(db, r.Frontend, staticFrontendRoot(), factory); err != nil {
+		return nil, err
 	}
-	if err = doOnceCustomizedData(db, backendRootObject, staticBackendRoot(), factory); err != nil {
-		return err
+	if err := doOnceCustomizedData(db, r.Backend, staticBackendRoot(), factory); err != nil {
+		return nil, err
 	}
-	return
+	return r, nil
 }
 
 func staticFeatureRoot() caskin.CustomizedData {
@@ -93,25 +111,6 @@ func staticRootObject(customized caskin.CustomizedData, factory caskin.ObjectFac
 	o.SetName(customized.GetName())
 	o.SetObjectType(customized.GetObjectType())
 	return o
-}
-
-func setRootID(object caskin.Object, root caskin.Object) {
-	if object.GetParentID() == 0 {
-		object.SetParentID(root.GetID())
-	}
-	object.SetObjectID(superRootObject.GetID())
-}
-
-func setFeatureRoot(object caskin.Object) {
-	setRootID(object, GetFeatureRootObject())
-}
-
-func setFrontendRoot(object caskin.Object) {
-	setRootID(object, GetFrontendRootObject())
-}
-
-func setBackendRoot(object caskin.Object) {
-	setRootID(object, GetBackendRootObject())
 }
 
 func doOnceSuperRoot(db caskin.MetaDB, item interface{}) (err error) {

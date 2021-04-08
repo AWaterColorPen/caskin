@@ -88,7 +88,7 @@ func TestExecutorVersion_SyncLatestVersionToAllDomain(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Len(t, list1, 0)
 
-	assert.NoError(t, reinitializeDomainWithWebFeature(stage))
+	assert.NoError(t, reinitializeDomainWithWebFeature(stage, w.GetRoot()))
 	list2, err := executor.NormalDomainGetFeatureObject()
 	assert.NoError(t, err)
 	assert.Len(t, list2, 5)
@@ -116,7 +116,7 @@ func TestExecutorVersion_SyncCompatible(t *testing.T) {
 	executor := w.GetExecutor(provider)
 	assert.NoError(t, executor.BuildVersion())
 	assert.NoError(t, executor.SyncLatestVersionToAllDomain())
-	assert.NoError(t, reinitializeDomainWithWebFeature(stage))
+	assert.NoError(t, reinitializeDomainWithWebFeature(stage, w.GetRoot()))
 
 	// delete feature object
 	provider.Domain = stage.Options.GetSuperadminDomain()
@@ -145,7 +145,7 @@ func TestExecutorVersion_SyncToUpdateAuth(t *testing.T) {
 	executor := w.GetExecutor(provider)
 	assert.NoError(t, executor.BuildVersion())
 	assert.NoError(t, executor.SyncLatestVersionToAllDomain())
-	assert.NoError(t, reinitializeDomainWithWebFeature(stage))
+	assert.NoError(t, reinitializeDomainWithWebFeature(stage, w.GetRoot()))
 
 	// add one feature policy for sub admin
 	executor1 := stage.Caskin.GetExecutor(provider)

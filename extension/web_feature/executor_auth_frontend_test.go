@@ -22,7 +22,7 @@ func TestExecutorAuthFrontend_CaskinStruct(t *testing.T) {
 
 	assert.NoError(t, executor.BuildVersion())
 	assert.NoError(t, executor.SyncLatestVersionToAllDomain())
-	assert.NoError(t, reinitializeDomainWithWebFeature(stage))
+	assert.NoError(t, reinitializeDomainWithWebFeature(stage, w.GetRoot()))
 
 	provider.Domain = stage.Domain
 	provider.User = stage.AdminUser

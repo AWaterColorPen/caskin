@@ -5,11 +5,23 @@ import (
 )
 
 type Executor struct {
-	e                         *caskin.Executor
-	objectFactory             caskin.ObjectFactory
-	operationDomain           caskin.Domain
-	modelText                 string
-	FeatureRootObject         func() caskin.Object
+	e              *caskin.Executor
+	root           *Root
+	objectFactory   caskin.ObjectFactory
+	operationDomain caskin.Domain
+	modelText       string
+}
+
+func (e *Executor) setBackendRoot(object caskin.Object) {
+	e.root.SetBackendRoot(object)
+}
+
+func (e *Executor) setFeatureRoot(object caskin.Object) {
+	e.root.SetFeatureRoot(object)
+}
+
+func (e *Executor) setFrontendRoot(object caskin.Object) {
+	e.root.SetFrontendRoot(object)
 }
 
 func (e *Executor) get3pair() (feature, frontend, backend []*caskin.CustomizedDataPair, err error) {
@@ -26,7 +38,7 @@ func (e *Executor) get3pair() (feature, frontend, backend []*caskin.CustomizedDa
 }
 
 func (e *Executor) allWebFeatureRelation(domain caskin.Domain) caskin.InheritanceRelations {
-	queue := []caskin.Object{GetFeatureRootObject(), GetBackendRootObject(), GetFrontendRootObject()}
+	queue := []caskin.Object{e.root.Feature, e.root.Frontend, e.root.Backend}
 	inQueue := map[uint64]bool{}
 	for _, v := range queue {
 		inQueue[v.GetID()] = true

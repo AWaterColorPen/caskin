@@ -169,5 +169,44 @@ func Init(configuration *Configuration) (err error) {
 	once.Do(func() {
 		instance, err = newManager(configuration)
 	})
-	return nil
+	return
+}
+
+func GetDomainCreatorFactory() (*domain_creator.Factory, error) {
+	m, err := getManager()
+	if err != nil {
+		return nil, err
+	}
+
+	if m.domainCreatorFactory == nil {
+		return nil, ErrNoInitialization
+	}
+
+	return m.domainCreatorFactory, nil
+}
+
+func GetWebFeature() (*web_feature.WebFeature, error) {
+	m, err := getManager()
+	if err != nil {
+		return nil, err
+	}
+
+	if m.webFeature == nil {
+		return nil, ErrNoInitialization
+	}
+
+	return m.webFeature, nil
+}
+
+func GetCaskin() (*caskin.Caskin, error) {
+	m, err := getManager()
+	if err != nil {
+		return nil, err
+	}
+
+	if m.caskin == nil {
+		return nil, ErrNoInitialization
+	}
+
+	return m.caskin, nil
 }

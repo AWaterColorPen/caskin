@@ -48,11 +48,11 @@ func (m *manager) extensionWebFeature(configuration *Configuration) (*web_featur
 	}
 
 	options := &web_feature.Options{
-		Caskin: m.caskin,
+		Caskin:        m.caskin,
 		DomainFactory: m.caskin.GetOptions().GetSuperadminDomain,
 		ObjectFactory: configuration.EntryFactory.NewObject,
-		MetaDB: configuration.MetaDB,
-		ModelText: model,
+		MetaDB:        configuration.MetaDB,
+		ModelText:     model,
 	}
 
 	return web_feature.New(options)

@@ -3,7 +3,7 @@ package caskin
 import (
 	"bytes"
 	"encoding/json"
-	
+
 	"gorm.io/datatypes"
 )
 

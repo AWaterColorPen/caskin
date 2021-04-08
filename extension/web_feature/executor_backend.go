@@ -11,7 +11,7 @@ func (e *Executor) CreateBackend(backend *Backend, object caskin.Object) error {
 	if err := isEmptyObject(object); err != nil {
 		return err
 	}
-	setBackendRoot(object)
+	e.setBackendRoot(object)
 	return e.e.CreateObjectWithCustomizedData(backend, object)
 }
 
@@ -36,7 +36,7 @@ func (e *Executor) UpdateBackend(backend *Backend, object caskin.Object) error {
 	if err := e.operationPermissionCheck(); err != nil {
 		return err
 	}
-	setBackendRoot(object)
+	e.setBackendRoot(object)
 	return e.e.UpdateObjectWithCustomizedData(backend, object)
 }
 

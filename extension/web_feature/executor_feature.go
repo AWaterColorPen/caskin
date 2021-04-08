@@ -11,7 +11,7 @@ func (e *Executor) CreateFeature(feature *Feature, object caskin.Object) error {
 	if err := isEmptyObject(object); err != nil {
 		return err
 	}
-	setFeatureRoot(object)
+	e.setFeatureRoot(object)
 	return e.e.CreateObjectWithCustomizedData(feature, object)
 }
 
@@ -51,7 +51,7 @@ func (e *Executor) UpdateFeature(feature *Feature, object caskin.Object) error {
 	if err := e.operationPermissionCheck(); err != nil {
 		return err
 	}
-	setFeatureRoot(object)
+	e.setFeatureRoot(object)
 	return e.e.UpdateObjectWithCustomizedData(feature, object)
 }
 

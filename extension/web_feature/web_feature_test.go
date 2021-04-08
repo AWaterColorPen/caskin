@@ -19,10 +19,10 @@ const (
 func TestWebFeature(t *testing.T) {
 	stage, err := example.NewStageWithSqlitePath(t.TempDir())
 	assert.NoError(t, err)
-	_, err = newWebFeature(stage)
+	w, err := newWebFeature(stage)
 	assert.NoError(t, err)
 
-	object1 := web_feature.GetFeatureRootObject()
+	object1 := w.GetRoot().GetFeatureRootObject()
 	assert.NotNil(t, object1)
 	assert.Equal(t, frontendStartID-3, object1.GetID())
 	feature, err := caskin.Object2CustomizedData(object1, web_feature.FeatureFactory)
@@ -31,7 +31,7 @@ func TestWebFeature(t *testing.T) {
 	assert.Equal(t, web_feature.DefaultFeatureRootDescription, feature.(*web_feature.Feature).Description)
 	assert.Equal(t, web_feature.DefaultFeatureRootGroup, feature.(*web_feature.Feature).Group)
 
-	object2 := web_feature.GetFrontendRootObject()
+	object2 := w.GetRoot().GetFrontendRootObject()
 	assert.NotNil(t, object2)
 	assert.Equal(t, frontendStartID-2, object2.GetID())
 	frontend, err := caskin.Object2CustomizedData(object2, web_feature.FrontendFactory)
@@ -41,7 +41,7 @@ func TestWebFeature(t *testing.T) {
 	assert.Equal(t, web_feature.DefaultFrontendRootDescription, frontend.(*web_feature.Frontend).Description)
 	assert.Equal(t, web_feature.DefaultFrontendRootGroup, frontend.(*web_feature.Frontend).Group)
 
-	object3 := web_feature.GetBackendRootObject()
+	object3 := w.GetRoot().GetBackendRootObject()
 	assert.NotNil(t, object3)
 	assert.Equal(t, frontendStartID-1, object3.GetID())
 	backend, err := caskin.Object2CustomizedData(object3, web_feature.BackendFactory)
@@ -73,9 +73,8 @@ func newWebFeature(stage *example.Stage) (*web_feature.WebFeature, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err := web_feature.ManualCreateRootObject(stage.Options.MetaDB,
-		stage.Options.EntryFactory.NewObject,
-		stage.Options.GetSuperadminDomain()); err != nil {
+	_, err = web_feature.InitRootObject(options.MetaDB, options.ObjectFactory, options.DomainFactory())
+	if err != nil {
 		return nil, err
 	}
 
@@ -139,8 +138,8 @@ func newWebFeature(stage *example.Stage) (*web_feature.WebFeature, error) {
 	return w, nil
 }
 
-func reinitializeDomainWithWebFeature(stage *example.Stage) error {
-	stage.Options.DomainCreator = NewTestCreator
+func reinitializeDomainWithWebFeature(stage *example.Stage, root *web_feature.Root) error {
+	stage.Options.DomainCreator = NewTestCreator(root)
 	provider := caskin.NewCachedProvider(stage.SuperadminUser, stage.Options.GetSuperadminDomain())
 	executor := stage.Caskin.GetExecutor(provider)
 	return executor.ReInitializeDomain(stage.Domain)
@@ -150,10 +149,16 @@ type testCreator struct {
 	domain  caskin.Domain
 	objects []caskin.Object
 	roles   []caskin.Role
+	root    *web_feature.Root
 }
 
-func NewTestCreator(domain caskin.Domain) caskin.Creator {
-	return &testCreator{domain: domain}
+func NewTestCreator(root *web_feature.Root) func(caskin.Domain) caskin.Creator  {
+	return func(domain caskin.Domain) caskin.Creator {
+		return &testCreator{
+			domain: domain,
+			root: root,
+		}
+	}
 }
 
 func (t *testCreator) BuildCreator() ([]caskin.Role, []caskin.Object) {
@@ -191,7 +196,7 @@ func (t *testCreator) GetObjects() []caskin.Object {
 
 func (t *testCreator) GetPolicy() []*caskin.Policy {
 	return []*caskin.Policy{
-		{t.roles[0], web_feature.GetFeatureRootObject(), t.domain, caskin.Read},
+		{t.roles[0], t.root.Feature, t.domain, caskin.Read},
 		{t.roles[0], t.objects[0], t.domain, caskin.Read},
 		{t.roles[0], t.objects[0], t.domain, caskin.Write},
 		{t.roles[0], t.objects[1], t.domain, caskin.Read},

@@ -22,7 +22,7 @@ func TestExecutorNormalDomain_GetFeature(t *testing.T) {
 
 	assert.NoError(t, executor.BuildVersion())
 	assert.NoError(t, executor.SyncLatestVersionToAllDomain())
-	assert.NoError(t, reinitializeDomainWithWebFeature(stage))
+	assert.NoError(t, reinitializeDomainWithWebFeature(stage, w.GetRoot()))
 
 	executor1 := stage.Caskin.GetExecutor(provider)
 	provider.Domain = stage.Domain
@@ -71,7 +71,7 @@ func TestExecutorNormalDomain_PolicyList(t *testing.T) {
 
 	assert.NoError(t, executor.BuildVersion())
 	assert.NoError(t, executor.SyncLatestVersionToAllDomain())
-	assert.NoError(t, reinitializeDomainWithWebFeature(stage))
+	assert.NoError(t, reinitializeDomainWithWebFeature(stage, w.GetRoot()))
 
 	executor1 := stage.Caskin.GetExecutor(provider)
 	provider.Domain = stage.Domain
