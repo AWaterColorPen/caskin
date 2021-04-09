@@ -1,21 +1,13 @@
 package example
 
 import (
-	"path/filepath"
-
 	"github.com/awatercolorpen/caskin"
+	"github.com/awatercolorpen/caskin/extension/manager"
 	"github.com/casbin/casbin/v2"
 	gormadapter "github.com/casbin/gorm-adapter/v3"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
 )
 
-func getDB(path string) (*gorm.DB, error) {
-	dsn := filepath.Join(path, "sqlite")
-	return gorm.Open(sqlite.Open(dsn), &gorm.Config{})
-}
-
-func NewCaskin(options *caskin.Options, sqlitePath string) (*caskin.Caskin, error) {
+func NewManager(configuration *manager.Configuration, sqlitePath string) (*manager.Manager, error) {
 	db, err := getDB(sqlitePath)
 	if err != nil {
 		return nil, err
@@ -41,10 +33,15 @@ func NewCaskin(options *caskin.Options, sqlitePath string) (*caskin.Caskin, erro
 		return nil, err
 	}
 
-	return caskin.New(options,
-		caskin.DomainCreatorOption(NewDomainCreator),
-		caskin.EnforcerOption(enforcer),
-		caskin.EntryFactoryOption(&EntryFactory{}),
-		caskin.MetaDBOption(NewGormMDBByDB(db)),
-	)
+	config := &manager.Configuration{
+		DomainCreator: NewDomainCreator,
+		Enforcer:      enforcer,
+		EntryFactory:  &EntryFactory{},
+		MetaDB:        NewGormMDBByDB(db),
+		Extension: &manager.Extension{
+			WebFeature:    0,
+		},
+	}
+
+	return manager.NewManager(config)
 }

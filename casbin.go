@@ -236,14 +236,14 @@ func (e *enforcer) RemoveRoleInDomain(role Role, domain Domain) error {
 
 	ps := e.GetParentsForRoleInDomain(role, domain)
 	for _, v := range ps {
-		if err := e.RemoveRoleForUserInDomain(v, role, domain); err != nil {
+		if err := e.RemoveParentForRoleInDomain(role, v, domain); err != nil {
 			return err
 		}
 	}
 
 	cs := e.GetChildrenForRoleInDomain(role, domain)
 	for _, v := range cs {
-		if err := e.RemoveRoleForUserInDomain(role, v, domain); err != nil {
+		if err := e.RemoveParentForRoleInDomain(v, role, domain); err != nil {
 			return err
 		}
 	}

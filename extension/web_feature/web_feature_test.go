@@ -52,11 +52,24 @@ func TestWebFeature(t *testing.T) {
 	assert.Equal(t, web_feature.DefaultBackendRootGroup, backend.(*web_feature.Backend).Group)
 }
 
+// func newWebFeature2(stage *example.Stage) (*web_feature.WebFeature, error) {
+// 	config := &manager.Configuration{
+// 		DomainCreator: example.NewDomainCreator,
+// 		Enforcer:      e,
+// 		EntryFactory:  &example.EntryFactory{},
+// 		MetaDB:        example.NewGormMDBByDB(db),
+// 		Extension: &manager.Extension{
+// 			DomainCreator: 0,
+// 			WebFeature:    0,
+// 		},
+// 	}
+//
+// }
 func newWebFeature(stage *example.Stage) (*web_feature.WebFeature, error) {
 	if err := stage.AddSubAdmin(); err != nil {
 		return nil, err
 	}
-	model, err := caskin.CasbinModelText(false)
+	model, err := caskin.CasbinModelText()
 	if err != nil {
 		return nil, err
 	}

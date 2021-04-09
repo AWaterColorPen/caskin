@@ -25,7 +25,7 @@ func enforcer(db *gorm.DB) (casbin.IEnforcer, error) {
 		return nil, err
 	}
 
-	m, err := caskin.CasbinModel(false)
+	m, err := caskin.CasbinModel()
 	if err != nil {
 		return nil, err
 	}

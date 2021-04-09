@@ -13,13 +13,13 @@ var (
 	ErrExtensionConfigurationConflict = fmt.Errorf("extension configuration conflict")
 )
 
-type manager struct {
+type Manager struct {
 	domainCreatorFactory *domain_creator.Factory
 	webFeature           *web_feature.WebFeature
 	caskin               *caskin.Caskin
 }
 
-func (m *manager) GetDomainCreatorFactory() (*domain_creator.Factory, error) {
+func (m *Manager) GetDomainCreatorFactory() (*domain_creator.Factory, error) {
 	if m.domainCreatorFactory == nil {
 		return nil, ErrNoInitialization
 	}
@@ -27,7 +27,7 @@ func (m *manager) GetDomainCreatorFactory() (*domain_creator.Factory, error) {
 	return m.domainCreatorFactory, nil
 }
 
-func (m *manager) GetWebFeature() (*web_feature.WebFeature, error) {
+func (m *Manager) GetWebFeature() (*web_feature.WebFeature, error) {
 	if m.webFeature == nil {
 		return nil, ErrNoInitialization
 	}
@@ -35,7 +35,7 @@ func (m *manager) GetWebFeature() (*web_feature.WebFeature, error) {
 	return m.webFeature, nil
 }
 
-func (m *manager) GetCaskin() (*caskin.Caskin, error) {
+func (m *Manager) GetCaskin() (*caskin.Caskin, error) {
 	if m.caskin == nil {
 		return nil, ErrNoInitialization
 	}
@@ -43,7 +43,7 @@ func (m *manager) GetCaskin() (*caskin.Caskin, error) {
 	return m.caskin, nil
 }
 
-func NewManager(configuration *Configuration) (*manager, error) {
+func NewManager(configuration *Configuration) (*Manager, error) {
 	// set default caskin option
 	if configuration.DefaultSeparator != "" {
 		caskin.DefaultSeparator = configuration.DefaultSeparator
@@ -116,7 +116,7 @@ func NewManager(configuration *Configuration) (*manager, error) {
 		domain_creator.DefaultDomainCreatorPolicyTableName = configuration.DefaultDomainCreatorPolicyTableName
 	}
 
-	m := &manager{}
+	m := &Manager{}
 	// initialize prefix extension
 	if extension := configuration.Extension; extension != nil {
 		if domainCreatorFactory, err := m.extensionDomainCreator(configuration); err != nil {

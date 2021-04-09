@@ -33,7 +33,7 @@ func (e *Executor) GetPolicyList() ([]*Policy, error) {
 			if object, ok := om[p.Object.GetID()]; ok {
 				list = append(list, &Policy{
 					Role:   v,
-					Object: object.(Object),
+					Object: object,
 					Domain: currentDomain,
 					Action: p.Action,
 				})
@@ -71,7 +71,7 @@ func (e *Executor) GetPolicyListByRole(role Role) ([]*Policy, error) {
 		if object, ok := om[p.Object.GetID()]; ok {
 			list = append(list, &Policy{
 				Role:   role,
-				Object: object.(Object),
+				Object: object,
 				Domain: currentDomain,
 				Action: p.Action,
 			})
@@ -107,7 +107,7 @@ func (e *Executor) GetPolicyListByObject(object Object) ([]*Policy, error) {
 	for _, p := range policy {
 		if role, ok := rm[p.Role.GetID()]; ok {
 			list = append(list, &Policy{
-				Role:   role.(Role),
+				Role:   role,
 				Object: object,
 				Domain: currentDomain,
 				Action: p.Action,

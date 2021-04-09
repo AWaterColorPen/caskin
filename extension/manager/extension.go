@@ -6,7 +6,7 @@ import (
 	"github.com/awatercolorpen/caskin/extension/web_feature"
 )
 
-func (m *manager) extensionDomainCreator(configuration *Configuration) (*domain_creator.Factory, error) {
+func (m *Manager) extensionDomainCreator(configuration *Configuration) (*domain_creator.Factory, error) {
 	if configuration.Extension == nil || configuration.Extension.DomainCreator == nil {
 		return nil, nil
 	}
@@ -24,7 +24,7 @@ func (m *manager) extensionDomainCreator(configuration *Configuration) (*domain_
 	return domain_creator.NewFactory(configuration.DB, configuration.EntryFactory)
 }
 
-func (m *manager) extensionWebFeature(configuration *Configuration) (*web_feature.WebFeature, error) {
+func (m *Manager) extensionWebFeature(configuration *Configuration) (*web_feature.WebFeature, error) {
 	if configuration.Extension == nil || configuration.Extension.WebFeature == nil {
 		return nil, nil
 	}
@@ -32,7 +32,7 @@ func (m *manager) extensionWebFeature(configuration *Configuration) (*web_featur
 		return nil, ErrExtensionConfigurationConflict
 	}
 
-	model, err := caskin.CasbinModelText(false)
+	model, err := caskin.CasbinModelText()
 	if err != nil {
 		return nil, err
 	}
