@@ -2,23 +2,15 @@ package manager
 
 import (
 	"fmt"
-	"sync"
-
 	"github.com/awatercolorpen/caskin"
 	"github.com/awatercolorpen/caskin/extension/domain_creator"
 	"github.com/awatercolorpen/caskin/extension/web_feature"
 )
 
 var (
-	ErrDuplicateInitialization        = fmt.Errorf("can't duplicate initialization")
 	ErrNoInitialization               = fmt.Errorf("it is no initialization")
 	ErrInitializationNilDB            = fmt.Errorf("gorm DB is nil")
 	ErrExtensionConfigurationConflict = fmt.Errorf("extension configuration conflict")
-)
-
-var (
-	instance *manager
-	once     sync.Once
 )
 
 type manager struct {
@@ -27,7 +19,31 @@ type manager struct {
 	caskin               *caskin.Caskin
 }
 
-func newManager(configuration *Configuration) (*manager, error) {
+func (m *manager) GetDomainCreatorFactory() (*domain_creator.Factory, error) {
+	if m.domainCreatorFactory == nil {
+		return nil, ErrNoInitialization
+	}
+
+	return m.domainCreatorFactory, nil
+}
+
+func (m *manager) GetWebFeature() (*web_feature.WebFeature, error) {
+	if m.webFeature == nil {
+		return nil, ErrNoInitialization
+	}
+
+	return m.webFeature, nil
+}
+
+func (m *manager) GetCaskin() (*caskin.Caskin, error) {
+	if m.caskin == nil {
+		return nil, ErrNoInitialization
+	}
+
+	return m.caskin, nil
+}
+
+func NewManager(configuration *Configuration) (*manager, error) {
 	// set default caskin option
 	if configuration.DefaultSeparator != "" {
 		caskin.DefaultSeparator = configuration.DefaultSeparator
@@ -153,60 +169,3 @@ func newManager(configuration *Configuration) (*manager, error) {
 	return m, nil
 }
 
-func getManager() (*manager, error) {
-	if instance == nil {
-		return nil, ErrNoInitialization
-	}
-
-	return instance, nil
-}
-
-func Init(configuration *Configuration) (err error) {
-	if instance != nil {
-		return ErrDuplicateInitialization
-	}
-
-	once.Do(func() {
-		instance, err = newManager(configuration)
-	})
-	return
-}
-
-func GetDomainCreatorFactory() (*domain_creator.Factory, error) {
-	m, err := getManager()
-	if err != nil {
-		return nil, err
-	}
-
-	if m.domainCreatorFactory == nil {
-		return nil, ErrNoInitialization
-	}
-
-	return m.domainCreatorFactory, nil
-}
-
-func GetWebFeature() (*web_feature.WebFeature, error) {
-	m, err := getManager()
-	if err != nil {
-		return nil, err
-	}
-
-	if m.webFeature == nil {
-		return nil, ErrNoInitialization
-	}
-
-	return m.webFeature, nil
-}
-
-func GetCaskin() (*caskin.Caskin, error) {
-	m, err := getManager()
-	if err != nil {
-		return nil, err
-	}
-
-	if m.caskin == nil {
-		return nil, ErrNoInitialization
-	}
-
-	return m.caskin, nil
-}

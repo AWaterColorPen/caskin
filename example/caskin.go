@@ -5,7 +5,6 @@ import (
 
 	"github.com/awatercolorpen/caskin"
 	"github.com/casbin/casbin/v2"
-	"github.com/casbin/casbin/v2/model"
 	gormadapter "github.com/casbin/gorm-adapter/v3"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -14,20 +13,6 @@ import (
 func getDB(path string) (*gorm.DB, error) {
 	dsn := filepath.Join(path, "sqlite")
 	return gorm.Open(sqlite.Open(dsn), &gorm.Config{})
-}
-
-var casbinModelMap = map[bool]model.Model{}
-
-func GetCasbinModel(options *caskin.Options) (model.Model, error) {
-	k := options.IsDisableSuperadmin()
-	if _, ok := casbinModelMap[k]; !ok {
-		m, err := caskin.CasbinModel(options.IsDisableSuperadmin())
-		if err != nil {
-			return nil, err
-		}
-		casbinModelMap[k] = m
-	}
-	return casbinModelMap[k], nil
 }
 
 func NewCaskin(options *caskin.Options, sqlitePath string) (*caskin.Caskin, error) {
@@ -46,7 +31,7 @@ func NewCaskin(options *caskin.Options, sqlitePath string) (*caskin.Caskin, erro
 		return nil, err
 	}
 
-	m, err := GetCasbinModel(options)
+	m, err := caskin.CasbinModel(options.IsDisableSuperadmin())
 	if err != nil {
 		return nil, err
 	}
