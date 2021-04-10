@@ -225,11 +225,13 @@ func (e *enforcer) RemoveUserInDomain(user User, domain Domain) error {
 }
 
 func (e *enforcer) RemoveRoleInDomain(role Role, domain Domain) error {
-	// TODO issue 4: delete role's relation, should you yi ding de shun xun
-	// to check the delete logic
-	us := e.GetUsersForRoleInDomain(role, domain)
-	for _, v := range us {
-		if err := e.RemoveRoleForUserInDomain(v, role, domain); err != nil {
+	if _, err := e.e.RemoveFilteredPolicy(0, role.Encode(), domain.Encode()); err != nil {
+		return err
+	}
+
+	cs := e.GetChildrenForRoleInDomain(role, domain)
+	for _, v := range cs {
+		if err := e.RemoveParentForRoleInDomain(v, role, domain); err != nil {
 			return err
 		}
 	}
@@ -241,25 +243,19 @@ func (e *enforcer) RemoveRoleInDomain(role Role, domain Domain) error {
 		}
 	}
 
-	cs := e.GetChildrenForRoleInDomain(role, domain)
-	for _, v := range cs {
-		if err := e.RemoveParentForRoleInDomain(v, role, domain); err != nil {
+	us := e.GetUsersForRoleInDomain(role, domain)
+	for _, v := range us {
+		if err := e.RemoveRoleForUserInDomain(v, role, domain); err != nil {
 			return err
 		}
 	}
 
-	_, err := e.e.RemoveFilteredPolicy(0, role.Encode(), domain.Encode())
-	return err
+	return nil
 }
 
 func (e *enforcer) RemoveObjectInDomain(object Object, domain Domain) error {
-	// TODO issue 5: delete object's relation, should you yi ding de shun xun
-	// to check the delete logic
-	ps := e.GetParentsForObjectInDomain(object, domain)
-	for _, v := range ps {
-		if err := e.RemoveParentForObjectInDomain(object, v, domain); err != nil {
-			return err
-		}
+	if _, err := e.e.RemoveFilteredPolicy(1, domain.Encode(), object.Encode()); err != nil {
+		return err
 	}
 
 	cs := e.GetChildrenForObjectInDomain(object, domain)
@@ -269,8 +265,14 @@ func (e *enforcer) RemoveObjectInDomain(object Object, domain Domain) error {
 		}
 	}
 
-	_, err := e.e.RemoveFilteredPolicy(1, domain.Encode(), object.Encode())
-	return err
+	ps := e.GetParentsForObjectInDomain(object, domain)
+	for _, v := range ps {
+		if err := e.RemoveParentForObjectInDomain(object, v, domain); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (e *enforcer) AddPolicyInDomain(role Role, object Object, domain Domain, action Action) error {

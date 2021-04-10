@@ -9,7 +9,6 @@
 - issue
   - [ ] issue 1: any way to fix the behaviour
   - [ ] issue 2: if object type == object, it will not recover it by admin user now. we want to support it by a special API
-  - [ ] issue 4: delete role's relation, should you yi ding de shun xu
-  - [ ] issue 5: delete object's relation, should you yi ding de shun xu
   - [ ] issue 6: remove feature's relation, should from leaf to root
   - [ ] issue 7: remove feature's relation, maybe delete policy before relation
+  - [ ] issue 8: treenode entry deleter, how to get a child without relation but in db 
