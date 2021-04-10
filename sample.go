@@ -51,21 +51,21 @@ func (s *SampleSuperadminRole) GetName() string {
 func (s *SampleSuperadminRole) SetName(string) {
 }
 
-type SampleSuperAdminDomain struct {
+type SampleSuperadminDomain struct {
 }
 
-func (s *SampleSuperAdminDomain) GetID() uint64 {
+func (s *SampleSuperadminDomain) GetID() uint64 {
 	return DefaultSuperadminDomainID
 }
 
-func (s *SampleSuperAdminDomain) SetID(uint64) {
+func (s *SampleSuperadminDomain) SetID(uint64) {
 }
 
-func (s *SampleSuperAdminDomain) Encode() string {
+func (s *SampleSuperadminDomain) Encode() string {
 	return SuperadminDomain
 }
 
-func (s *SampleSuperAdminDomain) Decode(code string) error {
+func (s *SampleSuperadminDomain) Decode(code string) error {
 	if code != SuperadminDomain {
 		return ErrIsNotSuperAdmin
 	}

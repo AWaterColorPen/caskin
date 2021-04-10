@@ -119,11 +119,13 @@ func NewManager(configuration *Configuration) (*Manager, error) {
 	m := &Manager{}
 	// initialize prefix extension
 	if extension := configuration.Extension; extension != nil {
-		if domainCreatorFactory, err := m.extensionDomainCreator(configuration); err != nil {
-			return nil, err
-		} else {
-			m.domainCreatorFactory = domainCreatorFactory
-			configuration.DomainCreator = domainCreatorFactory.NewCreator
+		if extension.DomainCreator != nil {
+			if domainCreatorFactory, err := m.extensionDomainCreator(configuration); err != nil {
+				return nil, err
+			} else {
+				m.domainCreatorFactory = domainCreatorFactory
+				configuration.DomainCreator = domainCreatorFactory.NewCreator
+			}
 		}
 	}
 
@@ -159,10 +161,12 @@ func NewManager(configuration *Configuration) (*Manager, error) {
 
 	// initialize suffix extension
 	if extension := configuration.Extension; extension != nil {
-		if webFeature, err := m.extensionWebFeature(configuration); err != nil {
-			return nil, err
-		} else {
-			m.webFeature = webFeature
+		if extension.WebFeature != nil {
+			if webFeature, err := m.extensionWebFeature(configuration); err != nil {
+				return nil, err
+			} else {
+				m.webFeature = webFeature
+			}
 		}
 	}
 

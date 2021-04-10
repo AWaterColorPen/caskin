@@ -10,7 +10,7 @@ import (
 )
 
 func TestExecutorAuthBackend_Enforce(t *testing.T) {
-	stage, err := example.NewStageWithSqlitePath(t.TempDir())
+	stage, err := newStageWithSqlitePathAndWebFeature(t.TempDir())
 	assert.NoError(t, err)
 	w, err := newWebFeature(stage)
 	assert.NoError(t, err)

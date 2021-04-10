@@ -5,13 +5,12 @@ import (
 	"testing"
 
 	"github.com/awatercolorpen/caskin"
-	"github.com/awatercolorpen/caskin/example"
 	"github.com/awatercolorpen/caskin/extension/web_feature"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestDumpFileStruct(t *testing.T) {
-	stage, err := example.NewStageWithSqlitePath(t.TempDir())
+	stage, err := newStageWithSqlitePathAndWebFeature(t.TempDir())
 	assert.NoError(t, err)
 	w, err := newWebFeature(stage)
 	assert.NoError(t, err)

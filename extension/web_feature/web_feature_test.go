@@ -1,6 +1,7 @@
 package web_feature_test
 
 import (
+	"github.com/awatercolorpen/caskin/extension/manager"
 	"testing"
 
 	"github.com/awatercolorpen/caskin"
@@ -10,21 +11,30 @@ import (
 )
 
 const (
-	superObjectID   = uint64(6)
+	superObjectID   = uint64(1)
 	frontendStartID = uint64(10)
 	backendStartID  = uint64(14)
 	featureStartID  = uint64(21)
 )
 
+func newStageWithSqlitePathAndWebFeature(sqlitePath string) (*example.Stage, error) {
+	option := func(configuration *manager.Configuration) {
+		configuration.Extension = &manager.Extension{
+			WebFeature: 0,
+		}
+	}
+	return example.NewStageWithSqlitePath(sqlitePath, option)
+}
+
 func TestWebFeature(t *testing.T) {
-	stage, err := example.NewStageWithSqlitePath(t.TempDir())
+	stage, err := newStageWithSqlitePathAndWebFeature(t.TempDir())
 	assert.NoError(t, err)
 	w, err := newWebFeature(stage)
 	assert.NoError(t, err)
 
 	object1 := w.GetRoot().GetFeatureRootObject()
 	assert.NotNil(t, object1)
-	assert.Equal(t, frontendStartID-3, object1.GetID())
+	assert.Equal(t, superObjectID+1, object1.GetID())
 	feature, err := caskin.Object2CustomizedData(object1, web_feature.FeatureFactory)
 	assert.NoError(t, err)
 	assert.Equal(t, web_feature.DefaultFeatureRootName, feature.(*web_feature.Feature).Name)
@@ -33,7 +43,7 @@ func TestWebFeature(t *testing.T) {
 
 	object2 := w.GetRoot().GetFrontendRootObject()
 	assert.NotNil(t, object2)
-	assert.Equal(t, frontendStartID-2, object2.GetID())
+	assert.Equal(t, superObjectID+2, object2.GetID())
 	frontend, err := caskin.Object2CustomizedData(object2, web_feature.FrontendFactory)
 	assert.NoError(t, err)
 	assert.Equal(t, web_feature.DefaultFrontendRootKey, frontend.(*web_feature.Frontend).Key)
@@ -43,7 +53,7 @@ func TestWebFeature(t *testing.T) {
 
 	object3 := w.GetRoot().GetBackendRootObject()
 	assert.NotNil(t, object3)
-	assert.Equal(t, frontendStartID-1, object3.GetID())
+	assert.Equal(t, superObjectID+3, object3.GetID())
 	backend, err := caskin.Object2CustomizedData(object3, web_feature.BackendFactory)
 	assert.NoError(t, err)
 	assert.Equal(t, web_feature.DefaultBackendRootPath, backend.(*web_feature.Backend).Path)
@@ -52,24 +62,12 @@ func TestWebFeature(t *testing.T) {
 	assert.Equal(t, web_feature.DefaultBackendRootGroup, backend.(*web_feature.Backend).Group)
 }
 
-// func newWebFeature2(stage *example.Stage) (*web_feature.WebFeature, error) {
-// 	config := &manager.Configuration{
-// 		DomainCreator: example.NewDomainCreator,
-// 		Enforcer:      e,
-// 		EntryFactory:  &example.EntryFactory{},
-// 		MetaDB:        example.NewGormMDBByDB(db),
-// 		Extension: &manager.Extension{
-// 			DomainCreator: 0,
-// 			WebFeature:    0,
-// 		},
-// 	}
-//
-// }
 func newWebFeature(stage *example.Stage) (*web_feature.WebFeature, error) {
 	if err := stage.AddSubAdmin(); err != nil {
 		return nil, err
 	}
-	model, err := caskin.CasbinModelText()
+
+	w, err := stage.Manager.GetWebFeature()
 	if err != nil {
 		return nil, err
 	}
@@ -79,12 +77,6 @@ func newWebFeature(stage *example.Stage) (*web_feature.WebFeature, error) {
 		DomainFactory: stage.Options.GetSuperadminDomain,
 		ObjectFactory: stage.Options.EntryFactory.NewObject,
 		MetaDB: stage.Options.MetaDB,
-		ModelText: model,
-	}
-
-	w, err := web_feature.New(options)
-	if err != nil {
-		return nil, err
 	}
 	_, err = web_feature.InitRootObject(options.MetaDB, options.ObjectFactory, options.DomainFactory())
 	if err != nil {

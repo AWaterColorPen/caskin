@@ -64,7 +64,7 @@ func (o *Options) GetSuperadminDomain() Domain {
 		return o.SuperadminDomain()
 	}
 
-	return &SampleSuperAdminDomain{}
+	return &SampleSuperadminDomain{}
 }
 
 // DomainCreatorOption set the DomainCreator for the options

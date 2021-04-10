@@ -31,11 +31,16 @@ func (s *Stage) AddSubAdmin() error {
 		return err
 	}
 
+	objects, err := executor.GetObjects()
+	if err != nil {
+		return err
+	}
+
 	object1 := &Object{
 		Name:     "object_sub_01",
 		Type:     caskin.ObjectTypeObject,
-		ObjectID: 1,
-		ParentID: 1,
+		ObjectID: objects[0].GetID(),
+		ParentID: objects[0].GetID(),
 	}
 	if err := executor.CreateObject(object1); err != nil {
 		return err
@@ -49,7 +54,7 @@ func (s *Stage) AddSubAdmin() error {
 		Name:     "role_sub_02",
 		Type:     caskin.ObjectTypeRole,
 		ObjectID: object1.ID,
-		ParentID: 2,
+		ParentID: objects[1].GetID(),
 	}
 	if err := executor.CreateObject(object2); err != nil {
 		return err
@@ -98,7 +103,11 @@ func (s *Stage) NoSuperadmin() error {
 	return nil
 }
 
-func NewStageWithCaskin(c *caskin.Caskin) (*Stage, error) {
+func NewStageWithManger(m *manager.Manager) (*Stage, error) {
+	c, err := m.GetCaskin()
+	if err != nil {
+		return nil, err
+	}
 	provider := caskin.NewCachedProvider(nil, nil)
 	executor := c.GetExecutor(provider)
 
@@ -149,6 +158,7 @@ func NewStageWithCaskin(c *caskin.Caskin) (*Stage, error) {
 	}
 
 	stage := &Stage{
+		Manager:        m,
 		Caskin:         c,
 		Options:        c.GetOptions(),
 		Domain:         domain,
@@ -160,10 +170,10 @@ func NewStageWithCaskin(c *caskin.Caskin) (*Stage, error) {
 	return stage, nil
 }
 
-func NewStageWithSqlitePath(sqlitePath string) (*Stage, error) {
-	c, err := NewCaskin(&caskin.Options{}, sqlitePath)
+func NewStageWithSqlitePath(sqlitePath string, options ...func(*manager.Configuration)) (*Stage, error) {
+	m, err := NewManager(sqlitePath, options...)
 	if err != nil {
 		return nil, err
 	}
-	return NewStageWithCaskin(c)
+	return NewStageWithManger(m)
 }

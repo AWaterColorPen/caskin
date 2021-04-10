@@ -10,7 +10,7 @@ import (
 )
 
 func TestExecutorVersion_BuildVersion(t *testing.T) {
-	stage, err := example.NewStageWithSqlitePath(t.TempDir())
+	stage, err := newStageWithSqlitePathAndWebFeature(t.TempDir())
 	assert.NoError(t, err)
 	w, err := newWebFeature(stage)
 	assert.NoError(t, err)
@@ -29,13 +29,13 @@ func TestExecutorVersion_BuildVersion(t *testing.T) {
 	list1, err := executor.GetVersion()
 	assert.NoError(t, err)
 	assert.Len(t, list1, 1)
-	assert.Equal(t, "aa2a319fdc891c2d66f0e1a866ea66ef01ee22e74a2f66ff58dae879e98ecdf8", list1[0].SHA256)
+	assert.Equal(t, "1dd781e212bc2ff56053e2f09d7b399e0ca9f120b1784eb8501aab4d44c8cbee", list1[0].SHA256)
 
 	assert.Error(t, executor.BuildVersion())
 }
 
 func TestExecutorVersion_SyncVersionToAllDomain(t *testing.T) {
-	stage, err := example.NewStageWithSqlitePath(t.TempDir())
+	stage, err := newStageWithSqlitePathAndWebFeature(t.TempDir())
 	assert.NoError(t, err)
 	w, err := newWebFeature(stage)
 	assert.NoError(t, err)
@@ -66,7 +66,7 @@ func TestExecutorVersion_SyncVersionToAllDomain(t *testing.T) {
 }
 
 func TestExecutorVersion_SyncLatestVersionToAllDomain(t *testing.T) {
-	stage, err := example.NewStageWithSqlitePath(t.TempDir())
+	stage, err := newStageWithSqlitePathAndWebFeature(t.TempDir())
 	assert.NoError(t, err)
 	w, err := newWebFeature(stage)
 	assert.NoError(t, err)
@@ -108,7 +108,7 @@ func TestExecutorVersion_SyncLatestVersionToAllDomain(t *testing.T) {
 }
 
 func TestExecutorVersion_SyncCompatible(t *testing.T) {
-	stage, err := example.NewStageWithSqlitePath(t.TempDir())
+	stage, err := newStageWithSqlitePathAndWebFeature(t.TempDir())
 	assert.NoError(t, err)
 	w, err := newWebFeature(stage)
 	assert.NoError(t, err)
@@ -137,7 +137,7 @@ func TestExecutorVersion_SyncCompatible(t *testing.T) {
 }
 
 func TestExecutorVersion_SyncToUpdateAuth(t *testing.T) {
-	stage, err := example.NewStageWithSqlitePath(t.TempDir())
+	stage, err := newStageWithSqlitePathAndWebFeature(t.TempDir())
 	assert.NoError(t, err)
 	w, err := newWebFeature(stage)
 	assert.NoError(t, err)

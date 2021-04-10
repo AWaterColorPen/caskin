@@ -10,7 +10,7 @@ import (
 )
 
 func TestExecutorBackend_Create(t *testing.T) {
-	stage, err := example.NewStageWithSqlitePath(t.TempDir())
+	stage, err := newStageWithSqlitePathAndWebFeature(t.TempDir())
 	assert.NoError(t, err)
 	w, err := newWebFeature(stage)
 	assert.NoError(t, err)
@@ -36,7 +36,7 @@ func TestExecutorBackend_Create(t *testing.T) {
 }
 
 func TestExecutorBackend_Recover(t *testing.T) {
-	stage, err := example.NewStageWithSqlitePath(t.TempDir())
+	stage, err := newStageWithSqlitePathAndWebFeature(t.TempDir())
 	assert.NoError(t, err)
 	w, err := newWebFeature(stage)
 	assert.NoError(t, err)
@@ -63,7 +63,7 @@ func TestExecutorBackend_Recover(t *testing.T) {
 }
 
 func TestExecutorBackend_Delete(t *testing.T) {
-	stage, err := example.NewStageWithSqlitePath(t.TempDir())
+	stage, err := newStageWithSqlitePathAndWebFeature(t.TempDir())
 	assert.NoError(t, err)
 	w, err := newWebFeature(stage)
 	assert.NoError(t, err)
@@ -84,7 +84,7 @@ func TestExecutorBackend_Delete(t *testing.T) {
 }
 
 func TestExecutorBackend_Update(t *testing.T) {
-	stage, err := example.NewStageWithSqlitePath(t.TempDir())
+	stage, err := newStageWithSqlitePathAndWebFeature(t.TempDir())
 	assert.NoError(t, err)
 	w, err := newWebFeature(stage)
 	assert.NoError(t, err)
@@ -121,7 +121,7 @@ func TestExecutorBackend_Update(t *testing.T) {
 }
 
 func TestExecutorBackend_Get(t *testing.T) {
-	stage, err := example.NewStageWithSqlitePath(t.TempDir())
+	stage, err := newStageWithSqlitePathAndWebFeature(t.TempDir())
 	assert.NoError(t, err)
 	w, err := newWebFeature(stage)
 	assert.NoError(t, err)

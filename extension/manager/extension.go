@@ -8,7 +8,7 @@ import (
 
 func (m *Manager) extensionDomainCreator(configuration *Configuration) (*domain_creator.Factory, error) {
 	if configuration.Extension == nil || configuration.Extension.DomainCreator == nil {
-		return nil, nil
+		return nil, ErrExtensionConfigurationConflict
 	}
 
 	if configuration.DB == nil {
@@ -26,7 +26,7 @@ func (m *Manager) extensionDomainCreator(configuration *Configuration) (*domain_
 
 func (m *Manager) extensionWebFeature(configuration *Configuration) (*web_feature.WebFeature, error) {
 	if configuration.Extension == nil || configuration.Extension.WebFeature == nil {
-		return nil, nil
+		return nil, ErrExtensionConfigurationConflict
 	}
 	if configuration.SuperadminDisable {
 		return nil, ErrExtensionConfigurationConflict

@@ -9,7 +9,7 @@ import (
 )
 
 func TestExecutorNormalDomain_GetFeature(t *testing.T) {
-	stage, err := example.NewStageWithSqlitePath(t.TempDir())
+	stage, err := newStageWithSqlitePathAndWebFeature(t.TempDir())
 	assert.NoError(t, err)
 	w, err := newWebFeature(stage)
 	assert.NoError(t, err)
@@ -58,7 +58,7 @@ func TestExecutorNormalDomain_GetFeature(t *testing.T) {
 }
 
 func TestExecutorNormalDomain_PolicyList(t *testing.T) {
-	stage, err := example.NewStageWithSqlitePath(t.TempDir())
+	stage, err := newStageWithSqlitePathAndWebFeature(t.TempDir())
 	assert.NoError(t, err)
 	w, err := newWebFeature(stage)
 	assert.NoError(t, err)
