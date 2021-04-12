@@ -65,22 +65,7 @@ func (d *DumpRelation) Version() string {
 }
 
 func (d *DumpRelation) MergedRelation() Relations {
-	m := Relations{}
-	for _, relations := range []Relations{d.FeatureTree, d.FrontendTree, d.BackendTree} {
-		for k, relation := range relations {
-			m[k] = Relation{}
-			for _, v := range relation {
-				m[k] = append(m[k], v)
-			}
-		}
-	}
-
-	for k, relation := range d.FeatureRelation {
-		for _, v := range relation {
-			m[k] = append(m[k], v)
-		}
-	}
-	return m
+	return caskin.MergedInheritanceRelations(d.FeatureTree, d.FrontendTree, d.BackendTree, d.FeatureRelation)
 }
 
 // Scan scan value into Jsonb, implements sql.Scanner interface
@@ -226,33 +211,4 @@ func treeToVirtualIndexTree(tree, viTree Relations, index map[uint64]uint64) {
 		}
 		viTree[index[k]] = vi
 	}
-}
-
-// TopSort root first
-func TopSort(tree Relations) []uint64 {
-	inDegree := map[uint64]int{}
-	for k := range tree {
-		inDegree[k] = 0
-	}
-	for _, node := range tree {
-		for _, v := range node {
-			inDegree[v]++
-		}
-	}
-
-	var queue []uint64
-	for k, v := range inDegree {
-		if v == 0 {
-			queue = append(queue, k)
-		}
-	}
-	for i := 0; i < len(queue); i++ {
-		for _, v := range tree[queue[i]] {
-			inDegree[v]--
-			if inDegree[v] == 0 {
-				queue = append(queue, v)
-			}
-		}
-	}
-	return queue
 }

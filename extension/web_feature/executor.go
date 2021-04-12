@@ -37,6 +37,18 @@ func (e *Executor) get3pair() (feature, frontend, backend []*caskin.CustomizedDa
 	return
 }
 
+func (e *Executor) operationPermissionCheck() error {
+	provider := e.e.GetCurrentProvider()
+	_, domain, err := provider.Get()
+	if err != nil {
+		return err
+	}
+	if domain.Encode() != e.operationDomain.Encode() {
+		return caskin.ErrCanOnlyAllowAtValidDomain
+	}
+	return nil
+}
+
 func (e *Executor) allWebFeatureRelation(domain caskin.Domain) caskin.InheritanceRelations {
 	queue := []caskin.Object{e.root.Feature, e.root.Frontend, e.root.Backend}
 	inQueue := map[uint64]bool{}
@@ -58,16 +70,4 @@ func (e *Executor) allWebFeatureRelation(domain caskin.Domain) caskin.Inheritanc
 	}
 
 	return m
-}
-
-func (e *Executor) operationPermissionCheck() error {
-	provider := e.e.GetCurrentProvider()
-	_, domain, err := provider.Get()
-	if err != nil {
-		return err
-	}
-	if domain.Encode() != e.operationDomain.Encode() {
-		return caskin.ErrCanOnlyAllowAtValidDomain
-	}
-	return nil
 }

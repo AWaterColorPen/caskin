@@ -77,23 +77,34 @@ func relationEncode(k, v interface{}) string {
 	return fmt.Sprintf("%v%v%v", k, caskin.DefaultSeparator, v)
 }
 
-func relationDecode(in interface{}) (x, y uint64, err error) {
+func relationDecode(in interface{}) (edge *Edge, err error) {
 	format := fmt.Sprintf("%%d%v%%d", caskin.DefaultSeparator)
-	_, err = fmt.Sscanf(in.(string), format, &x, &y)
+	edge = &Edge{}
+	_, err = fmt.Sscanf(in.(string), format, &edge.X, &edge.Y)
 	return
 }
 
-func relationsAction(in []interface{}, domain caskin.Domain, factory func() caskin.Object, action func(caskin.Object, caskin.Object, caskin.Domain) error) error {
+func relationsAction(in []interface{},
+	sortFn func([]*Edge),
+	domain caskin.Domain,
+	factory caskin.ObjectFactory,
+	action func(caskin.Object, caskin.Object, caskin.Domain) error) error {
+	var edges []*Edge
 	for _, v := range in {
-		x, y, err := relationDecode(v)
+		edge, err := relationDecode(v)
 		if err != nil {
 			return err
 		}
+		edges = append(edges, edge)
+	}
+
+	sortFn(edges)
+
+	for _, v := range edges {
 		ox, oy := factory(), factory()
-		ox.SetID(x)
-		oy.SetID(y)
-		err = action(oy, ox, domain)
-		if err != nil {
+		ox.SetID(v.X)
+		oy.SetID(v.Y)
+		if err := action(oy, ox, domain); err != nil {
 			return err
 		}
 	}

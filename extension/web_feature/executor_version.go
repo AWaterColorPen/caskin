@@ -119,17 +119,6 @@ func (e *Executor) syncVersionToOneDomainInternal(version *WebFeatureVersion, do
 		}
 	}
 
-	add, remove := caskin.Diff(source, target)
-	if err := relationsAction(add, domain, e.objectFactory, e.e.Enforcer.AddParentForObjectInDomain); err != nil {
-		return err
-	}
-
-	// TODO issue 6: remove feature's relation, should from leaf to root
-	if err := relationsAction(remove, domain, e.objectFactory, e.e.Enforcer.RemoveParentForObjectInDomain); err != nil {
-		return err
-	}
-
-	// TODO issue 7: remove feature's relation, maybe delete policy before relation
 	var toDelete []uint64
 	for k := range relations {
 		if _, ok := targetRelations[k]; !ok {
@@ -142,6 +131,19 @@ func (e *Executor) syncVersionToOneDomainInternal(version *WebFeatureVersion, do
 		if err := e.e.Enforcer.RemoveObjectInDomain(o, domain); err != nil {
 			return err
 		}
+	}
+
+	graph := caskin.MergedInheritanceRelations(relations, targetRelations)
+	index := caskin.TopSort(graph)
+	sorter := caskin.NewEdgeSorter(index)
+
+	add, remove := caskin.Diff(source, target)
+	if err := relationsAction(add, sorter.RootFirstSort, domain, e.objectFactory, e.e.Enforcer.AddParentForObjectInDomain); err != nil {
+		return err
+	}
+
+	if err := relationsAction(remove, sorter.LeafFirstSort, domain, e.objectFactory, e.e.Enforcer.RemoveParentForObjectInDomain); err != nil {
+		return err
 	}
 
 	return nil

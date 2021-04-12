@@ -232,9 +232,3 @@ type CustomizedDataPair struct {
 	Object               Object         `json:"object"`
 	ObjectCustomizedData CustomizedData `json:"customized_data"`
 }
-
-// InheritanceRelation value is sons' id list
-type InheritanceRelation = []uint64
-
-// InheritanceRelations key is parent id, value is sons' id list
-type InheritanceRelations = map[uint64]InheritanceRelation

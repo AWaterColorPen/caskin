@@ -35,6 +35,7 @@ func (w *WebFeatureVersion) IsCompatible(dump *Dump) error {
 
 type Relation = caskin.InheritanceRelation
 type Relations = caskin.InheritanceRelations
+type Edge = caskin.InheritanceEdge
 
 type VersionedDomain interface {
 	caskin.Domain

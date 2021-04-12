@@ -7,7 +7,6 @@
 - feature
   - [ ] go 1.16
 - issue
-  - [ ] issue 1: any way to fix the behaviour
-  - [ ] issue 2: if object type == object, it will not recover it by admin user now. we want to support it by a special API
   - [ ] issue 6: remove feature's relation, should from leaf to root
   - [ ] issue 7: remove feature's relation, maybe delete policy before relation
+  - [ ] issue 8: add feature's relation, should from root to leaf
