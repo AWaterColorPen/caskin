@@ -17,7 +17,19 @@ func (e *Executor) DefaultObjectDeleteFunc() TreeNodeEntryDeleteFunc {
 
 func (e *Executor) DefaultObjectChildrenGetFunc() TreeNodeEntryChildrenGetFunc {
 	return e.childrenOrParentGetFn(func(p TreeNodeEntry, domain Domain) interface{} {
-		return e.Enforcer.GetChildrenForObjectInDomain(p.(Object), domain)
+		os := e.Enforcer.GetChildrenForObjectInDomain(p.(Object), domain)
+		om := Objects(os).IDMap()
+		os2, _ := e.DB.GetObjectInDomain(domain, p.(Object).GetObjectType())
+		for _, v := range os2 {
+			if v.GetParentID() != p.GetID() {
+				continue
+			}
+			if _, ok := om[v.GetID()]; !ok {
+				om[v.GetID()] = v
+				os = append(os, v)
+			}
+		}
+		return os
 	})
 }
 
@@ -54,7 +66,19 @@ func (e *Executor) DefaultRoleDeleteFunc() TreeNodeEntryDeleteFunc {
 
 func (e *Executor) DefaultRoleChildrenGetFunc() TreeNodeEntryChildrenGetFunc {
 	return e.childrenOrParentGetFn(func(p TreeNodeEntry, domain Domain) interface{} {
-		return e.Enforcer.GetChildrenForRoleInDomain(p.(Role), domain)
+		rs := e.Enforcer.GetChildrenForRoleInDomain(p.(Role), domain)
+		rm := Roles(rs).IDMap()
+		rs2, _ := e.DB.GetRoleInDomain(domain)
+		for _, v := range rs2 {
+			if v.GetParentID() != p.GetID() {
+				continue
+			}
+			if _, ok := rm[v.GetID()]; !ok {
+				rm[v.GetID()] = v
+				rs = append(rs, v)
+			}
+		}
+		return rs
 	})
 }
 
