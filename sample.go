@@ -5,8 +5,8 @@ import (
 )
 
 type SampleSuperadminRole struct {
-	ID   uint64 `json:"id,omitempty"`
-	Name string `json:"name,omitempty"`
+	ID   uint64 `json:"id"`
+	Name string `json:"name"`
 }
 
 func (s *SampleSuperadminRole) GetID() uint64 {
@@ -56,8 +56,8 @@ func (s *SampleSuperadminRole) SetName(string) {
 }
 
 type SampleSuperadminDomain struct {
-	ID   uint64 `json:"id,omitempty"`
-	Name string `json:"name,omitempty"`
+	ID   uint64 `json:"id"`
+	Name string `json:"name"`
 }
 
 func (s *SampleSuperadminDomain) GetID() uint64 {
