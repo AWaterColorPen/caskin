@@ -52,7 +52,10 @@ func (o *Options) GetSuperadminRole() Role {
 		return o.SuperadminRole()
 	}
 
-	return &SampleSuperadminRole{}
+	return &SampleSuperadminRole{
+		ID:   DefaultSuperadminRoleID,
+		Name: DefaultSuperadminRoleName,
+	}
 }
 
 func (o *Options) GetSuperadminDomain() Domain {
@@ -64,7 +67,10 @@ func (o *Options) GetSuperadminDomain() Domain {
 		return o.SuperadminDomain()
 	}
 
-	return &SampleSuperadminDomain{}
+	return &SampleSuperadminDomain{
+		ID:   DefaultSuperadminDomainID,
+		Name: DefaultSuperadminDomainName,
+	}
 }
 
 // DomainCreatorOption set the DomainCreator for the options
