@@ -119,17 +119,17 @@ func (e *Executor) ObjectDataModifyCheck(item ObjectData) error {
 	return e.checkObjectData(item, Write)
 }
 
-func (e *Executor) treeNodeEntryUpdateCheck(item TreeNodeEntry, tmp1 TreeNodeEntry, tmp2 TreeNodeEntry, ty ObjectType) error {
+func (e *Executor) TreeNodeEntryUpdateCheck(item TreeNodeEntry, tmp1 TreeNodeEntry, tmp2 TreeNodeEntry, ty ObjectType) error {
 	if err := e.ObjectDataUpdateCheck(item, tmp1, ty); err != nil {
 		return err
 	}
 	if item.GetID() == item.GetParentID() {
 		return ErrParentCanNotBeItself
 	}
-	return e.treeNodeEntryParentCheck(tmp1, tmp2)
+	return e.TreeNodeEntryParentCheck(tmp1, tmp2)
 }
 
-func (e *Executor) treeNodeEntryParentCheck(item TreeNodeEntry, parent TreeNodeEntry) error {
+func (e *Executor) TreeNodeEntryParentCheck(item TreeNodeEntry, parent TreeNodeEntry) error {
 	if isRoot(item) {
 		return nil
 	}
@@ -140,7 +140,7 @@ func (e *Executor) treeNodeEntryParentCheck(item TreeNodeEntry, parent TreeNodeE
 	return isValidFamily(item, parent, e.DB.Take)
 }
 
-func (e *Executor) objectTreeNodeUpdateCheck(item Object, tmp Object) error {
+func (e *Executor) ObjectTreeNodeUpdateCheck(item Object, tmp Object) error {
 	if err := e.ObjectDataUpdateCheck(item, tmp, ObjectTypeObject); err != nil {
 		return err
 	}

@@ -37,7 +37,8 @@ func (e *Executor) UpdateBackend(backend *Backend, object caskin.Object) error {
 		return err
 	}
 	e.setBackendRoot(object)
-	return e.e.UpdateObjectWithCustomizedData(backend, object)
+	caskin.CustomizedData2Object(backend, object)
+	return e.frontendAndBackendUpdate(object)
 }
 
 func (e *Executor) GetBackend() ([]*caskin.CustomizedDataPair, error) {

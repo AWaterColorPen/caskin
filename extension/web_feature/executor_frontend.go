@@ -35,7 +35,8 @@ func (e *Executor) UpdateFrontend(frontend *Frontend, object caskin.Object) erro
 		return err
 	}
 	e.setFrontendRoot(object)
-	return e.e.UpdateObjectWithCustomizedData(frontend, object)
+	caskin.CustomizedData2Object(frontend, object)
+	return e.frontendAndBackendUpdate(object)
 }
 
 func (e *Executor) GetFrontend() ([]*caskin.CustomizedDataPair, error) {

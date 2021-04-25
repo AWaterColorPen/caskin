@@ -31,6 +31,11 @@ func TestExecutorVersion_BuildVersion(t *testing.T) {
 	assert.Len(t, list1, 1)
 	assert.Equal(t, "1dd781e212bc2ff56053e2f09d7b399e0ca9f120b1784eb8501aab4d44c8cbee", list1[0].SHA256)
 
+	// update a backend property can't change build version
+	backend1 := &web_feature.Backend{Path: "api/backend", Method: "GET"}
+	object1 := &example.Object{ID: backendStartID, ObjectID: 1}
+	assert.NoError(t, executor.UpdateBackend(backend1, object1))
+
 	assert.Error(t, executor.BuildVersion())
 }
 
