@@ -63,7 +63,7 @@ func (e *Executor) IDInterfaceModifyCheck(item idInterface) error {
 	return e.IDInterfaceValidAndExistsCheck(item)
 }
 
-func (e *Executor) objectDataWriteCheck(item ObjectData, ty ObjectType) error {
+func (e *Executor) ObjectDataWriteCheck(item ObjectData, ty ObjectType) error {
 	if err := e.checkObjectData(item, Write); err != nil {
 		return err
 	}
@@ -81,7 +81,7 @@ func (e *Executor) ObjectDataCreateCheck(item ObjectData, ty ObjectType) error {
 	if err := e.DBCreateCheck(item); err != nil {
 		return err
 	}
-	return e.objectDataWriteCheck(item, ty)
+	return e.ObjectDataWriteCheck(item, ty)
 }
 
 func (e *Executor) ObjectDataRecoverCheck(item ObjectData) error {
@@ -102,7 +102,7 @@ func (e *Executor) ObjectDataUpdateCheck(item ObjectData, tmp ObjectData, ty Obj
 	if err := e.IDInterfaceUpdateCheck(item, tmp); err != nil {
 		return err
 	}
-	return e.objectDataWriteCheck(item, ty)
+	return e.ObjectDataWriteCheck(item, ty)
 }
 
 func (e *Executor) ObjectDataGetCheck(item ObjectData) error {
