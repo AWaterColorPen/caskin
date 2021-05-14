@@ -7,5 +7,3 @@
 - docs
   - overall design
   - get start
-- feature
-  - [ ] go 1.16
