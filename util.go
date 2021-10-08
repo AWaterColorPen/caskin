@@ -82,7 +82,7 @@ func TopSort(graph InheritanceRelations) []uint64 {
 	return queue
 }
 
-// Filter filter source permission by u, d, action
+// Filter do filter source permission by u, d, action
 func Filter(e IEnforcer, u User, d Domain, action Action, source interface{}) []interface{} {
 	var result []interface{}
 	linq.From(source).Where(func(v interface{}) bool {
@@ -104,7 +104,7 @@ func CheckObject(e IEnforcer, u User, d Domain, one Object, action Action) bool 
 	return ok
 }
 
-// Diff diff source, target list to get add, remove list
+// Diff do diff source, target list to get add, remove list
 func Diff(source, target []interface{}) (add, remove []interface{}) {
 	linq.From(source).Except(linq.From(target)).ToSlice(&remove)
 	linq.From(target).Except(linq.From(source)).ToSlice(&add)
