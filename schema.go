@@ -12,13 +12,13 @@ type Action string
 
 type ObjectData interface {
 	idInterface
-	// get object interface method
+	// GetObject get object interface method
 	GetObject() Object
-	// set object
+	// SetObjectID set object
 	SetObjectID(uint64)
-	// get domain id method
+	// GetDomainID get domain id method
 	GetDomainID() uint64
-	// set domain id method
+	// SetDomainID set domain id method
 	SetDomainID(uint64)
 }
 
