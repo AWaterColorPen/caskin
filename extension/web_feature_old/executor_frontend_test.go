@@ -1,11 +1,11 @@
-package web_feature_test
+package web_feature_old_test
 
 import (
 	"testing"
 
 	"github.com/awatercolorpen/caskin"
 	"github.com/awatercolorpen/caskin/example"
-	"github.com/awatercolorpen/caskin/extension/web_feature"
+	"github.com/awatercolorpen/caskin/extension/web_feature_old"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -17,7 +17,7 @@ func TestExecutorFrontend_Create(t *testing.T) {
 	provider := caskin.NewCachedProvider(nil, nil)
 	executor := w.GetExecutor(provider)
 
-	frontend1 := &web_feature.Frontend{Key: "backend", Type: web_feature.FrontendTypeSubFunction}
+	frontend1 := &web_feature_old.Frontend{Key: "backend", Type: web_feature_old.FrontendTypeSubFunction}
 	assert.Equal(t, caskin.ErrProviderGet, executor.CreateFrontend(frontend1, &example.Object{}))
 	provider.Domain = stage.Domain
 	provider.User = stage.AdminUser
@@ -27,9 +27,9 @@ func TestExecutorFrontend_Create(t *testing.T) {
 	provider.User = stage.SuperadminUser
 	assert.NoError(t, executor.CreateFrontend(frontend1, &example.Object{}))
 
-	frontend2 := &web_feature.Frontend{Key: "backend", Type: web_feature.FrontendTypeMenu}
+	frontend2 := &web_feature_old.Frontend{Key: "backend", Type: web_feature_old.FrontendTypeMenu}
 	assert.Equal(t, caskin.ErrAlreadyExists, executor.CreateFrontend(frontend2, &example.Object{}))
-	frontend3 := &web_feature.Frontend{Key: "backend-1", Type: web_feature.FrontendTypeSubFunction}
+	frontend3 := &web_feature_old.Frontend{Key: "backend-1", Type: web_feature_old.FrontendTypeSubFunction}
 	assert.Equal(t, caskin.ErrInValidObject, executor.CreateFrontend(frontend3, &example.Object{ID: 10}))
 	assert.Equal(t, caskin.ErrInValidObjectType, executor.CreateFrontend(frontend3, &example.Object{ParentID: backendStartID}))
 	assert.NoError(t, executor.CreateFrontend(frontend3, &example.Object{ParentID: frontendStartID}))
@@ -43,7 +43,7 @@ func TestExecutorFrontend_Recover(t *testing.T) {
 	provider := caskin.NewCachedProvider(nil, nil)
 	executor := w.GetExecutor(provider)
 
-	frontend1 := &web_feature.Frontend{Key: "backend", Type: web_feature.FrontendTypeMenu}
+	frontend1 := &web_feature_old.Frontend{Key: "backend", Type: web_feature_old.FrontendTypeMenu}
 	assert.Equal(t, caskin.ErrProviderGet, executor.RecoverFrontend(frontend1, &example.Object{}))
 	provider.Domain = stage.Domain
 	provider.User = stage.AdminUser
@@ -58,7 +58,7 @@ func TestExecutorFrontend_Recover(t *testing.T) {
 	assert.Equal(t, caskin.ErrInValidObject, executor.RecoverFrontend(frontend1, &example.Object{ID: 10}))
 	assert.NoError(t, executor.RecoverFrontend(frontend1, &example.Object{}))
 
-	frontend2 := &web_feature.Frontend{Key: "backend"}
+	frontend2 := &web_feature_old.Frontend{Key: "backend"}
 	assert.Equal(t, caskin.ErrNotExists, executor.RecoverFrontend(frontend2, &example.Object{}))
 
 }
@@ -92,7 +92,7 @@ func TestExecutorFrontend_Update(t *testing.T) {
 	provider := caskin.NewCachedProvider(nil, nil)
 	executor := w.GetExecutor(provider)
 
-	frontend1 := &web_feature.Frontend{Key: "backend", Type: web_feature.FrontendTypeMenu}
+	frontend1 := &web_feature_old.Frontend{Key: "backend", Type: web_feature_old.FrontendTypeMenu}
 	object1 := &example.Object{ID: frontendStartID + 1}
 	assert.Equal(t, caskin.ErrProviderGet, executor.UpdateFrontend(frontend1, object1))
 	provider.Domain = stage.Domain
@@ -107,7 +107,7 @@ func TestExecutorFrontend_Update(t *testing.T) {
 	assert.NoError(t, executor.UpdateFrontend(frontend1, object1))
 	assert.Equal(t, superObjectID, object1.ObjectID)
 
-	frontend2 := &web_feature.Frontend{Key: "backend", Type: web_feature.FrontendTypeSubFunction}
+	frontend2 := &web_feature_old.Frontend{Key: "backend", Type: web_feature_old.FrontendTypeSubFunction}
 	object2 := &example.Object{ID: featureStartID}
 	assert.Equal(t, caskin.ErrCantChangeObjectType, executor.UpdateFrontend(frontend2, object2))
 	object2.ID = frontendStartID - 1

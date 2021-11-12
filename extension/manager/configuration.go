@@ -15,7 +15,7 @@ type Configuration struct {
 	DefaultSuperadminRoleName   string `json:"default_superadmin_role_name"   yaml:"default_superadmin_role_name"`
 	DefaultNoPermissionObject   string `json:"default_no_permission_object"   yaml:"default_no_permission_object"`
 
-	// default caskin web_feature option
+	// default caskin web_feature_old option
 	DefaultBackendRootPath            string `json:"default_backend_root_path"              yaml:"default_backend_root_path"`
 	DefaultBackendRootMethod          string `json:"default_backend_root_method"            yaml:"default_backend_root_method"`
 	DefaultBackendRootDescription     string `json:"default_backend_root_description"       yaml:"default_backend_root_description"`
@@ -57,5 +57,5 @@ type Configuration struct {
 
 type Extension struct {
 	DomainCreator interface{} `json:"domain_creator" yaml:"domain_creator"`
-	WebFeature    interface{} `json:"web_feature"    yaml:"web_feature"`
+	WebFeature    interface{} `json:"web_feature_old"    yaml:"web_feature_old"`
 }

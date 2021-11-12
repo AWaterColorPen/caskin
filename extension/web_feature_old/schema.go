@@ -1,4 +1,4 @@
-package web_feature
+package web_feature_old
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	DefaultSuperRootName              = "github.com/awatercolorpen/caskin/web_feature"
+	DefaultSuperRootName              = "github.com/awatercolorpen/caskin/web_feature_old"
 	DefaultFeatureRootName            = "feature-root"
 	DefaultFeatureRootDescription     = "root node of feature object"
 	DefaultFeatureRootGroup           = ""

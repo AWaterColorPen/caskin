@@ -1,11 +1,11 @@
-package web_feature_test
+package web_feature_old_test
 
 import (
 	"testing"
 
 	"github.com/awatercolorpen/caskin"
 	"github.com/awatercolorpen/caskin/example"
-	"github.com/awatercolorpen/caskin/extension/web_feature"
+	"github.com/awatercolorpen/caskin/extension/web_feature_old"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -27,12 +27,12 @@ func TestExecutorAuthBackend_Enforce(t *testing.T) {
 
 	provider.Domain = stage.Domain
 	provider.User = stage.AdminUser
-	assert.NoError(t, executor.AuthBackendAPIEnforce(&web_feature.Backend{Path: "api/backend", Method: "GET"}))
-	assert.NoError(t, executor.AuthBackendAPIEnforce(&web_feature.Backend{Path: "api/backend", Method: "GET", Group: "xxx"}))
-	assert.Equal(t, caskin.ErrNoBackendAPIPermission, executor.AuthBackendAPIEnforce(&web_feature.Backend{Path: "api/backend"}))
+	assert.NoError(t, executor.AuthBackendAPIEnforce(&web_feature_old.Backend{Path: "api/backend", Method: "GET"}))
+	assert.NoError(t, executor.AuthBackendAPIEnforce(&web_feature_old.Backend{Path: "api/backend", Method: "GET", Group: "xxx"}))
+	assert.Equal(t, caskin.ErrNoBackendAPIPermission, executor.AuthBackendAPIEnforce(&web_feature_old.Backend{Path: "api/backend"}))
 
 	provider.User = stage.SubAdminUser
-	assert.Equal(t, caskin.ErrNoBackendAPIPermission, executor.AuthBackendAPIEnforce(&web_feature.Backend{Path: "api/backend", Method: "GET"}))
+	assert.Equal(t, caskin.ErrNoBackendAPIPermission, executor.AuthBackendAPIEnforce(&web_feature_old.Backend{Path: "api/backend", Method: "GET"}))
 
 	executor1 := stage.Caskin.GetExecutor(provider)
 	provider.User = stage.AdminUser
@@ -48,13 +48,13 @@ func TestExecutorAuthBackend_Enforce(t *testing.T) {
 	list, err := executor.NormalDomainGetFeatureObject()
 	assert.Len(t, list, 1)
 	provider.User = stage.SubAdminUser
-	assert.NoError(t, executor.AuthBackendAPIEnforce(&web_feature.Backend{Path: "api/backend", Method: "GET"}))
-	assert.Equal(t, caskin.ErrNoBackendAPIPermission, executor.AuthBackendAPIEnforce(&web_feature.Backend{Path: "api/frontend", Method: "GET"}))
+	assert.NoError(t, executor.AuthBackendAPIEnforce(&web_feature_old.Backend{Path: "api/backend", Method: "GET"}))
+	assert.Equal(t, caskin.ErrNoBackendAPIPermission, executor.AuthBackendAPIEnforce(&web_feature_old.Backend{Path: "api/frontend", Method: "GET"}))
 
 	provider.Domain = stage.Options.GetSuperadminDomain()
-	assert.Equal(t, caskin.ErrNoBackendAPIPermission, executor.AuthBackendAPIEnforce(&web_feature.Backend{Path: "api/backend", Method: "GET"}))
+	assert.Equal(t, caskin.ErrNoBackendAPIPermission, executor.AuthBackendAPIEnforce(&web_feature_old.Backend{Path: "api/backend", Method: "GET"}))
 	provider.User = stage.AdminUser
-	assert.Equal(t, caskin.ErrNoBackendAPIPermission, executor.AuthBackendAPIEnforce(&web_feature.Backend{Path: "api/backend", Method: "GET"}))
+	assert.Equal(t, caskin.ErrNoBackendAPIPermission, executor.AuthBackendAPIEnforce(&web_feature_old.Backend{Path: "api/backend", Method: "GET"}))
 	provider.User = stage.SuperadminUser
-	assert.NoError(t, executor.AuthBackendAPIEnforce(&web_feature.Backend{Path: "api/test-1", Method: "GET"}))
+	assert.NoError(t, executor.AuthBackendAPIEnforce(&web_feature_old.Backend{Path: "api/test-1", Method: "GET"}))
 }

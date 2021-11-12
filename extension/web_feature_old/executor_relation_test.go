@@ -1,10 +1,10 @@
-package web_feature_test
+package web_feature_old_test
 
 import (
 	"testing"
 
 	"github.com/awatercolorpen/caskin"
-	"github.com/awatercolorpen/caskin/extension/web_feature"
+    "github.com/awatercolorpen/caskin/extension/web_feature_old"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -85,7 +85,7 @@ func TestExecutorRelation_ModifyFeatureRelationPerFeature(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Len(t, feature, 5)
 
-	relation1 := web_feature.Relation{uint64(1), superObjectID + 3, frontendStartID, backendStartID, backendStartID + 2}
+	relation1 := web_feature_old.Relation{uint64(1), superObjectID + 3, frontendStartID, backendStartID, backendStartID + 2}
 	assert.NoError(t, executor.ModifyFeatureRelationPerFeature(feature[1].Object, relation1))
 	list1, err := executor.GetFeatureRelationByFeature(feature[1].Object)
 	assert.NoError(t, err)

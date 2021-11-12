@@ -1,11 +1,11 @@
-package web_feature_test
+package web_feature_old_test
 
 import (
 	"path/filepath"
 	"testing"
 
 	"github.com/awatercolorpen/caskin"
-	"github.com/awatercolorpen/caskin/extension/web_feature"
+	"github.com/awatercolorpen/caskin/extension/web_feature_old"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -26,12 +26,12 @@ func TestDumpFileStruct(t *testing.T) {
 	assert.NoError(t, err)
 
 	tempFile := filepath.Join(t.TempDir(), "dump_file_struct")
-	dfs := &web_feature.DumpFileStruct{}
+	dfs := &web_feature_old.DumpFileStruct{}
 	assert.NoError(t, dfs.ImportFromDump(dump))
 	assert.NoError(t, dfs.IsValid())
 	assert.NoError(t, dfs.ExportToFile(tempFile))
 
-	dfs2 := &web_feature.DumpFileStruct{}
+	dfs2 := &web_feature_old.DumpFileStruct{}
 	assert.NoError(t, dfs2.ImportFromFile(tempFile))
 	assert.NoError(t, dfs2.IsValid())
 }

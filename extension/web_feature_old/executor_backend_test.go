@@ -1,11 +1,11 @@
-package web_feature_test
+package web_feature_old_test
 
 import (
 	"testing"
 
 	"github.com/awatercolorpen/caskin"
 	"github.com/awatercolorpen/caskin/example"
-	"github.com/awatercolorpen/caskin/extension/web_feature"
+	"github.com/awatercolorpen/caskin/extension/web_feature_old"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -17,7 +17,7 @@ func TestExecutorBackend_Create(t *testing.T) {
 	provider := caskin.NewCachedProvider(nil, nil)
 	executor := w.GetExecutor(provider)
 
-	backend1 := &web_feature.Backend{Path: "api/test-1", Method: "GET"}
+	backend1 := &web_feature_old.Backend{Path: "api/test-1", Method: "GET"}
 	assert.Equal(t, caskin.ErrProviderGet, executor.CreateBackend(backend1, &example.Object{}))
 	provider.Domain = stage.Domain
 	provider.User = stage.AdminUser
@@ -27,9 +27,9 @@ func TestExecutorBackend_Create(t *testing.T) {
 	provider.User = stage.SuperadminUser
 	assert.NoError(t, executor.CreateBackend(backend1, &example.Object{}))
 
-	backend2 := &web_feature.Backend{Path: "api/backend", Method: "GET"}
+	backend2 := &web_feature_old.Backend{Path: "api/backend", Method: "GET"}
 	assert.Equal(t, caskin.ErrAlreadyExists, executor.CreateBackend(backend2, &example.Object{}))
-	backend3 := &web_feature.Backend{Path: "api/test-2", Method: "GET"}
+	backend3 := &web_feature_old.Backend{Path: "api/test-2", Method: "GET"}
 	assert.Equal(t, caskin.ErrInValidObject, executor.CreateBackend(backend3, &example.Object{ID: 10}))
 	assert.Equal(t, caskin.ErrInValidObjectType, executor.CreateBackend(backend3, &example.Object{ParentID: frontendStartID}))
 	assert.NoError(t, executor.CreateBackend(backend3, &example.Object{ParentID: backendStartID}))
@@ -43,7 +43,7 @@ func TestExecutorBackend_Recover(t *testing.T) {
 	provider := caskin.NewCachedProvider(nil, nil)
 	executor := w.GetExecutor(provider)
 
-	backend1 := &web_feature.Backend{Path: "api/backend", Method: "GET"}
+	backend1 := &web_feature_old.Backend{Path: "api/backend", Method: "GET"}
 	assert.Equal(t, caskin.ErrProviderGet, executor.RecoverBackend(backend1, &example.Object{}))
 	provider.Domain = stage.Domain
 	provider.User = stage.AdminUser
@@ -58,7 +58,7 @@ func TestExecutorBackend_Recover(t *testing.T) {
 	assert.Equal(t, caskin.ErrInValidObject, executor.RecoverBackend(backend1, &example.Object{ID: 10}))
 	assert.NoError(t, executor.RecoverBackend(backend1, &example.Object{}))
 
-	backend2 := &web_feature.Backend{Path: "api/backend"}
+	backend2 := &web_feature_old.Backend{Path: "api/backend"}
 	assert.Equal(t, caskin.ErrNotExists, executor.RecoverBackend(backend2, &example.Object{}))
 }
 
@@ -91,7 +91,7 @@ func TestExecutorBackend_Update(t *testing.T) {
 	provider := caskin.NewCachedProvider(nil, nil)
 	executor := w.GetExecutor(provider)
 
-	backend1 := &web_feature.Backend{Path: "api/backend", Method: "GET"}
+	backend1 := &web_feature_old.Backend{Path: "api/backend", Method: "GET"}
 	object1 := &example.Object{ID: backendStartID + 1}
 	assert.Equal(t, caskin.ErrProviderGet, executor.UpdateBackend(backend1, object1))
 	provider.Domain = stage.Domain
@@ -106,7 +106,7 @@ func TestExecutorBackend_Update(t *testing.T) {
 	assert.NoError(t, executor.UpdateBackend(backend1, object1))
 	assert.Equal(t, superObjectID, object1.ObjectID)
 
-	backend2 := &web_feature.Backend{Path: "api/test", Method: "GET"}
+	backend2 := &web_feature_old.Backend{Path: "api/test", Method: "GET"}
 	object2 := &example.Object{ID: featureStartID}
 	assert.Equal(t, caskin.ErrCantChangeObjectType, executor.UpdateBackend(backend2, object2))
 	object2.ID = backendStartID - 1

@@ -1,11 +1,11 @@
-package web_feature_test
+package web_feature_old_test
 
 import (
 	"testing"
 
 	"github.com/awatercolorpen/caskin"
 	"github.com/awatercolorpen/caskin/example"
-	"github.com/awatercolorpen/caskin/extension/web_feature"
+	"github.com/awatercolorpen/caskin/extension/web_feature_old"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -17,7 +17,7 @@ func TestExecutorFeature_Create(t *testing.T) {
 	provider := caskin.NewCachedProvider(nil, nil)
 	executor := w.GetExecutor(provider)
 
-	feature1 := &web_feature.Feature{Name: "new-feature"}
+	feature1 := &web_feature_old.Feature{Name: "new-feature"}
 	assert.Equal(t, caskin.ErrProviderGet, executor.CreateFeature(feature1, &example.Object{}))
 	provider.Domain = stage.Domain
 	provider.User = stage.AdminUser
@@ -27,9 +27,9 @@ func TestExecutorFeature_Create(t *testing.T) {
 	provider.User = stage.SuperadminUser
 	assert.NoError(t, executor.CreateFeature(feature1, &example.Object{}))
 
-	feature2 := &web_feature.Feature{Name: "feature"}
+	feature2 := &web_feature_old.Feature{Name: "feature"}
 	assert.Equal(t, caskin.ErrAlreadyExists, executor.CreateFeature(feature2, &example.Object{}))
-	feature3 := &web_feature.Feature{Name: "new-feature-2"}
+	feature3 := &web_feature_old.Feature{Name: "new-feature-2"}
 	assert.Equal(t, caskin.ErrInValidObject, executor.CreateFeature(feature3, &example.Object{ID: 10}))
 	assert.Equal(t, caskin.ErrInValidObjectType, executor.CreateFeature(feature3, &example.Object{ParentID: frontendStartID}))
 	assert.NoError(t, executor.CreateFeature(feature3, &example.Object{ParentID: featureStartID}))
@@ -43,7 +43,7 @@ func TestExecutorFeature_Recover(t *testing.T) {
 	provider := caskin.NewCachedProvider(nil, nil)
 	executor := w.GetExecutor(provider)
 
-	feature1 := &web_feature.Feature{Name: "backend"}
+	feature1 := &web_feature_old.Feature{Name: "backend"}
 	assert.Equal(t, caskin.ErrProviderGet, executor.RecoverFeature(feature1, &example.Object{}))
 	provider.Domain = stage.Domain
 	provider.User = stage.AdminUser
@@ -58,7 +58,7 @@ func TestExecutorFeature_Recover(t *testing.T) {
 	assert.Equal(t, caskin.ErrInValidObject, executor.RecoverFeature(feature1, &example.Object{ID: 10}))
 	assert.NoError(t, executor.RecoverFeature(feature1, &example.Object{}))
 
-	feature2 := &web_feature.Feature{Name: "new-feature"}
+	feature2 := &web_feature_old.Feature{Name: "new-feature"}
 	assert.Equal(t, caskin.ErrNotExists, executor.RecoverFeature(feature2, &example.Object{}))
 
 }
@@ -99,7 +99,7 @@ func TestExecutorFeature_Update(t *testing.T) {
 	provider := caskin.NewCachedProvider(nil, nil)
 	executor := w.GetExecutor(provider)
 
-	feature1 := &web_feature.Feature{Name: "backend", Group: "1"}
+	feature1 := &web_feature_old.Feature{Name: "backend", Group: "1"}
 	object1 := &example.Object{ID: featureStartID + 1}
 	assert.Equal(t, caskin.ErrProviderGet, executor.UpdateFeature(feature1, object1))
 	provider.Domain = stage.Domain
@@ -114,7 +114,7 @@ func TestExecutorFeature_Update(t *testing.T) {
 	assert.NoError(t, executor.UpdateFeature(feature1, object1))
 	assert.Equal(t, superObjectID, object1.ObjectID)
 
-	feature2 := &web_feature.Feature{Name: "new-feature"}
+	feature2 := &web_feature_old.Feature{Name: "new-feature"}
 	object2 := &example.Object{ID: backendStartID}
 	assert.Equal(t, caskin.ErrCantChangeObjectType, executor.UpdateFeature(feature2, object2))
 	object2.ID = featureStartID - 1

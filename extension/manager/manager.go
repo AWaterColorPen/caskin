@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/awatercolorpen/caskin"
 	"github.com/awatercolorpen/caskin/extension/domain_creator"
-	"github.com/awatercolorpen/caskin/extension/web_feature"
+	"github.com/awatercolorpen/caskin/extension/web_feature_old"
 )
 
 var (
@@ -15,7 +15,7 @@ var (
 
 type Manager struct {
 	domainCreatorFactory *domain_creator.Factory
-	webFeature           *web_feature.WebFeature
+	webFeature           *web_feature_old.WebFeature
 	caskin               *caskin.Caskin
 }
 
@@ -27,7 +27,7 @@ func (m *Manager) GetDomainCreatorFactory() (*domain_creator.Factory, error) {
 	return m.domainCreatorFactory, nil
 }
 
-func (m *Manager) GetWebFeature() (*web_feature.WebFeature, error) {
+func (m *Manager) GetWebFeature() (*web_feature_old.WebFeature, error) {
 	if m.webFeature == nil {
 		return nil, ErrNoInitialization
 	}
@@ -64,45 +64,45 @@ func NewManager(configuration *Configuration) (*Manager, error) {
 		caskin.DefaultNoPermissionObject = configuration.DefaultNoPermissionObject
 	}
 
-	// set default caskin web_feature option
+	// set default caskin web_feature_old option
 	if configuration.DefaultBackendRootPath != "" {
-		web_feature.DefaultBackendRootPath = configuration.DefaultBackendRootPath
+		web_feature_old.DefaultBackendRootPath = configuration.DefaultBackendRootPath
 	}
 	if configuration.DefaultBackendRootMethod != "" {
-		web_feature.DefaultBackendRootMethod = configuration.DefaultBackendRootMethod
+		web_feature_old.DefaultBackendRootMethod = configuration.DefaultBackendRootMethod
 	}
 	if configuration.DefaultBackendRootDescription != "" {
-		web_feature.DefaultBackendRootDescription = configuration.DefaultBackendRootDescription
+		web_feature_old.DefaultBackendRootDescription = configuration.DefaultBackendRootDescription
 	}
 	if configuration.DefaultBackendRootGroup != "" {
-		web_feature.DefaultBackendRootGroup = configuration.DefaultBackendRootGroup
+		web_feature_old.DefaultBackendRootGroup = configuration.DefaultBackendRootGroup
 	}
 	if configuration.DefaultFeatureRootName != "" {
-		web_feature.DefaultFeatureRootName = configuration.DefaultFeatureRootName
+		web_feature_old.DefaultFeatureRootName = configuration.DefaultFeatureRootName
 	}
 	if configuration.DefaultFeatureRootDescription != "" {
-		web_feature.DefaultFeatureRootDescription = configuration.DefaultFeatureRootDescription
+		web_feature_old.DefaultFeatureRootDescription = configuration.DefaultFeatureRootDescription
 	}
 	if configuration.DefaultFeatureRootGroup != "" {
-		web_feature.DefaultFeatureRootGroup = configuration.DefaultFeatureRootGroup
+		web_feature_old.DefaultFeatureRootGroup = configuration.DefaultFeatureRootGroup
 	}
 	if configuration.DefaultFrontendRootKey != "" {
-		web_feature.DefaultFrontendRootKey = configuration.DefaultFrontendRootKey
+		web_feature_old.DefaultFrontendRootKey = configuration.DefaultFrontendRootKey
 	}
 	if configuration.DefaultFrontendRootType != "" {
-		web_feature.DefaultFrontendRootType = web_feature.FrontendType(configuration.DefaultFrontendRootType)
+		web_feature_old.DefaultFrontendRootType = web_feature_old.FrontendType(configuration.DefaultFrontendRootType)
 	}
 	if configuration.DefaultFrontendRootDescription != "" {
-		web_feature.DefaultFrontendRootDescription = configuration.DefaultFrontendRootDescription
+		web_feature_old.DefaultFrontendRootDescription = configuration.DefaultFrontendRootDescription
 	}
 	if configuration.DefaultFrontendRootGroup != "" {
-		web_feature.DefaultFrontendRootGroup = configuration.DefaultFrontendRootGroup
+		web_feature_old.DefaultFrontendRootGroup = configuration.DefaultFrontendRootGroup
 	}
 	if configuration.DefaultSuperRootName != "" {
-		web_feature.DefaultSuperRootName = configuration.DefaultSuperRootName
+		web_feature_old.DefaultSuperRootName = configuration.DefaultSuperRootName
 	}
 	if configuration.DefaultWebFeatureVersionTableName != "" {
-		web_feature.DefaultWebFeatureVersionTableName = configuration.DefaultWebFeatureVersionTableName
+		web_feature_old.DefaultWebFeatureVersionTableName = configuration.DefaultWebFeatureVersionTableName
 	}
 
 	// set default caskin domain creator option
