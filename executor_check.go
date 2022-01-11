@@ -102,6 +102,9 @@ func (e *Executor) ObjectDataUpdateCheck(item ObjectData, tmp ObjectData, ty Obj
 	if err := e.IDInterfaceUpdateCheck(item, tmp); err != nil {
 		return err
 	}
+	if err := e.ObjectDataWriteCheck(tmp, ty); err != nil {
+		return err
+	}
 	return e.ObjectDataWriteCheck(item, ty)
 }
 
