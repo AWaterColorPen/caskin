@@ -120,10 +120,19 @@ func TestExecutorObjectData_UpdateCheck(t *testing.T) {
 	data2.ObjectID = 4
 	assert.Equal(t, caskin.ErrInValidObjectType, executor.UpdateObjectDataCheckPermission(data2, &example.OneObjectData{}, caskin.ObjectTypeRole))
 
-	// it is should not avoid object_data to change type
+	// it should not avoid object_data to change type
 	// it maybe want to change type from default to special or from special to default
 	data2.ObjectID = 3
-	assert.NoError(t, executor.UpdateObjectDataCheckPermission(data2, &example.OneObjectData{}, caskin.ObjectTypeDefault))
+	assert.Equal(t, caskin.ErrInValidObjectType, executor.UpdateObjectDataCheckPermission(data2, &example.OneObjectData{}, caskin.ObjectTypeDefault))
+
+	data2.ObjectID = 2
+	assert.NoError(t, executor.UpdateObjectDataCheckPermission(data2, &example.OneObjectData{}, caskin.ObjectTypeRole))
+	assert.NoError(t, executor.DB.Update(data2))
+
+	// SubAdminUser has no write permission for object_id=2
+	data2.ObjectID = 5
+	provider.User = stage.SubAdminUser
+	assert.Equal(t, caskin.ErrNoWritePermission, executor.UpdateObjectDataCheckPermission(data2, &example.OneObjectData{}, caskin.ObjectTypeRole))
 }
 
 func TestExecutorObjectData_Enforce(t *testing.T) {
