@@ -11,7 +11,7 @@ func (e *Executor) CreateRole(role Role) error {
 	if err := e.ObjectDataCreateCheck(role, ObjectTypeRole); err != nil {
 		return err
 	}
-	if err := e.treeNodeEntryParentCheck(role, e.newRole()); err != nil {
+	if err := e.TreeNodeEntryParentCheck(role, e.newRole()); err != nil {
 		return err
 	}
 	_, domain, _ := e.provider.Get()
@@ -32,7 +32,7 @@ func (e *Executor) RecoverRole(role Role) error {
 	if err := e.ObjectDataRecoverCheck(role); err != nil {
 		return err
 	}
-	if err := e.treeNodeEntryParentCheck(role, e.newRole()); err != nil {
+	if err := e.TreeNodeEntryParentCheck(role, e.newRole()); err != nil {
 		return err
 	}
 	_, domain, _ := e.provider.Get()
@@ -54,7 +54,7 @@ func (e *Executor) DeleteRole(role Role) error {
 	if err := e.ObjectDataDeleteCheck(role); err != nil {
 		return err
 	}
-	if err := e.treeNodeEntryParentCheck(role, e.newRole()); err != nil {
+	if err := e.TreeNodeEntryParentCheck(role, e.newRole()); err != nil {
 		return err
 	}
 	_, domain, _ := e.provider.Get()
@@ -72,7 +72,7 @@ func (e *Executor) UpdateRole(role Role) error {
 	if err := e.treeNodeEntryUpdateCheck(role, tmp1, tmp2, ObjectTypeRole); err != nil {
 		return err
 	}
-	if err := e.treeNodeEntryParentCheck(role, e.newRole()); err != nil {
+	if err := e.TreeNodeEntryParentCheck(role, e.newRole()); err != nil {
 		return err
 	}
 	_, domain, _ := e.provider.Get()

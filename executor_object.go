@@ -68,7 +68,7 @@ func (e *Executor) DeleteObject(object Object) error {
 // 1. Run object's properties
 // 2. Run object to parent's g2 in the domain
 func (e *Executor) UpdateObject(object Object) error {
-	if err := e.objectTreeNodeUpdateCheck(object, e.factory.NewObject()); err != nil {
+	if err := e.ObjectTreeNodeUpdateCheck(object, e.factory.NewObject()); err != nil {
 		return err
 	}
 	if err := e.ObjectTreeNodeParentCheck(object); err != nil {
