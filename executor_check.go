@@ -129,10 +129,13 @@ func (e *Executor) treeNodeEntryUpdateCheck(item TreeNodeEntry, tmp1 TreeNodeEnt
 	if item.GetID() == item.GetParentID() {
 		return ErrParentCanNotBeItself
 	}
-	return e.treeNodeEntryParentCheck(tmp1, tmp2)
+	if err := e.TreeNodeEntryParentCheck(tmp1, tmp2); err != nil {
+		return err
+	}
+	return e.TreeNodeEntryParentToDescendantCheck(item, tmp1, tmp2)
 }
 
-func (e *Executor) treeNodeEntryParentCheck(item TreeNodeEntry, parent TreeNodeEntry) error {
+func (e *Executor) TreeNodeEntryParentCheck(item TreeNodeEntry, parent TreeNodeEntry) error {
 	if isRoot(item) {
 		return nil
 	}
@@ -143,7 +146,7 @@ func (e *Executor) treeNodeEntryParentCheck(item TreeNodeEntry, parent TreeNodeE
 	return isValidFamily(item, parent, e.DB.Take)
 }
 
-func (e *Executor) objectTreeNodeUpdateCheck(item Object, tmp Object) error {
+func (e *Executor) ObjectTreeNodeUpdateCheck(item Object, tmp Object) error {
 	if err := e.ObjectDataUpdateCheck(item, tmp, ObjectTypeObject); err != nil {
 		return err
 	}
@@ -153,7 +156,10 @@ func (e *Executor) objectTreeNodeUpdateCheck(item Object, tmp Object) error {
 	if item.GetObjectType() != tmp.GetObjectType() {
 		return ErrCantChangeObjectType
 	}
-	return e.ObjectTreeNodeParentCheck(tmp)
+	if err := e.ObjectTreeNodeParentCheck(tmp); err != nil {
+		return err
+	}
+	return e.ObjectTreeNodeParentToDescendantCheck(item, tmp)
 }
 
 func (e *Executor) ObjectTreeNodeParentCheck(object Object) error {
@@ -174,6 +180,33 @@ func (e *Executor) ObjectTreeNodeParentCheck(object Object) error {
 func (e *Executor) rootObjectPermissionCheck() error {
 	if err := e.IsSuperadminCheck(); err != nil {
 		return ErrEmptyParentIdOrNotSuperadmin
+	}
+	return nil
+}
+
+func (e *Executor) ObjectTreeNodeParentToDescendantCheck(object Object, tmp Object) error {
+	if object.GetParentID() == 0 || object.GetParentID() == tmp.GetParentID() {
+		return nil
+	}
+	to := e.factory.NewObject()
+	to.SetID(object.GetParentID())
+	domain := e.factory.NewDomain()
+	domain.SetID(tmp.GetDomainID())
+	if ok, _ := e.Enforcer.EnforceObject(object, to, domain); ok {
+		return ErrParentToDescendant
+	}
+	return nil
+}
+
+func (e *Executor) TreeNodeEntryParentToDescendantCheck(item TreeNodeEntry, tmp TreeNodeEntry, parent TreeNodeEntry) error {
+	if item.GetParentID() == 0 || item.GetParentID() == tmp.GetParentID() {
+		return nil
+	}
+	parent.SetID(item.GetParentID())
+	domain := e.factory.NewDomain()
+	domain.SetID(tmp.GetDomainID())
+	if ok, _ := e.Enforcer.EnforceRole(item.(Role), parent.(Role), domain); ok {
+		return ErrParentToDescendant
 	}
 	return nil
 }

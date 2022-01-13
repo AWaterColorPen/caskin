@@ -7,6 +7,8 @@ import (
 type IEnforcer interface {
 	// check permission
 	Enforce(User, Object, Domain, Action) (bool, error)
+	EnforceRole(son Role, parent Role, domain Domain) (bool, error)
+	EnforceObject(son Object, parent Object, domain Domain) (bool, error)
 	IsSuperAdmin(User) (bool, error)
 
 	// get user's domain
@@ -64,6 +66,32 @@ type enforcer struct {
 
 func (e *enforcer) Enforce(user User, object Object, domain Domain, action Action) (bool, error) {
 	return e.e.Enforce(user.Encode(), domain.Encode(), object.Encode(), string(action))
+}
+
+func (e *enforcer) EnforceRole(son Role, parent Role, domain Domain) (bool, error) {
+	rs, err := e.e.GetImplicitRolesForUser(son.Encode(), domain.Encode())
+	if err != nil {
+		return false, err
+	}
+	for _, r := range rs {
+		if r == parent.Encode() {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+func (e *enforcer) EnforceObject(son Object, parent Object, domain Domain) (bool, error) {
+	os, err := e.e.GetImplicitRolesForUser(parent.Encode(), domain.Encode())
+	if err != nil {
+		return false, err
+	}
+	for _, o := range os {
+		if o == son.Encode() {
+			return true, nil
+		}
+	}
+	return false, nil
 }
 
 func (e *enforcer) IsSuperAdmin(user User) (bool, error) {
