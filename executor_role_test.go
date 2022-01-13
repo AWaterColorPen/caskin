@@ -147,6 +147,42 @@ func TestExecutorRole_GeneralUpdate(t *testing.T) {
 
 }
 
+func TestExecutorRole_UpdateParent(t *testing.T) {
+	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
+	provider := caskin.NewCachedProvider(nil, nil)
+	assert.NoError(t, stage.AddSubAdmin())
+
+	provider.User = stage.AdminUser
+	provider.Domain = stage.Domain
+	executor := stage.Caskin.GetExecutor(provider)
+
+	role1 := &example.Role{
+		Name:     "role_parent_id_to_3",
+		ObjectID: 5,
+		ParentID: 3,
+	}
+	assert.NoError(t, executor.CreateRole(role1))
+	role2 := &example.Role{
+		Name:     "role_parent_id_to_5",
+		ObjectID: 5,
+		ParentID: role1.ID,
+	}
+	assert.NoError(t, executor.CreateRole(role2))
+
+	role3 := &example.Role{
+		ID:       3,
+		Name:     "change_role_parent_id_from_2_to_6",
+		ObjectID: 5,
+		ParentID: role2.ID,
+	}
+	assert.Equal(t, caskin.ErrParentToDescendant, executor.UpdateRole(role3))
+	role3.ParentID = role1.ID
+	assert.Equal(t, caskin.ErrParentToDescendant, executor.UpdateRole(role3))
+
+	role2.ParentID = 3
+	assert.NoError(t, executor.UpdateRole(role2))
+}
+
 func TestExecutorRole_GeneralRecover(t *testing.T) {
 	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
 	assert.NoError(t, stage.AddSubAdmin())

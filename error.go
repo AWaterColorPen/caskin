@@ -4,16 +4,18 @@ import "fmt"
 
 var (
 	// errors about entry
-	ErrNil                  = fmt.Errorf("nil data")
-	ErrEmptyID              = fmt.Errorf("empty id")
-	ErrAlreadyExists        = fmt.Errorf("already exists")
-	ErrNotExists            = fmt.Errorf("not exists")
-	ErrInValidObject        = fmt.Errorf("invalid object")
-	ErrInValidObjectType    = fmt.Errorf("invalid object type")
-	ErrCantChangeObjectType = fmt.Errorf("can't change object type")
-	ErrInValidParentObject  = fmt.Errorf("invalid parent object")
-	ErrParentCanNotBeItself = fmt.Errorf("parent id can't be it self id")
-	ErrInValidAction        = fmt.Errorf("invalid action")
+	ErrNil                    = fmt.Errorf("nil data")
+	ErrEmptyID                = fmt.Errorf("empty id")
+	ErrAlreadyExists          = fmt.Errorf("already exists")
+	ErrNotExists              = fmt.Errorf("not exists")
+	ErrInValidObject          = fmt.Errorf("invalid object")
+	ErrInValidObjectType      = fmt.Errorf("invalid object type")
+	ErrCantChangeObjectType   = fmt.Errorf("can't change object type")
+	ErrInValidParentObject    = fmt.Errorf("invalid parent object")
+	ErrParentCanNotBeItself   = fmt.Errorf("parent id can't be it self id")
+	ErrParentToDescendant     = fmt.Errorf("can't change parent to descendant")
+	ErrDirectoryDepthTooLarge = fmt.Errorf("dicretory's depth is too large")
+	ErrInValidAction          = fmt.Errorf("invalid action")
 
 	// errors about permission
 	ErrNoReadPermission       = fmt.Errorf("no read permission")

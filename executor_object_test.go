@@ -213,6 +213,45 @@ func TestExecutorObject_GeneralUpdate(t *testing.T) {
 	assert.Equal(t, caskin.ErrCantChangeObjectType, executor.UpdateObject(object6))
 }
 
+func TestExecutorObject_UpdateParent(t *testing.T) {
+	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
+	provider := caskin.NewCachedProvider(nil, nil)
+	assert.NoError(t, stage.AddSubAdmin())
+
+	provider.User = stage.AdminUser
+	provider.Domain = stage.Domain
+	executor := stage.Caskin.GetExecutor(provider)
+
+	object1 := &example.Object{
+		Name:     "role_parent_id_to_5",
+		Type:     caskin.ObjectTypeRole,
+		ParentID: 5,
+		ObjectID: 4,
+	}
+	assert.NoError(t, executor.CreateObject(object1))
+	object2 := &example.Object{
+		Name:     "role_parent_id_to_6",
+		Type:     caskin.ObjectTypeRole,
+		ParentID: object1.ID,
+		ObjectID: 4,
+	}
+	assert.NoError(t, executor.CreateObject(object2))
+
+	object3 := &example.Object{
+		ID:       5,
+		Name:     "change_role_parent_id_from_2_to_7",
+		Type:     caskin.ObjectTypeRole,
+		ParentID: object2.ID,
+		ObjectID: 4,
+	}
+	assert.Equal(t, caskin.ErrParentToDescendant, executor.UpdateObject(object3))
+	object3.ParentID = object1.ID
+	assert.Equal(t, caskin.ErrParentToDescendant, executor.UpdateObject(object3))
+
+	object2.ParentID = 5
+	assert.NoError(t, executor.UpdateObject(object2))
+}
+
 func TestExecutorObject_GeneralRecover(t *testing.T) {
 	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
 	assert.NoError(t, stage.AddSubAdmin())
