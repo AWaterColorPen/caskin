@@ -22,11 +22,6 @@ e = some(where (p.eft == allow))
 m = g(r.sub, p.sub, r.dom) && g2(r.obj, p.obj, r.dom) && r.dom == p.dom && r.act == p.act || g(r.sub, "superadmin", "superdomain")`
 )
 
-type casbinModel struct {
-	m    model.Model
-	text string
-}
-
 func CasbinModel() (model.Model, error) {
 	return model.NewModelFromString(casbinModelText)
 }
