@@ -32,10 +32,7 @@ func (m *Manager) extensionWebFeature(configuration *Configuration) (*web_featur
 		return nil, ErrExtensionConfigurationConflict
 	}
 
-	model, err := caskin.CasbinModelText()
-	if err != nil {
-		return nil, err
-	}
+	model := caskin.CasbinModelText()
 
 	if configuration.SuperadminDisable {
 		return nil, ErrExtensionConfigurationConflict

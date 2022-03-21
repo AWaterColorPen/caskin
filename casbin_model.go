@@ -26,6 +26,6 @@ func CasbinModel() (model.Model, error) {
 	return model.NewModelFromString(casbinModelText)
 }
 
-func CasbinModelText() (string, error) {
-	return casbinModelText, nil
+func CasbinModelText() string {
+	return casbinModelText
 }
