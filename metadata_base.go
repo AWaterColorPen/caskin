@@ -20,7 +20,7 @@ func (b *BaseMetadataDB) Recover(item interface{}) error {
 	if err := b.TakeUnscoped(item); err != nil {
 		return err
 	}
-	return b.DB.Model(item).Update("delete_at", nil).Error
+	return b.DB.Unscoped().Model(item).Update("delete_at", nil).Error
 }
 
 func (b *BaseMetadataDB) Update(item interface{}) error {

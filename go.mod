@@ -7,10 +7,10 @@ require (
 	github.com/casbin/casbin/v2 v2.42.0
 	github.com/casbin/gorm-adapter/v3 v3.5.0
 	github.com/patrickmn/go-cache v2.1.0+incompatible
-	github.com/stretchr/testify v1.7.0
+	github.com/stretchr/testify v1.7.1
 	gorm.io/datatypes v1.0.6
 	gorm.io/driver/sqlite v1.3.1
-	gorm.io/gorm v1.23.2
+	gorm.io/gorm v1.23.3
 )
 
 require (
