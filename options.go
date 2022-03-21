@@ -21,9 +21,8 @@ type Option func(*Options)
 // Options configuration for caskin
 type Options struct {
 	// options of superadmin
-	SuperadminDisable bool          `json:"superadmin_disable"` // default is false
-	SuperadminRole    RoleFactory   `json:"-"`                  // provide superadmin Role
-	SuperadminDomain  DomainFactory `json:"-"`                  // provide superadmin Domain
+	SuperadminRole   RoleFactory   `json:"-"` // provide superadmin Role
+	SuperadminDomain DomainFactory `json:"-"` // provide superadmin Domain
 
 	// options for implementations of the interface
 	DomainCreator DomainCreator    `json:"-"`
@@ -39,15 +38,7 @@ func (o *Options) newOptions(opts ...Option) *Options {
 	return o
 }
 
-func (o *Options) IsDisableSuperadmin() bool {
-	return o.SuperadminDisable
-}
-
 func (o *Options) GetSuperadminRole() Role {
-	if o.IsDisableSuperadmin() {
-		return nil
-	}
-
 	if o.SuperadminRole != nil {
 		return o.SuperadminRole()
 	}
@@ -59,10 +50,6 @@ func (o *Options) GetSuperadminRole() Role {
 }
 
 func (o *Options) GetSuperadminDomain() Domain {
-	if o.IsDisableSuperadmin() {
-		return nil
-	}
-
 	if o.SuperadminDomain != nil {
 		return o.SuperadminDomain()
 	}

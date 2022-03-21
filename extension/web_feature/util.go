@@ -6,19 +6,6 @@ import (
 	"github.com/awatercolorpen/caskin"
 )
 
-func initTreeMapFromPair(pair []*caskin.CustomizedDataPair) Relations {
-	m := Relations{}
-	for _, v := range pair {
-		m[v.Object.GetID()] = Relation{}
-	}
-	for _, v := range pair {
-		if v.Object.GetParentID() != 0 {
-			m[v.Object.GetParentID()] = append(m[v.Object.GetParentID()], v.Object.GetID())
-		}
-	}
-	return m
-}
-
 func initFeatureRelationMap(feature, frontend, backend Relations, relations Relations) Relations {
 	m := Relations{}
 	for k := range feature {

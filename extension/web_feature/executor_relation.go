@@ -11,11 +11,7 @@ func (e *Executor) GetFeatureRelation() (Relations, error) {
 	if err := e.operationPermissionCheck(); err != nil {
 		return nil, err
 	}
-	dump, err := e.Dump()
-	if err != nil {
-		return nil, err
-	}
-	return caskin.SortedInheritanceRelations(dump.FeatureRelation), nil
+	return nil, nil
 }
 
 // GetFeatureRelationByFeature
@@ -68,7 +64,6 @@ func (e *Executor) featureRelationPerFeatureInternal(object caskin.Object) (rela
 	for _, v := range children {
 		relation = append(relation, v.GetID())
 	}
-	dump, err = e.Dump()
 	if err != nil {
 		return
 	}

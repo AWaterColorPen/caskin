@@ -5,8 +5,8 @@ import (
 )
 
 type Executor struct {
-	e              *caskin.Executor
-	root           *Root
+	e               *caskin.Executor
+	root            *Root
 	objectFactory   caskin.ObjectFactory
 	operationDomain caskin.Domain
 	modelText       string
@@ -22,19 +22,6 @@ func (e *Executor) setFeatureRoot(object caskin.Object) {
 
 func (e *Executor) setFrontendRoot(object caskin.Object) {
 	e.root.SetFrontendRoot(object)
-}
-
-func (e *Executor) get3pair() (feature, frontend, backend []*caskin.CustomizedDataPair, err error) {
-	feature, err = e.GetFeature()
-	if err != nil {
-		return
-	}
-	frontend, err = e.GetFrontend()
-	if err != nil {
-		return
-	}
-	backend, err = e.GetBackend()
-	return
 }
 
 func (e *Executor) operationPermissionCheck() error {
@@ -71,39 +58,3 @@ func (e *Executor) allWebFeatureRelation(domain caskin.Domain) caskin.Inheritanc
 
 	return m
 }
-
-func (e *Executor) frontendAndBackendUpdate(object caskin.Object) error {
-	if err := e.e.ObjectTreeNodeUpdateCheck(object, e.objectFactory()); err != nil {
-		return err
-	}
-	if err := e.e.ObjectTreeNodeParentCheck(object); err != nil {
-		return err
-	}
-
-	provider := e.e.GetCurrentProvider()
-	_, domain, _ := provider.Get()
-	object.SetDomainID(domain.GetID())
-	if err := e.e.DB.Update(object); err != nil {
-		return err
-	}
-
-	newEntry := func() caskin.TreeNodeEntry { return e.objectFactory() }
-	updater := caskin.NewTreeNodeEntryUpdater(newEntry, e.frontendAndBackendParentGetFunc(), e.e.DefaultObjectParentAddFunc(), e.e.DefaultObjectParentDelFunc())
-	return updater.Run(object, domain)
-}
-
-func (e *Executor) frontendAndBackendParentGetFunc() caskin.TreeNodeEntryChildrenGetFunc {
-	feature, _ := e.GetFeature()
-	index := initTreeMapFromPair(feature)
-	return func(p caskin.TreeNodeEntry, domain caskin.Domain) []caskin.TreeNodeEntry {
-		var out []caskin.TreeNodeEntry
-		parents := e.e.DefaultObjectParentGetFunc()(p, domain)
-		for _, v := range parents {
-			if _, ok := index[v.GetID()]; !ok {
-				out = append(out, v)
-			}
-		}
-		return out
-	}
-}
-

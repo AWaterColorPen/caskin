@@ -28,15 +28,9 @@ func (m *Manager) extensionWebFeature(configuration *Configuration) (*web_featur
 	if configuration.Extension == nil || configuration.Extension.WebFeature == nil {
 		return nil, ErrExtensionConfigurationConflict
 	}
-	if configuration.SuperadminDisable {
-		return nil, ErrExtensionConfigurationConflict
-	}
 
 	model := caskin.CasbinModelText()
 
-	if configuration.SuperadminDisable {
-		return nil, ErrExtensionConfigurationConflict
-	}
 	if configuration.EntryFactory == nil {
 		return nil, caskin.ErrInitializationNilEntryFactory
 	}

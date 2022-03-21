@@ -16,10 +16,6 @@ type WebFeatureVersion struct {
 	MetaData  *DumpRelation  `gorm:"column:metadata"        json:"metadata,omitempty"`
 }
 
-func (w *WebFeatureVersion) TableName() string {
-	return DefaultWebFeatureVersionTableName
-}
-
 func (w *WebFeatureVersion) IsCompatible(dump *Dump) error {
 	if !isCompatible(w.MetaData.FeatureTree, dump.FeatureTree) {
 		return caskin.ErrInCompatible

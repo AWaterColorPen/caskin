@@ -5,19 +5,14 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-
 	"github.com/awatercolorpen/caskin"
 )
 
 type Dump struct {
-	Feature         []*caskin.CustomizedDataPair `json:"feature"`
-	Frontend        []*caskin.CustomizedDataPair `json:"frontend"`
-	Backend         []*caskin.CustomizedDataPair `json:"backend"`
-	FeatureTree     Relations                    `json:"feature_tree"`
-	FrontendTree    Relations                    `json:"frontend_tree"`
-	BackendTree     Relations                    `json:"backend_tree"`
-	FeatureRelation Relations                    `json:"feature_relation"`
+	FeatureTree     Relations `json:"feature_tree"`
+	FrontendTree    Relations `json:"frontend_tree"`
+	BackendTree     Relations `json:"backend_tree"`
+	FeatureRelation Relations `json:"feature_relation"`
 }
 
 func (d *Dump) ToRelation() *DumpRelation {
@@ -37,15 +32,8 @@ func (d *Dump) InitSingleFeatureRelation(relation Relation) Relation {
 	return initSingleFeatureRelation(d.FeatureTree, d.FrontendTree, d.BackendTree, relation)
 }
 
-func NewDump(feature, frontend, backend []*caskin.CustomizedDataPair, relations Relations) *Dump {
-	dump := &Dump{
-		Feature:      feature,
-		Frontend:     frontend,
-		Backend:      backend,
-		FeatureTree:  initTreeMapFromPair(feature),
-		FrontendTree: initTreeMapFromPair(frontend),
-		BackendTree:  initTreeMapFromPair(backend),
-	}
+func NewDump(feature, frontend, relations Relations) *Dump {
+	dump := &Dump{}
 	dump.FeatureRelation = dump.InitFeatureRelationMap(relations)
 	return dump
 }
@@ -113,94 +101,6 @@ func (d *DumpFileStruct) IsValid() error {
 		return caskin.ErrInCompatible
 	}
 	return nil
-}
-
-func (d *DumpFileStruct) ImportFromDump(dump *Dump) error {
-	d.VirtualIndexFeatureTree = Relations{}
-	d.VirtualIndexFrontendTree = Relations{}
-	d.VirtualIndexBackendTree = Relations{}
-	d.VirtualIndexFeatureRelation = Relations{}
-
-	indexFe, indexFr, indexBa := map[uint64]uint64{}, map[uint64]uint64{}, map[uint64]uint64{}
-
-	for i, v := range dump.Feature {
-		d.Feature = append(d.Feature, v.ObjectCustomizedData.(*Feature))
-		indexFe[v.Object.GetID()] = uint64(i)
-	}
-	for i, v := range dump.Frontend {
-		d.Frontend = append(d.Frontend, v.ObjectCustomizedData.(*Frontend))
-		indexFr[v.Object.GetID()] = uint64(i)
-	}
-	for i, v := range dump.Backend {
-		d.Backend = append(d.Backend, v.ObjectCustomizedData.(*Backend))
-		indexBa[v.Object.GetID()] = uint64(i)
-	}
-
-	treeToVirtualIndexTree(dump.FeatureTree, d.VirtualIndexFeatureTree, indexFe)
-	treeToVirtualIndexTree(dump.FrontendTree, d.VirtualIndexFrontendTree, indexFr)
-	treeToVirtualIndexTree(dump.BackendTree, d.VirtualIndexBackendTree, indexBa)
-
-	for k, node := range dump.FeatureRelation {
-		var tree []uint64
-		for _, v := range node {
-			if u, ok := indexFr[v]; ok {
-				tree = append(tree, u)
-			}
-			if u, ok := indexBa[v]; ok {
-				tree = append(tree, u)
-			}
-		}
-		d.VirtualIndexFeatureRelation[indexFe[k]] = tree
-	}
-	return nil
-}
-
-func (d *DumpFileStruct) ImportFromFile(name string) error {
-	// go 1.16
-	// b, err := os.ReadFile(name)
-	b, err := ioutil.ReadFile(name)
-	if err != nil {
-		return err
-	}
-	return json.Unmarshal(b, d)
-}
-
-func (d *DumpFileStruct) ExportToWebFeature(w *WebFeature) error {
-	var executor *Executor
-	indexFe, indexFr, indexBa := map[uint64]uint64{}, map[uint64]uint64{}, map[uint64]uint64{}
-	for i, v := range d.Feature {
-		o := executor.objectFactory()
-		if err := executor.CreateFeature(v, o); err != nil {
-			return err
-		}
-		indexFe[uint64(i)] = o.GetID()
-	}
-	for i, v := range d.Frontend {
-		o := executor.objectFactory()
-		if err := executor.CreateFrontend(v, o); err != nil {
-			return err
-		}
-		indexFr[uint64(i)] = o.GetID()
-	}
-	for i, v := range d.Backend {
-		o := executor.objectFactory()
-		if err := executor.CreateBackend(v, o); err != nil {
-			return err
-		}
-		indexBa[uint64(i)] = o.GetID()
-	}
-
-	return nil
-}
-
-func (d *DumpFileStruct) ExportToFile(name string) error {
-	b, err := json.Marshal(d)
-	if err != nil {
-		return err
-	}
-	return ioutil.WriteFile(name, b, 0644)
-	// go 1.16
-	// return os.WriteFile(name, b, 0644)
 }
 
 func treeToVirtualIndexTree(tree, viTree Relations, index map[uint64]uint64) {

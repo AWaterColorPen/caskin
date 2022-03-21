@@ -227,8 +227,3 @@ func (u UserRolePairs) UserID() []uint64 {
 	}
 	return id
 }
-
-type CustomizedDataPair struct {
-	Object               Object         `json:"object"`
-	ObjectCustomizedData CustomizedData `json:"customized_data"`
-}

@@ -15,10 +15,6 @@ func (e *Executor) DeleteSuperadminUser(user User) error {
 // GetAllSuperadminUser
 // get all superadmin user without permission checking
 func (e *Executor) GetAllSuperadminUser() ([]User, error) {
-	if e.options.IsDisableSuperadmin() {
-		return nil, ErrSuperAdminIsNoEnabled
-	}
-
 	domain := e.options.GetSuperadminDomain()
 	role := e.options.GetSuperadminRole()
 	us := e.Enforcer.GetUsersForRoleInDomain(role, domain)
@@ -27,9 +23,6 @@ func (e *Executor) GetAllSuperadminUser() ([]User, error) {
 }
 
 func (e *Executor) writeSuperadminUser(user User, fn func(User, Role, Domain) error) error {
-	if e.options.IsDisableSuperadmin() {
-		return ErrSuperAdminIsNoEnabled
-	}
 	if err := e.IDInterfaceValidAndExistsCheck(user); err != nil {
 		return err
 	}

@@ -33,11 +33,7 @@ func (w *WebFeature) GetExecutor(provider caskin.CurrentProvider) *Executor {
 }
 
 func New(options *Options) (*WebFeature, error) {
-	if err := options.MetaDB.AutoMigrate(&WebFeatureVersion{}); err != nil {
-		return nil, err
-	}
-
-	root, err := InitRootObject(options.MetaDB, options.ObjectFactory, options.DomainFactory())
+	root, err := InitRootObject(options.MetaDB, options.DomainFactory())
 	if err != nil {
 		return nil, err
 	}

@@ -4,22 +4,6 @@ import (
 	"github.com/awatercolorpen/caskin"
 )
 
-func (e *Executor) BuildVersion() error {
-	if err := e.versionPermissionCheck(); err != nil {
-		return err
-	}
-	dump, err := e.Dump()
-	if err != nil {
-		return err
-	}
-	metadata := dump.ToRelation()
-	version := &WebFeatureVersion{
-		SHA256:   metadata.Version(),
-		MetaData: metadata,
-	}
-	return e.e.DB.Create(version)
-}
-
 func (e *Executor) GetVersion() ([]*WebFeatureVersion, error) {
 	if err := e.versionPermissionCheck(); err != nil {
 		return nil, err
@@ -63,9 +47,6 @@ func (e *Executor) SyncVersionToAllDomain(version *WebFeatureVersion) error {
 	if err := e.versionPermissionCheck(); err != nil {
 		return err
 	}
-	if err := e.isValidVersion(version); err != nil {
-		return err
-	}
 	domains, err := e.e.GetAllDomain()
 	if err != nil {
 		return err
@@ -80,9 +61,6 @@ func (e *Executor) SyncVersionToAllDomain(version *WebFeatureVersion) error {
 
 func (e *Executor) SyncVersionToOneDomain(version *WebFeatureVersion, domain caskin.Domain) error {
 	if err := e.versionPermissionCheck(); err != nil {
-		return err
-	}
-	if err := e.isValidVersion(version); err != nil {
 		return err
 	}
 	return e.syncVersionToOneDomain(version, domain)
@@ -147,17 +125,6 @@ func (e *Executor) syncVersionToOneDomainInternal(version *WebFeatureVersion, do
 	}
 
 	return nil
-}
-
-func (e *Executor) isValidVersion(version *WebFeatureVersion) error {
-	if err := e.e.DB.Take(version); err != nil {
-		return err
-	}
-	dump, err := e.Dump()
-	if err != nil {
-		return err
-	}
-	return version.IsCompatible(dump)
 }
 
 func (e *Executor) versionPermissionCheck() error {
