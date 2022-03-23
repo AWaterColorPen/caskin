@@ -1,11 +1,11 @@
-package web_feature_old_test
+package web_feature_test
 
 import (
 	"testing"
 
 	"github.com/awatercolorpen/caskin"
 	"github.com/awatercolorpen/caskin/example"
-    "github.com/awatercolorpen/caskin/extension/web_feature_old"
+	"github.com/awatercolorpen/caskin/extension/web_feature"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -32,7 +32,7 @@ func TestExecutorVersion_BuildVersion(t *testing.T) {
 	assert.Equal(t, "1dd781e212bc2ff56053e2f09d7b399e0ca9f120b1784eb8501aab4d44c8cbee", list1[0].SHA256)
 
 	// update a backend property can't change build version
-	backend1 := &web_feature_old.Backend{Path: "api/backend", Method: "GET"}
+	backend1 := &web_feature.Backend{Path: "api/backend", Method: "GET"}
 	object1 := &example.Object{ID: backendStartID, ObjectID: 1}
 	assert.NoError(t, executor.UpdateBackend(backend1, object1))
 
@@ -56,7 +56,7 @@ func TestExecutorVersion_SyncVersionToAllDomain(t *testing.T) {
 	provider.User = stage.SuperadminUser
 	assert.Error(t, executor.SyncVersionToAllDomain(nil))
 
-	version := &web_feature_old.WebFeatureVersion{
+	version := &web_feature.WebFeatureVersion{
 		SHA256: "sha256",
 	}
 	assert.Error(t, executor.SyncVersionToAllDomain(version))
@@ -172,8 +172,8 @@ func TestExecutorVersion_SyncToUpdateAuth(t *testing.T) {
 	// before sync, it can not manage feature policy any more
 	provider.Domain = stage.Domain
 	provider.User = stage.SubAdminUser
-	assert.NoError(t, executor.AuthBackendAPIEnforce(&web_feature_old.Backend{Path: "api/backend", Method: "GET"}))
-	assert.Equal(t, caskin.ErrNoBackendAPIPermission, executor.AuthBackendAPIEnforce(&web_feature_old.Backend{Path: "api/backend", Method: "POST"}))
+	assert.NoError(t, executor.AuthBackendAPIEnforce(&web_feature.Backend{Path: "api/backend", Method: "GET"}))
+	assert.Equal(t, caskin.ErrNoBackendAPIPermission, executor.AuthBackendAPIEnforce(&web_feature.Backend{Path: "api/backend", Method: "POST"}))
 	c1, err := executor.AuthFrontendCaskinStruct("abc")
 	assert.NoError(t, err)
 	assert.Len(t, c1.P, 1)
@@ -195,7 +195,7 @@ func TestExecutorVersion_SyncToUpdateAuth(t *testing.T) {
 	// if recover the deleted feature before sync, it can manage feature policy again
 	provider.Domain = stage.Options.GetSuperadminDomain()
 	provider.User = stage.SuperadminUser
-	assert.NoError(t, executor.RecoverFeature(&web_feature_old.Feature{Name: "backend"}, &example.Object{}))
+	assert.NoError(t, executor.RecoverFeature(&web_feature.Feature{Name: "backend"}, &example.Object{}))
 	provider.Domain = stage.Domain
 	provider.User = stage.SubAdminUser
 	objects3, err := executor.NormalDomainGetFeatureObject()
@@ -215,7 +215,7 @@ func TestExecutorVersion_SyncToUpdateAuth(t *testing.T) {
 	// after sync, it should have no permission
 	provider.Domain = stage.Domain
 	provider.User = stage.SubAdminUser
-	assert.Equal(t, caskin.ErrNoBackendAPIPermission, executor.AuthBackendAPIEnforce(&web_feature_old.Backend{Path: "api/backend", Method: "GET"}))
+	assert.Equal(t, caskin.ErrNoBackendAPIPermission, executor.AuthBackendAPIEnforce(&web_feature.Backend{Path: "api/backend", Method: "GET"}))
 	c2, err := executor.AuthFrontendCaskinStruct("abc")
 	assert.NoError(t, err)
 	assert.Len(t, c2.P, 0)
