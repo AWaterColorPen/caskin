@@ -1,4 +1,4 @@
-package web_feature_test
+package web_feature_old_test
 
 import (
 	"testing"

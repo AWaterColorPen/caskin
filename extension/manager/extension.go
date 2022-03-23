@@ -3,7 +3,7 @@ package manager
 import (
 	"github.com/awatercolorpen/caskin"
 	"github.com/awatercolorpen/caskin/extension/domain_creator"
-	"github.com/awatercolorpen/caskin/extension/web_feature"
+	"github.com/awatercolorpen/caskin/extension/web_feature_old"
 )
 
 func (m *Manager) extensionDomainCreator(configuration *Configuration) (*domain_creator.Factory, error) {
@@ -24,7 +24,7 @@ func (m *Manager) extensionDomainCreator(configuration *Configuration) (*domain_
 	return domain_creator.NewFactory(configuration.DB, configuration.EntryFactory)
 }
 
-func (m *Manager) extensionWebFeature(configuration *Configuration) (*web_feature.WebFeature, error) {
+func (m *Manager) extensionWebFeature(configuration *Configuration) (*web_feature_old.WebFeature, error) {
 	if configuration.Extension == nil || configuration.Extension.WebFeature == nil {
 		return nil, ErrExtensionConfigurationConflict
 	}
@@ -38,7 +38,7 @@ func (m *Manager) extensionWebFeature(configuration *Configuration) (*web_featur
 		return nil, caskin.ErrInitializationNilMetaDB
 	}
 
-	options := &web_feature.Options{
+	options := &web_feature_old.Options{
 		Caskin:        m.caskin,
 		DomainFactory: m.caskin.GetOptions().GetSuperadminDomain,
 		ObjectFactory: configuration.EntryFactory.NewObject,
@@ -46,5 +46,5 @@ func (m *Manager) extensionWebFeature(configuration *Configuration) (*web_featur
 		ModelText:     model,
 	}
 
-	return web_feature.New(options)
+	return web_feature_old.New(options)
 }
