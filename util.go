@@ -53,8 +53,8 @@ func MergedInheritanceRelations(relations ...InheritanceRelations) InheritanceRe
 }
 
 // TopSort root first
-func TopSort(graph InheritanceRelations) []uint64 {
-	inDegree := map[uint64]int{}
+func TopSort[T comparable](graph map[T][]T) []T {
+	inDegree := map[T]int{}
 	for k := range graph {
 		inDegree[k] = 0
 	}
@@ -64,7 +64,7 @@ func TopSort(graph InheritanceRelations) []uint64 {
 		}
 	}
 
-	var queue []uint64
+	var queue []T
 	for k, v := range inDegree {
 		if v == 0 {
 			queue = append(queue, k)
@@ -105,7 +105,7 @@ func CheckObject(e IEnforcer, u User, d Domain, one Object, action Action) bool 
 }
 
 // Diff do diff source, target list to get add, remove list
-func Diff(source, target []interface{}) (add, remove []interface{}) {
+func Diff(source, target []any) (add, remove []any) {
 	linq.From(source).Except(linq.From(target)).ToSlice(&remove)
 	linq.From(target).Except(linq.From(source)).ToSlice(&add)
 	return
@@ -113,8 +113,8 @@ func Diff(source, target []interface{}) (add, remove []interface{}) {
 
 // DiffPolicy diff policy source, target list to get add, remove list
 func DiffPolicy(source, target []*Policy) (add, remove []*Policy) {
-	sourceMap := make(map[interface{}]*Policy)
-	targetMap := make(map[interface{}]*Policy)
+	sourceMap := make(map[any]*Policy)
+	targetMap := make(map[any]*Policy)
 	for _, v := range source {
 		sourceMap[v.Key()] = v
 	}

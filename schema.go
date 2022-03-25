@@ -2,8 +2,6 @@ package caskin
 
 import (
 	"strings"
-
-	"gorm.io/datatypes"
 )
 
 type ObjectType string
@@ -42,81 +40,31 @@ type Object interface {
 	nameInterface
 	GetObjectType() ObjectType
 	SetObjectType(ObjectType)
-	GetCustomizedData() datatypes.JSON
-	SetCustomizedData(datatypes.JSON)
 }
 
 type Domain interface {
 	entry
 }
 
-type Users []User
-
-func (u Users) ID() []uint64 {
+func ID[E idInterface](in []E) []uint64 {
 	var m []uint64
-	for _, v := range u {
+	for _, v := range in {
 		m = append(m, v.GetID())
 	}
 	return m
 }
 
-func (u Users) IDMap() map[uint64]User {
-	m := map[uint64]User{}
-	for _, v := range u {
+func IDMap[E idInterface](in []E) map[uint64]E {
+	m := map[uint64]E{}
+	for _, v := range in {
 		m[v.GetID()] = v
 	}
 	return m
 }
 
-type Roles []Role
-
-func (r Roles) ID() []uint64 {
-	var m []uint64
-	for _, v := range r {
-		m = append(m, v.GetID())
-	}
-	return m
-}
-
-func (r Roles) IDMap() map[uint64]Role {
-	m := map[uint64]Role{}
-	for _, v := range r {
-		m[v.GetID()] = v
-	}
-	return m
-}
-
-func (r Roles) Tree() map[uint64]uint64 {
+func Tree[E TreeNodeEntry](in []E) map[uint64]uint64 {
 	m := map[uint64]uint64{}
-	for _, v := range r {
-		if v.GetParentID() != 0 {
-			m[v.GetID()] = v.GetParentID()
-		}
-	}
-	return m
-}
-
-type Objects []Object
-
-func (o Objects) ID() []uint64 {
-	var m []uint64
-	for _, v := range o {
-		m = append(m, v.GetID())
-	}
-	return m
-}
-
-func (o Objects) IDMap() map[uint64]Object {
-	m := map[uint64]Object{}
-	for _, v := range o {
-		m[v.GetID()] = v
-	}
-	return m
-}
-
-func (o Objects) Tree() map[uint64]uint64 {
-	m := map[uint64]uint64{}
-	for _, v := range o {
+	for _, v := range in {
 		if v.GetParentID() != 0 {
 			m[v.GetID()] = v.GetParentID()
 		}
@@ -125,14 +73,6 @@ func (o Objects) Tree() map[uint64]uint64 {
 }
 
 type Domains []Domain
-
-func (d Domains) ID() []uint64 {
-	var m []uint64
-	for _, v := range d {
-		m = append(m, v.GetID())
-	}
-	return m
-}
 
 // DomainCreator create new domain's function
 type DomainCreator = func(Domain) Creator

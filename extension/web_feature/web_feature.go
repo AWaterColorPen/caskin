@@ -9,7 +9,6 @@ type Options struct {
 	DomainFactory caskin.DomainFactory
 	ObjectFactory caskin.ObjectFactory
 	MetaDB        caskin.MetaDB
-	ModelText     string
 }
 
 type WebFeature struct {
@@ -28,15 +27,15 @@ func (w *WebFeature) GetExecutor(provider caskin.CurrentProvider) *Executor {
 		root:            w.root,
 		objectFactory:   w.options.ObjectFactory,
 		operationDomain: w.options.DomainFactory(),
-		modelText:       w.options.ModelText,
 	}
 }
 
 func New(options *Options) (*WebFeature, error) {
-	root, err := InitRootObject(options.MetaDB, options.DomainFactory())
-	if err != nil {
-		return nil, err
-	}
-
-	return &WebFeature{options: options, root: root}, nil
+	// root, err := InitRootObject(options.MetaDB, options.DomainFactory())
+	// if err != nil {
+	// 	return nil, err
+	// }
+	//
+	// return &WebFeature{options: options, root: root}, nil
+	return nil, nil
 }

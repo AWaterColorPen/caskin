@@ -87,7 +87,7 @@ func (e *Executor) UpdateRole(role Role) error {
 // GetRoles
 // if current user has role's read permission
 // 1. get roles in the domain
-func (e *Executor) GetRoles() (Roles, error) {
+func (e *Executor) GetRoles() ([]Role, error) {
 	currentUser, currentDomain, err := e.provider.Get()
 	if err != nil {
 		return nil, err

@@ -12,8 +12,8 @@ type Creator struct {
 	snapshotPolicy []*DomainCreatorPolicy
 
 	domain  caskin.Domain
-	objects caskin.Objects
-	roles   caskin.Roles
+	objects []caskin.Object
+	roles   []caskin.Role
 
 	oIndex map[uint64]uint64
 	rIndex map[uint64]uint64
@@ -28,7 +28,6 @@ func (c *Creator) BuildCreator() ([]caskin.Role, []caskin.Object) {
 		o.SetObjectID(v.AbsoluteObjectID)
 		o.SetDomainID(c.domain.GetID())
 		o.SetParentID(v.AbsoluteParentID)
-		o.SetCustomizedData(v.CustomizedData)
 		c.objects = append(c.objects, o)
 	}
 	for _, v := range c.snapshotRole {
@@ -98,9 +97,9 @@ func (c *Creator) GetObjects() []caskin.Object {
 
 func (c *Creator) buildIndex() {
 	c.oIndex = map[uint64]uint64{}
-	for i, v := range c.snapshotObject {
-		c.oIndex[v.ID] = c.objects[i].GetID()
-	}
+	// for i, v := range c.snapshotObject {
+	// c.oIndex[v.ID] = c.objects[i].GetID()
+	// }
 	c.rIndex = map[uint64]uint64{}
 	for i, v := range c.snapshotRole {
 		c.rIndex[v.ID] = c.roles[i].GetID()

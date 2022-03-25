@@ -9,19 +9,6 @@ type Executor struct {
 	root            *Root
 	objectFactory   caskin.ObjectFactory
 	operationDomain caskin.Domain
-	modelText       string
-}
-
-func (e *Executor) setBackendRoot(object caskin.Object) {
-	e.root.SetBackendRoot(object)
-}
-
-func (e *Executor) setFeatureRoot(object caskin.Object) {
-	e.root.SetFeatureRoot(object)
-}
-
-func (e *Executor) setFrontendRoot(object caskin.Object) {
-	e.root.SetFrontendRoot(object)
 }
 
 func (e *Executor) operationPermissionCheck() error {
@@ -36,23 +23,23 @@ func (e *Executor) operationPermissionCheck() error {
 	return nil
 }
 
-func (e *Executor) allWebFeatureRelation(domain caskin.Domain) caskin.InheritanceRelations {
-	queue := []caskin.Object{e.root.Feature, e.root.Frontend, e.root.Backend}
+func (e *Executor) GetFeatureRelation(domain caskin.Domain) map[caskin.Object][]caskin.Object {
+	queue := []caskin.Object{e.root.Super}
 	inQueue := map[uint64]bool{}
 	for _, v := range queue {
 		inQueue[v.GetID()] = true
 	}
 
-	m := caskin.InheritanceRelations{}
+	m := map[caskin.Object][]caskin.Object{}
 	for i := 0; i < len(queue); i++ {
-		m[queue[i].GetID()] = caskin.InheritanceRelation{}
+		m[queue[i]] = []caskin.Object{}
 		ll := e.e.Enforcer.GetChildrenForObjectInDomain(queue[i], domain)
 		for _, v := range ll {
 			if _, ok := inQueue[v.GetID()]; !ok {
 				queue = append(queue, v)
 				inQueue[v.GetID()] = true
 			}
-			m[queue[i].GetID()] = append(m[queue[i].GetID()], v.GetID())
+			m[queue[i]] = append(m[queue[i]], v)
 		}
 	}
 

@@ -94,9 +94,9 @@ func dbSnapshot(db *gorm.DB) ([]*DomainCreatorObject, []*DomainCreatorRole, []*D
 func isValidSnapshot(db *gorm.DB) error {
 	object, role, policy := dbSnapshot(db)
 	om := map[uint64]bool{}
-	for _, v := range object {
-		om[v.ID] = true
-	}
+	// for _, v := range object {
+	// 	om[v.ID] = true
+	// }
 	rm := map[uint64]bool{}
 	for _, v := range role {
 		rm[v.ID] = true

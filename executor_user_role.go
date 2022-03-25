@@ -15,7 +15,7 @@ func (e *Executor) GetUserRolePair() ([]*UserRolePair, error) {
 	}
 
 	us := e.Enforcer.GetUsersInDomain(currentDomain)
-	uid := Users(us).ID()
+	uid := ID(us)
 	linq.From(uid).Distinct().ToSlice(&uid)
 	users, err := e.DB.GetUserByID(uid)
 	if err != nil {
@@ -28,7 +28,7 @@ func (e *Executor) GetUserRolePair() ([]*UserRolePair, error) {
 	}
 	rs := e.filterWithNoError(currentUser, currentDomain, Read, roles)
 	linq.From(rs).ToSlice(&roles)
-	rm := Roles(roles).IDMap()
+	rm := IDMap(roles)
 
 	var list []*UserRolePair
 	for _, v := range users {
@@ -62,7 +62,7 @@ func (e *Executor) GetUserRolePairByUser(user User) ([]*UserRolePair, error) {
 	}
 	out := e.filterWithNoError(currentUser, currentDomain, Read, roles)
 	linq.From(out).ToSlice(&roles)
-	rm := Roles(roles).IDMap()
+	rm := IDMap(roles)
 
 	var list []*UserRolePair
 	rs := e.Enforcer.GetRolesForUserInDomain(user, currentDomain)
@@ -89,7 +89,7 @@ func (e *Executor) GetUserRolePairByRole(role Role) ([]*UserRolePair, error) {
 	}
 
 	us := e.Enforcer.GetUsersForRoleInDomain(role, currentDomain)
-	uid := Users(us).ID()
+	uid := ID(us)
 	users, err := e.DB.GetUserByID(uid)
 	if err != nil {
 		return nil, err
@@ -126,7 +126,7 @@ func (e *Executor) ModifyUserRolePairPerUser(user User, input []*UserRolePair) e
 	}
 
 	rs := e.Enforcer.GetRolesForUserInDomain(user, currentDomain)
-	rid1 := Roles(rs).ID()
+	rid1 := ID(rs)
 	rid2 := pairs.RoleID()
 
 	// get all role data
@@ -140,7 +140,7 @@ func (e *Executor) ModifyUserRolePairPerUser(user User, input []*UserRolePair) e
 	}
 	out := e.filterWithNoError(currentUser, currentDomain, Write, roles)
 	linq.From(out).ToSlice(&roles)
-	rm := Roles(roles).IDMap()
+	rm := IDMap(roles)
 
 	// make source and target role id list
 	var source, target []interface{}
@@ -192,7 +192,7 @@ func (e *Executor) ModifyUserRolePairPerRole(role Role, input []*UserRolePair) e
 	}
 
 	us := e.Enforcer.GetUsersForRoleInDomain(role, currentDomain)
-	uid1 := Users(us).ID()
+	uid1 := ID(us)
 	uid2 := pairs.UserID()
 
 	// get all role data
@@ -204,7 +204,7 @@ func (e *Executor) ModifyUserRolePairPerRole(role Role, input []*UserRolePair) e
 	if err != nil {
 		return err
 	}
-	um := Users(users).IDMap()
+	um := IDMap(users)
 
 	// make source and target role id list
 	var source, target []interface{}

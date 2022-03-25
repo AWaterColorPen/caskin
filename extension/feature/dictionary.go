@@ -12,6 +12,12 @@ type Dictionary interface {
 	GetFeature() ([]*Feature, error)
 	GetBackend() ([]*Backend, error)
 	GetFrontend() ([]*Frontend, error)
+
+	GetFeatureByKey(key string) (*Feature, error)
+	GetBackendByKey(key string) (*Backend, error)
+	GetFrontendByKey(key string) (*Frontend, error)
+	// GetPackage(*Feature) (*Package, error)
+	// GetPackages() (map[string]*Package, error)
 }
 
 type DictionaryType string
@@ -35,9 +41,10 @@ func NewDictionary(option *DictionaryOption) (Dictionary, error) {
 }
 
 type fileDictionary struct {
-	Feature  []*Feature  `toml:"Feature"`
+	Feature  []*Feature  `toml:"feature"`
 	Backend  []*Backend  `toml:"backend"`
 	Frontend []*Frontend `toml:"frontend"`
+	Package  []*Package  `toml:"package"`
 }
 
 func (f *fileDictionary) GetFeature() ([]*Feature, error) {
@@ -50,6 +57,18 @@ func (f *fileDictionary) GetBackend() ([]*Backend, error) {
 
 func (f *fileDictionary) GetFrontend() ([]*Frontend, error) {
 	return f.Frontend, nil
+}
+
+func (f *fileDictionary) GetFeatureByKey(key string) (*Feature, error) {
+	return nil, nil
+}
+
+func (f *fileDictionary) GetBackendByKey(key string) (*Backend, error) {
+	return nil, nil
+}
+
+func (f *fileDictionary) GetFrontendByKey(key string) (*Frontend, error) {
+	return nil, nil
 }
 
 func (f *fileDictionary) isValid() error {

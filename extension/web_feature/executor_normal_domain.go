@@ -38,7 +38,7 @@ func (e *Executor) NormalDomainGetPolicyList() ([]*caskin.Policy, error) {
 	if err != nil {
 		return nil, err
 	}
-	om := caskin.Objects(objects).IDMap()
+	om := caskin.IDMap(objects)
 
 	var list []*caskin.Policy
 	for _, v := range roles {
@@ -77,7 +77,7 @@ func (e *Executor) NormalDomainGetPolicyListByRole(role caskin.Role) ([]*caskin.
 	if err != nil {
 		return nil, err
 	}
-	om := caskin.Objects(objects).IDMap()
+	om := caskin.IDMap(objects)
 
 	var list []*caskin.Policy
 	policy := e.e.Enforcer.GetPoliciesForRoleInDomain(role, currentDomain)
@@ -120,7 +120,7 @@ func (e *Executor) NormalDomainModifyPolicyListPerRole(role caskin.Role, input [
 	if err != nil {
 		return err
 	}
-	om := caskin.Objects(objects).IDMap()
+	om := caskin.IDMap(objects)
 
 	// make source and target role id list
 	var source, target []*caskin.Policy

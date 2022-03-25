@@ -2,7 +2,7 @@ package caskin
 
 import "github.com/ahmetb/go-linq/v3"
 
-// GetUsers
+// GetUserInDomain
 // get all user in current domain
 func (e *Executor) GetUserInDomain() ([]User, error) {
 	_, currentDomain, err := e.provider.Get()
@@ -11,7 +11,7 @@ func (e *Executor) GetUserInDomain() ([]User, error) {
 	}
 
 	us := e.Enforcer.GetUsersInDomain(currentDomain)
-	uid := Users(us).ID()
+	uid := ID(us)
 	linq.From(uid).Distinct().ToSlice(&uid)
 	return e.DB.GetUserByID(uid)
 }
@@ -35,7 +35,7 @@ func (e *Executor) GetDomainByUser() ([]Domain, error) {
 	}
 
 	ds := e.Enforcer.GetDomainsIncludeUser(currentUser)
-	did := Domains(ds).ID()
+	did := ID(ds)
 	linq.From(did).Distinct().ToSlice(&did)
 	return e.DB.GetDomainByID(did)
 }

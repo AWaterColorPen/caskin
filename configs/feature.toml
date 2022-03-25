@@ -1,0 +1,15 @@
+feature = [
+    {name = "", description = "", group = ""},
+]
+
+backend = [
+    {path = "", method = "", description = "", group = ""},
+]
+
+frontend = [
+    {name = "", type = "", description = "", group = ""},
+]
+
+package = [
+    {key = "", backend = [], frontend = []},
+]

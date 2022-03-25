@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/awatercolorpen/caskin"
-	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
 
@@ -19,17 +18,12 @@ var (
 )
 
 type DomainCreatorObject struct {
-	ID               uint64            `gorm:"column:id;primaryKey"      json:"id,omitempty"`
-	CreatedAt        time.Time         `gorm:"column:created_at"         json:"created_at,omitempty"`
-	UpdatedAt        time.Time         `gorm:"column:updated_at"         json:"updated_at,omitempty"`
-	DeletedAt        gorm.DeletedAt    `gorm:"column:delete_at;index"    json:"-"`
 	Name             string            `gorm:"column:name;unique"        json:"name,omitempty"`
 	Type             caskin.ObjectType `gorm:"column:type"               json:"type,omitempty"`
 	RelativeObjectID uint64            `gorm:"column:relative_object_id" json:"relative_object_id,omitempty"`
 	RelativeParentID uint64            `gorm:"column:relative_parent_id" json:"relative_parent_id"`
 	AbsoluteObjectID uint64            `gorm:"column:absolute_object_id" json:"absolute_object_id,omitempty"`
 	AbsoluteParentID uint64            `gorm:"column:absolute_parent_id" json:"absolute_parent_id,omitempty"`
-	CustomizedData   datatypes.JSON    `gorm:"column:customized_data"    json:"customized_data"`
 }
 
 func (d *DomainCreatorObject) TableName() string {

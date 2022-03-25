@@ -18,7 +18,7 @@ func (e *Executor) GetAllSuperadminUser() ([]User, error) {
 	domain := e.options.GetSuperadminDomain()
 	role := e.options.GetSuperadminRole()
 	us := e.Enforcer.GetUsersForRoleInDomain(role, domain)
-	id := Users(us).ID()
+	id := ID(us)
 	return e.DB.GetUserByID(id)
 }
 

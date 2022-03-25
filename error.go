@@ -4,24 +4,22 @@ import "fmt"
 
 var (
 	// errors about entry
-	ErrNil                    = fmt.Errorf("nil data")
-	ErrEmptyID                = fmt.Errorf("empty id")
-	ErrAlreadyExists          = fmt.Errorf("already exists")
-	ErrNotExists              = fmt.Errorf("not exists")
-	ErrInValidObject          = fmt.Errorf("invalid object")
-	ErrInValidObjectType      = fmt.Errorf("invalid object type")
-	ErrCantChangeObjectType   = fmt.Errorf("can't change object type")
-	ErrInValidParentObject    = fmt.Errorf("invalid parent object")
-	ErrParentCanNotBeItself   = fmt.Errorf("parent id can't be it self id")
-	ErrParentToDescendant     = fmt.Errorf("can't change parent to descendant")
-	ErrDirectoryDepthTooLarge = fmt.Errorf("dicretory's depth is too large")
-	ErrInValidAction          = fmt.Errorf("invalid action")
+	ErrNil                  = fmt.Errorf("nil data")
+	ErrEmptyID              = fmt.Errorf("empty id")
+	ErrAlreadyExists        = fmt.Errorf("already exists")
+	ErrNotExists            = fmt.Errorf("not exists")
+	ErrInValidObject        = fmt.Errorf("invalid object")
+	ErrInValidObjectType    = fmt.Errorf("invalid object type")
+	ErrCantChangeObjectType = fmt.Errorf("can't change object type")
+	ErrInValidParentObject  = fmt.Errorf("invalid parent object")
+	ErrParentCanNotBeItself = fmt.Errorf("parent id can't be it self id")
+	ErrParentToDescendant   = fmt.Errorf("can't change parent to descendant")
+	ErrInValidAction        = fmt.Errorf("invalid action")
 
 	// errors about permission
-	ErrNoReadPermission       = fmt.Errorf("no read permission")
-	ErrNoWritePermission      = fmt.Errorf("no write permission")
-	ErrNoBackendAPIPermission = fmt.Errorf("no backend api permission")
-	ErrNoAPPAPIPermission     = fmt.Errorf("no app api permission")
+	ErrNoReadPermission    = fmt.Errorf("no read permission")
+	ErrNoWritePermission   = fmt.Errorf("no write permission")
+	ErrNoBackendPermission = fmt.Errorf("no backend api permission")
 
 	// errors about superadmin
 	ErrIsNotSuperAdmin       = fmt.Errorf("is not superadmin")
@@ -45,10 +43,9 @@ var (
 	ErrInputPolicyListNotBelongSameObject = fmt.Errorf("input policy list are not belong to same object")
 
 	// errors about special object
-	ErrObjectTypeObjectIDMustBeItselfID  = fmt.Errorf("the object id of object type's object must be itself's id")
-	ErrEmptyParentIdOrNotSuperadmin      = fmt.Errorf("the parent id is empty or you are operating root object without superadmin authority")
-	ErrCustomizedDataIsNotBelongToObject = fmt.Errorf("customized data is not belong to the object")
-	ErrCanOnlyAllowAtValidDomain         = fmt.Errorf("this oparetion can only allow at valid domain")
+	ErrObjectTypeObjectIDMustBeItselfID = fmt.Errorf("the object id of object type's object must be itself's id")
+	ErrEmptyParentIdOrNotSuperadmin     = fmt.Errorf("the parent id is empty or you are operating root object without superadmin authority")
+	ErrCanOnlyAllowAtValidDomain        = fmt.Errorf("this oparetion can only allow at valid domain")
 
 	// errors about others
 	ErrInCompatible = fmt.Errorf("in compatible")

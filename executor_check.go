@@ -12,6 +12,11 @@ func (e *Executor) IsSuperadminCheck() error {
 	return nil
 }
 
+func (e *Executor) IsSuperadminAndSuperdomainCheck() error {
+	// TODO
+	return nil
+}
+
 func (e *Executor) DBCreateCheck(item interface{}) error {
 	if err := e.DB.Take(item); err == nil {
 		return ErrAlreadyExists

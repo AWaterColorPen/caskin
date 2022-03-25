@@ -25,33 +25,41 @@ const (
 
 // Feature
 type Feature struct {
-	Name        string `toml:"name"        json:"name"`
-	Description string `toml:"description" json:"description"`
-	Group       string `toml:"group"       json:"group"`
+	Name        string `json:"name"        toml:"name"`
+	Description string `json:"description" toml:"description"`
+	Group       string `json:"group"       toml:"group"`
 }
 
-func (f *Feature) GetName() string {
+func (f *Feature) GetKey() string {
 	return f.Name
+}
+
+func (f *Feature) ToObject() caskin.Object {
+	return nil
 }
 
 // Backend
 type Backend struct {
-	Path        string `toml:"path"        json:"path"`
-	Method      string `toml:"method"      json:"method"`
-	Description string `toml:"description" json:"description"`
-	Group       string `toml:"group"       json:"group"`
+	Path        string `json:"path"        toml:"path"`
+	Method      string `json:"method"      toml:"method"`
+	Description string `json:"description" toml:"description"`
+	Group       string `json:"group"       toml:"group"`
 }
 
-func (b *Backend) GetName() string {
+func (b *Backend) GetKey() string {
 	return fmt.Sprint(b.Path, caskin.DefaultSeparator, b.Method)
+}
+
+func (b *Backend) ToObject() caskin.Object {
+	return nil
 }
 
 // Frontend
 type Frontend struct {
-	Key         string       `toml:"key"         json:"key"`
-	Type        FrontendType `toml:"type"        json:"type"`
-	Description string       `toml:"description" json:"description"`
-	Group       string       `toml:"group"       json:"group"`
+	Name        string       `json:"name"        toml:"name"`
+	Type        FrontendType `json:"type"        toml:"type"`
+	Description string       `json:"description" toml:"description"`
+	Group       string       `json:"group"       toml:"group"`
 }
 
 type FrontendType string
@@ -61,6 +69,21 @@ const (
 	FrontendTypeSubFunction FrontendType = "sub_function"
 )
 
-func (f *Frontend) GetName() string {
-	return fmt.Sprint(f.Key, caskin.DefaultSeparator, f.Type)
+func (f *Frontend) GetKey() string {
+	return fmt.Sprint(f.Name, caskin.DefaultSeparator, f.Type)
+}
+
+func (f *Frontend) ToObject() caskin.Object {
+	return nil
+}
+
+type Package struct {
+	Key      string   `toml:"key"`
+	Feature  []string `toml:"feature"`
+	Backend  []string `toml:"backend"`
+	Frontend []string `toml:"frontend"`
+}
+
+func (p *Package) GetName() string {
+	return ""
 }

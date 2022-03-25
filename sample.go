@@ -1,9 +1,5 @@
 package caskin
 
-import (
-	"gorm.io/datatypes"
-)
-
 type SampleSuperadminRole struct {
 	ID   uint64 `json:"id"`
 	Name string `json:"name"`
@@ -76,67 +72,4 @@ func (s *SampleSuperadminDomain) Decode(code string) error {
 		return ErrIsNotSuperAdmin
 	}
 	return nil
-}
-
-type SampleNoPermissionObject struct {
-}
-
-func (s *SampleNoPermissionObject) GetID() uint64 {
-	return 0
-}
-
-func (s *SampleNoPermissionObject) SetID(uint64) {
-}
-
-func (s *SampleNoPermissionObject) Encode() string {
-	return DefaultNoPermissionObject
-}
-
-func (s *SampleNoPermissionObject) Decode(code string) error {
-	if code != DefaultNoPermissionObject {
-		return ErrInValidObject
-	}
-	return nil
-}
-
-func (s *SampleNoPermissionObject) GetParentID() uint64 {
-	return 0
-}
-
-func (s *SampleNoPermissionObject) SetParentID(uint64) {
-}
-
-func (s *SampleNoPermissionObject) GetObject() Object {
-	return nil
-}
-
-func (s *SampleNoPermissionObject) SetObjectID(uint64) {
-}
-
-func (s *SampleNoPermissionObject) GetDomainID() uint64 {
-	return 0
-}
-
-func (s *SampleNoPermissionObject) SetDomainID(uint64) {
-}
-
-func (s *SampleNoPermissionObject) GetName() string {
-	return DefaultNoPermissionObject
-}
-
-func (s *SampleNoPermissionObject) SetName(string) {
-}
-
-func (s *SampleNoPermissionObject) GetObjectType() ObjectType {
-	return ObjectTypeDefault
-}
-
-func (s *SampleNoPermissionObject) SetObjectType(ObjectType) {
-}
-
-func (s *SampleNoPermissionObject) GetCustomizedData() datatypes.JSON {
-	return nil
-}
-
-func (s *SampleNoPermissionObject) SetCustomizedData(datatypes.JSON) {
 }
