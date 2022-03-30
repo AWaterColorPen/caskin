@@ -10,7 +10,6 @@ var (
 
 	DefaultSuperadminRoleName   = "superadmin_role"
 	DefaultSuperadminDomainName = "superadmin_domain"
-	DefaultNoPermissionObject   = "no_permission_object"
 
 	// default
 	DefaultSeparator = "$$"
@@ -27,7 +26,6 @@ type Options struct {
 	// options for implementations of the interface
 	DomainCreator DomainCreator    `json:"-"`
 	Enforcer      casbin.IEnforcer `json:"-"`
-	EntryFactory  EntryFactory     `json:"-"`
 	MetaDB        MetaDB           `json:"-"`
 }
 
@@ -71,13 +69,6 @@ func DomainCreatorOption(creator DomainCreator) Option {
 func EnforcerOption(enforcer casbin.IEnforcer) Option {
 	return func(o *Options) {
 		o.Enforcer = enforcer
-	}
-}
-
-// EntryFactoryOption set the EntryFactory for the options
-func EntryFactoryOption(entryFactory EntryFactory) Option {
-	return func(o *Options) {
-		o.EntryFactory = entryFactory
 	}
 }
 

@@ -8,7 +8,6 @@ func (c *Caskin) GetExecutor(provider CurrentProvider) *Executor {
 	e := NewEnforcer(c.options.Enforcer, c.options.EntryFactory)
 	return &Executor{
 		Enforcer: e,
-		factory:  c.options.EntryFactory,
 		DB:       c.options.MetaDB,
 		provider: provider,
 		options:  c.options,
@@ -26,9 +25,6 @@ func New(options *Options, opts ...Option) (*Caskin, error) {
 	}
 	if options.Enforcer == nil {
 		return nil, ErrInitializationNilEnforcer
-	}
-	if options.EntryFactory == nil {
-		return nil, ErrInitializationNilEntryFactory
 	}
 	if options.MetaDB == nil {
 		return nil, ErrInitializationNilMetaDB

@@ -4,14 +4,14 @@ import "github.com/ahmetb/go-linq/v3"
 
 // FilterObjectData
 // filter object_data with action
-func (e *Executor) FilterObjectData(source interface{}, action Action) ([]ObjectData, error) {
+func (e *Executor) FilterObjectData(source any, action Action) ([]ObjectData, error) {
 	u, d, err := e.provider.Get()
 	if err != nil {
 		return nil, err
 	}
 
 	var result []ObjectData
-	linq.From(source).Where(func(v interface{}) bool {
+	linq.From(source).Where(func(v any) bool {
 		return CheckObjectData(e.Enforcer, u, d, v.(ObjectData), action)
 	}).ToSlice(&result)
 	return result, nil
@@ -19,14 +19,14 @@ func (e *Executor) FilterObjectData(source interface{}, action Action) ([]Object
 
 // FilterObject
 // filter object with action
-func (e *Executor) FilterObject(source interface{}, action Action) ([]Object, error) {
+func (e *Executor) FilterObject(source any, action Action) ([]Object, error) {
 	u, d, err := e.provider.Get()
 	if err != nil {
 		return nil, err
 	}
 
 	var result []Object
-	linq.From(source).Where(func(v interface{}) bool {
+	linq.From(source).Where(func(v any) bool {
 		return CheckObject(e.Enforcer, u, d, v.(Object), action)
 	}).ToSlice(&result)
 	return result, nil

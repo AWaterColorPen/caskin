@@ -54,6 +54,14 @@ func ID[E idInterface](in []E) []uint64 {
 	return m
 }
 
+func SB[T map[K]V, K comparable, V any](in T) []uint64 {
+	return nil
+}
+
+func SB2[K comparable, V map[K]V](in V) []uint64 {
+	return nil
+}
+
 func IDMap[E idInterface](in []E) map[uint64]E {
 	m := map[uint64]E{}
 	for _, v := range in {
@@ -71,8 +79,6 @@ func Tree[E TreeNodeEntry](in []E) map[uint64]uint64 {
 	}
 	return m
 }
-
-type Domains []Domain
 
 // DomainCreator create new domain's function
 type DomainCreator = func(Domain) Creator

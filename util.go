@@ -83,9 +83,9 @@ func TopSort[T comparable](graph map[T][]T) []T {
 }
 
 // Filter do filter source permission by u, d, action
-func Filter(e IEnforcer, u User, d Domain, action Action, source interface{}) []interface{} {
-	var result []interface{}
-	linq.From(source).Where(func(v interface{}) bool {
+func Filter(e IEnforcer, u User, d Domain, action Action, source any) []any {
+	var result []any
+	linq.From(source).Where(func(v any) bool {
 		return CheckObjectData(e, u, d, v.(ObjectData), action)
 	}).ToSlice(&result)
 	return result
@@ -136,7 +136,7 @@ func DiffPolicy(source, target []*Policy) (add, remove []*Policy) {
 	return
 }
 
-func isValidFamily(data1, data2 ObjectData, take func(interface{}) error) error {
+func isValidFamily(data1, data2 ObjectData, take func(any) error) error {
 	o1 := data1.GetObject()
 	o2 := data2.GetObject()
 	if err := take(o1); err != nil {

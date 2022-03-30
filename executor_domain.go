@@ -43,8 +43,7 @@ func (e *Executor) DeleteDomain(domain Domain) error {
 // Run domain without permission checking
 // 1. just Run domain's properties
 func (e *Executor) UpdateDomain(domain Domain) error {
-	tmp := e.factory.NewDomain()
-	if err := e.IDInterfaceUpdateCheck(domain, tmp); err != nil {
+	if err := e.IDInterfaceUpdateCheck(domain); err != nil {
 		return err
 	}
 	return e.DB.Update(domain)
@@ -55,8 +54,7 @@ func (e *Executor) UpdateDomain(domain Domain) error {
 // re initialize the domain without permission checking
 // 1. just re initialize the domain
 func (e *Executor) ReInitializeDomain(domain Domain) error {
-	tmp := e.factory.NewDomain()
-	if err := e.IDInterfaceUpdateCheck(domain, tmp); err != nil {
+	if err := e.IDInterfaceUpdateCheck(domain); err != nil {
 		return err
 	}
 	return e.initializeDomain(domain)

@@ -16,7 +16,7 @@ func (e *Executor) DefaultObjectDeleteFunc() TreeNodeEntryDeleteFunc {
 }
 
 func (e *Executor) DefaultObjectChildrenGetFunc() TreeNodeEntryChildrenGetFunc {
-	return e.childrenOrParentGetFn(func(p TreeNodeEntry, domain Domain) interface{} {
+	return e.childrenOrParentGetFn(func(p TreeNodeEntry, domain Domain) any {
 		os := e.Enforcer.GetChildrenForObjectInDomain(p.(Object), domain)
 		om := IDMap(os)
 		os2, _ := e.DB.GetObjectInDomain(domain, p.(Object).GetObjectType())
@@ -34,7 +34,7 @@ func (e *Executor) DefaultObjectChildrenGetFunc() TreeNodeEntryChildrenGetFunc {
 }
 
 func (e *Executor) DefaultObjectParentGetFunc() TreeNodeEntryParentGetFunc {
-	return e.childrenOrParentGetFn(func(p TreeNodeEntry, domain Domain) interface{} {
+	return e.childrenOrParentGetFn(func(p TreeNodeEntry, domain Domain) any {
 		return e.Enforcer.GetParentsForObjectInDomain(p.(Object), domain)
 	})
 }
@@ -65,7 +65,7 @@ func (e *Executor) DefaultRoleDeleteFunc() TreeNodeEntryDeleteFunc {
 }
 
 func (e *Executor) DefaultRoleChildrenGetFunc() TreeNodeEntryChildrenGetFunc {
-	return e.childrenOrParentGetFn(func(p TreeNodeEntry, domain Domain) interface{} {
+	return e.childrenOrParentGetFn(func(p TreeNodeEntry, domain Domain) any {
 		rs := e.Enforcer.GetChildrenForRoleInDomain(p.(Role), domain)
 		rm := IDMap(rs)
 		rs2, _ := e.DB.GetRoleInDomain(domain)
@@ -83,7 +83,7 @@ func (e *Executor) DefaultRoleChildrenGetFunc() TreeNodeEntryChildrenGetFunc {
 }
 
 func (e *Executor) DefaultRoleParentGetFunc() TreeNodeEntryParentGetFunc {
-	return e.childrenOrParentGetFn(func(p TreeNodeEntry, domain Domain) interface{} {
+	return e.childrenOrParentGetFn(func(p TreeNodeEntry, domain Domain) any {
 		return e.Enforcer.GetParentsForRoleInDomain(p.(Role), domain)
 	})
 }
@@ -100,7 +100,7 @@ func (e *Executor) DefaultRoleParentDelFunc() TreeNodeEntryParentDelFunc {
 	}
 }
 
-func (e *Executor) childrenOrParentGetFn(fn func(TreeNodeEntry, Domain) interface{}) TreeNodeEntryChildrenGetFunc {
+func (e *Executor) childrenOrParentGetFn(fn func(TreeNodeEntry, Domain) any) TreeNodeEntryChildrenGetFunc {
 	return func(p TreeNodeEntry, domain Domain) []TreeNodeEntry {
 		var out []TreeNodeEntry
 		linq.From(fn(p, domain)).ToSlice(&out)

@@ -182,7 +182,7 @@ func TestExecutorObjectData_FilterObjectData(t *testing.T) {
 		Name:     "object_data_3",
 		ObjectID: 5,
 	}
-	list := []interface{}{data1, data2, data3}
+	list := []any{data1, data2, data3}
 
 	provider.Domain = stage.Domain
 	provider.User = stage.AdminUser

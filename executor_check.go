@@ -1,10 +1,6 @@
 package caskin
 
-func (e *Executor) IsSuperadminCheck() error {
-	user, _, err := e.provider.Get()
-	if err != nil {
-		return err
-	}
+func (e *Executor) IsSuperadminCheck(user User) error {
 	ok, _ := e.Enforcer.IsSuperAdmin(user)
 	if !ok {
 		return ErrIsNotSuperAdmin
@@ -17,14 +13,14 @@ func (e *Executor) IsSuperadminAndSuperdomainCheck() error {
 	return nil
 }
 
-func (e *Executor) DBCreateCheck(item interface{}) error {
+func (e *Executor) DBCreateCheck(item any) error {
 	if err := e.DB.Take(item); err == nil {
 		return ErrAlreadyExists
 	}
 	return nil
 }
 
-func (e *Executor) DBRecoverCheck(item interface{}) error {
+func (e *Executor) DBRecoverCheck(item any) error {
 	if err := e.DB.Take(item); err == nil {
 		return ErrAlreadyExists
 	}
@@ -38,15 +34,15 @@ func (e *Executor) IDInterfaceDeleteCheck(item idInterface) error {
 	return e.IDInterfaceValidAndExistsCheck(item)
 }
 
-func (e *Executor) IDInterfaceUpdateCheck(item idInterface, tmp idInterface) error {
+func (e *Executor) IDInterfaceUpdateCheck(item idInterface) error {
 	if err := isValid(item); err != nil {
 		return err
 	}
+	tmp := create(item)
 	tmp.SetID(item.GetID())
 	if err := e.DB.Take(tmp); err != nil {
 		return ErrNotExists
 	}
-
 	return nil
 }
 
@@ -104,7 +100,7 @@ func (e *Executor) ObjectDataDeleteCheck(item ObjectData) error {
 }
 
 func (e *Executor) ObjectDataUpdateCheck(item ObjectData, tmp ObjectData, ty ObjectType) error {
-	if err := e.IDInterfaceUpdateCheck(item, tmp); err != nil {
+	if err := e.IDInterfaceUpdateCheck(item); err != nil {
 		return err
 	}
 	if err := e.ObjectDataWriteCheck(tmp, ty); err != nil {

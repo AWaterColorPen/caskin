@@ -55,7 +55,7 @@ type DomainMeta struct {
 }
 
 // Scan scan value into Jsonb, implements sql.Scanner interface
-func (d *DomainMeta) Scan(value interface{}) error {
+func (d *DomainMeta) Scan(value any) error {
 	var bytes []byte
 	switch v := value.(type) {
 	case []byte:

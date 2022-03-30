@@ -1,14 +1,23 @@
 package caskin
 
-// EntryFactory
-type EntryFactory interface {
-	NewUser() User
-	NewRole() Role
-	NewObject() Object
-	NewDomain() Domain
+import (
+	"reflect"
+)
+
+type Factory interface {
+	User(string) (User, error)
+	Role(string) (Role, error)
+	Object(string) (Object, error)
+	Domain(string) (Domain, error)
 }
 
-type UserFactory = func() User
+func create[T any](in T) T {
+	v := reflect.ValueOf(in)
+	k := reflect.Indirect(v)
+	b := reflect.New(k.Type()).Interface().(T)
+	return b
+}
+
 type RoleFactory = func() Role
 type ObjectFactory = func() Object
 type DomainFactory = func() Domain

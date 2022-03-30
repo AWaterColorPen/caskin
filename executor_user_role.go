@@ -143,7 +143,7 @@ func (e *Executor) ModifyUserRolePairPerUser(user User, input []*UserRolePair) e
 	rm := IDMap(roles)
 
 	// make source and target role id list
-	var source, target []interface{}
+	var source, target []any
 	for _, v := range rid1 {
 		if _, ok := rm[v]; ok {
 			source = append(source, v)
@@ -207,7 +207,7 @@ func (e *Executor) ModifyUserRolePairPerRole(role Role, input []*UserRolePair) e
 	um := IDMap(users)
 
 	// make source and target role id list
-	var source, target []interface{}
+	var source, target []any
 	for _, v := range uid1 {
 		if _, ok := um[v]; ok {
 			source = append(source, v)

@@ -4,7 +4,7 @@ type Executor struct {
 	Enforcer IEnforcer
 	DB       MetaDB
 	provider CurrentProvider
-	factory  EntryFactory
+	factory  Factory
 	options  *Options
 }
 
@@ -20,7 +20,7 @@ func (e *Executor) newRole() TreeNodeEntry {
 	return e.factory.NewRole()
 }
 
-func (e *Executor) filter(action Action, source interface{}) ([]interface{}, error) {
+func (e *Executor) filter(action Action, source any) ([]any, error) {
 	u, d, err := e.provider.Get()
 	if err != nil {
 		return nil, err
@@ -28,7 +28,7 @@ func (e *Executor) filter(action Action, source interface{}) ([]interface{}, err
 	return Filter(e.Enforcer, u, d, action, source), nil
 }
 
-func (e *Executor) filterWithNoError(user User, domain Domain, action Action, source interface{}) []interface{} {
+func (e *Executor) filterWithNoError(user User, domain Domain, action Action, source any) []any {
 	return Filter(e.Enforcer, user, domain, action, source)
 }
 

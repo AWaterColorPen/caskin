@@ -36,7 +36,7 @@ func (e *Executor) DeleteUser(user User) error {
 		return err
 	}
 	for _, v := range domains {
-		if err := e.Enforcer.RemoveUserInDomain(user, v); err != nil {
+		if err = e.Enforcer.RemoveUserInDomain(user, v); err != nil {
 			return err
 		}
 	}
@@ -45,11 +45,10 @@ func (e *Executor) DeleteUser(user User) error {
 
 // UpdateUser
 // if there exist the user
-// Run user without permission checking
+// run user without permission checking
 // 1. just Run user's properties
 func (e *Executor) UpdateUser(user User) error {
-	tmp := e.factory.NewUser()
-	if err := e.IDInterfaceUpdateCheck(user, tmp); err != nil {
+	if err := e.IDInterfaceUpdateCheck(user); err != nil {
 		return err
 	}
 	return e.DB.Update(user)

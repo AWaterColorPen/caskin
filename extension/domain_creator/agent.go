@@ -61,7 +61,7 @@ func (a *Agent) Update(item relativeIDAndAbsoluteID) error {
 	})
 }
 
-func (a *Agent) Delete(item interface{}, id uint64) error {
+func (a *Agent) Delete(item any, id uint64) error {
 	return a.db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Delete(item, id).Error; err != nil {
 			return err

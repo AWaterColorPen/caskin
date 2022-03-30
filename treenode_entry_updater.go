@@ -8,7 +8,7 @@ type treeNodeEntryUpdater struct {
 }
 
 func (t *treeNodeEntryUpdater) Run(item TreeNodeEntry, domain Domain) error {
-	var source, target []interface{}
+	var source, target []any
 	if item.GetParentID() != 0 {
 		target = append(target, item.GetParentID())
 	}

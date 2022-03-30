@@ -33,6 +33,6 @@ type Configuration struct {
 }
 
 type Extension struct {
-	DomainCreator interface{} `json:"domain_creator" yaml:"domain_creator"`
-	WebFeature    interface{} `json:"web_feature"    yaml:"web_feature"`
+	DomainCreator any `json:"domain_creator" yaml:"domain_creator"`
+	WebFeature    any `json:"web_feature"    yaml:"web_feature"`
 }

@@ -15,20 +15,16 @@ func TestExecutorUserDomain_GetUserInDomain(t *testing.T) {
 	executor := stage.Caskin.GetExecutor(provider)
 
 	provider.Domain = stage.Domain
-	provider.User = stage.AdminUser
-	list1, err := executor.GetUserInDomain()
+	list1, err := executor.GetUserInDomain(stage.Domain)
 	assert.NoError(t, err)
 	assert.Len(t, list1, 3)
-	provider.User = stage.SubAdminUser
-	list2, err := executor.GetUserInDomain()
+	list2, err := executor.GetUserInDomain(stage.Domain)
 	assert.NoError(t, err)
 	assert.Len(t, list2, 3)
-	provider.User = stage.SuperadminUser
-	list3, err := executor.GetUserInDomain()
+	list3, err := executor.GetUserInDomain(stage.Domain)
 	assert.NoError(t, err)
 	assert.Len(t, list3, 3)
-	provider.User = stage.MemberUser
-	list4, err := executor.GetUserInDomain()
+	list4, err := executor.GetUserInDomain(stage.Domain)
 	assert.NoError(t, err)
 	assert.Len(t, list4, 3)
 }
@@ -39,21 +35,16 @@ func TestExecutorUserDomain_GetDomainByUser(t *testing.T) {
 	assert.NoError(t, stage.AddSubAdmin())
 	executor := stage.Caskin.GetExecutor(provider)
 
-	provider.Domain = stage.Domain
-	provider.User = stage.AdminUser
-	list1, err := executor.GetDomainByUser()
+	list1, err := executor.GetDomainByUser(stage.AdminUser)
 	assert.NoError(t, err)
 	assert.Len(t, list1, 1)
-	provider.User = stage.SubAdminUser
-	list2, err := executor.GetDomainByUser()
+	list2, err := executor.GetDomainByUser(stage.SubAdminUser)
 	assert.NoError(t, err)
 	assert.Len(t, list2, 1)
-	provider.User = stage.SuperadminUser
-	list3, err := executor.GetDomainByUser()
+	list3, err := executor.GetDomainByUser(stage.SuperadminUser)
 	assert.NoError(t, err)
 	assert.Len(t, list3, 2)
-	provider.User = stage.MemberUser
-	list4, err := executor.GetDomainByUser()
+	list4, err := executor.GetDomainByUser(stage.MemberUser)
 	assert.NoError(t, err)
 	assert.Len(t, list4, 1)
 }

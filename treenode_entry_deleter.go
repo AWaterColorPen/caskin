@@ -1,7 +1,7 @@
 package caskin
 
 type treeNodeEntryDeleter struct {
-	visited  map[interface{}]bool
+	visited  map[any]bool
 	children TreeNodeEntryChildrenGetFunc
 	delete   TreeNodeEntryDeleteFunc
 }
@@ -23,7 +23,7 @@ func (t *treeNodeEntryDeleter) Run(current TreeNodeEntry, domain Domain) error {
 
 func NewTreeNodeEntryDeleter(children TreeNodeEntryChildrenGetFunc, delete TreeNodeEntryDeleteFunc) *treeNodeEntryDeleter {
 	return &treeNodeEntryDeleter{
-		visited:  map[interface{}]bool{},
+		visited:  map[any]bool{},
 		children: children,
 		delete:   delete,
 	}

@@ -2,6 +2,7 @@ package feature
 
 import (
 	"fmt"
+
 	"github.com/awatercolorpen/caskin"
 )
 
@@ -64,18 +65,18 @@ func (e *Executor) buildToOneDomain(domain caskin.Domain) error {
 	return nil
 }
 
-func relationEncode(k, v interface{}) string {
+func relationEncode(k, v any) string {
 	return fmt.Sprintf("%v%v%v", k, caskin.DefaultSeparator, v)
 }
 
-func relationDecode(in interface{}) (edge *Edge, err error) {
+func relationDecode(in any) (edge *Edge, err error) {
 	format := fmt.Sprintf("%%d%v%%d", caskin.DefaultSeparator)
 	edge = &Edge{}
 	_, err = fmt.Sscanf(in.(string), format, &edge.X, &edge.Y)
 	return
 }
 
-func relationsAction(in []interface{},
+func relationsAction(in []any,
 	sortFn func([]*Edge),
 	domain caskin.Domain,
 	factory caskin.ObjectFactory,
