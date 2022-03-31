@@ -11,11 +11,22 @@ type Factory interface {
 	Domain(string) (Domain, error)
 }
 
-func create[T any](in T) T {
-	v := reflect.ValueOf(in)
+func createByE[E any](e E) E {
+	v := reflect.ValueOf(e)
+	if v.Kind() != reflect.Pointer {
+		return *new(E)
+	}
 	k := reflect.Indirect(v)
-	b := reflect.New(k.Type()).Interface().(T)
-	return b
+	return reflect.New(k.Type()).Interface().(E)
+}
+
+func createByT[T any]() T {
+	t := *new(T)
+	v := reflect.ValueOf(t)
+	if v.Kind() != reflect.Pointer {
+		return t
+	}
+	return reflect.New(v.Type().Elem()).Interface().(T)
 }
 
 type RoleFactory = func() Role

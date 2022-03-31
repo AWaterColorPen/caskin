@@ -1,24 +1,12 @@
-package feature
+package caskin
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 
 	"github.com/BurntSushi/toml"
 )
-
-type Dictionary interface {
-	GetFeature() ([]*Feature, error)
-	GetBackend() ([]*Backend, error)
-	GetFrontend() ([]*Frontend, error)
-
-	GetFeatureByKey(key string) (*Feature, error)
-	GetBackendByKey(key string) (*Backend, error)
-	GetFrontendByKey(key string) (*Frontend, error)
-	// GetPackage(*Feature) (*Package, error)
-	// GetPackages() (map[string]*Package, error)
-}
 
 type DictionaryType string
 
@@ -31,7 +19,7 @@ type DictionaryOption struct {
 	Dsn  string         `json:"dsn"`
 }
 
-func NewDictionary(option *DictionaryOption) (Dictionary, error) {
+func NewDictionary(option *DictionaryOption) (IDictionary, error) {
 	switch option.Type {
 	case FILEDictionary, "":
 		return newDictionaryByFile(option)
@@ -76,7 +64,7 @@ func (f *fileDictionary) isValid() error {
 }
 
 func newDictionaryByFile(option *DictionaryOption) (*fileDictionary, error) {
-	b, err := ioutil.ReadFile(option.Dsn)
+	b, err := os.ReadFile(option.Dsn)
 	if err != nil {
 		return nil, err
 	}

@@ -12,7 +12,7 @@ func (e *Executor) FilterObjectData(source any, action Action) ([]ObjectData, er
 
 	var result []ObjectData
 	linq.From(source).Where(func(v any) bool {
-		return CheckObjectData(e.Enforcer, u, d, v.(ObjectData), action)
+		return ObjectDataCheck(e.Enforcer, u, d, v.(ObjectData), action)
 	}).ToSlice(&result)
 	return result, nil
 }
@@ -27,7 +27,7 @@ func (e *Executor) FilterObject(source any, action Action) ([]Object, error) {
 
 	var result []Object
 	linq.From(source).Where(func(v any) bool {
-		return CheckObject(e.Enforcer, u, d, v.(Object), action)
+		return ObjectCheck(e.Enforcer, u, d, v.(Object), action)
 	}).ToSlice(&result)
 	return result, nil
 }
@@ -42,28 +42,4 @@ func (e *Executor) EnforceObjectData(item ObjectData, action Action) error {
 // check permission of object with action
 func (e *Executor) EnforceObject(item Object, action Action) error {
 	return e.checkObject(item, action)
-}
-
-// CreateObjectDataCheckPermission
-// check permission of creating object_data
-func (e *Executor) CreateObjectDataCheckPermission(item ObjectData, ty ObjectType) error {
-	return e.ObjectDataCreateCheck(item, ty)
-}
-
-// RecoverObjectDataCheckPermission
-// check permission of recover object_data
-func (e *Executor) RecoverObjectDataCheckPermission(item ObjectData) error {
-	return e.ObjectDataRecoverCheck(item)
-}
-
-// UpdateObjectDataCheckPermission
-// check permission of updating object_data's
-func (e *Executor) UpdateObjectDataCheckPermission(item ObjectData, old ObjectData, ty ObjectType) error {
-	return e.ObjectDataUpdateCheck(item, old, ty)
-}
-
-// DeleteObjectDataCheckPermission
-// check permission of deleting object_data
-func (e *Executor) DeleteObjectDataCheckPermission(item ObjectData) error {
-	return e.ObjectDataDeleteCheck(item)
 }

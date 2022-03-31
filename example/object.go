@@ -17,7 +17,6 @@ type Object struct {
 	Name      string            `gorm:"column:name;index:idx_object,unique"      json:"name,omitempty"`
 	Type      caskin.ObjectType `gorm:"column:type"                              json:"type,omitempty"`
 	DomainID  uint64            `gorm:"column:domain_id;index:idx_object,unique" json:"domain_id,omitempty"`
-	ObjectID  uint64            `gorm:"column:object_id"                         json:"object_id,omitempty"`
 	ParentID  uint64            `gorm:"column:parent_id"                         json:"parent_id"`
 }
 
@@ -36,14 +35,6 @@ func (o *Object) Encode() string {
 func (o *Object) Decode(code string) error {
 	_, err := fmt.Sscanf(code, "object_%v", &o.ID)
 	return err
-}
-
-func (o *Object) GetObject() caskin.Object {
-	return &Object{ID: o.ObjectID}
-}
-
-func (o *Object) SetObjectID(objectId uint64) {
-	o.ObjectID = objectId
 }
 
 func (o *Object) GetParentID() uint64 {

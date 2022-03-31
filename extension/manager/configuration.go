@@ -24,7 +24,6 @@ type Configuration struct {
 	// implementations of the caskin interface
 	DomainCreator caskin.DomainCreator
 	Enforcer      casbin.IEnforcer
-	EntryFactory  caskin.EntryFactory
 	MetaDB        caskin.MetaDB
 
 	// implementations of the caskin superadmin interface
@@ -33,6 +32,5 @@ type Configuration struct {
 }
 
 type Extension struct {
-	DomainCreator any `json:"domain_creator" yaml:"domain_creator"`
-	WebFeature    any `json:"web_feature"    yaml:"web_feature"`
+	WebFeature any `json:"web_feature"    yaml:"web_feature"`
 }

@@ -83,23 +83,25 @@ func TopSort[T comparable](graph map[T][]T) []T {
 }
 
 // Filter do filter source permission by u, d, action
-func Filter(e IEnforcer, u User, d Domain, action Action, source any) []any {
-	var result []any
-	linq.From(source).Where(func(v any) bool {
-		return CheckObjectData(e, u, d, v.(ObjectData), action)
-	}).ToSlice(&result)
+func Filter[E ObjectData](e IEnforcer, u User, d Domain, action Action, source []E) []E {
+	var result []E
+	for _, v := range source {
+		if ObjectDataCheck(e, u, d, v, action) {
+			result = append(result, v)
+		}
+	}
 	return result
 }
 
-// CheckObjectData check object_data permission by u, d, action
-func CheckObjectData(e IEnforcer, u User, d Domain, one ObjectData, action Action) bool {
+// ObjectDataCheck check object_data permission by u, d, action
+func ObjectDataCheck(e IEnforcer, u User, d Domain, one ObjectData, action Action) bool {
 	o := one.GetObject()
 	ok, _ := e.Enforce(u, o, d, action)
 	return ok
 }
 
-// CheckObject check object permission by u, d, action
-func CheckObject(e IEnforcer, u User, d Domain, one Object, action Action) bool {
+// ObjectCheck check object permission by u, d, action
+func ObjectCheck(e IEnforcer, u User, d Domain, one Object, action Action) bool {
 	ok, _ := e.Enforce(u, one, d, action)
 	return ok
 }
@@ -134,21 +136,6 @@ func DiffPolicy(source, target []*Policy) (add, remove []*Policy) {
 
 	}
 	return
-}
-
-func isValidFamily(data1, data2 ObjectData, take func(any) error) error {
-	o1 := data1.GetObject()
-	o2 := data2.GetObject()
-	if err := take(o1); err != nil {
-		return ErrInValidParentObject
-	}
-	if err := take(o2); err != nil {
-		return ErrInValidParentObject
-	}
-	if o1.GetObjectType() != o2.GetObjectType() {
-		return ErrInValidParentObject
-	}
-	return nil
 }
 
 func isValid(item idInterface) error {

@@ -2,8 +2,8 @@ package caskin
 
 // CreateDomain
 // if there does not exist the domain
-// then create a new one without permission checking
-// 1. create a new domain into metadata database
+// then createByE a new one without permission checking
+// 1. createByE a new domain into metadata database
 func (e *Executor) CreateDomain(domain Domain) error {
 	if err := e.DBCreateCheck(domain); err != nil {
 		return err

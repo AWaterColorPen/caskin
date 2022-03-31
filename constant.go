@@ -8,14 +8,13 @@ const (
 )
 
 const (
-	Read  Action = "read"
-	Write Action = "write"
+	Read   Action = "read"
+	Write  Action = "write"
+	Manage Action = "manage"
 )
 
 const (
-	ObjectTypeDefault ObjectType = "default"
-	ObjectTypeObject  ObjectType = "object"
-	ObjectTypeRole    ObjectType = "role"
+	ObjectTypeRole ObjectType = "role"
 )
 
 const (

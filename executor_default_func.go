@@ -3,7 +3,7 @@ package caskin
 import "github.com/ahmetb/go-linq/v3"
 
 func (e *Executor) DefaultObjectUpdater() *treeNodeEntryUpdater {
-	return NewTreeNodeEntryUpdater(e.newObject, e.DefaultObjectParentGetFunc(), e.DefaultObjectParentAddFunc(), e.DefaultObjectParentDelFunc())
+	return NewTreeNodeEntryUpdater(e.DefaultObjectParentGetFunc(), e.DefaultObjectParentAddFunc(), e.DefaultObjectParentDelFunc())
 }
 
 func (e *Executor) DefaultObjectDeleteFunc() TreeNodeEntryDeleteFunc {
@@ -52,7 +52,7 @@ func (e *Executor) DefaultObjectParentDelFunc() TreeNodeEntryParentDelFunc {
 }
 
 func (e *Executor) DefaultRoleUpdater() *treeNodeEntryUpdater {
-	return NewTreeNodeEntryUpdater(e.newRole, e.DefaultRoleParentGetFunc(), e.DefaultRoleParentAddFunc(), e.DefaultRoleParentDelFunc())
+	return NewTreeNodeEntryUpdater(e.DefaultRoleParentGetFunc(), e.DefaultRoleParentAddFunc(), e.DefaultRoleParentDelFunc())
 }
 
 func (e *Executor) DefaultRoleDeleteFunc() TreeNodeEntryDeleteFunc {

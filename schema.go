@@ -36,7 +36,8 @@ type Role interface {
 }
 
 type Object interface {
-	TreeNodeEntry
+	entry
+	treeNode
 	nameInterface
 	GetObjectType() ObjectType
 	SetObjectType(ObjectType)
@@ -52,14 +53,6 @@ func ID[E idInterface](in []E) []uint64 {
 		m = append(m, v.GetID())
 	}
 	return m
-}
-
-func SB[T map[K]V, K comparable, V any](in T) []uint64 {
-	return nil
-}
-
-func SB2[K comparable, V map[K]V](in V) []uint64 {
-	return nil
 }
 
 func IDMap[E idInterface](in []E) map[uint64]E {
@@ -80,10 +73,10 @@ func Tree[E TreeNodeEntry](in []E) map[uint64]uint64 {
 	return m
 }
 
-// DomainCreator create new domain's function
+// DomainCreator createByE new domain's function
 type DomainCreator = func(Domain) Creator
 
-// Creator interface to create a domain
+// Creator interface to createByE a domain
 type Creator interface {
 	BuildCreator() ([]Role, []Object)
 	SetRelation()

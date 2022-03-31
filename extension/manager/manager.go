@@ -3,7 +3,6 @@ package manager
 import (
 	"fmt"
 	"github.com/awatercolorpen/caskin"
-	"github.com/awatercolorpen/caskin/extension/domain_creator"
 	"github.com/awatercolorpen/caskin/extension/web_feature"
 )
 
@@ -14,17 +13,8 @@ var (
 )
 
 type Manager struct {
-	domainCreatorFactory *domain_creator.Factory
-	webFeature           *web_feature.WebFeature
-	caskin               *caskin.Caskin
-}
-
-func (m *Manager) GetDomainCreatorFactory() (*domain_creator.Factory, error) {
-	if m.domainCreatorFactory == nil {
-		return nil, ErrNoInitialization
-	}
-
-	return m.domainCreatorFactory, nil
+	webFeature *web_feature.WebFeature
+	caskin     *caskin.Caskin
 }
 
 func (m *Manager) GetWebFeature() (*web_feature.WebFeature, error) {
@@ -60,22 +50,8 @@ func NewManager(configuration *Configuration) (*Manager, error) {
 	if configuration.DefaultSuperadminRoleName != "" {
 		caskin.DefaultSuperadminRoleName = configuration.DefaultSuperadminRoleName
 	}
-	if configuration.DefaultNoPermissionObject != "" {
-		caskin.DefaultNoPermissionObject = configuration.DefaultNoPermissionObject
-	}
 
 	m := &Manager{}
-	// initialize prefix extension
-	if extension := configuration.Extension; extension != nil {
-		if extension.DomainCreator != nil {
-			if domainCreatorFactory, err := m.extensionDomainCreator(configuration); err != nil {
-				return nil, err
-			} else {
-				m.domainCreatorFactory = domainCreatorFactory
-				configuration.DomainCreator = domainCreatorFactory.NewCreator
-			}
-		}
-	}
 
 	if configuration.DomainCreator == nil {
 		return nil, caskin.ErrInitializationNilDomainCreator
@@ -96,7 +72,6 @@ func NewManager(configuration *Configuration) (*Manager, error) {
 		SuperadminDomain: configuration.SuperadminDomain,
 		DomainCreator:    configuration.DomainCreator,
 		Enforcer:         configuration.Enforcer,
-		EntryFactory:     configuration.EntryFactory,
 		MetaDB:           configuration.MetaDB,
 	}
 

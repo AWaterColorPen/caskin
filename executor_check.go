@@ -38,7 +38,7 @@ func (e *Executor) IDInterfaceUpdateCheck(item idInterface) error {
 	if err := isValid(item); err != nil {
 		return err
 	}
-	tmp := create(item)
+	tmp := createByE(item)
 	tmp.SetID(item.GetID())
 	if err := e.DB.Take(tmp); err != nil {
 		return ErrNotExists
@@ -123,28 +123,45 @@ func (e *Executor) ObjectDataModifyCheck(item ObjectData) error {
 	return e.checkObjectData(item, Write)
 }
 
-func (e *Executor) TreeNodeEntryUpdateCheck(item TreeNodeEntry, tmp1 TreeNodeEntry, tmp2 TreeNodeEntry, ty ObjectType) error {
+func (e *Executor) TreeNodeEntryUpdateCheck(item TreeNodeEntry, ty ObjectType) error {
+	tmp1 := createByE(item)
 	if err := e.ObjectDataUpdateCheck(item, tmp1, ty); err != nil {
 		return err
 	}
 	if item.GetID() == item.GetParentID() {
 		return ErrParentCanNotBeItself
 	}
-	if err := e.TreeNodeEntryParentCheck(tmp1, tmp2); err != nil {
+	if err := e.TreeNodeEntryParentCheck(tmp1); err != nil {
 		return err
 	}
 	return e.TreeNodeEntryParentToDescendantCheck(item, tmp1, tmp2)
 }
 
-func (e *Executor) TreeNodeEntryParentCheck(item TreeNodeEntry, parent TreeNodeEntry) error {
+func (e *Executor) TreeNodeEntryParentCheck(item TreeNodeEntry) error {
 	if isRoot(item) {
 		return nil
 	}
+	parent := createByE(item)
 	parent.SetID(item.GetParentID())
 	if err := e.ObjectDataModifyCheck(parent); err != nil {
 		return err
 	}
-	return isValidFamily(item, parent, e.DB.Take)
+	return e.TreeNodeEntryIsValidFamily(item, parent)
+}
+
+func (e *Executor) TreeNodeEntryIsValidFamily(data1, data2 ObjectData) error {
+	o1 := data1.GetObject()
+	o2 := data2.GetObject()
+	if err := e.DB.Take(o1); err != nil {
+		return ErrInValidParentObject
+	}
+	if err := e.DB.Take(o2); err != nil {
+		return ErrInValidParentObject
+	}
+	if o1.GetObjectType() != o2.GetObjectType() {
+		return ErrInValidParentObject
+	}
+	return nil
 }
 
 func (e *Executor) ObjectTreeNodeUpdateCheck(item Object, tmp Object) error {
@@ -167,7 +184,7 @@ func (e *Executor) ObjectTreeNodeParentCheck(object Object) error {
 	if isRoot(object) {
 		return e.rootObjectPermissionCheck()
 	}
-	parent := e.factory.NewObject()
+	parent := createByE(object)
 	parent.SetID(object.GetParentID())
 	if err := e.ObjectDataModifyCheck(parent); err != nil {
 		return err
@@ -189,7 +206,7 @@ func (e *Executor) ObjectTreeNodeParentToDescendantCheck(object Object, tmp Obje
 	if object.GetParentID() == 0 || object.GetParentID() == tmp.GetParentID() {
 		return nil
 	}
-	to := e.factory.NewObject()
+	to := createByE(object)
 	to.SetID(object.GetParentID())
 	domain := e.factory.NewDomain()
 	domain.SetID(tmp.GetDomainID())
