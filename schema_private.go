@@ -8,6 +8,16 @@ type idInterface interface {
 	SetID(uint64)
 }
 
+func isValid(item idInterface) error {
+	if item == nil {
+		return ErrNil
+	}
+	if item.GetID() == 0 {
+		return ErrEmptyID
+	}
+	return nil
+}
+
 // nameInterface it is only for get/set name method
 type nameInterface interface {
 	// GetName get name method
@@ -16,18 +26,35 @@ type nameInterface interface {
 	SetName(string)
 }
 
-// entry it is casbin entry of User Role Object Domain
-type entry interface {
-	idInterface
-	// Encode entry to string method
+// domainInterface it is only for get/set domain_id method
+type domainInterface interface {
+	// GetDomainID get domain_id method
+	GetDomainID() uint64
+	// SetDomainID set domain_id method
+	SetDomainID(uint64)
+}
+
+// codeInterface it is only for encode/decode method
+type codeInterface interface {
+	// Encode to string method
 	Encode() string
-	// Decode decode string to entry method
+	// Decode string to instance method
 	Decode(string) error
 }
 
-type treeNode interface {
+// parentInterface it is only for get/set parent_id method
+type parentInterface interface {
 	// GetParentID get parent id method
 	GetParentID() uint64
 	// SetParentID set parent id method
 	SetParentID(uint64)
+}
+
+func isRoot(node parentInterface) bool {
+	return node.GetParentID() == 0
+}
+
+type treeNode interface {
+	idInterface
+	parentInterface
 }

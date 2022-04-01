@@ -1,34 +1,34 @@
 package caskin
 
-// CreateDomain
-// if there does not exist the domain
-// then createByE a new one without permission checking
-// 1. createByE a new domain into metadata database
-func (e *Executor) CreateDomain(domain Domain) error {
+// DomainCreate
+// if there does not exist the domain then create a new one
+// 1. no permission checking
+// 2. create a new domain into metadata database
+func (e *Executor) DomainCreate(domain Domain) error {
 	if err := e.DBCreateCheck(domain); err != nil {
 		return err
 	}
 	return e.DB.Create(domain)
 }
 
-// RecoverDomain
-// if there exist the domain but soft deleted
-// then recover it without permission checking
-// 1. recover the soft delete one domain at metadata database
-func (e *Executor) RecoverDomain(domain Domain) error {
+// DomainRecover
+// if there exist the domain but soft deleted then recover it
+// 1. no permission checking
+// 2. recover the soft delete one domain at metadata database
+func (e *Executor) DomainRecover(domain Domain) error {
 	if err := e.DBRecoverCheck(domain); err != nil {
 		return err
 	}
 	return e.DB.Recover(domain)
 }
 
-// DeleteDomain
-// if there exist the domain
-// soft delete the domain without permission checking
-// 1. delete all user's g in the domain
-// 2. don't delete any role's g or object's g2 in the domain
-// 3. soft delete one domain in metadata database
-func (e *Executor) DeleteDomain(domain Domain) error {
+// DomainDelete
+// if there exist the domain soft delete the domain
+// 1. no permission checking
+// 2. delete all user's g in the domain
+// 3. don't delete any role's g or object's g2 in the domain
+// 4. soft delete one domain in metadata database
+func (e *Executor) DomainDelete(domain Domain) error {
 	if err := e.IDInterfaceDeleteCheck(domain); err != nil {
 		return err
 	}
@@ -38,76 +38,64 @@ func (e *Executor) DeleteDomain(domain Domain) error {
 	return e.DB.DeleteByID(domain, domain.GetID())
 }
 
-// UpdateDomain
-// if there exist the domain
-// Run domain without permission checking
-// 1. just Run domain's properties
-func (e *Executor) UpdateDomain(domain Domain) error {
+// DomainUpdate
+// if there exist the domain update domain
+// 1. no permission checking
+// 2. just update domain's properties
+func (e *Executor) DomainUpdate(domain Domain) error {
 	if err := e.IDInterfaceUpdateCheck(domain); err != nil {
 		return err
 	}
 	return e.DB.Update(domain)
 }
 
-// ReInitializeDomain
-// if there exist the domain
-// re initialize the domain without permission checking
-// 1. just re initialize the domain
-func (e *Executor) ReInitializeDomain(domain Domain) error {
+// DomainInitialize
+// if there exist the domain reinitialize the domain
+// 1. no permission checking
+// 2. just reinitialize the domain
+func (e *Executor) DomainInitialize(domain Domain) error {
 	if err := e.IDInterfaceUpdateCheck(domain); err != nil {
 		return err
 	}
 	return e.initializeDomain(domain)
 }
 
-// GetAllDomain
-// get all domain without permission checking
-func (e *Executor) GetAllDomain() ([]Domain, error) {
+// DomainGet
+// get all domain
+// 1. no permission checking
+func (e *Executor) DomainGet() ([]Domain, error) {
 	return e.DB.GetAllDomain()
 }
 
-// initializeDomain
-// it is reentrant to initialize a new domain
-// 1. get roles, objects, policies form DomainCreator
-// 2. upsert roles, objects into metadata database
-// 3. add policies as p into casbin
 func (e *Executor) initializeDomain(domain Domain) error {
-	creator := e.options.DomainCreator(domain)
-	roles, objects := creator.BuildCreator()
-	for _, v := range objects {
-		if err := e.dbUpdateRoleOrObjectWhenInitializeDomain(v, e.factory.NewObject()); err != nil {
-			return err
-		}
-	}
-	for _, v := range roles {
-		if err := e.dbUpdateRoleOrObjectWhenInitializeDomain(v, e.factory.NewRole()); err != nil {
-			return err
-		}
-	}
-
-	creator.SetRelation()
-	for _, v := range roles {
-		if err := e.dbUpdateRoleOrObjectWhenInitializeDomain(v, e.factory.NewRole()); err != nil {
-			return err
-		}
-	}
-	for _, v := range objects {
-		if err := e.dbUpdateRoleOrObjectWhenInitializeDomain(v, e.factory.NewObject()); err != nil {
-			return err
-		}
-	}
-
-	policies := creator.GetPolicy()
-	for _, v := range policies {
-		if err := e.Enforcer.AddPolicyInDomain(v.Role, v.Object, v.Domain, v.Action); err != nil {
-			return err
-		}
-	}
+	// TODO
+	// creator := e.options.DomainCreator(domain)
+	// roles, objects := creator.BuildCreator()
+	// for _, v := range objects {
+	// 	if err := e.dbUpdateRoleOrObjectWhenInitializeDomain(v); err != nil {
+	// 		return err
+	// 	}
+	// }
+	//
+	// creator.SetRelation()
+	// for _, v := range roles {
+	// 	if err := e.dbUpdateRoleOrObjectWhenInitializeDomain(v); err != nil {
+	// 		return err
+	// 	}
+	// }
+	//
+	// policies := creator.GetPolicy()
+	// for _, v := range policies {
+	// 	if err := e.Enforcer.AddPolicyInDomain(v.Role, v.Object, v.Domain, v.Action); err != nil {
+	// 		return err
+	// 	}
+	// }
 
 	return nil
 }
 
-func (e *Executor) dbUpdateRoleOrObjectWhenInitializeDomain(item roleOrObject, tmp roleOrObject) error {
+func (e *Executor) dbUpdateRoleOrObjectWhenInitializeDomain(item roleOrObject) error {
+	tmp := createByE(item)
 	tmp.SetName(item.GetName())
 	tmp.SetDomainID(item.GetDomainID())
 	switch e.DB.UpsertType(tmp) {
@@ -128,6 +116,6 @@ func (e *Executor) dbUpdateRoleOrObjectWhenInitializeDomain(item roleOrObject, t
 }
 
 type roleOrObject interface {
-	TreeNodeEntry
 	nameInterface
+	domainInterface
 }

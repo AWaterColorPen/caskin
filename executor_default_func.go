@@ -2,11 +2,11 @@ package caskin
 
 import "github.com/ahmetb/go-linq/v3"
 
-func (e *Executor) DefaultObjectUpdater() *treeNodeEntryUpdater {
-	return NewTreeNodeEntryUpdater(e.DefaultObjectParentGetFunc(), e.DefaultObjectParentAddFunc(), e.DefaultObjectParentDelFunc())
+func (e *Executor) DefaultObjectUpdater() *treeNodeUpdater {
+	return NewTreeNodeUpdater(e.DefaultObjectParentGetFunc(), e.DefaultObjectParentAddFunc(), e.DefaultObjectParentDelFunc())
 }
 
-func (e *Executor) DefaultObjectDeleteFunc() TreeNodeEntryDeleteFunc {
+func (e *Executor) DefaultObjectDeleteFunc() TreeNodeDeleteFunc {
 	return func(p TreeNodeEntry, d Domain) error {
 		if err := e.Enforcer.RemoveObjectInDomain(p.(Object), d); err != nil {
 			return err
@@ -15,7 +15,7 @@ func (e *Executor) DefaultObjectDeleteFunc() TreeNodeEntryDeleteFunc {
 	}
 }
 
-func (e *Executor) DefaultObjectChildrenGetFunc() TreeNodeEntryChildrenGetFunc {
+func (e *Executor) DefaultObjectChildrenGetFunc() TreeNodeChildrenGetFunc {
 	return e.childrenOrParentGetFn(func(p TreeNodeEntry, domain Domain) any {
 		os := e.Enforcer.GetChildrenForObjectInDomain(p.(Object), domain)
 		om := IDMap(os)
@@ -33,29 +33,29 @@ func (e *Executor) DefaultObjectChildrenGetFunc() TreeNodeEntryChildrenGetFunc {
 	})
 }
 
-func (e *Executor) DefaultObjectParentGetFunc() TreeNodeEntryParentGetFunc {
+func (e *Executor) DefaultObjectParentGetFunc() TreeNodeParentGetFunc {
 	return e.childrenOrParentGetFn(func(p TreeNodeEntry, domain Domain) any {
 		return e.Enforcer.GetParentsForObjectInDomain(p.(Object), domain)
 	})
 }
 
-func (e *Executor) DefaultObjectParentAddFunc() TreeNodeEntryParentAddFunc {
+func (e *Executor) DefaultObjectParentAddFunc() TreeNodeParentAddFunc {
 	return func(p1 TreeNodeEntry, p2 TreeNodeEntry, domain Domain) error {
 		return e.Enforcer.AddParentForObjectInDomain(p1.(Object), p2.(Object), domain)
 	}
 }
 
-func (e *Executor) DefaultObjectParentDelFunc() TreeNodeEntryParentDelFunc {
+func (e *Executor) DefaultObjectParentDelFunc() TreeNodeParentDelFunc {
 	return func(p1 TreeNodeEntry, p2 TreeNodeEntry, domain Domain) error {
 		return e.Enforcer.RemoveParentForObjectInDomain(p1.(Object), p2.(Object), domain)
 	}
 }
 
-func (e *Executor) DefaultRoleUpdater() *treeNodeEntryUpdater {
-	return NewTreeNodeEntryUpdater(e.DefaultRoleParentGetFunc(), e.DefaultRoleParentAddFunc(), e.DefaultRoleParentDelFunc())
+func (e *Executor) DefaultRoleUpdater() *treeNodeUpdater {
+	return NewTreeNodeUpdater(e.DefaultRoleParentGetFunc(), e.DefaultRoleParentAddFunc(), e.DefaultRoleParentDelFunc())
 }
 
-func (e *Executor) DefaultRoleDeleteFunc() TreeNodeEntryDeleteFunc {
+func (e *Executor) DefaultRoleDeleteFunc() TreeNodeDeleteFunc {
 	return func(p TreeNodeEntry, d Domain) error {
 		if err := e.Enforcer.RemoveRoleInDomain(p.(Role), d); err != nil {
 			return err
@@ -64,7 +64,7 @@ func (e *Executor) DefaultRoleDeleteFunc() TreeNodeEntryDeleteFunc {
 	}
 }
 
-func (e *Executor) DefaultRoleChildrenGetFunc() TreeNodeEntryChildrenGetFunc {
+func (e *Executor) DefaultRoleChildrenGetFunc() TreeNodeChildrenGetFunc {
 	return e.childrenOrParentGetFn(func(p TreeNodeEntry, domain Domain) any {
 		rs := e.Enforcer.GetChildrenForRoleInDomain(p.(Role), domain)
 		rm := IDMap(rs)
@@ -82,25 +82,25 @@ func (e *Executor) DefaultRoleChildrenGetFunc() TreeNodeEntryChildrenGetFunc {
 	})
 }
 
-func (e *Executor) DefaultRoleParentGetFunc() TreeNodeEntryParentGetFunc {
+func (e *Executor) DefaultRoleParentGetFunc() TreeNodeParentGetFunc {
 	return e.childrenOrParentGetFn(func(p TreeNodeEntry, domain Domain) any {
 		return e.Enforcer.GetParentsForRoleInDomain(p.(Role), domain)
 	})
 }
 
-func (e *Executor) DefaultRoleParentAddFunc() TreeNodeEntryParentAddFunc {
+func (e *Executor) DefaultRoleParentAddFunc() TreeNodeParentAddFunc {
 	return func(p1 TreeNodeEntry, p2 TreeNodeEntry, domain Domain) error {
 		return e.Enforcer.AddParentForRoleInDomain(p1.(Role), p2.(Role), domain)
 	}
 }
 
-func (e *Executor) DefaultRoleParentDelFunc() TreeNodeEntryParentDelFunc {
+func (e *Executor) DefaultRoleParentDelFunc() TreeNodeParentDelFunc {
 	return func(p1 TreeNodeEntry, p2 TreeNodeEntry, domain Domain) error {
 		return e.Enforcer.RemoveParentForRoleInDomain(p1.(Role), p2.(Role), domain)
 	}
 }
 
-func (e *Executor) childrenOrParentGetFn(fn func(TreeNodeEntry, Domain) any) TreeNodeEntryChildrenGetFunc {
+func (e *Executor) childrenOrParentGetFn(fn func(TreeNodeEntry, Domain) any) TreeNodeChildrenGetFunc {
 	return func(p TreeNodeEntry, domain Domain) []TreeNodeEntry {
 		var out []TreeNodeEntry
 		linq.From(fn(p, domain)).ToSlice(&out)

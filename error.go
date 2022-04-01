@@ -19,17 +19,16 @@ var (
 	// errors about permission
 	ErrNoReadPermission    = fmt.Errorf("no read permission")
 	ErrNoWritePermission   = fmt.Errorf("no write permission")
+	ErrNoManagePermission  = fmt.Errorf("no manage permission")
 	ErrNoBackendPermission = fmt.Errorf("no backend api permission")
 
 	// errors about superadmin
-	ErrIsNotSuperAdmin       = fmt.Errorf("is not superadmin")
-	ErrSuperAdminIsNoEnabled = fmt.Errorf("superadmin is not enabled")
+	ErrIsNotSuperAdmin = fmt.Errorf("is not superadmin")
 
 	// errors about caskin initialization
-	ErrInitializationNilDomainCreator = fmt.Errorf("domain creator is nil")
-	ErrInitializationNilEnforcer      = fmt.Errorf("enforcer is nil")
-	ErrInitializationNilEntryFactory  = fmt.Errorf("entry factory is nil")
-	ErrInitializationNilMetaDB        = fmt.Errorf("metadata database is nil")
+	ErrInitializationNilEnforcer     = fmt.Errorf("enforcer is nil")
+	ErrInitializationNilEntryFactory = fmt.Errorf("entry factory is nil")
+	ErrInitializationNilMetaDB       = fmt.Errorf("metadata database is nil")
 
 	// errors about current provider
 	ErrProviderGet = fmt.Errorf("provider can't get current status")
@@ -45,5 +44,4 @@ var (
 	// errors about special object
 	ErrObjectTypeObjectIDMustBeItselfID = fmt.Errorf("the object id of object type's object must be itself's id")
 	ErrEmptyParentIdOrNotSuperadmin     = fmt.Errorf("the parent id is empty or you are operating root object without superadmin authority")
-	ErrCanOnlyAllowAtValidDomain        = fmt.Errorf("this oparetion can only allow at valid domain")
 )

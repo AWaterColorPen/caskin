@@ -2,19 +2,21 @@ package caskin
 
 import "github.com/ahmetb/go-linq/v3"
 
-// CreateObject
-// if current user has object's write permission and there does not exist the object
-// then create a new one
-// 1. create a new object into metadata database
-// 2. Run object to parent's g2 in the domain
-func (e *Executor) CreateObject(object Object) error {
-	if err := e.ObjectDataCreateCheck(object, ObjectTypeObject); err != nil {
+// ObjectCreate
+// if there does not exist the object then create a new one
+// 1. current user has manage permission of object's parent
+// 2. create a new object into metadata database
+// 3. set object to parent's g2 in the domain
+func (e *Executor) ObjectCreate(user User, domain Domain, object Object) error {
+	if err := e.DBCreateCheck(object); err != nil {
 		return err
 	}
-	if err := e.ObjectTreeNodeParentCheck(object); err != nil {
+	if isRoot(object) {
+		return ErrEmptyParentIdOrNotSuperadmin
+	}
+	if err := e.ObjectParentCheck(user, domain, object); err != nil {
 		return err
 	}
-	_, domain, _ := e.provider.Get()
 	object.SetDomainID(domain.GetID())
 	if err := e.DB.Create(object); err != nil {
 		return err
@@ -32,7 +34,7 @@ func (e *Executor) RecoverObject(object Object) error {
 	if err := e.ObjectDataRecoverCheck(object); err != nil {
 		return err
 	}
-	if err := e.ObjectTreeNodeParentCheck(object); err != nil {
+	if err := e.ObjectParentCheck(object); err != nil {
 		return err
 	}
 	_, domain, _ := e.provider.Get()
@@ -54,12 +56,12 @@ func (e *Executor) DeleteObject(object Object) error {
 	if err := e.ObjectDataDeleteCheck(object); err != nil {
 		return err
 	}
-	if err := e.ObjectTreeNodeParentCheck(object); err != nil {
+	if err := e.ObjectParentCheck(object); err != nil {
 		return err
 	}
 	_, domain, _ := e.provider.Get()
 	object.SetDomainID(domain.GetID())
-	deleter := NewTreeNodeEntryDeleter(e.DefaultObjectChildrenGetFunc(), e.DefaultObjectDeleteFunc())
+	deleter := NewTreeNodeDeleter(e.DefaultObjectChildrenGetFunc(), e.DefaultObjectDeleteFunc())
 	return deleter.Run(object, domain)
 }
 
@@ -71,7 +73,7 @@ func (e *Executor) UpdateObject(object Object) error {
 	if err := e.ObjectTreeNodeUpdateCheck(object, e.factory.NewObject()); err != nil {
 		return err
 	}
-	if err := e.ObjectTreeNodeParentCheck(object); err != nil {
+	if err := e.ObjectParentCheck(object); err != nil {
 		return err
 	}
 	if err := isObjectTypeObjectIDBeSelfIDCheck(object); err != nil {

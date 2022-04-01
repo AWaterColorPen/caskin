@@ -14,25 +14,25 @@ func TestExecutorDomain_GeneralCreate(t *testing.T) {
 	executor := stage.Caskin.GetExecutor(provider)
 
 	domain1 := &example.Domain{Name: "domain_02"}
-	assert.NoError(t, executor.CreateDomain(domain1))
+	assert.NoError(t, executor.DomainCreate(domain1))
 
 	domain2 := &example.Domain{Name: "domain_02"}
-	assert.Equal(t, caskin.ErrAlreadyExists, executor.CreateDomain(domain2))
+	assert.Equal(t, caskin.ErrAlreadyExists, executor.DomainCreate(domain2))
 
-	domains1, err := executor.GetAllDomain()
+	domains1, err := executor.DomainGet()
 	assert.NoError(t, err)
 	assert.Len(t, domains1, 2)
 
 	domain3 := &example.Domain{
 		Name: "domain_02",
 	}
-	assert.Equal(t, caskin.ErrEmptyID, executor.DeleteDomain(domain3))
+	assert.Equal(t, caskin.ErrEmptyID, executor.DomainDelete(domain3))
 	domain3.ID = domain2.ID
-	assert.NoError(t, executor.DeleteDomain(domain3))
+	assert.NoError(t, executor.DomainDelete(domain3))
 
 	domain4 := &example.Domain{ID: 5}
-	assert.Equal(t, caskin.ErrNotExists, executor.DeleteDomain(domain4))
-	assert.NoError(t, executor.CreateDomain(domain4))
+	assert.Equal(t, caskin.ErrNotExists, executor.DomainDelete(domain4))
+	assert.NoError(t, executor.DomainCreate(domain4))
 }
 
 func TestExecutorDomain_GeneralUpdate(t *testing.T) {
@@ -43,14 +43,14 @@ func TestExecutorDomain_GeneralUpdate(t *testing.T) {
 		ID:   stage.Domain.ID,
 		Name: "domain_01_new_name",
 	}
-	assert.NoError(t, executor.UpdateDomain(domain1))
+	assert.NoError(t, executor.DomainUpdate(domain1))
 	domain2 := &example.Domain{
 		Name: "domain_01_new_name",
 	}
-	assert.Equal(t, caskin.ErrEmptyID, executor.UpdateDomain(domain2))
+	assert.Equal(t, caskin.ErrEmptyID, executor.DomainUpdate(domain2))
 
 	domain3 := &example.Domain{ID: 5}
-	assert.Equal(t, caskin.ErrNotExists, executor.UpdateDomain(domain3))
+	assert.Equal(t, caskin.ErrNotExists, executor.DomainUpdate(domain3))
 }
 
 func TestExecutorDomain_GeneralRecover(t *testing.T) {
@@ -61,16 +61,16 @@ func TestExecutorDomain_GeneralRecover(t *testing.T) {
 	domain1 := &example.Domain{
 		Name: stage.Domain.Name,
 	}
-	assert.Equal(t, caskin.ErrAlreadyExists, executor.RecoverDomain(domain1))
-	assert.NoError(t, executor.DeleteDomain(stage.Domain))
+	assert.Equal(t, caskin.ErrAlreadyExists, executor.DomainRecover(domain1))
+	assert.NoError(t, executor.DomainDelete(stage.Domain))
 
 	domain2 := &example.Domain{
 		Name: stage.Domain.Name,
 	}
-	assert.NoError(t, executor.RecoverDomain(domain2))
+	assert.NoError(t, executor.DomainRecover(domain2))
 
 	domain3 := &example.Domain{ID: 5}
-	assert.Error(t, executor.RecoverDomain(domain3))
+	assert.Error(t, executor.DomainRecover(domain3))
 }
 
 func TestExecutorDomain_GeneralDelete(t *testing.T) {
@@ -78,7 +78,7 @@ func TestExecutorDomain_GeneralDelete(t *testing.T) {
 	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 
-	assert.NoError(t, executor.DeleteDomain(stage.Domain))
+	assert.NoError(t, executor.DomainDelete(stage.Domain))
 
 	provider.Domain = stage.Domain
 	provider.User = stage.SuperadminUser
@@ -90,7 +90,7 @@ func TestExecutorDomain_GeneralDelete(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Len(t, pairs1, 0)
 
-	assert.NoError(t, executor.RecoverDomain(stage.Domain))
+	assert.NoError(t, executor.DomainRecover(stage.Domain))
 	roles2, err := executor.GetRoles()
 	assert.NoError(t, err)
 	assert.Len(t, roles2, 2)
@@ -105,7 +105,7 @@ func TestExecutorDomain_Initialize(t *testing.T) {
 	executor := stage.Caskin.GetExecutor(provider)
 
 	domain := &example.Domain{Name: "domain_02"}
-	assert.NoError(t, executor.CreateDomain(domain))
+	assert.NoError(t, executor.DomainCreate(domain))
 
 	// domain is no initialization
 	provider.Domain = domain

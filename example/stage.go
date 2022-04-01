@@ -27,7 +27,7 @@ func (s *Stage) AddSubAdmin() error {
 		PhoneNumber: "123456789031",
 		Email:       "subadmin@qq.com",
 	}
-	if err := executor.CreateUser(subAdmin); err != nil {
+	if err := executor.UserCreate(subAdmin); err != nil {
 		return err
 	}
 
@@ -94,7 +94,7 @@ func (s *Stage) AddSubAdmin() error {
 func (s *Stage) NoSuperadmin() error {
 	provider := caskin.NewCachedProvider(nil, nil)
 	executor := s.Caskin.GetExecutor(provider)
-	if err := executor.DeleteSuperadminUser(s.SuperadminUser); err != nil {
+	if err := executor.SuperadminUserDelete(s.SuperadminUser); err != nil {
 		return err
 	}
 
@@ -111,7 +111,7 @@ func NewStageWithManger(m *manager.Manager) (*Stage, error) {
 	executor := c.GetExecutor(provider)
 
 	domain := &Domain{Name: "domain_01"}
-	if err := executor.CreateDomain(domain); err != nil {
+	if err := executor.DomainCreate(domain); err != nil {
 		return nil, err
 	}
 	if err := executor.ReInitializeDomain(domain); err != nil {
@@ -131,12 +131,12 @@ func NewStageWithManger(m *manager.Manager) (*Stage, error) {
 		Email:       "member@qq.com",
 	}
 	for _, v := range []caskin.User{superadmin, admin, member} {
-		if err := executor.CreateUser(v); err != nil {
+		if err := executor.UserCreate(v); err != nil {
 			return nil, err
 		}
 	}
 
-	if err := executor.AddSuperadminUser(superadmin); err != nil {
+	if err := executor.SuperadminUserAdd(superadmin); err != nil {
 		return nil, err
 	}
 

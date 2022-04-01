@@ -2,18 +2,20 @@ package caskin
 
 import "github.com/ahmetb/go-linq/v3"
 
-// GetUserInDomain
+// UserInDomainGet
 // get all user in domain
-func (e *Executor) GetUserInDomain(domain Domain) ([]User, error) {
+// 1. no permission checking
+func (e *Executor) UserInDomainGet(domain Domain) ([]User, error) {
 	us := e.Enforcer.GetUsersInDomain(domain)
 	uid := ID(us)
 	linq.From(uid).Distinct().ToSlice(&uid)
 	return e.DB.GetUserByID(uid)
 }
 
-// GetDomainByUser
+// DomainByUserGet
 // get user's all domain
-func (e *Executor) GetDomainByUser(user User) ([]Domain, error) {
+// 1. no permission checking
+func (e *Executor) DomainByUserGet(user User) ([]Domain, error) {
 	if domain, err := e.getDomainBySuperadmin(user); err == nil {
 		return domain, nil
 	}
@@ -24,13 +26,13 @@ func (e *Executor) GetDomainByUser(user User) ([]Domain, error) {
 }
 
 func (e *Executor) getDomainBySuperadmin(user User) ([]Domain, error) {
-	if err := e.IsSuperadminCheck(user); err != nil {
+	if err := e.SuperadminCheck(user); err != nil {
 		return nil, err
 	}
-	domain, err := e.GetAllDomain()
+	domain, err := e.DomainGet()
 	if err != nil {
 		return nil, err
 	}
-	domain = append(domain, e.options.GetSuperadminDomain())
+	domain = append(domain, GetSuperadminDomain())
 	return domain, nil
 }

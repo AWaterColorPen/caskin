@@ -8,43 +8,39 @@ type ObjectType string
 
 type Action string
 
-type ObjectData interface {
-	idInterface
-	// GetObject get object interface method
-	GetObject() Object
-	// SetObjectID set object
-	SetObjectID(uint64)
-	// GetDomainID get domain id method
-	GetDomainID() uint64
-	// SetDomainID set domain id method
-	SetDomainID(uint64)
-}
-
-type TreeNodeEntry interface {
-	entry
-	treeNode
-	ObjectData
-}
-
 type User interface {
-	entry
+	idInterface
+	codeInterface
+}
+
+type Domain interface {
+	idInterface
+	codeInterface
 }
 
 type Role interface {
-	TreeNodeEntry
-	nameInterface
+	ObjectData
+	codeInterface
+	parentInterface
 }
 
 type Object interface {
-	entry
-	treeNode
+	idInterface
 	nameInterface
+	codeInterface
+	parentInterface
+	domainInterface
 	GetObjectType() ObjectType
 	SetObjectType(ObjectType)
 }
 
-type Domain interface {
-	entry
+type ObjectData interface {
+	idInterface
+	domainInterface
+	// GetObject get object interface method
+	GetObject() Object
+	// SetObjectID set object
+	SetObjectID(uint64)
 }
 
 func ID[E idInterface](in []E) []uint64 {
@@ -63,7 +59,7 @@ func IDMap[E idInterface](in []E) map[uint64]E {
 	return m
 }
 
-func Tree[E TreeNodeEntry](in []E) map[uint64]uint64 {
+func Tree[E treeNode](in []E) map[uint64]uint64 {
 	m := map[uint64]uint64{}
 	for _, v := range in {
 		if v.GetParentID() != 0 {

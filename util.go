@@ -83,27 +83,27 @@ func TopSort[T comparable](graph map[T][]T) []T {
 }
 
 // Filter do filter source permission by u, d, action
-func Filter[E ObjectData](e IEnforcer, u User, d Domain, action Action, source []E) []E {
+func Filter[E ObjectData | Object](e IEnforcer, u User, d Domain, action Action, source []E) []E {
 	var result []E
 	for _, v := range source {
-		if ObjectDataCheck(e, u, d, v, action) {
+		if Check(e, u, d, v, action) {
 			result = append(result, v)
 		}
 	}
 	return result
 }
 
-// ObjectDataCheck check object_data permission by u, d, action
-func ObjectDataCheck(e IEnforcer, u User, d Domain, one ObjectData, action Action) bool {
-	o := one.GetObject()
-	ok, _ := e.Enforce(u, o, d, action)
-	return ok
-}
-
-// ObjectCheck check object permission by u, d, action
-func ObjectCheck(e IEnforcer, u User, d Domain, one Object, action Action) bool {
-	ok, _ := e.Enforce(u, one, d, action)
-	return ok
+// Check object/object_data permission by u, d, action
+func Check[E ObjectData | Object](e IEnforcer, u User, d Domain, one E, action Action) bool {
+	if o, ok := one.(ObjectData); ok {
+		ok, _ = e.Enforce(u, o.GetObject(), d, action)
+		return ok
+	}
+	if o, ok := one.(Object); ok {
+		ok, _ = e.Enforce(u, o, d, action)
+		return ok
+	}
+	return false
 }
 
 // Diff do diff source, target list to get add, remove list
@@ -136,22 +136,6 @@ func DiffPolicy(source, target []*Policy) (add, remove []*Policy) {
 
 	}
 	return
-}
-
-func isValid(item idInterface) error {
-	if item == nil {
-		return ErrNil
-	}
-
-	if item.GetID() == 0 {
-		return ErrEmptyID
-	}
-
-	return nil
-}
-
-func isRoot(node treeNode) bool {
-	return node.GetParentID() == 0
 }
 
 func isObjectTypeObjectIDBeSelfIDCheck(object Object) error {

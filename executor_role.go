@@ -58,7 +58,7 @@ func (e *Executor) DeleteRole(role Role) error {
 	}
 	_, domain, _ := e.provider.Get()
 	role.SetDomainID(domain.GetID())
-	deleter := NewTreeNodeEntryDeleter(e.DefaultRoleChildrenGetFunc(), e.DefaultRoleDeleteFunc())
+	deleter := NewTreeNodeDeleter(e.DefaultRoleChildrenGetFunc(), e.DefaultRoleDeleteFunc())
 	return deleter.Run(role, domain)
 }
 

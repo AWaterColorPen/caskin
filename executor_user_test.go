@@ -17,25 +17,25 @@ func TestExecutorUser_GeneralCreate(t *testing.T) {
 		PhoneNumber: "12345678904",
 		Email:       "member2@qq.com",
 	}
-	assert.NoError(t, executor.CreateUser(user1))
+	assert.NoError(t, executor.UserCreate(user1))
 
 	user2 := &example.User{
 		PhoneNumber: "12345678904",
 		Email:       "member2@qq.com",
 	}
-	assert.Equal(t, caskin.ErrAlreadyExists, executor.CreateUser(user2))
+	assert.Equal(t, caskin.ErrAlreadyExists, executor.UserCreate(user2))
 
 	user3 := &example.User{
 		PhoneNumber: "12345678904",
 		Email:       "member2@qq.com",
 	}
-	assert.Equal(t, caskin.ErrEmptyID, executor.DeleteUser(user3))
+	assert.Equal(t, caskin.ErrEmptyID, executor.UserDelete(user3))
 	user3.ID = user2.ID
-	assert.NoError(t, executor.DeleteUser(user3))
+	assert.NoError(t, executor.UserDelete(user3))
 
 	user4 := &example.User{ID: 5}
-	assert.Equal(t, caskin.ErrNotExists, executor.DeleteUser(user4))
-	assert.NoError(t, executor.CreateUser(user4))
+	assert.Equal(t, caskin.ErrNotExists, executor.UserDelete(user4))
+	assert.NoError(t, executor.UserCreate(user4))
 }
 
 func TestExecutorUser_GeneralUpdate(t *testing.T) {
@@ -47,15 +47,15 @@ func TestExecutorUser_GeneralUpdate(t *testing.T) {
 		PhoneNumber: stage.MemberUser.PhoneNumber,
 		Email:       "member2@qq.com",
 	}
-	assert.NoError(t, executor.UpdateUser(user1))
+	assert.NoError(t, executor.UserUpdate(user1))
 
 	user2 := &example.User{
 		PhoneNumber: stage.MemberUser.PhoneNumber,
 	}
-	assert.Equal(t, caskin.ErrEmptyID, executor.UpdateUser(user2))
+	assert.Equal(t, caskin.ErrEmptyID, executor.UserUpdate(user2))
 
 	user3 := &example.User{ID: 5}
-	assert.Equal(t, caskin.ErrNotExists, executor.UpdateUser(user3))
+	assert.Equal(t, caskin.ErrNotExists, executor.UserUpdate(user3))
 }
 
 func TestExecutorUser_GeneralRecover(t *testing.T) {
@@ -66,16 +66,16 @@ func TestExecutorUser_GeneralRecover(t *testing.T) {
 	user1 := &example.User{
 		PhoneNumber: stage.MemberUser.PhoneNumber,
 	}
-	assert.Equal(t, caskin.ErrAlreadyExists, executor.RecoverUser(user1))
-	assert.NoError(t, executor.DeleteUser(stage.MemberUser))
+	assert.Equal(t, caskin.ErrAlreadyExists, executor.UserRecover(user1))
+	assert.NoError(t, executor.UserDelete(stage.MemberUser))
 
 	user2 := &example.User{
 		PhoneNumber: stage.MemberUser.PhoneNumber,
 	}
-	assert.NoError(t, executor.RecoverUser(user2))
+	assert.NoError(t, executor.UserRecover(user2))
 
 	user3 := &example.User{ID: 5}
-	assert.Equal(t, caskin.ErrNotExists, executor.RecoverUser(user3))
+	assert.Equal(t, caskin.ErrNotExists, executor.UserRecover(user3))
 }
 
 func TestExecutorUser_GeneralDelete(t *testing.T) {
@@ -84,8 +84,8 @@ func TestExecutorUser_GeneralDelete(t *testing.T) {
 	executor := stage.Caskin.GetExecutor(provider)
 
 	domain := &example.Domain{Name: "domain_02"}
-	assert.NoError(t, executor.CreateDomain(domain))
-	assert.NoError(t, executor.ReInitializeDomain(domain))
+	assert.NoError(t, executor.DomainCreate(domain))
+	assert.NoError(t, executor.DomainInitialize(domain))
 
 	provider.Domain = domain
 	provider.User = stage.SuperadminUser
@@ -99,12 +99,12 @@ func TestExecutorUser_GeneralDelete(t *testing.T) {
 		assert.NoError(t, executor.ModifyUserRolePairPerRole(k, v))
 	}
 
-	assert.NoError(t, executor.DeleteUser(stage.SuperadminUser))
-	list1, err := executor.GetAllSuperadminUser()
+	assert.NoError(t, executor.UserDelete(stage.SuperadminUser))
+	list1, err := executor.SuperadminUserGet()
 	assert.NoError(t, err)
 	assert.Len(t, list1, 0)
 
-	assert.NoError(t, executor.DeleteUser(stage.MemberUser))
+	assert.NoError(t, executor.UserDelete(stage.MemberUser))
 	list2, err := executor.GetUserRolePair()
 	assert.NoError(t, err)
 	assert.Len(t, list2, 1)

@@ -6,7 +6,7 @@ type SampleSuperadminRole struct {
 }
 
 func (s *SampleSuperadminRole) GetID() uint64 {
-	return DefaultSuperadminRoleID
+	return s.ID
 }
 
 func (s *SampleSuperadminRole) SetID(uint64) {
@@ -45,7 +45,7 @@ func (s *SampleSuperadminRole) SetDomainID(uint64) {
 }
 
 func (s *SampleSuperadminRole) GetName() string {
-	return DefaultSuperadminRoleName
+	return s.Name
 }
 
 func (s *SampleSuperadminRole) SetName(string) {
@@ -57,7 +57,7 @@ type SampleSuperadminDomain struct {
 }
 
 func (s *SampleSuperadminDomain) GetID() uint64 {
-	return DefaultSuperadminDomainID
+	return s.ID
 }
 
 func (s *SampleSuperadminDomain) SetID(uint64) {

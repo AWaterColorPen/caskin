@@ -43,3 +43,7 @@ func (e *Executor) EnforceObjectData(item ObjectData, action Action) error {
 func (e *Executor) EnforceObject(item Object, action Action) error {
 	return e.checkObject(item, action)
 }
+
+func (e *Executor) ObjectEnforce(item Object, action Action) error {
+	return e.checkObject(item, action)
+}

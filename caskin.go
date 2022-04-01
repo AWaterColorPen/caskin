@@ -20,9 +20,6 @@ func (c *Caskin) GetOptions() *Options {
 
 func New(options *Options, opts ...Option) (*Caskin, error) {
 	options = options.newOptions(opts...)
-	if options.DomainCreator == nil {
-		return nil, ErrInitializationNilDomainCreator
-	}
 	if options.Enforcer == nil {
 		return nil, ErrInitializationNilEnforcer
 	}

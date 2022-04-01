@@ -1,12 +1,12 @@
 package caskin
 
-type treeNodeEntryDeleter struct {
+type treeNodeDeleter struct {
 	visited  map[any]bool
-	children TreeNodeEntryChildrenGetFunc
-	delete   TreeNodeEntryDeleteFunc
+	children TreeNodeChildrenGetFunc
+	delete   TreeNodeDeleteFunc
 }
 
-func (t *treeNodeEntryDeleter) Run(current TreeNodeEntry, domain Domain) error {
+func (t *treeNodeDeleter) Run(current treeNode, domain Domain) error {
 	if _, ok := t.visited[current.GetID()]; ok {
 		return nil
 	}
@@ -21,13 +21,13 @@ func (t *treeNodeEntryDeleter) Run(current TreeNodeEntry, domain Domain) error {
 	return t.delete(current, domain)
 }
 
-func NewTreeNodeEntryDeleter(children TreeNodeEntryChildrenGetFunc, delete TreeNodeEntryDeleteFunc) *treeNodeEntryDeleter {
-	return &treeNodeEntryDeleter{
+func NewTreeNodeDeleter(children TreeNodeChildrenGetFunc, delete TreeNodeDeleteFunc) *treeNodeDeleter {
+	return &treeNodeDeleter{
 		visited:  map[any]bool{},
 		children: children,
 		delete:   delete,
 	}
 }
 
-type TreeNodeEntryChildrenGetFunc = func(TreeNodeEntry, Domain) []TreeNodeEntry
-type TreeNodeEntryDeleteFunc = func(TreeNodeEntry, Domain) error
+type TreeNodeChildrenGetFunc = func(treeNode, Domain) []treeNode
+type TreeNodeDeleteFunc = func(treeNode, Domain) error

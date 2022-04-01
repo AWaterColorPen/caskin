@@ -1,6 +1,22 @@
 package caskin
 
-func (e *Executor) IsSuperadminCheck(user User) error {
+import "fmt"
+
+func (e *Executor) CheckObject(user User, domain Domain, one Object, action Action) error {
+	if ok := Check(e.Enforcer, user, domain, one, action); ok {
+		return nil
+	}
+	return fmt.Errorf("no %v permission", action)
+}
+
+func (e *Executor) CheckObjectData(user User, domain Domain, one ObjectData, action Action) error {
+	if ok := Check(e.Enforcer, user, domain, one, action); ok {
+		return nil
+	}
+	return fmt.Errorf("no %v permission", action)
+}
+
+func (e *Executor) SuperadminCheck(user User) error {
 	ok, _ := e.Enforcer.IsSuperAdmin(user)
 	if !ok {
 		return ErrIsNotSuperAdmin
@@ -8,7 +24,7 @@ func (e *Executor) IsSuperadminCheck(user User) error {
 	return nil
 }
 
-func (e *Executor) IsSuperadminAndSuperdomainCheck() error {
+func (e *Executor) SuperadminAndSuperdomainCheck(user User, domain Domain) error {
 	// TODO
 	return nil
 }
@@ -62,6 +78,20 @@ func (e *Executor) IDInterfaceGetCheck(item idInterface) error {
 
 func (e *Executor) IDInterfaceModifyCheck(item idInterface) error {
 	return e.IDInterfaceValidAndExistsCheck(item)
+}
+
+func (e *Executor) ObjectCreateCheck(item Object, ty ObjectType) error {
+	if err := e.DBCreateCheck(item); err != nil {
+		return err
+	}
+	return e.ObjectDataWriteCheck(item, ty)
+}
+
+func (e *Executor) ObjectManageCheck(user User, domain Domain, item Object) error {
+	if err := e.IDInterfaceModifyCheck(item); err != nil {
+		return err
+	}
+	return e.CheckObject(user, domain, item, Manage)
 }
 
 func (e *Executor) ObjectDataWriteCheck(item ObjectData, ty ObjectType) error {
@@ -174,19 +204,16 @@ func (e *Executor) ObjectTreeNodeUpdateCheck(item Object, tmp Object) error {
 	if item.GetObjectType() != tmp.GetObjectType() {
 		return ErrCantChangeObjectType
 	}
-	if err := e.ObjectTreeNodeParentCheck(tmp); err != nil {
+	if err := e.ObjectParentCheck(tmp); err != nil {
 		return err
 	}
 	return e.ObjectTreeNodeParentToDescendantCheck(item, tmp)
 }
 
-func (e *Executor) ObjectTreeNodeParentCheck(object Object) error {
-	if isRoot(object) {
-		return e.rootObjectPermissionCheck()
-	}
+func (e *Executor) ObjectParentCheck(user User, domain Domain, object Object) error {
 	parent := createByE(object)
 	parent.SetID(object.GetParentID())
-	if err := e.ObjectDataModifyCheck(parent); err != nil {
+	if err := e.ObjectManageCheck(user, domain, parent); err != nil {
 		return err
 	}
 	if parent.GetObjectType() != object.GetObjectType() {
@@ -196,7 +223,7 @@ func (e *Executor) ObjectTreeNodeParentCheck(object Object) error {
 }
 
 func (e *Executor) rootObjectPermissionCheck() error {
-	if err := e.IsSuperadminCheck(); err != nil {
+	if err := e.SuperadminCheck(); err != nil {
 		return ErrEmptyParentIdOrNotSuperadmin
 	}
 	return nil
