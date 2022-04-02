@@ -2,39 +2,30 @@ package caskin
 
 import "github.com/ahmetb/go-linq/v3"
 
-// GetPolicyList
-// 1. get all policies which current user has role and object's read permission in current domain
+// PolicyGet
+// get all policies
+// 1. current user has role and object's read permission in current domain
 // 2. build role's tree
-func (e *Executor) GetPolicyList() ([]*Policy, error) {
-	currentUser, currentDomain, err := e.provider.Get()
+func (e *baseService) PolicyGet(user User, domain Domain) ([]*Policy, error) {
+	roles, err := e.RoleGet(user, domain)
+	if err != nil {
+		return nil, err
+	}
+	objects, err := e.ObjectGet(user, domain, Manage)
 	if err != nil {
 		return nil, err
 	}
 
-	roles, err := e.DB.GetRoleInDomain(currentDomain)
-	if err != nil {
-		return nil, err
-	}
-	out1 := e.filterWithNoError(currentUser, currentDomain, Read, roles)
-	linq.From(out1).ToSlice(&roles)
-
-	objects, err := e.DB.GetObjectInDomain(currentDomain)
-	if err != nil {
-		return nil, err
-	}
-	out2 := e.filterWithNoError(currentUser, currentDomain, Read, objects)
-	linq.From(out2).ToSlice(&objects)
 	om := IDMap(objects)
-
 	var list []*Policy
 	for _, v := range roles {
-		policy := e.Enforcer.GetPoliciesForRoleInDomain(v, currentDomain)
+		policy := e.Enforcer.GetPoliciesForRoleInDomain(v, domain)
 		for _, p := range policy {
 			if object, ok := om[p.Object.GetID()]; ok {
 				list = append(list, &Policy{
 					Role:   v,
 					Object: object,
-					Domain: currentDomain,
+					Domain: domain,
 					Action: p.Action,
 				})
 			}
@@ -44,35 +35,27 @@ func (e *Executor) GetPolicyList() ([]*Policy, error) {
 	return list, nil
 }
 
-// GetPolicyListByRole
+// PolicyByRoleGet
 // 1. get policy which current user has role and object's read permission in current domain
 // 2. get user to role 's g as Policy in current domain
-func (e *Executor) GetPolicyListByRole(role Role) ([]*Policy, error) {
-	if err := e.ObjectDataGetCheck(role); err != nil {
+func (e *baseService) PolicyByRoleGet(user User, domain Domain, byRole Role) ([]*Policy, error) {
+	if err := e.ObjectDataGetCheck(user, domain, byRole); err != nil {
 		return nil, err
 	}
-
-	currentUser, currentDomain, err := e.provider.Get()
+	objects, err := e.ObjectGet(user, domain, Manage)
 	if err != nil {
 		return nil, err
 	}
 
-	objects, err := e.DB.GetObjectInDomain(currentDomain)
-	if err != nil {
-		return nil, err
-	}
-	out := e.filterWithNoError(currentUser, currentDomain, Read, objects)
-	linq.From(out).ToSlice(&objects)
 	om := IDMap(objects)
-
 	var list []*Policy
-	policy := e.Enforcer.GetPoliciesForRoleInDomain(role, currentDomain)
+	policy := e.Enforcer.GetPoliciesForRoleInDomain(byRole, domain)
 	for _, p := range policy {
 		if object, ok := om[p.Object.GetID()]; ok {
 			list = append(list, &Policy{
-				Role:   role,
+				Role:   byRole,
 				Object: object,
-				Domain: currentDomain,
+				Domain: domain,
 				Action: p.Action,
 			})
 		}
@@ -81,35 +64,27 @@ func (e *Executor) GetPolicyListByRole(role Role) ([]*Policy, error) {
 	return list, nil
 }
 
-// GetPolicyListByObject
+// PolicyByObjectGet
 // 1. get policy which current user has role and object's read permission in current domain
 // 2. get user to role 's g as Policy in current domain
-func (e *Executor) GetPolicyListByObject(object Object) ([]*Policy, error) {
-	if err := e.ObjectDataGetCheck(object); err != nil {
+func (e *baseService) PolicyByObjectGet(user User, domain Domain, byObject Object) ([]*Policy, error) {
+	if err := e.ObjectManageCheck(user, domain, byObject); err != nil {
 		return nil, err
 	}
-
-	currentUser, currentDomain, err := e.provider.Get()
+	roles, err := e.RoleGet(user, domain)
 	if err != nil {
 		return nil, err
 	}
 
-	roles, err := e.DB.GetRoleInDomain(currentDomain)
-	if err != nil {
-		return nil, err
-	}
-	out := e.filterWithNoError(currentUser, currentDomain, Read, roles)
-	linq.From(out).ToSlice(&roles)
 	rm := IDMap(roles)
-
 	var list []*Policy
-	policy := e.Enforcer.GetPoliciesForObjectInDomain(object, currentDomain)
+	policy := e.Enforcer.GetPoliciesForObjectInDomain(byObject, domain)
 	for _, p := range policy {
 		if role, ok := rm[p.Role.GetID()]; ok {
 			list = append(list, &Policy{
 				Role:   role,
-				Object: object,
-				Domain: currentDomain,
+				Object: byObject,
+				Domain: domain,
 				Action: p.Action,
 			})
 		}
@@ -118,25 +93,19 @@ func (e *Executor) GetPolicyListByObject(object Object) ([]*Policy, error) {
 	return list, nil
 }
 
-// ModifyPolicyListPerRole
+// PolicyPerRoleModify
 // if current user has role and object's write permission
-// 1. modify role to objects 's p in current domain
-func (e *Executor) ModifyPolicyListPerRole(role Role, input []*Policy) error {
-	if err := e.ObjectDataModifyCheck(role); err != nil {
+// 1. modify role to object 's p in current domain
+func (e *baseService) PolicyPerRoleModify(user User, domain Domain, perRole Role, input []*Policy) error {
+	if err := e.ObjectDataModifyCheck(user, domain, perRole); err != nil {
 		return err
 	}
-
 	list := PolicyList(input)
-	if err := list.IsValidWithRole(role); err != nil {
+	if err := list.IsValidWithRole(perRole); err != nil {
 		return err
 	}
 
-	currentUser, currentDomain, err := e.provider.Get()
-	if err != nil {
-		return err
-	}
-
-	policy := e.Enforcer.GetPoliciesForRoleInDomain(role, currentDomain)
+	policy := e.Enforcer.GetPoliciesForRoleInDomain(perRole, domain)
 	var oid, oid1, oid2 []uint64
 	for _, v := range policy {
 		oid1 = append(oid1, v.Object.GetID())
@@ -151,9 +120,7 @@ func (e *Executor) ModifyPolicyListPerRole(role Role, input []*Policy) error {
 	if err != nil {
 		return err
 	}
-
-	out := e.filterWithNoError(currentUser, currentDomain, Write, objects)
-	linq.From(out).ToSlice(&objects)
+	objects = Filter(e.Enforcer, user, domain, Manage, objects)
 	om := IDMap(objects)
 
 	// make source and target role id list
@@ -172,12 +139,12 @@ func (e *Executor) ModifyPolicyListPerRole(role Role, input []*Policy) error {
 	// get diff to add and remove
 	add, remove := DiffPolicy(source, target)
 	for _, v := range add {
-		if err := e.Enforcer.AddPolicyInDomain(v.Role, v.Object, v.Domain, v.Action); err != nil {
+		if err = e.Enforcer.AddPolicyInDomain(v.Role, v.Object, v.Domain, v.Action); err != nil {
 			return err
 		}
 	}
 	for _, v := range remove {
-		if err := e.Enforcer.RemovePolicyInDomain(v.Role, v.Object, v.Domain, v.Action); err != nil {
+		if err = e.Enforcer.RemovePolicyInDomain(v.Role, v.Object, v.Domain, v.Action); err != nil {
 			return err
 		}
 	}
@@ -185,25 +152,19 @@ func (e *Executor) ModifyPolicyListPerRole(role Role, input []*Policy) error {
 	return nil
 }
 
-// ModifyPolicyListPerObject
+// PolicyPerObjectModify
 // if current user has role and object's write permission
-// 1. modify role to objects 's p in current domain
-func (e *Executor) ModifyPolicyListPerObject(object Object, input []*Policy) error {
-	if err := e.ObjectDataModifyCheck(object); err != nil {
+// 1. modify role to object 's p in current domain
+func (e *baseService) PolicyPerObjectModify(user User, domain Domain, perObject Object, input []*Policy) error {
+	if err := e.ObjectManageCheck(user, domain, perObject); err != nil {
 		return err
 	}
-
 	list := PolicyList(input)
-	if err := list.IsValidWithObject(object); err != nil {
+	if err := list.IsValidWithObject(perObject); err != nil {
 		return err
 	}
 
-	currentUser, currentDomain, err := e.provider.Get()
-	if err != nil {
-		return err
-	}
-
-	policy := e.Enforcer.GetPoliciesForObjectInDomain(object, currentDomain)
+	policy := e.Enforcer.GetPoliciesForObjectInDomain(perObject, domain)
 	var rid, rid1, rid2 []uint64
 	for _, v := range policy {
 		rid1 = append(rid1, v.Role.GetID())
@@ -218,12 +179,7 @@ func (e *Executor) ModifyPolicyListPerObject(object Object, input []*Policy) err
 	if err != nil {
 		return err
 	}
-
-	rs := e.filterWithNoError(currentUser, currentDomain, Write, roles)
-	roles = []Role{}
-	for _, v := range rs {
-		roles = append(roles, v.(Role))
-	}
+	roles = Filter(e.Enforcer, user, domain, Write, roles)
 	rm := IDMap(roles)
 
 	// make source and target role id list
@@ -242,15 +198,14 @@ func (e *Executor) ModifyPolicyListPerObject(object Object, input []*Policy) err
 	// get diff to add and remove
 	add, remove := DiffPolicy(source, target)
 	for _, v := range add {
-		if err := e.Enforcer.AddPolicyInDomain(v.Role, v.Object, v.Domain, v.Action); err != nil {
+		if err = e.Enforcer.AddPolicyInDomain(v.Role, v.Object, v.Domain, v.Action); err != nil {
 			return err
 		}
 	}
 	for _, v := range remove {
-		if err := e.Enforcer.RemovePolicyInDomain(v.Role, v.Object, v.Domain, v.Action); err != nil {
+		if err = e.Enforcer.RemovePolicyInDomain(v.Role, v.Object, v.Domain, v.Action); err != nil {
 			return err
 		}
 	}
-
 	return nil
 }

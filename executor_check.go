@@ -2,21 +2,21 @@ package caskin
 
 import "fmt"
 
-func (e *Executor) CheckObject(user User, domain Domain, one Object, action Action) error {
+func (e *baseService) CheckObject(user User, domain Domain, one Object, action Action) error {
 	if ok := Check(e.Enforcer, user, domain, one, action); ok {
 		return nil
 	}
 	return fmt.Errorf("no %v permission", action)
 }
 
-func (e *Executor) CheckObjectData(user User, domain Domain, one ObjectData, action Action) error {
+func (e *baseService) CheckObjectData(user User, domain Domain, one ObjectData, action Action) error {
 	if ok := Check(e.Enforcer, user, domain, one, action); ok {
 		return nil
 	}
 	return fmt.Errorf("no %v permission", action)
 }
 
-func (e *Executor) SuperadminCheck(user User) error {
+func (e *baseService) SuperadminCheck(user User) error {
 	ok, _ := e.Enforcer.IsSuperAdmin(user)
 	if !ok {
 		return ErrIsNotSuperAdmin
@@ -24,14 +24,14 @@ func (e *Executor) SuperadminCheck(user User) error {
 	return nil
 }
 
-func (e *Executor) DBCreateCheck(item any) error {
+func (e *baseService) DBCreateCheck(item any) error {
 	if err := e.DB.Take(item); err == nil {
 		return ErrAlreadyExists
 	}
 	return nil
 }
 
-func (e *Executor) DBRecoverCheck(item any) error {
+func (e *baseService) DBRecoverCheck(item any) error {
 	if err := e.DB.Take(item); err == nil {
 		return ErrAlreadyExists
 	}
@@ -41,11 +41,11 @@ func (e *Executor) DBRecoverCheck(item any) error {
 	return nil
 }
 
-func (e *Executor) IDInterfaceDeleteCheck(item idInterface) error {
+func (e *baseService) IDInterfaceDeleteCheck(item idInterface) error {
 	return e.IDInterfaceValidAndExistsCheck(item)
 }
 
-func (e *Executor) IDInterfaceUpdateCheck(item, old idInterface) error {
+func (e *baseService) IDInterfaceUpdateCheck(item, old idInterface) error {
 	if err := isValid(item); err != nil {
 		return err
 	}
@@ -56,7 +56,7 @@ func (e *Executor) IDInterfaceUpdateCheck(item, old idInterface) error {
 	return nil
 }
 
-func (e *Executor) IDInterfaceValidAndExistsCheck(item idInterface) error {
+func (e *baseService) IDInterfaceValidAndExistsCheck(item idInterface) error {
 	if err := isValid(item); err != nil {
 		return err
 	}
@@ -66,26 +66,26 @@ func (e *Executor) IDInterfaceValidAndExistsCheck(item idInterface) error {
 	return nil
 }
 
-func (e *Executor) IDInterfaceGetCheck(item idInterface) error {
+func (e *baseService) IDInterfaceGetCheck(item idInterface) error {
 	return e.IDInterfaceValidAndExistsCheck(item)
 }
 
-func (e *Executor) IDInterfaceModifyCheck(item idInterface) error {
+func (e *baseService) IDInterfaceModifyCheck(item idInterface) error {
 	return e.IDInterfaceValidAndExistsCheck(item)
 }
 
-func (e *Executor) ObjectManageCheck(user User, domain Domain, item Object) error {
+func (e *baseService) ObjectManageCheck(user User, domain Domain, item Object) error {
 	if err := e.IDInterfaceModifyCheck(item); err != nil {
 		return err
 	}
 	return e.CheckObject(user, domain, item, Manage)
 }
 
-func (e *Executor) ObjectParentCheck(user User, domain Domain, object Object) error {
+func (e *baseService) ObjectParentCheck(user User, domain Domain, object Object) error {
 	if object.GetParentID() == 0 {
 		return ErrCantOperateRootObject
 	}
-	parent := createByE(object)
+	parent := newByE(object)
 	parent.SetID(object.GetParentID())
 	if err := e.ObjectManageCheck(user, domain, parent); err != nil {
 		return err
@@ -96,11 +96,11 @@ func (e *Executor) ObjectParentCheck(user User, domain Domain, object Object) er
 	return nil
 }
 
-func (e *Executor) ObjectParentToDescendantCheck(domain Domain, object Object, old Object) error {
+func (e *baseService) ObjectParentToDescendantCheck(domain Domain, object Object, old Object) error {
 	if object.GetParentID() == 0 || object.GetParentID() == old.GetParentID() {
 		return nil
 	}
-	to := createByE(object)
+	to := newByE(object)
 	to.SetID(object.GetParentID())
 	if ok, _ := e.Enforcer.EnforceObject(object, to, domain); ok {
 		return ErrParentToDescendant
@@ -108,8 +108,8 @@ func (e *Executor) ObjectParentToDescendantCheck(domain Domain, object Object, o
 	return nil
 }
 
-func (e *Executor) ObjectUpdateCheck(user User, domain Domain, object Object) error {
-	old := createByE(object)
+func (e *baseService) ObjectUpdateCheck(user User, domain Domain, object Object) error {
+	old := newByE(object)
 	if err := e.IDInterfaceUpdateCheck(object, old); err != nil {
 		return err
 	}
@@ -125,11 +125,11 @@ func (e *Executor) ObjectUpdateCheck(user User, domain Domain, object Object) er
 	return e.ObjectParentToDescendantCheck(domain, object, old)
 }
 
-func (e *Executor) RoleParentCheck(role Role) error {
+func (e *baseService) RoleParentCheck(role Role) error {
 	if role.GetParentID() == 0 {
 		return nil
 	}
-	parent := createByE(role)
+	parent := newByE(role)
 	parent.SetID(role.GetParentID())
 	if err := e.IDInterfaceModifyCheck(parent); err != nil {
 		return err
@@ -140,11 +140,11 @@ func (e *Executor) RoleParentCheck(role Role) error {
 	return nil
 }
 
-func (e *Executor) RoleParentToDescendantCheck(domain Domain, role Role, old Role) error {
+func (e *baseService) RoleParentToDescendantCheck(domain Domain, role Role, old Role) error {
 	if role.GetParentID() == 0 || role.GetParentID() == old.GetParentID() {
 		return nil
 	}
-	to := createByE(role)
+	to := newByE(role)
 	to.SetID(role.GetParentID())
 	if ok, _ := e.Enforcer.EnforceRole(role, to, domain); ok {
 		return ErrParentToDescendant
@@ -152,8 +152,8 @@ func (e *Executor) RoleParentToDescendantCheck(domain Domain, role Role, old Rol
 	return nil
 }
 
-func (e *Executor) RoleUpdateCheck(user User, domain Domain, role Role) error {
-	old := createByE(role)
+func (e *baseService) RoleUpdateCheck(user User, domain Domain, role Role) error {
+	old := newByE(role)
 	if err := e.IDInterfaceUpdateCheck(role, old); err != nil {
 		return err
 	}

@@ -4,91 +4,65 @@ import (
 	"github.com/ahmetb/go-linq/v3"
 )
 
-// GetUserRolePair
+// UserRoleGet
 // 1. get all user
 // 2. get all role which current user has read permission in current domain
-// 3. get user to roles 's g as UserRolePair in current domain
-func (e *Executor) GetUserRolePair() ([]*UserRolePair, error) {
-	currentUser, currentDomain, err := e.provider.Get()
+// 3. get user to role 's g as UserRolePair in current domain
+func (e *baseService) UserRoleGet(user User, domain Domain) ([]*UserRolePair, error) {
+	users, err := e.UserByDomainGet(domain)
+	if err != nil {
+		return nil, err
+	}
+	roles, err := e.RoleGet(user, domain)
 	if err != nil {
 		return nil, err
 	}
 
-	us := e.Enforcer.GetUsersInDomain(currentDomain)
-	uid := ID(us)
-	linq.From(uid).Distinct().ToSlice(&uid)
-	users, err := e.DB.GetUserByID(uid)
-	if err != nil {
-		return nil, err
-	}
-
-	roles, err := e.DB.GetRoleInDomain(currentDomain)
-	if err != nil {
-		return nil, err
-	}
-	rs := e.filterWithNoError(currentUser, currentDomain, Read, roles)
-	linq.From(rs).ToSlice(&roles)
 	rm := IDMap(roles)
-
 	var list []*UserRolePair
 	for _, v := range users {
-		rs := e.Enforcer.GetRolesForUserInDomain(v, currentDomain)
+		rs := e.Enforcer.GetRolesForUserInDomain(v, domain)
 		for _, r := range rs {
 			if role, ok := rm[r.GetID()]; ok {
-				list = append(list, &UserRolePair{User: v, Role: role.(Role)})
+				list = append(list, &UserRolePair{User: v, Role: role})
 			}
 		}
 	}
-
 	return list, nil
 }
 
-// GetUserRolePairByUser
+// UserRoleByUserGet
 // 1. get role which current user has read permission in current domain
 // 2. get user to role 's g as UserRolePair in current domain
-func (e *Executor) GetUserRolePairByUser(user User) ([]*UserRolePair, error) {
-	if err := e.IDInterfaceGetCheck(user); err != nil {
+func (e *baseService) UserRoleByUserGet(user User, domain Domain, byUser User) ([]*UserRolePair, error) {
+	if err := e.IDInterfaceGetCheck(byUser); err != nil {
 		return nil, err
 	}
-
-	currentUser, currentDomain, err := e.provider.Get()
+	roles, err := e.RoleGet(user, domain)
 	if err != nil {
 		return nil, err
 	}
 
-	roles, err := e.DB.GetRoleInDomain(currentDomain)
-	if err != nil {
-		return nil, err
-	}
-	out := e.filterWithNoError(currentUser, currentDomain, Read, roles)
-	linq.From(out).ToSlice(&roles)
 	rm := IDMap(roles)
-
 	var list []*UserRolePair
-	rs := e.Enforcer.GetRolesForUserInDomain(user, currentDomain)
+	rs := e.Enforcer.GetRolesForUserInDomain(byUser, domain)
 	for _, r := range rs {
 		if role, ok := rm[r.GetID()]; ok {
-			list = append(list, &UserRolePair{User: user, Role: role.(Role)})
+			list = append(list, &UserRolePair{User: byUser, Role: role})
 		}
 	}
-
 	return list, nil
 }
 
-// GetUserRolePairByRole
+// UserRoleByRoleGet
 // 1. get role which current user has read permission in current domain
 // 2. get user to role 's g as UserRolePair in current domain
-func (e *Executor) GetUserRolePairByRole(role Role) ([]*UserRolePair, error) {
-	if err := e.ObjectDataGetCheck(role); err != nil {
+func (e *baseService) UserRoleByRoleGet(user User, domain Domain, byRole Role) ([]*UserRolePair, error) {
+	if err := e.ObjectDataGetCheck(user, domain, byRole); err != nil {
 		return nil, err
 	}
 
-	_, currentDomain, err := e.provider.Get()
-	if err != nil {
-		return nil, err
-	}
-
-	us := e.Enforcer.GetUsersForRoleInDomain(role, currentDomain)
+	us := e.Enforcer.GetUsersForRoleInDomain(byRole, domain)
 	uid := ID(us)
 	users, err := e.DB.GetUserByID(uid)
 	if err != nil {
@@ -97,35 +71,27 @@ func (e *Executor) GetUserRolePairByRole(role Role) ([]*UserRolePair, error) {
 
 	var list []*UserRolePair
 	for _, v := range users {
-		list = append(list, &UserRolePair{User: v, Role: role})
+		list = append(list, &UserRolePair{User: v, Role: byRole})
 	}
-
 	return list, nil
 }
 
-// ModifyUserRolePairPerUser
+// UserRolePerUserModify
 // if current user has role's write permission
-// 1. modify user to roles 's g in current domain
-func (e *Executor) ModifyUserRolePairPerUser(user User, input []*UserRolePair) error {
-	if err := isValid(user); err != nil {
+// 1. modify user to role 's g in current domain
+func (e *baseService) UserRolePerUserModify(user User, domain Domain, perUser User, input []*UserRolePair) error {
+	if err := isValid(perUser); err != nil {
 		return err
 	}
-
 	pairs := UserRolePairs(input)
-	if err := pairs.IsValidWithUser(user); err != nil {
+	if err := pairs.IsValidWithUser(perUser); err != nil {
 		return err
 	}
-
-	if err := e.DB.Take(user); err != nil {
+	if err := e.DB.Take(perUser); err != nil {
 		return ErrNotExists
 	}
 
-	currentUser, currentDomain, err := e.provider.Get()
-	if err != nil {
-		return err
-	}
-
-	rs := e.Enforcer.GetRolesForUserInDomain(user, currentDomain)
+	rs := e.Enforcer.GetRolesForUserInDomain(perUser, domain)
 	rid1 := ID(rs)
 	rid2 := pairs.RoleID()
 
@@ -138,8 +104,7 @@ func (e *Executor) ModifyUserRolePairPerUser(user User, input []*UserRolePair) e
 	if err != nil {
 		return err
 	}
-	out := e.filterWithNoError(currentUser, currentDomain, Write, roles)
-	linq.From(out).ToSlice(&roles)
+	roles = Filter(e.Enforcer, user, domain, Write, roles)
 	rm := IDMap(roles)
 
 	// make source and target role id list
@@ -159,13 +124,13 @@ func (e *Executor) ModifyUserRolePairPerUser(user User, input []*UserRolePair) e
 	add, remove := Diff(source, target)
 	for _, v := range add {
 		r := rm[v.(uint64)]
-		if err := e.Enforcer.AddRoleForUserInDomain(user, r.(Role), currentDomain); err != nil {
+		if err = e.Enforcer.AddRoleForUserInDomain(user, r, domain); err != nil {
 			return err
 		}
 	}
 	for _, v := range remove {
 		r := rm[v.(uint64)]
-		if err := e.Enforcer.RemoveRoleForUserInDomain(user, r.(Role), currentDomain); err != nil {
+		if err = e.Enforcer.RemoveRoleForUserInDomain(user, r, domain); err != nil {
 			return err
 		}
 	}
@@ -173,25 +138,19 @@ func (e *Executor) ModifyUserRolePairPerUser(user User, input []*UserRolePair) e
 	return nil
 }
 
-// ModifyUserRolePairPerRole
+// UserRolePerRoleModify
 // if current user has role's write permission
 // 1. modify role's to user 's g in current domain
-func (e *Executor) ModifyUserRolePairPerRole(role Role, input []*UserRolePair) error {
-	if err := e.ObjectDataModifyCheck(role); err != nil {
+func (e *baseService) UserRolePerRoleModify(user User, domain Domain, perRole Role, input []*UserRolePair) error {
+	if err := e.ObjectDataModifyCheck(user, domain, perRole); err != nil {
 		return err
 	}
-
 	pairs := UserRolePairs(input)
-	if err := pairs.IsValidWithRole(role); err != nil {
+	if err := pairs.IsValidWithRole(perRole); err != nil {
 		return err
 	}
 
-	_, currentDomain, err := e.provider.Get()
-	if err != nil {
-		return err
-	}
-
-	us := e.Enforcer.GetUsersForRoleInDomain(role, currentDomain)
+	us := e.Enforcer.GetUsersForRoleInDomain(perRole, domain)
 	uid1 := ID(us)
 	uid2 := pairs.UserID()
 
@@ -223,13 +182,13 @@ func (e *Executor) ModifyUserRolePairPerRole(role Role, input []*UserRolePair) e
 	add, remove := Diff(source, target)
 	for _, v := range add {
 		u := um[v.(uint64)]
-		if err := e.Enforcer.AddRoleForUserInDomain(u.(User), role, currentDomain); err != nil {
+		if err = e.Enforcer.AddRoleForUserInDomain(u, perRole, domain); err != nil {
 			return err
 		}
 	}
 	for _, v := range remove {
 		u := um[v.(uint64)]
-		if err := e.Enforcer.RemoveRoleForUserInDomain(u.(User), role, currentDomain); err != nil {
+		if err = e.Enforcer.RemoveRoleForUserInDomain(u, perRole, domain); err != nil {
 			return err
 		}
 	}

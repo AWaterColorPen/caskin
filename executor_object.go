@@ -5,7 +5,7 @@ package caskin
 // 1. current user has manage permission of object's parent
 // 2. create a new object into metadata database
 // 3. set object to parent's g2 in the domain
-func (e *Executor) ObjectCreate(user User, domain Domain, object Object) error {
+func (e *baseService) ObjectCreate(user User, domain Domain, object Object) error {
 	if err := e.DBCreateCheck(object); err != nil {
 		return err
 	}
@@ -25,7 +25,7 @@ func (e *Executor) ObjectCreate(user User, domain Domain, object Object) error {
 // 1. current user has manage permission of object's parent
 // 2. recover the soft delete one object at metadata database
 // 3. set object to parent's g2 in the domain
-func (e *Executor) ObjectRecover(user User, domain Domain, object Object) error {
+func (e *baseService) ObjectRecover(user User, domain Domain, object Object) error {
 	if err := e.DBRecoverCheck(object); err != nil {
 		return err
 	}
@@ -47,7 +47,7 @@ func (e *Executor) ObjectRecover(user User, domain Domain, object Object) error 
 // 3. delete object's p in the domain
 // 4. soft delete one object in metadata database
 // 5. delete all son of the object in the domain
-func (e *Executor) ObjectDelete(user User, domain Domain, object Object) error {
+func (e *baseService) ObjectDelete(user User, domain Domain, object Object) error {
 	if err := e.IDInterfaceDeleteCheck(object); err != nil {
 		return err
 	}
@@ -65,7 +65,7 @@ func (e *Executor) ObjectDelete(user User, domain Domain, object Object) error {
 //    current user has manage permission of object to change properties
 // 2. update object's properties
 // 3. update object to parent's g2 in the domain
-func (e *Executor) ObjectUpdate(user User, domain Domain, object Object) error {
+func (e *baseService) ObjectUpdate(user User, domain Domain, object Object) error {
 	if err := e.ObjectUpdateCheck(user, domain, object); err != nil {
 		return err
 	}
@@ -86,7 +86,7 @@ func (e *Executor) ObjectUpdate(user User, domain Domain, object Object) error {
 //    manage permission for admin to manage
 //    read/write permission for customer to get directory
 // 2. get object by type
-func (e *Executor) ObjectGet(user User, domain Domain, action Action, ty ...ObjectType) ([]Object, error) {
+func (e *baseService) ObjectGet(user User, domain Domain, action Action, ty ...ObjectType) ([]Object, error) {
 	objects, err := e.DB.GetObjectInDomain(domain, ty...)
 	if err != nil {
 		return nil, err

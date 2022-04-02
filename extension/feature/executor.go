@@ -5,7 +5,7 @@ import (
 )
 
 type Executor struct {
-	e          *caskin.Executor
+	e          *caskin.baseService
 	Dictionary Dictionary
 }
 

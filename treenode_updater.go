@@ -18,14 +18,14 @@ func (t *treeNodeUpdater) Run(item treeNode, domain Domain) error {
 
 	add, remove := Diff(source, target)
 	for _, v := range add {
-		parent := createByE(item)
+		parent := newByE(item)
 		parent.SetID(v.(uint64))
 		if err := t.parentAdd(item, parent, domain); err != nil {
 			return err
 		}
 	}
 	for _, v := range remove {
-		parent := createByE(item)
+		parent := newByE(item)
 		parent.SetID(v.(uint64))
 		if err := t.parentDel(item, parent, domain); err != nil {
 			return err

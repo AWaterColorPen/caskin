@@ -69,10 +69,10 @@ func Tree[E treeNode](in []E) map[uint64]uint64 {
 	return m
 }
 
-// DomainCreator createByE new domain's function
+// DomainCreator newByE new domain's function
 type DomainCreator = func(Domain) Creator
 
-// Creator interface to createByE a domain
+// Creator interface to newByE a domain
 type Creator interface {
 	BuildCreator() ([]Role, []Object)
 	SetRelation()

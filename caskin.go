@@ -4,19 +4,20 @@ type Caskin struct {
 	options *Options
 }
 
-func (c *Caskin) GetExecutor(provider CurrentProvider) *Executor {
-	e := NewEnforcer(c.options.Enforcer, c.options.Factory)
-	return &Executor{
-		Enforcer: e,
-		DB:       c.options.MetaDB,
-		provider: provider,
-		options:  c.options,
-	}
-}
+//
+// func (c *Caskin) GetExecutor(provider CurrentProvider) *baseService {
+// 	e := NewEnforcer(c.options.Enforcer, c.options.Factory)
+// 	return &baseService{
+// 		Enforcer: e,
+// 		DB:       c.options.MetaDB,
+// 		provider: provider,
+// 		options:  c.options,
+// 	}
+// }
 
-func (c *Caskin) GetOptions() *Options {
-	return c.options
-}
+// func (c *Caskin) GetOptions() *Options {
+// 	return c.options
+// }
 
 func New(options *Options, opts ...Option) (*Caskin, error) {
 	options = options.newOptions(opts...)

@@ -22,9 +22,6 @@ type IBaseService interface {
 	DomainGet() ([]Domain, error)
 	DomainInitialize(Domain) error
 
-	UserByDomainGet(Domain) ([]User, error)
-	DomainByUserGet(User) ([]Domain, error)
-
 	ObjectCreate(User, Domain, Object) error
 	ObjectRecover(User, Domain, Object) error
 	ObjectDelete(User, Domain, Object) error
@@ -44,6 +41,21 @@ type IBaseService interface {
 	ObjectDataUpdateCheck(User, Domain, ObjectData, ObjectType) error
 	ObjectDataModifyCheck(User, Domain, ObjectData) error
 	ObjectDataGetCheck(User, Domain, ObjectData) error
+
+	UserByDomainGet(Domain) ([]User, error)
+	DomainByUserGet(User) ([]Domain, error)
+
+	UserRoleGet(User, Domain) ([]*UserRolePair, error)
+	UserRoleByUserGet(User, Domain, User) ([]*UserRolePair, error)
+	UserRoleByRoleGet(User, Domain, Role) ([]*UserRolePair, error)
+	UserRolePerUserModify(User, Domain, User, []*UserRolePair) error
+	UserRolePerRoleModify(User, Domain, Role, []*UserRolePair) error
+
+	PolicyGet(User, Domain) ([]*Policy, error)
+	PolicyByRoleGet(User, Domain, Role) ([]*Policy, error)
+	PolicyByObjectGet(User, Domain, Object) ([]*Policy, error)
+	PolicyPerRoleModify(User, Domain, Role, []*Policy) error
+	PolicyPerObjectModify(User, Domain, Object, []*Policy) error
 }
 
 type ICurrentService interface {

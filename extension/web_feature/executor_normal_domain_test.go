@@ -87,7 +87,7 @@ func TestExecutorNormalDomain_PolicyList(t *testing.T) {
 		policy1[0], policy1[1], policy1[2], policy1[3],
 		{roles[2], &example.Object{ID: featureStartID}, stage.Domain, caskin.Read},
 	}
-	// can't modify feature policy by Caskin.Executor
+	// can't modify feature policy by Caskin.baseService
 	provider.User = stage.AdminUser
 	assert.NoError(t, executor1.ModifyPolicyListPerRole(roles[2], input1))
 	policy2, err := executor1.GetPolicyListByRole(roles[2])
@@ -99,7 +99,7 @@ func TestExecutorNormalDomain_PolicyList(t *testing.T) {
 	assert.Len(t, policy3, 0)
 
 	// TODO issue 1: any way to fix the behaviour
-	// can modify feature policy but can't get by Caskin.Executor when superadmin
+	// can modify feature policy but can't get by Caskin.baseService when superadmin
 	provider.User = stage.SuperadminUser
 	assert.NoError(t, executor1.ModifyPolicyListPerRole(roles[2], input1))
 	policy4, err := executor1.GetPolicyListByRole(roles[2])
@@ -109,7 +109,7 @@ func TestExecutorNormalDomain_PolicyList(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Len(t, policy5, 1)
 
-	// can modify feature policy by WebFeature.Executor
+	// can modify feature policy by WebFeature.baseService
 	input2 := []*caskin.Policy{
 		policy1[0], policy1[1], policy1[2], policy1[3],
 		{roles[2], &example.Object{ID: featureStartID + 1}, stage.Domain, caskin.Read},

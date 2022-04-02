@@ -4,7 +4,7 @@ package caskin
 // if there does not exist the domain then create a new one
 // 1. no permission checking
 // 2. create a new domain into metadata database
-func (e *Executor) DomainCreate(domain Domain) error {
+func (e *baseService) DomainCreate(domain Domain) error {
 	if err := e.DBCreateCheck(domain); err != nil {
 		return err
 	}
@@ -15,7 +15,7 @@ func (e *Executor) DomainCreate(domain Domain) error {
 // if there exist the domain but soft deleted then recover it
 // 1. no permission checking
 // 2. recover the soft delete one domain at metadata database
-func (e *Executor) DomainRecover(domain Domain) error {
+func (e *baseService) DomainRecover(domain Domain) error {
 	if err := e.DBRecoverCheck(domain); err != nil {
 		return err
 	}
@@ -28,7 +28,7 @@ func (e *Executor) DomainRecover(domain Domain) error {
 // 2. delete all user's g in the domain
 // 3. don't delete any role's g or object's g2 in the domain
 // 4. soft delete one domain in metadata database
-func (e *Executor) DomainDelete(domain Domain) error {
+func (e *baseService) DomainDelete(domain Domain) error {
 	if err := e.IDInterfaceDeleteCheck(domain); err != nil {
 		return err
 	}
@@ -42,8 +42,8 @@ func (e *Executor) DomainDelete(domain Domain) error {
 // if there exist the domain update domain
 // 1. no permission checking
 // 2. just update domain's properties
-func (e *Executor) DomainUpdate(domain Domain) error {
-	old := createByE(domain)
+func (e *baseService) DomainUpdate(domain Domain) error {
+	old := newByE(domain)
 	if err := e.IDInterfaceUpdateCheck(domain, old); err != nil {
 		return err
 	}
@@ -54,8 +54,8 @@ func (e *Executor) DomainUpdate(domain Domain) error {
 // if there exist the domain reinitialize the domain
 // 1. no permission checking
 // 2. just reinitialize the domain
-func (e *Executor) DomainInitialize(domain Domain) error {
-	old := createByE(domain)
+func (e *baseService) DomainInitialize(domain Domain) error {
+	old := newByE(domain)
 	if err := e.IDInterfaceUpdateCheck(domain, old); err != nil {
 		return err
 	}
@@ -65,11 +65,11 @@ func (e *Executor) DomainInitialize(domain Domain) error {
 // DomainGet
 // get all domain
 // 1. no permission checking
-func (e *Executor) DomainGet() ([]Domain, error) {
+func (e *baseService) DomainGet() ([]Domain, error) {
 	return e.DB.GetAllDomain()
 }
 
-func (e *Executor) initializeDomain(domain Domain) error {
+func (e *baseService) initializeDomain(domain Domain) error {
 	// TODO
 	// creator := e.options.DomainCreator(domain)
 	// roles, objects := creator.BuildCreator()
@@ -96,8 +96,8 @@ func (e *Executor) initializeDomain(domain Domain) error {
 	return nil
 }
 
-func (e *Executor) dbUpdateRoleOrObjectWhenInitializeDomain(item roleOrObject) error {
-	tmp := createByE(item)
+func (e *baseService) dbUpdateRoleOrObjectWhenInitializeDomain(item roleOrObject) error {
+	tmp := newByE(item)
 	tmp.SetName(item.GetName())
 	tmp.SetDomainID(item.GetDomainID())
 	switch e.DB.UpsertType(tmp) {

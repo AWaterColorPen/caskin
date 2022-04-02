@@ -5,22 +5,9 @@ import (
 )
 
 type Executor struct {
-	e               *caskin.Executor
+	e               *caskin.baseService
 	root            *Root
-	objectFactory   caskin.ObjectFactory
 	operationDomain caskin.Domain
-}
-
-func (e *Executor) operationPermissionCheck() error {
-	provider := e.e.GetCurrentProvider()
-	_, domain, err := provider.Get()
-	if err != nil {
-		return err
-	}
-	if domain.Encode() != e.operationDomain.Encode() {
-		return caskin.ErrCanOnlyAllowAtValidDomain
-	}
-	return nil
 }
 
 func (e *Executor) GetFeatureRelation(domain caskin.Domain) map[caskin.Object][]caskin.Object {

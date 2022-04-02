@@ -83,8 +83,8 @@ func TopSort[T comparable](graph map[T][]T) []T {
 }
 
 // Filter do filter source permission by u, d, action
-func Filter[E ObjectData | Object](e IEnforcer, u User, d Domain, action Action, source []E) []E {
-	var result []E
+func Filter[T any](e IEnforcer, u User, d Domain, action Action, source []T) []T {
+	var result []T
 	for _, v := range source {
 		if Check(e, u, d, v, action) {
 			result = append(result, v)
@@ -94,12 +94,12 @@ func Filter[E ObjectData | Object](e IEnforcer, u User, d Domain, action Action,
 }
 
 // Check object/object_data permission by u, d, action
-func Check[E ObjectData | Object](e IEnforcer, u User, d Domain, one E, action Action) bool {
-	if o, ok := one.(ObjectData); ok {
+func Check[T any](e IEnforcer, u User, d Domain, one T, action Action) bool {
+	if o, ok := any(one).(ObjectData); ok {
 		ok, _ = e.Enforce(u, o.GetObject(), d, action)
 		return ok
 	}
-	if o, ok := one.(Object); ok {
+	if o, ok := any(one).(Object); ok {
 		ok, _ = e.Enforce(u, o, d, action)
 		return ok
 	}
@@ -133,7 +133,6 @@ func DiffPolicy(source, target []*Policy) (add, remove []*Policy) {
 		if _, ok := sourceMap[v.Key()]; !ok {
 			add = append(add, v)
 		}
-
 	}
 	return
 }
