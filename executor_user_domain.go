@@ -5,7 +5,7 @@ import "github.com/ahmetb/go-linq/v3"
 // UserInDomainGet
 // get all user in domain
 // 1. no permission checking
-func (e *Executor) UserInDomainGet(domain Domain) ([]User, error) {
+func (e *Executor) UserByDomainGet(domain Domain) ([]User, error) {
 	us := e.Enforcer.GetUsersInDomain(domain)
 	uid := ID(us)
 	linq.From(uid).Distinct().ToSlice(&uid)

@@ -94,7 +94,7 @@ func (s *Stage) AddSubAdmin() error {
 func (s *Stage) NoSuperadmin() error {
 	provider := caskin.NewCachedProvider(nil, nil)
 	executor := s.Caskin.GetExecutor(provider)
-	if err := executor.SuperadminUserDelete(s.SuperadminUser); err != nil {
+	if err := executor.SuperadminDelete(s.SuperadminUser); err != nil {
 		return err
 	}
 
@@ -136,7 +136,7 @@ func NewStageWithManger(m *manager.Manager) (*Stage, error) {
 		}
 	}
 
-	if err := executor.SuperadminUserAdd(superadmin); err != nil {
+	if err := executor.SuperadminAdd(superadmin); err != nil {
 		return nil, err
 	}
 

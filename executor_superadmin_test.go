@@ -17,12 +17,12 @@ func TestExecutorSuperadmin_Add(t *testing.T) {
 		PhoneNumber: "12345678904",
 		Email:       "member2@qq.com",
 	}
-	assert.Equal(t, caskin.ErrEmptyID, executor.SuperadminUserAdd(user1))
+	assert.Equal(t, caskin.ErrEmptyID, executor.SuperadminAdd(user1))
 	user1.ID = stage.MemberUser.ID
-	assert.Error(t, executor.SuperadminUserAdd(user1))
-	assert.NoError(t, executor.SuperadminUserAdd(stage.MemberUser))
+	assert.Error(t, executor.SuperadminAdd(user1))
+	assert.NoError(t, executor.SuperadminAdd(stage.MemberUser))
 
-	list1, err := executor.SuperadminUserGet()
+	list1, err := executor.SuperadminGet()
 	assert.NoError(t, err)
 	assert.Len(t, list1, 2)
 }
@@ -36,18 +36,18 @@ func TestExecutorSuperadmin_Delete(t *testing.T) {
 		PhoneNumber: "12345678904",
 		Email:       "member2@qq.com",
 	}
-	assert.Equal(t, caskin.ErrEmptyID, executor.SuperadminUserDelete(user1))
+	assert.Equal(t, caskin.ErrEmptyID, executor.SuperadminDelete(user1))
 	user1.ID = stage.MemberUser.ID
-	assert.Error(t, executor.SuperadminUserDelete(user1))
+	assert.Error(t, executor.SuperadminDelete(user1))
 
 	// delete a no superadmin user, it will not return error
-	assert.NoError(t, executor.SuperadminUserDelete(stage.MemberUser))
-	list1, err := executor.SuperadminUserGet()
+	assert.NoError(t, executor.SuperadminDelete(stage.MemberUser))
+	list1, err := executor.SuperadminGet()
 	assert.NoError(t, err)
 	assert.Len(t, list1, 1)
 
-	assert.NoError(t, executor.SuperadminUserDelete(stage.SuperadminUser))
-	list2, err := executor.SuperadminUserGet()
+	assert.NoError(t, executor.SuperadminDelete(stage.SuperadminUser))
+	list2, err := executor.SuperadminGet()
 	assert.NoError(t, err)
 	assert.Len(t, list2, 0)
 }

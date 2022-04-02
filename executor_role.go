@@ -1,17 +1,15 @@
 package caskin
 
-import "github.com/ahmetb/go-linq/v3"
-
-// CreateRole
-// if current user has role's write permission and there does not exist the role
-// then create a new one
-// 1. create a new role into metadata database
-// 2. Run role to parent's g in the domain
-func (e *Executor) CreateRole(role Role, domain Domain) error {
-	if err := e.ObjectDataCreateCheck(role, ObjectTypeRole); err != nil {
+// RoleCreate
+// if there does not exist the role then create a new one
+// 1. current user has role's write permission
+// 2. create a new role into metadata database
+// 3. set role to parent's g in the domain
+func (e *Executor) RoleCreate(user User, domain Domain, role Role) error {
+	if err := e.ObjectDataCreateCheck(user, domain, role, ObjectTypeRole); err != nil {
 		return err
 	}
-	if err := e.TreeNodeEntryParentCheck(role); err != nil {
+	if err := e.RoleParentCheck(role); err != nil {
 		return err
 	}
 	role.SetDomainID(domain.GetID())
@@ -22,19 +20,18 @@ func (e *Executor) CreateRole(role Role, domain Domain) error {
 	return updater.Run(role, domain)
 }
 
-// RecoverRole
-// if current user has role's write permission and there exist the role but soft deleted
-// then recover it
-// 1. recover the soft delete one role at metadata database
-// 2. Run role to parent's g in the domain
-func (e *Executor) RecoverRole(role Role) error {
-	if err := e.ObjectDataRecoverCheck(role); err != nil {
+// RoleRecover
+// if there exist the role but soft deleted then recover it
+// 1. current user has role's write permission
+// 2. recover the soft delete one role at metadata database
+// 3. set role to parent's g in the domain
+func (e *Executor) RoleRecover(user User, domain Domain, role Role) error {
+	if err := e.ObjectDataRecoverCheck(user, domain, role); err != nil {
 		return err
 	}
-	if err := e.TreeNodeEntryParentCheck(role); err != nil {
+	if err := e.RoleParentCheck(role); err != nil {
 		return err
 	}
-	_, domain, _ := e.provider.Get()
 	role.SetDomainID(domain.GetID())
 	if err := e.DB.Recover(role); err != nil {
 		return err
@@ -43,37 +40,37 @@ func (e *Executor) RecoverRole(role Role) error {
 	return updater.Run(role, domain)
 }
 
-// DeleteRole
-// if current user has role's write permission
+// RoleDelete
+// if there exist the object
+// 1. current user has role's write permission
 // 1. delete role's g in the domain
 // 2. delete role's p in the domain
 // 3. soft delete one role in metadata database
-// 4. Run to delete all son of the role in the domain
-func (e *Executor) DeleteRole(role Role) error {
-	if err := e.ObjectDataDeleteCheck(role); err != nil {
+// 4. delete all son of the role in the domain
+func (e *Executor) RoleDelete(user User, domain Domain, role Role) error {
+	if err := e.ObjectDataDeleteCheck(user, domain, role); err != nil {
 		return err
 	}
-	if err := e.TreeNodeEntryParentCheck(role); err != nil {
+	if err := e.RoleParentCheck(role); err != nil {
 		return err
 	}
-	_, domain, _ := e.provider.Get()
 	role.SetDomainID(domain.GetID())
 	deleter := NewTreeNodeDeleter(e.DefaultRoleChildrenGetFunc(), e.DefaultRoleDeleteFunc())
 	return deleter.Run(role, domain)
 }
 
-// UpdateRole
-// if current user has role's write permission and there exist the role
-// 1. Run role's properties
-// 2. Run role to parent's g in the domain
-func (e *Executor) UpdateRole(role Role) error {
-	if err := e.TreeNodeEntryUpdateCheck(role, ObjectTypeRole); err != nil {
+// RoleUpdate
+// if there exist the role
+// 1. current user has role's write permission and
+// 2. update role's properties
+// 3. update role to parent's g in the domain
+func (e *Executor) RoleUpdate(user User, domain Domain, role Role) error {
+	if err := e.RoleUpdateCheck(user, domain, role); err != nil {
 		return err
 	}
-	if err := e.TreeNodeEntryParentCheck(role); err != nil {
+	if err := e.RoleParentCheck(role); err != nil {
 		return err
 	}
-	_, domain, _ := e.provider.Get()
 	role.SetDomainID(domain.GetID())
 	if err := e.DB.Update(role); err != nil {
 		return err
@@ -82,20 +79,13 @@ func (e *Executor) UpdateRole(role Role) error {
 	return updater.Run(role, domain)
 }
 
-// GetRoles
-// if current user has role's read permission
-// 1. get roles in the domain
-func (e *Executor) GetRoles() ([]Role, error) {
-	currentUser, currentDomain, err := e.provider.Get()
+// RoleGet
+// get role
+// 1. current user has role's read permission
+func (e *Executor) RoleGet(user User, domain Domain) ([]Role, error) {
+	roles, err := e.DB.GetRoleInDomain(domain)
 	if err != nil {
 		return nil, err
 	}
-
-	roles, err := e.DB.GetRoleInDomain(currentDomain)
-	if err != nil {
-		return nil, err
-	}
-	out := e.filterWithNoError(currentUser, currentDomain, Read, roles)
-	linq.From(out).ToSlice(&roles)
-	return roles, nil
+	return Filter(e.Enforcer, user, domain, Read, roles), nil
 }

@@ -32,23 +32,14 @@ func (e *Executor) AuthFrontend() []*Frontend {
 }
 
 func (e *Executor) GetFeature() ([]*Feature, error) {
-	if err := e.e.SuperadminAndSuperdomainCheck(); err != nil {
-		return nil, err
-	}
 	return e.Dictionary.GetFeature()
 }
 
 func (e *Executor) GetBackend() ([]*Backend, error) {
-	if err := e.e.SuperadminAndSuperdomainCheck(); err != nil {
-		return nil, err
-	}
 	return e.Dictionary.GetBackend()
 }
 
 func (e *Executor) GetFrontend() ([]*Frontend, error) {
-	if err := e.e.SuperadminAndSuperdomainCheck(); err != nil {
-		return nil, err
-	}
 	return e.Dictionary.GetFrontend()
 }
 

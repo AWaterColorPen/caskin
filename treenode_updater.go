@@ -1,12 +1,12 @@
 package caskin
 
-type treeNodeUpdater[T treeNode] struct {
+type treeNodeUpdater struct {
 	parentGet TreeNodeParentGetFunc
 	parentAdd TreeNodeParentAddFunc
 	parentDel TreeNodeParentDelFunc
 }
 
-func (t *treeNodeUpdater[T]) Run(item treeNode, domain Domain) error {
+func (t *treeNodeUpdater) Run(item treeNode, domain Domain) error {
 	var source, target []any
 	if item.GetParentID() != 0 {
 		target = append(target, item.GetParentID())
@@ -18,14 +18,14 @@ func (t *treeNodeUpdater[T]) Run(item treeNode, domain Domain) error {
 
 	add, remove := Diff(source, target)
 	for _, v := range add {
-		parent := createByT[T]()
+		parent := createByE(item)
 		parent.SetID(v.(uint64))
 		if err := t.parentAdd(item, parent, domain); err != nil {
 			return err
 		}
 	}
 	for _, v := range remove {
-		parent := createByT[T]()
+		parent := createByE(item)
 		parent.SetID(v.(uint64))
 		if err := t.parentDel(item, parent, domain); err != nil {
 			return err
@@ -34,11 +34,11 @@ func (t *treeNodeUpdater[T]) Run(item treeNode, domain Domain) error {
 	return nil
 }
 
-func NewTreeNodeUpdater[T treeNode](
+func NewTreeNodeUpdater(
 	parentGet TreeNodeParentGetFunc,
 	parentAdd TreeNodeParentAddFunc,
-	parentDel TreeNodeParentDelFunc) *treeNodeUpdater[T] {
-	return &treeNodeUpdater[T]{
+	parentDel TreeNodeParentDelFunc) *treeNodeUpdater {
+	return &treeNodeUpdater{
 		parentGet: parentGet,
 		parentAdd: parentAdd,
 		parentDel: parentDel,

@@ -4,17 +4,18 @@ import "fmt"
 
 var (
 	// errors about entry
-	ErrNil                  = fmt.Errorf("nil data")
-	ErrEmptyID              = fmt.Errorf("empty id")
-	ErrAlreadyExists        = fmt.Errorf("already exists")
-	ErrNotExists            = fmt.Errorf("not exists")
-	ErrInValidObject        = fmt.Errorf("invalid object")
-	ErrInValidObjectType    = fmt.Errorf("invalid object type")
-	ErrCantChangeObjectType = fmt.Errorf("can't change object type")
-	ErrInValidParentObject  = fmt.Errorf("invalid parent object")
-	ErrParentCanNotBeItself = fmt.Errorf("parent id can't be it self id")
-	ErrParentToDescendant   = fmt.Errorf("can't change parent to descendant")
-	ErrInValidAction        = fmt.Errorf("invalid action")
+	ErrNil                   = fmt.Errorf("nil data")
+	ErrEmptyID               = fmt.Errorf("empty id")
+	ErrAlreadyExists         = fmt.Errorf("already exists")
+	ErrNotExists             = fmt.Errorf("not exists")
+	ErrInValidObject         = fmt.Errorf("invalid object")
+	ErrInValidObjectType     = fmt.Errorf("invalid object type")
+	ErrCantChangeObjectType  = fmt.Errorf("can't change object type")
+	ErrCantOperateRootObject = fmt.Errorf("can't operate root object")
+	ErrParentCanNotDiff      = fmt.Errorf("parent can't be different object id")
+	ErrParentCanNotBeItself  = fmt.Errorf("parent id can't be it self id")
+	ErrParentToDescendant    = fmt.Errorf("can't change parent to descendant")
+	ErrInValidAction         = fmt.Errorf("invalid action")
 
 	// errors about permission
 	ErrNoReadPermission    = fmt.Errorf("no read permission")
@@ -40,8 +41,4 @@ var (
 	// errors about policy list
 	ErrInputPolicyListNotBelongSameRole   = fmt.Errorf("input policy list are not belong to same role")
 	ErrInputPolicyListNotBelongSameObject = fmt.Errorf("input policy list are not belong to same object")
-
-	// errors about special object
-	ErrObjectTypeObjectIDMustBeItselfID = fmt.Errorf("the object id of object type's object must be itself's id")
-	ErrEmptyParentIdOrNotSuperadmin     = fmt.Errorf("the parent id is empty or you are operating root object without superadmin authority")
 )

@@ -7,9 +7,6 @@ import (
 )
 
 func (e *Executor) Build() error {
-	if err := e.e.SuperadminAndSuperdomainCheck(); err != nil {
-		return err
-	}
 	domains, err := e.e.DomainGet()
 	if err != nil {
 		return err

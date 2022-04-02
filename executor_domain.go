@@ -43,7 +43,8 @@ func (e *Executor) DomainDelete(domain Domain) error {
 // 1. no permission checking
 // 2. just update domain's properties
 func (e *Executor) DomainUpdate(domain Domain) error {
-	if err := e.IDInterfaceUpdateCheck(domain); err != nil {
+	old := createByE(domain)
+	if err := e.IDInterfaceUpdateCheck(domain, old); err != nil {
 		return err
 	}
 	return e.DB.Update(domain)
@@ -54,7 +55,8 @@ func (e *Executor) DomainUpdate(domain Domain) error {
 // 1. no permission checking
 // 2. just reinitialize the domain
 func (e *Executor) DomainInitialize(domain Domain) error {
-	if err := e.IDInterfaceUpdateCheck(domain); err != nil {
+	old := createByE(domain)
+	if err := e.IDInterfaceUpdateCheck(domain, old); err != nil {
 		return err
 	}
 	return e.initializeDomain(domain)
@@ -116,6 +118,7 @@ func (e *Executor) dbUpdateRoleOrObjectWhenInitializeDomain(item roleOrObject) e
 }
 
 type roleOrObject interface {
+	idInterface
 	nameInterface
 	domainInterface
 }

@@ -137,11 +137,3 @@ func DiffPolicy(source, target []*Policy) (add, remove []*Policy) {
 	}
 	return
 }
-
-func isObjectTypeObjectIDBeSelfIDCheck(object Object) error {
-	if object.GetObjectType() == ObjectTypeObject &&
-		object.GetObject().GetID() != object.GetID() {
-		return ErrObjectTypeObjectIDMustBeItselfID
-	}
-	return nil
-}

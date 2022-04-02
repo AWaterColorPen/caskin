@@ -50,10 +50,6 @@ type parentInterface interface {
 	SetParentID(uint64)
 }
 
-func isRoot(node parentInterface) bool {
-	return node.GetParentID() == 0
-}
-
 type treeNode interface {
 	idInterface
 	parentInterface

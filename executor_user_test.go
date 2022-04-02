@@ -100,7 +100,7 @@ func TestExecutorUser_GeneralDelete(t *testing.T) {
 	}
 
 	assert.NoError(t, executor.UserDelete(stage.SuperadminUser))
-	list1, err := executor.SuperadminUserGet()
+	list1, err := executor.SuperadminGet()
 	assert.NoError(t, err)
 	assert.Len(t, list1, 0)
 
