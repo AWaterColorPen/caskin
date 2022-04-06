@@ -4,7 +4,7 @@ package caskin
 // if there does not exist the user then create a new one
 // 1. no permission checking
 // 2. create a new user into metadata database
-func (e *baseService) UserCreate(user User) error {
+func (e *server) UserCreate(user User) error {
 	if err := e.DBCreateCheck(user); err != nil {
 		return err
 	}
@@ -15,7 +15,7 @@ func (e *baseService) UserCreate(user User) error {
 // if there exist the user but soft deleted then recover it
 // 1. no permission checking
 // 2. recover the soft delete one user at metadata database
-func (e *baseService) UserRecover(user User) error {
+func (e *server) UserRecover(user User) error {
 	if err := e.DBRecoverCheck(user); err != nil {
 		return err
 	}
@@ -27,7 +27,7 @@ func (e *baseService) UserRecover(user User) error {
 // 1. no permission checking
 // 2. delete all user's g in all domain
 // 3. soft delete one user in metadata database
-func (e *baseService) UserDelete(user User) error {
+func (e *server) UserDelete(user User) error {
 	if err := e.IDInterfaceDeleteCheck(user); err != nil {
 		return err
 	}
@@ -47,7 +47,7 @@ func (e *baseService) UserDelete(user User) error {
 // if there exist the user update user
 // 1. no permission checking
 // 1. just update user's properties
-func (e *baseService) UserUpdate(user User) error {
+func (e *server) UserUpdate(user User) error {
 	if err := e.IDInterfaceUpdateCheck(user, newByE(user)); err != nil {
 		return err
 	}

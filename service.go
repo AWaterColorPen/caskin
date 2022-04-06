@@ -62,7 +62,28 @@ type ICurrentService interface {
 }
 
 type IFeatureService interface {
+	GetBackend() ([]*Backend, error)
+	GetFrontend() ([]*Frontend, error)
+	GetFeature() ([]*Feature, error)
+	BackendAuth(User, Domain, *Backend) error
+	FrontendAuth(User, Domain) []*Frontend
+	FeatureObjectGet(User, Domain) ([]Object, error)
+	FeaturePolicyGet(User, Domain) ([]*Policy, error)
+	FeaturePolicyByRoleGet(User, Domain, Role) ([]*Policy, error)
+	FeaturePolicyPerRoleModify(User, Domain, Role, []*Policy) error
 }
 
 type ICreatorService interface {
+}
+
+type server struct {
+	Enforcer   IEnforcer
+	DB         MetaDB
+	Dictionary IDictionary
+}
+
+type currentServer struct {
+	server
+	CurrentUser   User
+	CurrentDomain Domain
 }

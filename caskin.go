@@ -5,9 +5,9 @@ type Caskin struct {
 }
 
 //
-// func (c *Caskin) GetExecutor(provider CurrentProvider) *baseService {
+// func (c *Caskin) GetExecutor(provider CurrentProvider) *server {
 // 	e := NewEnforcer(c.options.Enforcer, c.options.Factory)
-// 	return &baseService{
+// 	return &server{
 // 		Enforcer: e,
 // 		DB:       c.options.MetaDB,
 // 		provider: provider,

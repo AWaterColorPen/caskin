@@ -1,6 +1,6 @@
 package caskin
 
-func (e *baseService) ObjectDataWriteCheck(user User, domain Domain, item ObjectData, ty ObjectType) error {
+func (e *server) ObjectDataWriteCheck(user User, domain Domain, item ObjectData, ty ObjectType) error {
 	if err := e.CheckObjectData(user, domain, item, Write); err != nil {
 		return err
 	}
@@ -14,28 +14,28 @@ func (e *baseService) ObjectDataWriteCheck(user User, domain Domain, item Object
 	return nil
 }
 
-func (e *baseService) ObjectDataCreateCheck(user User, domain Domain, item ObjectData, ty ObjectType) error {
+func (e *server) ObjectDataCreateCheck(user User, domain Domain, item ObjectData, ty ObjectType) error {
 	if err := e.DBCreateCheck(item); err != nil {
 		return err
 	}
 	return e.ObjectDataWriteCheck(user, domain, item, ty)
 }
 
-func (e *baseService) ObjectDataRecoverCheck(user User, domain Domain, item ObjectData) error {
+func (e *server) ObjectDataRecoverCheck(user User, domain Domain, item ObjectData) error {
 	if err := e.DBRecoverCheck(item); err != nil {
 		return err
 	}
 	return e.CheckObjectData(user, domain, item, Write)
 }
 
-func (e *baseService) ObjectDataDeleteCheck(user User, domain Domain, item ObjectData) error {
+func (e *server) ObjectDataDeleteCheck(user User, domain Domain, item ObjectData) error {
 	if err := e.IDInterfaceDeleteCheck(item); err != nil {
 		return err
 	}
 	return e.CheckObjectData(user, domain, item, Write)
 }
 
-func (e *baseService) ObjectDataUpdateCheck(user User, domain Domain, item ObjectData, ty ObjectType) error {
+func (e *server) ObjectDataUpdateCheck(user User, domain Domain, item ObjectData, ty ObjectType) error {
 	old := newByE(item)
 	if err := e.IDInterfaceUpdateCheck(item, old); err != nil {
 		return err
@@ -49,14 +49,14 @@ func (e *baseService) ObjectDataUpdateCheck(user User, domain Domain, item Objec
 	return nil
 }
 
-func (e *baseService) ObjectDataModifyCheck(user User, domain Domain, item ObjectData) error {
+func (e *server) ObjectDataModifyCheck(user User, domain Domain, item ObjectData) error {
 	if err := e.IDInterfaceModifyCheck(item); err != nil {
 		return err
 	}
 	return e.CheckObjectData(user, domain, item, Write)
 }
 
-func (e *baseService) ObjectDataGetCheck(user User, domain Domain, item ObjectData) error {
+func (e *server) ObjectDataGetCheck(user User, domain Domain, item ObjectData) error {
 	if err := e.IDInterfaceGetCheck(item); err != nil {
 		return err
 	}

@@ -6,7 +6,7 @@ import "github.com/ahmetb/go-linq/v3"
 // get all policies
 // 1. current user has role and object's read permission in current domain
 // 2. build role's tree
-func (e *baseService) PolicyGet(user User, domain Domain) ([]*Policy, error) {
+func (e *server) PolicyGet(user User, domain Domain) ([]*Policy, error) {
 	roles, err := e.RoleGet(user, domain)
 	if err != nil {
 		return nil, err
@@ -38,7 +38,7 @@ func (e *baseService) PolicyGet(user User, domain Domain) ([]*Policy, error) {
 // PolicyByRoleGet
 // 1. get policy which current user has role and object's read permission in current domain
 // 2. get user to role 's g as Policy in current domain
-func (e *baseService) PolicyByRoleGet(user User, domain Domain, byRole Role) ([]*Policy, error) {
+func (e *server) PolicyByRoleGet(user User, domain Domain, byRole Role) ([]*Policy, error) {
 	if err := e.ObjectDataGetCheck(user, domain, byRole); err != nil {
 		return nil, err
 	}
@@ -67,7 +67,7 @@ func (e *baseService) PolicyByRoleGet(user User, domain Domain, byRole Role) ([]
 // PolicyByObjectGet
 // 1. get policy which current user has role and object's read permission in current domain
 // 2. get user to role 's g as Policy in current domain
-func (e *baseService) PolicyByObjectGet(user User, domain Domain, byObject Object) ([]*Policy, error) {
+func (e *server) PolicyByObjectGet(user User, domain Domain, byObject Object) ([]*Policy, error) {
 	if err := e.ObjectManageCheck(user, domain, byObject); err != nil {
 		return nil, err
 	}
@@ -96,7 +96,7 @@ func (e *baseService) PolicyByObjectGet(user User, domain Domain, byObject Objec
 // PolicyPerRoleModify
 // if current user has role and object's write permission
 // 1. modify role to object 's p in current domain
-func (e *baseService) PolicyPerRoleModify(user User, domain Domain, perRole Role, input []*Policy) error {
+func (e *server) PolicyPerRoleModify(user User, domain Domain, perRole Role, input []*Policy) error {
 	if err := e.ObjectDataModifyCheck(user, domain, perRole); err != nil {
 		return err
 	}
@@ -155,7 +155,7 @@ func (e *baseService) PolicyPerRoleModify(user User, domain Domain, perRole Role
 // PolicyPerObjectModify
 // if current user has role and object's write permission
 // 1. modify role to object 's p in current domain
-func (e *baseService) PolicyPerObjectModify(user User, domain Domain, perObject Object, input []*Policy) error {
+func (e *server) PolicyPerObjectModify(user User, domain Domain, perObject Object, input []*Policy) error {
 	if err := e.ObjectManageCheck(user, domain, perObject); err != nil {
 		return err
 	}

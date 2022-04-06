@@ -5,7 +5,7 @@ package caskin
 // 1. current user has role's write permission
 // 2. create a new role into metadata database
 // 3. set role to parent's g in the domain
-func (e *baseService) RoleCreate(user User, domain Domain, role Role) error {
+func (e *server) RoleCreate(user User, domain Domain, role Role) error {
 	if err := e.ObjectDataCreateCheck(user, domain, role, ObjectTypeRole); err != nil {
 		return err
 	}
@@ -25,7 +25,7 @@ func (e *baseService) RoleCreate(user User, domain Domain, role Role) error {
 // 1. current user has role's write permission
 // 2. recover the soft delete one role at metadata database
 // 3. set role to parent's g in the domain
-func (e *baseService) RoleRecover(user User, domain Domain, role Role) error {
+func (e *server) RoleRecover(user User, domain Domain, role Role) error {
 	if err := e.ObjectDataRecoverCheck(user, domain, role); err != nil {
 		return err
 	}
@@ -47,7 +47,7 @@ func (e *baseService) RoleRecover(user User, domain Domain, role Role) error {
 // 2. delete role's p in the domain
 // 3. soft delete one role in metadata database
 // 4. delete all son of the role in the domain
-func (e *baseService) RoleDelete(user User, domain Domain, role Role) error {
+func (e *server) RoleDelete(user User, domain Domain, role Role) error {
 	if err := e.ObjectDataDeleteCheck(user, domain, role); err != nil {
 		return err
 	}
@@ -64,7 +64,7 @@ func (e *baseService) RoleDelete(user User, domain Domain, role Role) error {
 // 1. current user has role's write permission and
 // 2. update role's properties
 // 3. update role to parent's g in the domain
-func (e *baseService) RoleUpdate(user User, domain Domain, role Role) error {
+func (e *server) RoleUpdate(user User, domain Domain, role Role) error {
 	if err := e.RoleUpdateCheck(user, domain, role); err != nil {
 		return err
 	}
@@ -82,7 +82,7 @@ func (e *baseService) RoleUpdate(user User, domain Domain, role Role) error {
 // RoleGet
 // get role
 // 1. current user has role's read permission
-func (e *baseService) RoleGet(user User, domain Domain) ([]Role, error) {
+func (e *server) RoleGet(user User, domain Domain) ([]Role, error) {
 	roles, err := e.DB.GetRoleInDomain(domain)
 	if err != nil {
 		return nil, err

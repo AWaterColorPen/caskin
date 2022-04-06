@@ -9,40 +9,6 @@ type Executor struct {
 	Dictionary Dictionary
 }
 
-func (e *Executor) AuthBackend(backend *Backend) error {
-	value, err := e.Dictionary.GetBackendByKey(backend.GetKey())
-	if err != nil || backend == nil {
-		return caskin.ErrNoBackendPermission
-	}
-	if e.e.EnforceObject(value.ToObject(), caskin.Read) != nil {
-		return caskin.ErrNoBackendPermission
-	}
-	return nil
-}
-
-func (e *Executor) AuthFrontend() []*Frontend {
-	var res []*Frontend
-	frontend, _ := e.Dictionary.GetFrontend()
-	for _, v := range frontend {
-		if e.e.EnforceObject(v.ToObject(), caskin.Read) == nil {
-			res = append(res, v)
-		}
-	}
-	return res
-}
-
-func (e *Executor) GetFeature() ([]*Feature, error) {
-	return e.Dictionary.GetFeature()
-}
-
-func (e *Executor) GetBackend() ([]*Backend, error) {
-	return e.Dictionary.GetBackend()
-}
-
-func (e *Executor) GetFrontend() ([]*Frontend, error) {
-	return e.Dictionary.GetFrontend()
-}
-
 func (e *Executor) GetSourceRelation(domain caskin.Domain) map[caskin.Object][]caskin.Object {
 	var queue []caskin.Object
 	inQueue := map[uint64]bool{}

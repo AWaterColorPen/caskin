@@ -2,8 +2,8 @@ package manager
 
 import (
 	"fmt"
+
 	"github.com/awatercolorpen/caskin"
-	"github.com/awatercolorpen/caskin/extension/web_feature"
 )
 
 var (
@@ -13,24 +13,6 @@ var (
 )
 
 type Manager struct {
-	webFeature *web_feature.WebFeature
-	caskin     *caskin.Caskin
-}
-
-func (m *Manager) GetWebFeature() (*web_feature.WebFeature, error) {
-	if m.webFeature == nil {
-		return nil, ErrNoInitialization
-	}
-
-	return m.webFeature, nil
-}
-
-func (m *Manager) GetCaskin() (*caskin.Caskin, error) {
-	if m.caskin == nil {
-		return nil, ErrNoInitialization
-	}
-
-	return m.caskin, nil
 }
 
 func NewManager(configuration *Configuration) (*Manager, error) {
@@ -53,44 +35,11 @@ func NewManager(configuration *Configuration) (*Manager, error) {
 
 	m := &Manager{}
 
-	if configuration.DomainCreator == nil {
-		return nil, caskin.ErrInitializationNilDomainCreator
-	}
 	if configuration.Enforcer == nil {
 		return nil, caskin.ErrInitializationNilEnforcer
-	}
-	if configuration.EntryFactory == nil {
-		return nil, caskin.ErrInitializationNilEntryFactory
 	}
 	if configuration.MetaDB == nil {
 		return nil, caskin.ErrInitializationNilMetaDB
 	}
-
-	// initialize caskin
-	ckOptions := &caskin.Options{
-		SuperadminRole:   configuration.SuperadminRole,
-		SuperadminDomain: configuration.SuperadminDomain,
-		DomainCreator:    configuration.DomainCreator,
-		Enforcer:         configuration.Enforcer,
-		MetaDB:           configuration.MetaDB,
-	}
-
-	if ck, err := caskin.New(ckOptions); err != nil {
-		return nil, err
-	} else {
-		m.caskin = ck
-	}
-
-	// initialize suffix extension
-	if extension := configuration.Extension; extension != nil {
-		if extension.WebFeature != nil {
-			if webFeature, err := m.extensionWebFeature(configuration); err != nil {
-				return nil, err
-			} else {
-				m.webFeature = webFeature
-			}
-		}
-	}
-
 	return m, nil
 }

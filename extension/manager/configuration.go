@@ -15,9 +15,6 @@ type Configuration struct {
 	DefaultSuperadminRoleName   string `json:"default_superadmin_role_name"   yaml:"default_superadmin_role_name"`
 	DefaultNoPermissionObject   string `json:"default_no_permission_object"   yaml:"default_no_permission_object"`
 
-	// configurations for extension
-	Extension *Extension `json:"extension" yaml:"extension"`
-
 	// dependencies
 	DB *gorm.DB
 
@@ -25,12 +22,4 @@ type Configuration struct {
 	DomainCreator caskin.DomainCreator
 	Enforcer      casbin.IEnforcer
 	MetaDB        caskin.MetaDB
-
-	// implementations of the caskin superadmin interface
-	SuperadminDomain caskin.DomainFactory
-	SuperadminRole   caskin.RoleFactory
-}
-
-type Extension struct {
-	WebFeature any `json:"web_feature"    yaml:"web_feature"`
 }
