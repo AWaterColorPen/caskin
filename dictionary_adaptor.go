@@ -29,10 +29,13 @@ func NewDictionary(option *DictionaryOption) (IDictionary, error) {
 }
 
 type fileDictionary struct {
-	Feature  []*Feature  `toml:"feature"`
-	Backend  []*Backend  `toml:"backend"`
-	Frontend []*Frontend `toml:"frontend"`
-	Package  []*Package  `toml:"package"`
+	Feature       []*Feature       `toml:"feature"`
+	Backend       []*Backend       `toml:"backend"`
+	Frontend      []*Frontend      `toml:"frontend"`
+	Package       []*Package       `toml:"package"`
+	CreatorObject []*CreatorObject `toml:"creator_object"`
+	CreatorRole   []*CreatorRole   `toml:"creator_role"`
+	CreatorPolicy []*CreatorPolicy `toml:"creator_policy"`
 }
 
 func (f *fileDictionary) GetFeature() ([]*Feature, error) {

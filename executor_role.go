@@ -5,18 +5,18 @@ package caskin
 // 1. current user has role's write permission
 // 2. create a new role into metadata database
 // 3. set role to parent's g in the domain
-func (e *server) RoleCreate(user User, domain Domain, role Role) error {
-	if err := e.ObjectDataCreateCheck(user, domain, role, ObjectTypeRole); err != nil {
+func (s *server) RoleCreate(user User, domain Domain, role Role) error {
+	if err := s.ObjectDataCreateCheck(user, domain, role, ObjectTypeRole); err != nil {
 		return err
 	}
-	if err := e.RoleParentCheck(role); err != nil {
+	if err := s.RoleParentCheck(role); err != nil {
 		return err
 	}
 	role.SetDomainID(domain.GetID())
-	if err := e.DB.Create(role); err != nil {
+	if err := s.DB.Create(role); err != nil {
 		return err
 	}
-	updater := e.DefaultRoleUpdater()
+	updater := s.DefaultRoleUpdater()
 	return updater.Run(role, domain)
 }
 
@@ -25,18 +25,18 @@ func (e *server) RoleCreate(user User, domain Domain, role Role) error {
 // 1. current user has role's write permission
 // 2. recover the soft delete one role at metadata database
 // 3. set role to parent's g in the domain
-func (e *server) RoleRecover(user User, domain Domain, role Role) error {
-	if err := e.ObjectDataRecoverCheck(user, domain, role); err != nil {
+func (s *server) RoleRecover(user User, domain Domain, role Role) error {
+	if err := s.ObjectDataRecoverCheck(user, domain, role); err != nil {
 		return err
 	}
-	if err := e.RoleParentCheck(role); err != nil {
+	if err := s.RoleParentCheck(role); err != nil {
 		return err
 	}
 	role.SetDomainID(domain.GetID())
-	if err := e.DB.Recover(role); err != nil {
+	if err := s.DB.Recover(role); err != nil {
 		return err
 	}
-	updater := e.DefaultRoleUpdater()
+	updater := s.DefaultRoleUpdater()
 	return updater.Run(role, domain)
 }
 
@@ -47,15 +47,15 @@ func (e *server) RoleRecover(user User, domain Domain, role Role) error {
 // 2. delete role's p in the domain
 // 3. soft delete one role in metadata database
 // 4. delete all son of the role in the domain
-func (e *server) RoleDelete(user User, domain Domain, role Role) error {
-	if err := e.ObjectDataDeleteCheck(user, domain, role); err != nil {
+func (s *server) RoleDelete(user User, domain Domain, role Role) error {
+	if err := s.ObjectDataDeleteCheck(user, domain, role); err != nil {
 		return err
 	}
-	if err := e.RoleParentCheck(role); err != nil {
+	if err := s.RoleParentCheck(role); err != nil {
 		return err
 	}
 	role.SetDomainID(domain.GetID())
-	deleter := NewTreeNodeDeleter(e.DefaultRoleChildrenGetFunc(), e.DefaultRoleDeleteFunc())
+	deleter := NewTreeNodeDeleter(s.DefaultRoleChildrenGetFunc(), s.DefaultRoleDeleteFunc())
 	return deleter.Run(role, domain)
 }
 
@@ -64,28 +64,28 @@ func (e *server) RoleDelete(user User, domain Domain, role Role) error {
 // 1. current user has role's write permission and
 // 2. update role's properties
 // 3. update role to parent's g in the domain
-func (e *server) RoleUpdate(user User, domain Domain, role Role) error {
-	if err := e.RoleUpdateCheck(user, domain, role); err != nil {
+func (s *server) RoleUpdate(user User, domain Domain, role Role) error {
+	if err := s.RoleUpdateCheck(user, domain, role); err != nil {
 		return err
 	}
-	if err := e.RoleParentCheck(role); err != nil {
+	if err := s.RoleParentCheck(role); err != nil {
 		return err
 	}
 	role.SetDomainID(domain.GetID())
-	if err := e.DB.Update(role); err != nil {
+	if err := s.DB.Update(role); err != nil {
 		return err
 	}
-	updater := e.DefaultRoleUpdater()
+	updater := s.DefaultRoleUpdater()
 	return updater.Run(role, domain)
 }
 
 // RoleGet
 // get role
 // 1. current user has role's read permission
-func (e *server) RoleGet(user User, domain Domain) ([]Role, error) {
-	roles, err := e.DB.GetRoleInDomain(domain)
+func (s *server) RoleGet(user User, domain Domain) ([]Role, error) {
+	roles, err := s.DB.GetRoleInDomain(domain)
 	if err != nil {
 		return nil, err
 	}
-	return Filter(e.Enforcer, user, domain, Read, roles), nil
+	return Filter(s.Enforcer, user, domain, Read, roles), nil
 }

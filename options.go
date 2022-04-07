@@ -17,6 +17,13 @@ type Option func(*Options)
 
 // Options configuration for caskin
 type Options struct {
+	// default caskin option
+	DefaultSeparator            string `json:"default_separator"`
+	DefaultSuperadminDomainID   uint64 `json:"default_superadmin_domain_id"`
+	DefaultSuperadminDomainName string `json:"default_superadmin_domain_name"`
+	DefaultSuperadminRoleID     uint64 `json:"default_superadmin_role_id"`
+	DefaultSuperadminRoleName   string `json:"default_superadmin_role_name"`
+	DefaultNoPermissionObject   string `json:"default_no_permission_object"`
 	// options for implementations of the interface
 	Enforcer casbin.IEnforcer `json:"-"`
 	MetaDB   MetaDB           `json:"-"`
@@ -27,20 +34,6 @@ func (o *Options) newOptions(opts ...Option) *Options {
 		v(o)
 	}
 	return o
-}
-
-func GetSuperadminRole() Role {
-	return &SampleSuperadminRole{
-		ID:   DefaultSuperadminRoleID,
-		Name: DefaultSuperadminRoleName,
-	}
-}
-
-func GetSuperadminDomain() Domain {
-	return &SampleSuperadminDomain{
-		ID:   DefaultSuperadminDomainID,
-		Name: DefaultSuperadminDomainName,
-	}
 }
 
 // EnforcerOption set the casbin.IEnforcer for the options

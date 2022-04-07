@@ -1,6 +1,7 @@
 package caskin_test
 
 import (
+	"github.com/awatercolorpen/caskin/playground"
 	"testing"
 
 	"github.com/awatercolorpen/caskin"
@@ -9,7 +10,7 @@ import (
 )
 
 func TestExecutorObjectData_CreateCheck(t *testing.T) {
-	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
 	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 
@@ -34,7 +35,7 @@ func TestExecutorObjectData_CreateCheck(t *testing.T) {
 }
 
 func TestExecutorObjectData_RecoverCheck(t *testing.T) {
-	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
 	assert.NoError(t, stage.AddSubAdmin())
 	provider := caskin.NewCachedProvider(nil, nil)
 	provider.User = stage.AdminUser
@@ -62,7 +63,7 @@ func TestExecutorObjectData_RecoverCheck(t *testing.T) {
 }
 
 func TestExecutorObjectData_DeleteCheck(t *testing.T) {
-	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
 	assert.NoError(t, stage.AddSubAdmin())
 	provider := caskin.NewCachedProvider(nil, nil)
 
@@ -89,7 +90,7 @@ func TestExecutorObjectData_DeleteCheck(t *testing.T) {
 }
 
 func TestExecutorObjectData_UpdateCheck(t *testing.T) {
-	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
 	assert.NoError(t, stage.AddSubAdmin())
 	provider := caskin.NewCachedProvider(nil, nil)
 
@@ -136,7 +137,7 @@ func TestExecutorObjectData_UpdateCheck(t *testing.T) {
 }
 
 func TestExecutorObjectData_Enforce(t *testing.T) {
-	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
 	assert.NoError(t, stage.AddSubAdmin())
 	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
@@ -165,7 +166,7 @@ func TestExecutorObjectData_Enforce(t *testing.T) {
 }
 
 func TestExecutorObjectData_FilterObjectData(t *testing.T) {
-	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
 	assert.NoError(t, stage.AddSubAdmin())
 	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)

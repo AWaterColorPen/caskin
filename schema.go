@@ -26,12 +26,12 @@ type Role interface {
 
 type Object interface {
 	idInterface
-	nameInterface
+	// nameInterface // TODO
 	codeInterface
 	parentInterface
 	domainInterface
 	GetObjectType() ObjectType
-	SetObjectType(ObjectType)
+	// SetObjectType(ObjectType) // TODO
 }
 
 type ObjectData interface {

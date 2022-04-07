@@ -20,7 +20,7 @@ type IBaseService interface {
 	DomainDelete(Domain) error
 	DomainUpdate(Domain) error
 	DomainGet() ([]Domain, error)
-	DomainInitialize(Domain) error
+	DomainReset(Domain) error
 
 	ObjectCreate(User, Domain, Object) error
 	ObjectRecover(User, Domain, Object) error
@@ -71,6 +71,7 @@ type IFeatureService interface {
 	FeaturePolicyGet(User, Domain) ([]*Policy, error)
 	FeaturePolicyByRoleGet(User, Domain, Role) ([]*Policy, error)
 	FeaturePolicyPerRoleModify(User, Domain, Role, []*Policy) error
+	FeatureReset(Domain) error
 }
 
 type ICreatorService interface {

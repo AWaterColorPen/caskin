@@ -3,33 +3,29 @@ package caskin
 // SuperadminAdd
 // add the user as superadmin role in superadmin domain
 // 1. no permission checking
-func (e *server) SuperadminAdd(user User) error {
-	return e.writeSuperadminUser(user, e.Enforcer.AddRoleForUserInDomain)
+func (s *server) SuperadminAdd(user User) error {
+	return s.writeSuperadminUser(user, s.Enforcer.AddRoleForUserInDomain)
 }
 
-// SuperadminUserDelete
+// SuperadminDelete
 // delete a user from superadmin
 // 1. no permission checking
-func (e *server) SuperadminDelete(user User) error {
-	return e.writeSuperadminUser(user, e.Enforcer.RemoveRoleForUserInDomain)
+func (s *server) SuperadminDelete(user User) error {
+	return s.writeSuperadminUser(user, s.Enforcer.RemoveRoleForUserInDomain)
 }
 
-// SuperadminUserGet
+// SuperadminGet
 // get all superadmin user
 // 1. no permission checking
-func (e *server) SuperadminGet() ([]User, error) {
-	domain := GetSuperadminDomain()
-	role := GetSuperadminRole()
-	us := e.Enforcer.GetUsersForRoleInDomain(role, domain)
+func (s *server) SuperadminGet() ([]User, error) {
+	us := s.Enforcer.GetUsersForRoleInDomain(GetSuperadminRole(), GetSuperadminDomain())
 	id := ID(us)
-	return e.DB.GetUserByID(id)
+	return s.DB.GetUserByID(id)
 }
 
-func (e *server) writeSuperadminUser(user User, fn func(User, Role, Domain) error) error {
-	if err := e.IDInterfaceValidAndExistsCheck(user); err != nil {
+func (s *server) writeSuperadminUser(user User, fn func(User, Role, Domain) error) error {
+	if err := s.IDInterfaceValidAndExistsCheck(user); err != nil {
 		return err
 	}
-	domain := GetSuperadminDomain()
-	role := GetSuperadminRole()
-	return fn(user, role, domain)
+	return fn(user, GetSuperadminRole(), GetSuperadminDomain())
 }

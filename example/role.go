@@ -24,6 +24,14 @@ func (r *Role) GetID() uint64 {
 	return r.ID
 }
 
+func (r *Role) GetName() string {
+	return r.Name
+}
+
+func (r *Role) SetName(name string) {
+	r.Name = name
+}
+
 func (r *Role) SetID(id uint64) {
 	r.ID = id
 }
@@ -59,12 +67,4 @@ func (r *Role) GetDomainID() uint64 {
 
 func (r *Role) SetDomainID(did uint64) {
 	r.DomainID = did
-}
-
-func (r *Role) GetName() string {
-	return r.Name
-}
-
-func (r *Role) SetName(name string) {
-	r.Name = name
 }

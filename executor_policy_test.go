@@ -1,6 +1,7 @@
 package caskin_test
 
 import (
+	"github.com/awatercolorpen/caskin/playground"
 	"testing"
 
 	"github.com/awatercolorpen/caskin"
@@ -9,7 +10,7 @@ import (
 )
 
 func TestExecutorPolicy_GetPolicyList(t *testing.T) {
-	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
 	assert.NoError(t, stage.AddSubAdmin())
 	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
@@ -42,7 +43,7 @@ func TestExecutorPolicy_GetPolicyList(t *testing.T) {
 }
 
 func TestExecutorPolicy_GetPolicyListFromSubAdmin(t *testing.T) {
-	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
 	assert.NoError(t, stage.AddSubAdmin())
 	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
@@ -56,7 +57,7 @@ func TestExecutorPolicy_GetPolicyListFromSubAdmin(t *testing.T) {
 }
 
 func TestExecutorPolicy_GetPolicyListByRole(t *testing.T) {
-	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
 	assert.NoError(t, stage.AddSubAdmin())
 	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
@@ -91,7 +92,7 @@ func TestExecutorPolicy_GetPolicyListByRole(t *testing.T) {
 }
 
 func TestExecutorPolicy_GetPolicyListByObject(t *testing.T) {
-	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
 	assert.NoError(t, stage.AddSubAdmin())
 	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
@@ -126,7 +127,7 @@ func TestExecutorPolicy_GetPolicyListByObject(t *testing.T) {
 }
 
 func TestExecutorPolicy_ModifyPolicyListPerRole(t *testing.T) {
-	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
 	assert.NoError(t, stage.AddSubAdmin())
 	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
@@ -175,7 +176,7 @@ func TestExecutorPolicy_ModifyPolicyListPerRole(t *testing.T) {
 }
 
 func TestExecutorPolicy_ModifyPolicyListPerObject(t *testing.T) {
-	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
 	assert.NoError(t, stage.AddSubAdmin())
 	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)

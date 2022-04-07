@@ -4,6 +4,10 @@ import (
 	"fmt"
 )
 
+var (
+	DefaultSuperRootName = "github.com/awatercolorpen/caskin/feature"
+)
+
 // Feature it is a package of Backend and Frontend
 type Feature struct {
 	Name        string `json:"name"        toml:"name"`
@@ -81,7 +85,7 @@ type CreatorRole struct {
 }
 
 type CreatorPolicy struct {
-	Object string `json:"object" toml:"object"`
-	Role   string `json:"role"   toml:"role"`
-	Action string `json:"action" toml:"action"`
+	Object string   `json:"object" toml:"object"`
+	Role   string   `json:"role"   toml:"role"`
+	Action []string `json:"action" toml:"action"`
 }

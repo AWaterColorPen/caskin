@@ -1,15 +1,43 @@
 feature = [
-    {name = "", description = "", group = ""},
+    {name = "backend"},
+    {name = "frontend"},
+    {name = "feature"},
 ]
 
 backend = [
-    {path = "", method = "", description = "", group = ""},
+    {path = "api/backend", method = "GET"},
+    {path = "api/backend", method = "POST"},
+    {path = "api/frontend", method = "GET"},
+    {path = "api/frontend", method = "POST"},
+    {path = "api/feature", method = "GET"},
+    {path = "api/feature", method = "POST"},
 ]
 
 frontend = [
-    {name = "", type = "", description = "", group = ""},
+    {name = "backend", type = "sub_function"},
+    {name = "frontend", type = "menu"},
+    {name = "feature", type = "menu"},
 ]
 
 package = [
-    {key = "", backend = [], frontend = []},
+    {key = "backend", backend = ["api/backend$$GET", "api/backend$$POST"], frontend = ["backend$$sub_function"]},
+    {key = "frontend", backend = ["api/frontend$$GET", "api/frontend$$POST"], frontend = ["frontend$$menu"]},
+    {key = "feature", backend = ["api/feature$$GET", "api/feature$$POST"], frontend = ["feature$$menu"]},
+]
+
+creator_object = [
+    {name = "role_root", type = "role"},
+    {name = "test_root", type = "test"},
+]
+
+creator_role = [
+    {name = "admin"},
+    {name = "member"},
+]
+
+creator_policy = [
+    {role = "admin", object = "role_root", action = ["read", "write", "manage"]},
+    {role = "admin", object = "test_root", action = ["read", "write", "manage"]},
+    {role = "member", object = "role_root", action = ["read"]},
+    {role = "member", object = "test_root", action = ["read", "write"]},
 ]

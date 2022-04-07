@@ -1,7 +1,8 @@
-package example
+package playground
 
 import (
 	"github.com/awatercolorpen/caskin"
+	"github.com/awatercolorpen/caskin/example"
 )
 
 type DomainCreator struct {
@@ -15,13 +16,13 @@ func NewDomainCreator(domain caskin.Domain) caskin.Creator {
 }
 
 func (d *DomainCreator) BuildCreator() ([]caskin.Role, []caskin.Object) {
-	role0 := &Role{Name: "admin", DomainID: d.domain.GetID()}
-	role1 := &Role{Name: "member", DomainID: d.domain.GetID()}
+	role0 := &example.Role{Name: "admin", DomainID: d.domain.GetID()}
+	role1 := &example.Role{Name: "member", DomainID: d.domain.GetID()}
 	d.roles = []caskin.Role{role0, role1}
 
-	object0 := &Object{Name: string(caskin.ObjectTypeObject), Type: caskin.ObjectTypeObject, DomainID: d.domain.GetID()}
-	object1 := &Object{Name: string(caskin.ObjectTypeRole), Type: caskin.ObjectTypeRole, DomainID: d.domain.GetID()}
-	object2 := &Object{Name: string(caskin.ObjectTypeDefault), Type: caskin.ObjectTypeDefault, DomainID: d.domain.GetID()}
+	object0 := &example.Object{Name: string(caskin.ObjectTypeObject), Type: caskin.ObjectTypeObject, DomainID: d.domain.GetID()}
+	object1 := &example.Object{Name: string(caskin.ObjectTypeRole), Type: caskin.ObjectTypeRole, DomainID: d.domain.GetID()}
+	object2 := &example.Object{Name: string(caskin.ObjectTypeDefault), Type: caskin.ObjectTypeDefault, DomainID: d.domain.GetID()}
 	d.objects = []caskin.Object{object0, object1, object2}
 
 	return d.roles, d.objects

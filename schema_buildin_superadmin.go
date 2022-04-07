@@ -73,3 +73,17 @@ func (s *SampleSuperadminDomain) Decode(code string) error {
 	}
 	return nil
 }
+
+func GetSuperadminRole() Role {
+	return &SampleSuperadminRole{
+		ID:   DefaultSuperadminRoleID,
+		Name: DefaultSuperadminRoleName,
+	}
+}
+
+func GetSuperadminDomain() Domain {
+	return &SampleSuperadminDomain{
+		ID:   DefaultSuperadminDomainID,
+		Name: DefaultSuperadminDomainName,
+	}
+}

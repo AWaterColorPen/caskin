@@ -1,6 +1,7 @@
 package caskin_test
 
 import (
+	"github.com/awatercolorpen/caskin/playground"
 	"testing"
 
 	"github.com/awatercolorpen/caskin"
@@ -9,7 +10,7 @@ import (
 )
 
 func TestExecutorObject_Superdomain(t *testing.T) {
-	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
 	assert.NoError(t, stage.AddSubAdmin())
 	provider := caskin.NewCachedProvider(nil, nil)
 	provider.User = stage.SuperadminUser
@@ -61,7 +62,7 @@ func TestExecutorObject_Superdomain(t *testing.T) {
 }
 
 func TestExecutorObject_Superdomain_NoSuperadmin(t *testing.T) {
-	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
 	assert.NoError(t, stage.AddSubAdmin())
 	assert.NoError(t, stage.NoSuperadmin())
 	provider := caskin.NewCachedProvider(nil, nil)

@@ -1,6 +1,7 @@
 package caskin_test
 
 import (
+	"github.com/awatercolorpen/caskin/playground"
 	"testing"
 
 	"github.com/awatercolorpen/caskin"
@@ -9,7 +10,7 @@ import (
 )
 
 func TestExecutorRole_GetRoles(t *testing.T) {
-	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
 	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 
@@ -33,7 +34,7 @@ func TestExecutorRole_GetRoles(t *testing.T) {
 }
 
 func TestExecutorRole_GeneralCreate(t *testing.T) {
-	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
 	assert.NoError(t, stage.AddSubAdmin())
 	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
@@ -71,7 +72,7 @@ func TestExecutorRole_GeneralCreate(t *testing.T) {
 }
 
 func TestExecutorRole_CreateSubNode(t *testing.T) {
-	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
 	assert.NoError(t, stage.AddSubAdmin())
 	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
@@ -107,7 +108,7 @@ func TestExecutorRole_CreateSubNode(t *testing.T) {
 }
 
 func TestExecutorRole_GeneralUpdate(t *testing.T) {
-	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
 	provider := caskin.NewCachedProvider(nil, nil)
 	assert.NoError(t, stage.AddSubAdmin())
 
@@ -148,7 +149,7 @@ func TestExecutorRole_GeneralUpdate(t *testing.T) {
 }
 
 func TestExecutorRole_UpdateParent(t *testing.T) {
-	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
 	provider := caskin.NewCachedProvider(nil, nil)
 	assert.NoError(t, stage.AddSubAdmin())
 
@@ -184,7 +185,7 @@ func TestExecutorRole_UpdateParent(t *testing.T) {
 }
 
 func TestExecutorRole_GeneralRecover(t *testing.T) {
-	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
 	assert.NoError(t, stage.AddSubAdmin())
 
 	provider := caskin.NewCachedProvider(nil, nil)
@@ -220,7 +221,7 @@ func TestExecutorRole_GeneralRecover(t *testing.T) {
 }
 
 func TestExecutorRole_GeneralDelete(t *testing.T) {
-	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
 	provider := caskin.NewCachedProvider(nil, nil)
 	assert.NoError(t, stage.AddSubAdmin())
 
@@ -248,7 +249,7 @@ func TestExecutorRole_GeneralDelete(t *testing.T) {
 }
 
 func TestExecutorRole_DeleteSubNode(t *testing.T) {
-	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
 	provider := caskin.NewCachedProvider(nil, nil)
 	assert.NoError(t, stage.AddSubAdmin())
 

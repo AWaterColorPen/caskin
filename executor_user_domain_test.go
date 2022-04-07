@@ -1,15 +1,15 @@
 package caskin_test
 
 import (
+	"github.com/awatercolorpen/caskin/playground"
 	"testing"
 
 	"github.com/awatercolorpen/caskin"
-	"github.com/awatercolorpen/caskin/example"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestExecutorUserDomain_GetUserInDomain(t *testing.T) {
-	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
 	provider := caskin.NewCachedProvider(nil, nil)
 	assert.NoError(t, stage.AddSubAdmin())
 	executor := stage.Caskin.GetExecutor(provider)
@@ -30,7 +30,7 @@ func TestExecutorUserDomain_GetUserInDomain(t *testing.T) {
 }
 
 func TestExecutorUserDomain_GetDomainByUser(t *testing.T) {
-	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
 	provider := caskin.NewCachedProvider(nil, nil)
 	assert.NoError(t, stage.AddSubAdmin())
 	executor := stage.Caskin.GetExecutor(provider)

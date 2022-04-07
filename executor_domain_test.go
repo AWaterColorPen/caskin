@@ -1,6 +1,7 @@
 package caskin_test
 
 import (
+	"github.com/awatercolorpen/caskin/playground"
 	"testing"
 
 	"github.com/awatercolorpen/caskin"
@@ -9,7 +10,7 @@ import (
 )
 
 func TestExecutorDomain_GeneralCreate(t *testing.T) {
-	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
 	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 
@@ -36,7 +37,7 @@ func TestExecutorDomain_GeneralCreate(t *testing.T) {
 }
 
 func TestExecutorDomain_GeneralUpdate(t *testing.T) {
-	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
 	executor := stage.Caskin.GetExecutor(caskin.NewCachedProvider(nil, nil))
 
 	domain1 := &example.Domain{
@@ -54,7 +55,7 @@ func TestExecutorDomain_GeneralUpdate(t *testing.T) {
 }
 
 func TestExecutorDomain_GeneralRecover(t *testing.T) {
-	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
 	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 
@@ -74,7 +75,7 @@ func TestExecutorDomain_GeneralRecover(t *testing.T) {
 }
 
 func TestExecutorDomain_GeneralDelete(t *testing.T) {
-	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
 	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 
@@ -100,7 +101,7 @@ func TestExecutorDomain_GeneralDelete(t *testing.T) {
 }
 
 func TestExecutorDomain_Initialize(t *testing.T) {
-	stage, _ := example.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
 	provider := caskin.NewCachedProvider(nil, nil)
 	executor := stage.Caskin.GetExecutor(provider)
 
@@ -153,7 +154,7 @@ func NewTestCreator(domain caskin.Domain) caskin.Creator {
 }
 
 const (
-	ObjectTypeTest caskin.ObjectType = "test"
+	ObjectTypeTest caskin.ObjectType = "playground"
 )
 
 func (t *testCreator) BuildCreator() ([]caskin.Role, []caskin.Object) {

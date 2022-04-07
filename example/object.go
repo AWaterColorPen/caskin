@@ -64,7 +64,3 @@ func (o *Object) SetName(name string) {
 func (o *Object) GetObjectType() caskin.ObjectType {
 	return o.Type
 }
-
-func (o *Object) SetObjectType(objectType caskin.ObjectType) {
-	o.Type = objectType
-}

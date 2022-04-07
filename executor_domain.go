@@ -4,22 +4,22 @@ package caskin
 // if there does not exist the domain then create a new one
 // 1. no permission checking
 // 2. create a new domain into metadata database
-func (e *server) DomainCreate(domain Domain) error {
-	if err := e.DBCreateCheck(domain); err != nil {
+func (s *server) DomainCreate(domain Domain) error {
+	if err := s.DBCreateCheck(domain); err != nil {
 		return err
 	}
-	return e.DB.Create(domain)
+	return s.DB.Create(domain)
 }
 
 // DomainRecover
 // if there exist the domain but soft deleted then recover it
 // 1. no permission checking
 // 2. recover the soft delete one domain at metadata database
-func (e *server) DomainRecover(domain Domain) error {
-	if err := e.DBRecoverCheck(domain); err != nil {
+func (s *server) DomainRecover(domain Domain) error {
+	if err := s.DBRecoverCheck(domain); err != nil {
 		return err
 	}
-	return e.DB.Recover(domain)
+	return s.DB.Recover(domain)
 }
 
 // DomainDelete
@@ -28,67 +28,67 @@ func (e *server) DomainRecover(domain Domain) error {
 // 2. delete all user's g in the domain
 // 3. don't delete any role's g or object's g2 in the domain
 // 4. soft delete one domain in metadata database
-func (e *server) DomainDelete(domain Domain) error {
-	if err := e.IDInterfaceDeleteCheck(domain); err != nil {
+func (s *server) DomainDelete(domain Domain) error {
+	if err := s.IDInterfaceDeleteCheck(domain); err != nil {
 		return err
 	}
-	if err := e.Enforcer.RemoveUsersInDomain(domain); err != nil {
+	if err := s.Enforcer.RemoveUsersInDomain(domain); err != nil {
 		return err
 	}
-	return e.DB.DeleteByID(domain, domain.GetID())
+	return s.DB.DeleteByID(domain, domain.GetID())
 }
 
 // DomainUpdate
 // if there exist the domain update domain
 // 1. no permission checking
 // 2. just update domain's properties
-func (e *server) DomainUpdate(domain Domain) error {
+func (s *server) DomainUpdate(domain Domain) error {
 	old := newByE(domain)
-	if err := e.IDInterfaceUpdateCheck(domain, old); err != nil {
+	if err := s.IDInterfaceUpdateCheck(domain, old); err != nil {
 		return err
 	}
-	return e.DB.Update(domain)
+	return s.DB.Update(domain)
 }
 
-// DomainInitialize
-// if there exist the domain reinitialize the domain
+// DomainReset
+// if there exist the domain reset the domain
 // 1. no permission checking
 // 2. just reinitialize the domain
-func (e *server) DomainInitialize(domain Domain) error {
+func (s *server) DomainReset(domain Domain) error {
 	old := newByE(domain)
-	if err := e.IDInterfaceUpdateCheck(domain, old); err != nil {
+	if err := s.IDInterfaceUpdateCheck(domain, old); err != nil {
 		return err
 	}
-	return e.initializeDomain(domain)
+	return s.initializeDomain(domain)
 }
 
 // DomainGet
 // get all domain
 // 1. no permission checking
-func (e *server) DomainGet() ([]Domain, error) {
-	return e.DB.GetAllDomain()
+func (s *server) DomainGet() ([]Domain, error) {
+	return s.DB.GetAllDomain()
 }
 
-func (e *server) initializeDomain(domain Domain) error {
+func (s *server) initializeDomain(domain Domain) error {
 	// TODO
-	// creator := e.options.DomainCreator(domain)
+	// creator := s.options.DomainCreator(domain)
 	// roles, objects := creator.BuildCreator()
 	// for _, v := range objects {
-	// 	if err := e.dbUpdateRoleOrObjectWhenInitializeDomain(v); err != nil {
+	// 	if err := s.dbUpdateRoleOrObjectWhenInitializeDomain(v); err != nil {
 	// 		return err
 	// 	}
 	// }
 	//
 	// creator.SetRelation()
 	// for _, v := range roles {
-	// 	if err := e.dbUpdateRoleOrObjectWhenInitializeDomain(v); err != nil {
+	// 	if err := s.dbUpdateRoleOrObjectWhenInitializeDomain(v); err != nil {
 	// 		return err
 	// 	}
 	// }
 	//
 	// policies := creator.GetPolicy()
 	// for _, v := range policies {
-	// 	if err := e.Enforcer.AddPolicyInDomain(v.Role, v.Object, v.Domain, v.Action); err != nil {
+	// 	if err := s.Enforcer.AddPolicyInDomain(v.Role, v.Object, v.Domain, v.Action); err != nil {
 	// 		return err
 	// 	}
 	// }
@@ -96,22 +96,22 @@ func (e *server) initializeDomain(domain Domain) error {
 	return nil
 }
 
-func (e *server) dbUpdateRoleOrObjectWhenInitializeDomain(item roleOrObject) error {
+func (s *server) dbUpdateRoleOrObjectWhenInitializeDomain(item roleOrObject) error {
 	tmp := newByE(item)
 	tmp.SetName(item.GetName())
 	tmp.SetDomainID(item.GetDomainID())
-	switch e.DB.UpsertType(tmp) {
+	switch s.DB.UpsertType(tmp) {
 	case UpsertTypeCreate:
-		return e.DB.Create(item)
+		return s.DB.Create(item)
 	case UpsertTypeRecover:
-		if err := e.DB.Recover(tmp); err != nil {
+		if err := s.DB.Recover(tmp); err != nil {
 			return err
 		}
 		item.SetID(tmp.GetID())
-		return e.DB.Update(item)
+		return s.DB.Update(item)
 	case UpsertTypeUpdate:
 		item.SetID(tmp.GetID())
-		return e.DB.Update(item)
+		return s.DB.Update(item)
 	default:
 		return nil
 	}

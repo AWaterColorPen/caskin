@@ -1,56 +1,9 @@
 package caskin
 
 import (
-	"sort"
-
 	"github.com/ahmetb/go-linq/v3"
+	"golang.org/x/exp/constraints"
 )
-
-func SortedInheritanceRelations(relations InheritanceRelations) InheritanceRelations {
-	var keys []uint64
-	for k := range relations {
-		keys = append(keys, k)
-	}
-
-	sort.SliceStable(keys, func(i, j int) bool {
-		return keys[i] < keys[j]
-	})
-
-	m := InheritanceRelations{}
-	for _, k := range keys {
-		m[k] = relations[k]
-		m[k] = SortedInheritanceRelation(m[k])
-	}
-	return m
-}
-
-func SortedInheritanceRelation(relation InheritanceRelation) InheritanceRelation {
-	sort.SliceStable(relation, func(i, j int) bool {
-		return relation[i] < relation[j]
-	})
-	return relation
-}
-
-func MergedInheritanceRelations(relations ...InheritanceRelations) InheritanceRelations {
-	m := InheritanceRelations{}
-	for _, graph := range relations {
-		for node, adjacency := range graph {
-			if _, ok := m[node]; !ok {
-				m[node] = InheritanceRelation{}
-			}
-			for _, v := range adjacency {
-				m[node] = append(m[node], v)
-			}
-		}
-	}
-
-	for node, adjacency := range m {
-		t := InheritanceRelation{}
-		linq.From(adjacency).Distinct().ToSlice(&t)
-		m[node] = t
-	}
-	return SortedInheritanceRelations(m)
-}
 
 // TopSort root first
 func TopSort[T comparable](graph map[T][]T) []T {
@@ -108,6 +61,12 @@ func Check[T any](e IEnforcer, u User, d Domain, one T, action Action) bool {
 
 // Diff do diff source, target list to get add, remove list
 func Diff(source, target []any) (add, remove []any) {
+	linq.From(source).Except(linq.From(target)).ToSlice(&remove)
+	linq.From(target).Except(linq.From(source)).ToSlice(&add)
+	return
+}
+
+func Diff2[T constraints.Ordered](source, target []T) (add, remove []T) {
 	linq.From(source).Except(linq.From(target)).ToSlice(&remove)
 	linq.From(target).Except(linq.From(source)).ToSlice(&add)
 	return

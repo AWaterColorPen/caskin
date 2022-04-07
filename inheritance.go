@@ -1,19 +1,31 @@
 package caskin
 
-import "sort"
+import (
+	"encoding/json"
+	"golang.org/x/exp/constraints"
+	"golang.org/x/exp/slices"
+	"sort"
 
-// InheritanceRelation value is sons' id list
-type InheritanceRelation = []uint64
-
-// InheritanceRelations key is parent id, value is sons' id list
-type InheritanceRelations = map[uint64]InheritanceRelation
+	"github.com/ahmetb/go-linq/v3"
+)
 
 // InheritanceEdge x is node, y is adjacency
-type InheritanceEdge[T comparable] struct {
-	U, V T
+type InheritanceEdge[T constraints.Ordered] struct {
+	U T `json:"u"`
+	V T `json:"v"`
 }
 
-type EdgeSorter[T comparable] map[T]int
+func (i *InheritanceEdge[T]) Encode(u, v T) string {
+	i.U, i.V = u, v
+	b, _ := json.Marshal(i)
+	return string(b)
+}
+
+func (i *InheritanceEdge[T]) Decode(in string) error {
+	return json.Unmarshal([]byte(in), i)
+}
+
+type EdgeSorter[T constraints.Ordered] map[T]int
 
 func (e EdgeSorter[T]) RootFirstSort(edges []*InheritanceEdge[T]) {
 	sort.Slice(edges, func(i, j int) bool {
@@ -27,10 +39,48 @@ func (e EdgeSorter[T]) LeafFirstSort(edges []*InheritanceEdge[T]) {
 	})
 }
 
-func NewEdgeSorter[T comparable](order []T) EdgeSorter[T] {
+func NewEdgeSorter[T constraints.Ordered](order []T) EdgeSorter[T] {
 	sorter := map[T]int{}
 	for i, v := range order {
 		sorter[v] = i
 	}
 	return sorter
+}
+
+type InheritanceGraph[T constraints.Ordered] map[T][]T
+
+func (g InheritanceGraph[T]) Sort() InheritanceGraph[T] {
+	var keys []T
+	for k := range g {
+		keys = append(keys, k)
+	}
+
+	slices.Sort(keys)
+	m := InheritanceGraph[T]{}
+	for _, k := range keys {
+		m[k] = g[k]
+		slices.Sort(m[k])
+	}
+	return m
+}
+
+func MergeInheritanceGraph[T constraints.Ordered](graphs ...InheritanceGraph[T]) InheritanceGraph[T] {
+	m := InheritanceGraph[T]{}
+	for _, graph := range graphs {
+		for node, adjacency := range graph {
+			if _, ok := m[node]; !ok {
+				m[node] = []T{}
+			}
+			for _, v := range adjacency {
+				m[node] = append(m[node], v)
+			}
+		}
+	}
+
+	for node, adjacency := range m {
+		var t []T
+		linq.From(adjacency).Distinct().ToSlice(&t)
+		m[node] = t
+	}
+	return m.Sort()
 }

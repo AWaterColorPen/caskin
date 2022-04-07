@@ -6,12 +6,12 @@ import "github.com/ahmetb/go-linq/v3"
 // get all policies
 // 1. current user has role and object's read permission in current domain
 // 2. build role's tree
-func (e *server) PolicyGet(user User, domain Domain) ([]*Policy, error) {
-	roles, err := e.RoleGet(user, domain)
+func (s *server) PolicyGet(user User, domain Domain) ([]*Policy, error) {
+	roles, err := s.RoleGet(user, domain)
 	if err != nil {
 		return nil, err
 	}
-	objects, err := e.ObjectGet(user, domain, Manage)
+	objects, err := s.ObjectGet(user, domain, Manage)
 	if err != nil {
 		return nil, err
 	}
@@ -19,7 +19,7 @@ func (e *server) PolicyGet(user User, domain Domain) ([]*Policy, error) {
 	om := IDMap(objects)
 	var list []*Policy
 	for _, v := range roles {
-		policy := e.Enforcer.GetPoliciesForRoleInDomain(v, domain)
+		policy := s.Enforcer.GetPoliciesForRoleInDomain(v, domain)
 		for _, p := range policy {
 			if object, ok := om[p.Object.GetID()]; ok {
 				list = append(list, &Policy{
@@ -38,18 +38,18 @@ func (e *server) PolicyGet(user User, domain Domain) ([]*Policy, error) {
 // PolicyByRoleGet
 // 1. get policy which current user has role and object's read permission in current domain
 // 2. get user to role 's g as Policy in current domain
-func (e *server) PolicyByRoleGet(user User, domain Domain, byRole Role) ([]*Policy, error) {
-	if err := e.ObjectDataGetCheck(user, domain, byRole); err != nil {
+func (s *server) PolicyByRoleGet(user User, domain Domain, byRole Role) ([]*Policy, error) {
+	if err := s.ObjectDataGetCheck(user, domain, byRole); err != nil {
 		return nil, err
 	}
-	objects, err := e.ObjectGet(user, domain, Manage)
+	objects, err := s.ObjectGet(user, domain, Manage)
 	if err != nil {
 		return nil, err
 	}
 
 	om := IDMap(objects)
 	var list []*Policy
-	policy := e.Enforcer.GetPoliciesForRoleInDomain(byRole, domain)
+	policy := s.Enforcer.GetPoliciesForRoleInDomain(byRole, domain)
 	for _, p := range policy {
 		if object, ok := om[p.Object.GetID()]; ok {
 			list = append(list, &Policy{
@@ -67,18 +67,18 @@ func (e *server) PolicyByRoleGet(user User, domain Domain, byRole Role) ([]*Poli
 // PolicyByObjectGet
 // 1. get policy which current user has role and object's read permission in current domain
 // 2. get user to role 's g as Policy in current domain
-func (e *server) PolicyByObjectGet(user User, domain Domain, byObject Object) ([]*Policy, error) {
-	if err := e.ObjectManageCheck(user, domain, byObject); err != nil {
+func (s *server) PolicyByObjectGet(user User, domain Domain, byObject Object) ([]*Policy, error) {
+	if err := s.ObjectManageCheck(user, domain, byObject); err != nil {
 		return nil, err
 	}
-	roles, err := e.RoleGet(user, domain)
+	roles, err := s.RoleGet(user, domain)
 	if err != nil {
 		return nil, err
 	}
 
 	rm := IDMap(roles)
 	var list []*Policy
-	policy := e.Enforcer.GetPoliciesForObjectInDomain(byObject, domain)
+	policy := s.Enforcer.GetPoliciesForObjectInDomain(byObject, domain)
 	for _, p := range policy {
 		if role, ok := rm[p.Role.GetID()]; ok {
 			list = append(list, &Policy{
@@ -96,8 +96,8 @@ func (e *server) PolicyByObjectGet(user User, domain Domain, byObject Object) ([
 // PolicyPerRoleModify
 // if current user has role and object's write permission
 // 1. modify role to object 's p in current domain
-func (e *server) PolicyPerRoleModify(user User, domain Domain, perRole Role, input []*Policy) error {
-	if err := e.ObjectDataModifyCheck(user, domain, perRole); err != nil {
+func (s *server) PolicyPerRoleModify(user User, domain Domain, perRole Role, input []*Policy) error {
+	if err := s.ObjectDataModifyCheck(user, domain, perRole); err != nil {
 		return err
 	}
 	list := PolicyList(input)
@@ -105,7 +105,7 @@ func (e *server) PolicyPerRoleModify(user User, domain Domain, perRole Role, inp
 		return err
 	}
 
-	policy := e.Enforcer.GetPoliciesForRoleInDomain(perRole, domain)
+	policy := s.Enforcer.GetPoliciesForRoleInDomain(perRole, domain)
 	var oid, oid1, oid2 []uint64
 	for _, v := range policy {
 		oid1 = append(oid1, v.Object.GetID())
@@ -116,11 +116,11 @@ func (e *server) PolicyPerRoleModify(user User, domain Domain, perRole Role, inp
 	oid = append(oid, oid1...)
 	oid = append(oid, oid2...)
 	linq.From(oid).Distinct().ToSlice(&oid)
-	objects, err := e.DB.GetObjectByID(oid)
+	objects, err := s.DB.GetObjectByID(oid)
 	if err != nil {
 		return err
 	}
-	objects = Filter(e.Enforcer, user, domain, Manage, objects)
+	objects = Filter(s.Enforcer, user, domain, Manage, objects)
 	om := IDMap(objects)
 
 	// make source and target role id list
@@ -139,12 +139,12 @@ func (e *server) PolicyPerRoleModify(user User, domain Domain, perRole Role, inp
 	// get diff to add and remove
 	add, remove := DiffPolicy(source, target)
 	for _, v := range add {
-		if err = e.Enforcer.AddPolicyInDomain(v.Role, v.Object, v.Domain, v.Action); err != nil {
+		if err = s.Enforcer.AddPolicyInDomain(v.Role, v.Object, v.Domain, v.Action); err != nil {
 			return err
 		}
 	}
 	for _, v := range remove {
-		if err = e.Enforcer.RemovePolicyInDomain(v.Role, v.Object, v.Domain, v.Action); err != nil {
+		if err = s.Enforcer.RemovePolicyInDomain(v.Role, v.Object, v.Domain, v.Action); err != nil {
 			return err
 		}
 	}
@@ -155,8 +155,8 @@ func (e *server) PolicyPerRoleModify(user User, domain Domain, perRole Role, inp
 // PolicyPerObjectModify
 // if current user has role and object's write permission
 // 1. modify role to object 's p in current domain
-func (e *server) PolicyPerObjectModify(user User, domain Domain, perObject Object, input []*Policy) error {
-	if err := e.ObjectManageCheck(user, domain, perObject); err != nil {
+func (s *server) PolicyPerObjectModify(user User, domain Domain, perObject Object, input []*Policy) error {
+	if err := s.ObjectManageCheck(user, domain, perObject); err != nil {
 		return err
 	}
 	list := PolicyList(input)
@@ -164,7 +164,7 @@ func (e *server) PolicyPerObjectModify(user User, domain Domain, perObject Objec
 		return err
 	}
 
-	policy := e.Enforcer.GetPoliciesForObjectInDomain(perObject, domain)
+	policy := s.Enforcer.GetPoliciesForObjectInDomain(perObject, domain)
 	var rid, rid1, rid2 []uint64
 	for _, v := range policy {
 		rid1 = append(rid1, v.Role.GetID())
@@ -175,11 +175,11 @@ func (e *server) PolicyPerObjectModify(user User, domain Domain, perObject Objec
 	rid = append(rid, rid1...)
 	rid = append(rid, rid2...)
 	linq.From(rid).Distinct().ToSlice(&rid)
-	roles, err := e.DB.GetRoleByID(rid)
+	roles, err := s.DB.GetRoleByID(rid)
 	if err != nil {
 		return err
 	}
-	roles = Filter(e.Enforcer, user, domain, Write, roles)
+	roles = Filter(s.Enforcer, user, domain, Write, roles)
 	rm := IDMap(roles)
 
 	// make source and target role id list
@@ -198,12 +198,12 @@ func (e *server) PolicyPerObjectModify(user User, domain Domain, perObject Objec
 	// get diff to add and remove
 	add, remove := DiffPolicy(source, target)
 	for _, v := range add {
-		if err = e.Enforcer.AddPolicyInDomain(v.Role, v.Object, v.Domain, v.Action); err != nil {
+		if err = s.Enforcer.AddPolicyInDomain(v.Role, v.Object, v.Domain, v.Action); err != nil {
 			return err
 		}
 	}
 	for _, v := range remove {
-		if err = e.Enforcer.RemovePolicyInDomain(v.Role, v.Object, v.Domain, v.Action); err != nil {
+		if err = s.Enforcer.RemovePolicyInDomain(v.Role, v.Object, v.Domain, v.Action); err != nil {
 			return err
 		}
 	}

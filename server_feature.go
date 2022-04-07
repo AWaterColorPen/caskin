@@ -23,7 +23,7 @@ func (s *server) BackendAuth(user User, domain Domain, backend *Backend) error {
 	return nil
 }
 
-func (s *server) AuthFrontend(user User, domain Domain) []*Frontend {
+func (s *server) FrontendAuth(user User, domain Domain) []*Frontend {
 	var out []*Frontend
 	frontend, _ := s.Dictionary.GetFrontend()
 	for _, v := range frontend {
@@ -140,5 +140,9 @@ func (s *server) FeaturePolicyPerRoleModify(user User, domain Domain, perRole Ro
 		}
 	}
 
+	return nil
+}
+
+func (s *server) FeatureReset(domain Domain) error {
 	return nil
 }
