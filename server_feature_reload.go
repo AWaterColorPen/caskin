@@ -31,7 +31,7 @@ func (s *server) FeatureReload(domain Domain) error {
 	index := TopSort(graph)
 	sorter := NewEdgeSorter(index)
 
-	add, remove := Diff2(source, target)
+	add, remove := Diff(source, target)
 	if err := inheritanceAction(add, domain, sorter.RootFirstSort, s.Enforcer.AddParentForObjectInDomain); err != nil {
 		return err
 	}

@@ -60,13 +60,7 @@ func Check[T any](e IEnforcer, u User, d Domain, one T, action Action) bool {
 }
 
 // Diff do diff source, target list to get add, remove list
-func Diff(source, target []any) (add, remove []any) {
-	linq.From(source).Except(linq.From(target)).ToSlice(&remove)
-	linq.From(target).Except(linq.From(source)).ToSlice(&add)
-	return
-}
-
-func Diff2[T constraints.Ordered](source, target []T) (add, remove []T) {
+func Diff[T constraints.Ordered](source, target []T) (add, remove []T) {
 	linq.From(source).Except(linq.From(target)).ToSlice(&remove)
 	linq.From(target).Except(linq.From(source)).ToSlice(&add)
 	return

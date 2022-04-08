@@ -45,10 +45,6 @@ func (b *BaseMetadataDB) TakeUnscoped(item any) error {
 	return b.DB.Unscoped().Where(item).Take(item).Error
 }
 
-func (b *BaseMetadataDB) First(item any, cond ...any) error {
-	return b.DB.First(item, cond...).Error
-}
-
 func (b *BaseMetadataDB) Find(items any, cond ...any) error {
 	return b.DB.Find(items, cond...).Error
 }

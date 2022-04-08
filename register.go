@@ -5,25 +5,27 @@ import (
 	"reflect"
 )
 
+var defaultRegister = &builtinRegister{}
+var defaultFactory = (*builtinFactory)(defaultRegister)
+
+func DefaultRegister() Register {
+	return defaultRegister
+}
+
+func DefaultFactory() Factory {
+	return defaultFactory
+}
+
 type Register interface {
 	Register([]User, []Role, []Object, []Domain)
 	Factory() Factory
 }
 
-type defaultRegister struct {
+type builtinRegister struct {
 	user   []User
 	role   []Role
 	object []Object
 	domain []Domain
-}
-
-func (d *defaultRegister) Register(user []User, role []Role, object []Object, domain []Domain) {
-	d.user, d.role, d.object, d.domain = user, role, object, domain
-}
-
-func (d *defaultRegister) Factory() Factory {
-	f := defaultFactory(*d)
-	return &f
 }
 
 type Factory interface {
@@ -33,22 +35,33 @@ type Factory interface {
 	Domain(string) (Domain, error)
 }
 
-type defaultFactory defaultRegister
-
-func (d *defaultFactory) User(code string) (User, error) {
-	return decode(code, d.user)
+func (b *builtinRegister) Register(user []User, role []Role, object []Object, domain []Domain) {
+	b.user, b.role, b.object, b.domain = user, role, object, domain
+	// builtin
+	b.object = append(b.object, &NamedObject{})
 }
 
-func (d *defaultFactory) Role(code string) (Role, error) {
-	return decode(code, d.role)
+func (b *builtinRegister) Factory() Factory {
+	f := builtinFactory(*b)
+	return &f
 }
 
-func (d *defaultFactory) Object(code string) (Object, error) {
-	return decode(code, d.object)
+type builtinFactory builtinRegister
+
+func (b *builtinFactory) User(code string) (User, error) {
+	return decode(code, b.user)
 }
 
-func (d *defaultFactory) Domain(code string) (Domain, error) {
-	return decode(code, d.domain)
+func (b *builtinFactory) Role(code string) (Role, error) {
+	return decode(code, b.role)
+}
+
+func (b *builtinFactory) Object(code string) (Object, error) {
+	return decode(code, b.object)
+}
+
+func (b *builtinFactory) Domain(code string) (Domain, error) {
+	return decode(code, b.domain)
 }
 
 func decode[T codeInterface](code string, candidate []T) (T, error) {

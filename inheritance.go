@@ -2,11 +2,11 @@ package caskin
 
 import (
 	"encoding/json"
-	"golang.org/x/exp/constraints"
-	"golang.org/x/exp/slices"
 	"sort"
 
 	"github.com/ahmetb/go-linq/v3"
+	"golang.org/x/exp/constraints"
+	"golang.org/x/exp/slices"
 )
 
 // InheritanceEdge x is node, y is adjacency

@@ -8,7 +8,7 @@ import (
 )
 
 func TestNewStage(t *testing.T) {
-	stage, err := playground.NewStageWithSqlitePath(t.TempDir())
+	stage, err := playground.NewPlaygroundWithSqlitePath(t.TempDir())
 	assert.NoError(t, err)
 	assert.NoError(t, stage.AddSubAdmin())
 	assert.NoError(t, stage.NoSuperadmin())

@@ -11,7 +11,6 @@ type MetaDB interface {
 	UpsertType(any) UpsertType
 	Take(any) error
 	TakeUnscoped(any) error
-	First(any, ...any) error
 	Find(any, ...any) error
 	DeleteByID(any, uint64) error
 
@@ -29,4 +28,20 @@ type MetaDB interface {
 	// Domain API
 	GetDomainByID([]uint64) ([]Domain, error)
 	GetAllDomain() ([]Domain, error)
+}
+
+func GetByID[T any](db MetaDB, id []uint64) ([]T, error) {
+	var out []T
+	if err := db.Find(&out, "id IN ?", id); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func GetInDomain[T any](db MetaDB, domain Domain) ([]T, error) {
+	var out []T
+	if err := db.Find(&out, "domain_id = ?", domain.GetID()); err != nil {
+		return nil, err
+	}
+	return out, nil
 }

@@ -108,7 +108,7 @@ func (s *server) UserRolePerUserModify(user User, domain Domain, perUser User, i
 	rm := IDMap(roles)
 
 	// make source and target role id list
-	var source, target []any
+	var source, target []uint64
 	for _, v := range rid1 {
 		if _, ok := rm[v]; ok {
 			source = append(source, v)
@@ -123,13 +123,13 @@ func (s *server) UserRolePerUserModify(user User, domain Domain, perUser User, i
 	// get diff to add and remove
 	add, remove := Diff(source, target)
 	for _, v := range add {
-		r := rm[v.(uint64)]
+		r := rm[v]
 		if err = s.Enforcer.AddRoleForUserInDomain(user, r, domain); err != nil {
 			return err
 		}
 	}
 	for _, v := range remove {
-		r := rm[v.(uint64)]
+		r := rm[v]
 		if err = s.Enforcer.RemoveRoleForUserInDomain(user, r, domain); err != nil {
 			return err
 		}
@@ -166,7 +166,7 @@ func (s *server) UserRolePerRoleModify(user User, domain Domain, perRole Role, i
 	um := IDMap(users)
 
 	// make source and target role id list
-	var source, target []any
+	var source, target []uint64
 	for _, v := range uid1 {
 		if _, ok := um[v]; ok {
 			source = append(source, v)
@@ -181,13 +181,13 @@ func (s *server) UserRolePerRoleModify(user User, domain Domain, perRole Role, i
 	// get diff to add and remove
 	add, remove := Diff(source, target)
 	for _, v := range add {
-		u := um[v.(uint64)]
+		u := um[v]
 		if err = s.Enforcer.AddRoleForUserInDomain(u, perRole, domain); err != nil {
 			return err
 		}
 	}
 	for _, v := range remove {
-		u := um[v.(uint64)]
+		u := um[v]
 		if err = s.Enforcer.RemoveRoleForUserInDomain(u, perRole, domain); err != nil {
 			return err
 		}

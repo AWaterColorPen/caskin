@@ -4,6 +4,7 @@ import (
 	"github.com/casbin/casbin/v2/model"
 )
 
+// TODO use builtin text
 var (
 	casbinModelText = `[request_definition]
 r = sub, dom, obj, act

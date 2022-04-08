@@ -76,15 +76,3 @@ type IFeatureService interface {
 
 type ICreatorService interface {
 }
-
-type server struct {
-	Enforcer   IEnforcer
-	DB         MetaDB
-	Dictionary IDictionary
-}
-
-type currentServer struct {
-	server
-	CurrentUser   User
-	CurrentDomain Domain
-}

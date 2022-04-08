@@ -1,19 +1,22 @@
 package caskin
 
+type server struct {
+	Enforcer   IEnforcer
+	DB         MetaDB
+	Dictionary IDictionary
+}
+
+type currentServer struct {
+	server
+	CurrentUser   User
+	CurrentDomain Domain
+}
+
 func New(options *Options, opts ...Option) (IService, error) {
 	options = options.newOptions(opts...)
 	// set default caskin option
-	if options.DefaultSeparator != "" {
-		DefaultSeparator = options.DefaultSeparator
-	}
-	if options.DefaultSuperadminDomainID != 0 {
-		DefaultSuperadminDomainID = options.DefaultSuperadminDomainID
-	}
 	if options.DefaultSuperadminDomainName != "" {
 		DefaultSuperadminDomainName = options.DefaultSuperadminDomainName
-	}
-	if options.DefaultSuperadminRoleID != 0 {
-		DefaultSuperadminRoleID = options.DefaultSuperadminRoleID
 	}
 	if options.DefaultSuperadminRoleName != "" {
 		DefaultSuperadminRoleName = options.DefaultSuperadminRoleName
@@ -25,5 +28,14 @@ func New(options *Options, opts ...Option) (IService, error) {
 	if options.MetaDB == nil {
 		return nil, ErrInitializationNilMetaDB
 	}
-	return &server{}, nil
+	dictionary, err := NewDictionary(options.Dictionary)
+	if err != nil {
+		return nil, err
+	}
+
+	return &server{
+		Enforcer:   NewEnforcer(options.Enforcer, DefaultFactory()),
+		DB:         options.MetaDB,
+		Dictionary: dictionary,
+	}, nil
 }

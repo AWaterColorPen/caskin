@@ -1,16 +1,11 @@
 package caskin
 
-import (
-	"github.com/casbin/casbin/v2"
-)
+import "github.com/casbin/casbin/v2"
 
 var (
-	DefaultSuperadminRoleID     uint64 = 0
-	DefaultSuperadminDomainID   uint64 = 0
-	DefaultSuperadminRoleName          = "superadmin_role"
-	DefaultSuperadminDomainName        = "superadmin_domain"
-
-	DefaultSeparator = "$$"
+	DefaultSuperadminRoleName   = "superadmin_role"
+	DefaultSuperadminDomainName = "superadmin_domain"
+	DefaultSeparator            = "$$" // TODO don't use $$
 )
 
 type Option func(*Options)
@@ -18,15 +13,13 @@ type Option func(*Options)
 // Options configuration for caskin
 type Options struct {
 	// default caskin option
-	DefaultSeparator            string `json:"default_separator"`
-	DefaultSuperadminDomainID   uint64 `json:"default_superadmin_domain_id"`
-	DefaultSuperadminDomainName string `json:"default_superadmin_domain_name"`
-	DefaultSuperadminRoleID     uint64 `json:"default_superadmin_role_id"`
-	DefaultSuperadminRoleName   string `json:"default_superadmin_role_name"`
-	DefaultNoPermissionObject   string `json:"default_no_permission_object"`
+	DefaultSuperadminDomainName string            `json:"default_superadmin_domain_name"`
+	DefaultSuperadminRoleName   string            `json:"default_superadmin_role_name"`
+	Dictionary                  *DictionaryOption `json:"dictionary"`
+	DB                          *DBOption         `json:"db"`
 	// options for implementations of the interface
 	Enforcer casbin.IEnforcer `json:"-"`
-	MetaDB   MetaDB           `json:"-"`
+	MetaDB   MetaDB           `json:"-"` // TODO don't use MetaDB
 }
 
 func (o *Options) newOptions(opts ...Option) *Options {
@@ -40,12 +33,5 @@ func (o *Options) newOptions(opts ...Option) *Options {
 func EnforcerOption(enforcer casbin.IEnforcer) Option {
 	return func(o *Options) {
 		o.Enforcer = enforcer
-	}
-}
-
-// MetaDBOption set the MetaDB for the options
-func MetaDBOption(metaDB MetaDB) Option {
-	return func(o *Options) {
-		o.MetaDB = metaDB
 	}
 }

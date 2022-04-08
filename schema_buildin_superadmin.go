@@ -38,7 +38,7 @@ func (s *SampleSuperadminRole) SetParentID(uint64) {
 }
 
 func (s *SampleSuperadminRole) GetDomainID() uint64 {
-	return DefaultSuperadminDomainID
+	return 0
 }
 
 func (s *SampleSuperadminRole) SetDomainID(uint64) {
@@ -76,14 +76,14 @@ func (s *SampleSuperadminDomain) Decode(code string) error {
 
 func GetSuperadminRole() Role {
 	return &SampleSuperadminRole{
-		ID:   DefaultSuperadminRoleID,
+		ID:   0,
 		Name: DefaultSuperadminRoleName,
 	}
 }
 
 func GetSuperadminDomain() Domain {
 	return &SampleSuperadminDomain{
-		ID:   DefaultSuperadminDomainID,
+		ID:   0,
 		Name: DefaultSuperadminDomainName,
 	}
 }

@@ -7,7 +7,7 @@ type treeNodeUpdater struct {
 }
 
 func (t *treeNodeUpdater) Run(item treeNode, domain Domain) error {
-	var source, target []any
+	var source, target []uint64
 	if item.GetParentID() != 0 {
 		target = append(target, item.GetParentID())
 	}
@@ -19,14 +19,14 @@ func (t *treeNodeUpdater) Run(item treeNode, domain Domain) error {
 	add, remove := Diff(source, target)
 	for _, v := range add {
 		parent := newByE(item)
-		parent.SetID(v.(uint64))
+		parent.SetID(v)
 		if err := t.parentAdd(item, parent, domain); err != nil {
 			return err
 		}
 	}
 	for _, v := range remove {
 		parent := newByE(item)
-		parent.SetID(v.(uint64))
+		parent.SetID(v)
 		if err := t.parentDel(item, parent, domain); err != nil {
 			return err
 		}

@@ -8,20 +8,14 @@ import (
 	"github.com/BurntSushi/toml"
 )
 
-type DictionaryType string
-
-const (
-	FILEDictionary DictionaryType = "FILE"
-)
-
 type DictionaryOption struct {
-	Type DictionaryType `json:"type"`
-	Dsn  string         `json:"dsn"`
+	Dsn  string `json:"dsn"`
+	Type string `json:"type"`
 }
 
 func NewDictionary(option *DictionaryOption) (IDictionary, error) {
 	switch option.Type {
-	case FILEDictionary, "":
+	case "FILE", "":
 		return newDictionaryByFile(option)
 	default:
 		return nil, fmt.Errorf("not supported dictionary type %v", option.Type)

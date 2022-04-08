@@ -1,14 +1,17 @@
 package playground
 
 import (
+	"path/filepath"
+
 	"github.com/awatercolorpen/caskin"
 	"github.com/awatercolorpen/caskin/example"
+	"github.com/casbin/casbin/v2"
+	gormadapter "github.com/casbin/gorm-adapter/v3"
 )
 
-// Stage example Stage for easy testing
-type Stage struct {
-	Caskin         *caskin.Caskin  // caskin instance on stage
-	Options        *caskin.Options // caskin options on stage
+// Playground example playground for easy testing
+type Playground struct {
+	Service        caskin.IService
 	Domain         *example.Domain // a domain on stage
 	SuperadminUser *example.User   // superadmin user on stage
 	AdminUser      *example.User   // a domain admin user on stage
@@ -16,95 +19,119 @@ type Stage struct {
 	SubAdminUser   *example.User   // a domain sub admin user on stage
 }
 
-func (s *Stage) AddSubAdmin() error {
-	provider := caskin.NewCachedProvider(nil, nil)
-	provider.Domain = s.Domain
-	provider.User = s.AdminUser
-	executor := s.Caskin.GetExecutor(provider)
+func (s *Playground) AddSubAdmin() error {
+	// provider := caskin.NewCachedProvider(nil, nil)
+	// provider.Domain = s.Domain
+	// provider.User = s.AdminUser
+	// executor := s.Caskin.GetExecutor(provider)
+	//
+	// subAdmin := &example.User{
+	// 	PhoneNumber: "123456789031",
+	// 	Email:       "subadmin@qq.com",
+	// }
+	// if err := executor.UserCreate(subAdmin); err != nil {
+	// 	return err
+	// }
+	//
+	// objects, err := executor.GetObjects()
+	// if err != nil {
+	// 	return err
+	// }
+	//
+	// object1 := &example.Object{
+	// 	Name:     "object_sub_01",
+	// 	Type:     caskin.ObjectTypeObject,
+	// 	ObjectID: objects[0].GetID(),
+	// 	ParentID: objects[0].GetID(),
+	// }
+	// if err := executor.CreateObject(object1); err != nil {
+	// 	return err
+	// }
+	// object1.ObjectID = object1.ID
+	// if err := executor.UpdateObject(object1); err != nil {
+	// 	return err
+	// }
+	//
+	// object2 := &example.Object{
+	// 	Name:     "role_sub_02",
+	// 	Type:     caskin.ObjectTypeRole,
+	// 	ObjectID: object1.ID,
+	// 	ParentID: objects[1].GetID(),
+	// }
+	// if err := executor.CreateObject(object2); err != nil {
+	// 	return err
+	// }
+	//
+	// role := &example.Role{
+	// 	Name:     "admin_sub_01",
+	// 	ObjectID: object2.ID,
+	// 	ParentID: 1,
+	// }
+	// if err := executor.CreateRole(role); err != nil {
+	// 	return err
+	// }
+	//
+	// for k, v := range map[caskin.Role][]*caskin.UserRolePair{
+	// 	role: {{User: subAdmin, Role: role}},
+	// } {
+	// 	if err := executor.ModifyUserRolePairPerRole(k, v); err != nil {
+	// 		return err
+	// 	}
+	// }
+	//
+	// policy := []*caskin.Policy{
+	// 	{role, object1, s.Domain, caskin.Read},
+	// 	{role, object1, s.Domain, caskin.Write},
+	// 	{role, object2, s.Domain, caskin.Read},
+	// 	{role, object2, s.Domain, caskin.Write},
+	// }
+	// if err := executor.ModifyPolicyListPerRole(role, policy); err != nil {
+	// 	return err
+	// }
 
-	subAdmin := &example.User{
-		PhoneNumber: "123456789031",
-		Email:       "subadmin@qq.com",
-	}
-	if err := executor.UserCreate(subAdmin); err != nil {
-		return err
-	}
-
-	objects, err := executor.GetObjects()
-	if err != nil {
-		return err
-	}
-
-	object1 := &example.Object{
-		Name:     "object_sub_01",
-		Type:     caskin.ObjectTypeObject,
-		ObjectID: objects[0].GetID(),
-		ParentID: objects[0].GetID(),
-	}
-	if err := executor.CreateObject(object1); err != nil {
-		return err
-	}
-	object1.ObjectID = object1.ID
-	if err := executor.UpdateObject(object1); err != nil {
-		return err
-	}
-
-	object2 := &example.Object{
-		Name:     "role_sub_02",
-		Type:     caskin.ObjectTypeRole,
-		ObjectID: object1.ID,
-		ParentID: objects[1].GetID(),
-	}
-	if err := executor.CreateObject(object2); err != nil {
-		return err
-	}
-
-	role := &example.Role{
-		Name:     "admin_sub_01",
-		ObjectID: object2.ID,
-		ParentID: 1,
-	}
-	if err := executor.CreateRole(role); err != nil {
-		return err
-	}
-
-	for k, v := range map[caskin.Role][]*caskin.UserRolePair{
-		role: {{User: subAdmin, Role: role}},
-	} {
-		if err := executor.ModifyUserRolePairPerRole(k, v); err != nil {
-			return err
-		}
-	}
-
-	policy := []*caskin.Policy{
-		{role, object1, s.Domain, caskin.Read},
-		{role, object1, s.Domain, caskin.Write},
-		{role, object2, s.Domain, caskin.Read},
-		{role, object2, s.Domain, caskin.Write},
-	}
-	if err := executor.ModifyPolicyListPerRole(role, policy); err != nil {
-		return err
-	}
-
-	s.SubAdminUser = subAdmin
+	// s.SubAdminUser = subAdmin
 	return nil
 }
 
-func (s *Stage) NoSuperadmin() error {
-	provider := caskin.NewCachedProvider(nil, nil)
-	executor := s.Caskin.GetExecutor(provider)
-	if err := executor.SuperadminDelete(s.SuperadminUser); err != nil {
-		return err
+func NewPlaygroundWithSqlitePath(sqlitePath string) (*Playground, error) {
+	dbOption := &caskin.DBOption{
+		DSN:  filepath.Join(sqlitePath, "sqlite"),
+		Type: "sqlite",
 	}
 
-	s.SuperadminUser = nil
-	return nil
-}
-
-func NewStageWithSqlitePath(sqlitePath string, options ...func(*manager.Configuration)) (*Stage, error) {
-	m, err := NewManager(sqlitePath, options...)
+	db, err := dbOption.NewDB()
 	if err != nil {
 		return nil, err
 	}
-	return NewStageWithManger(m)
+	err = db.AutoMigrate(&example.User{}, &example.Domain{}, &example.Object{}, &example.OneObjectData{})
+	if err != nil {
+		return nil, err
+	}
+	adapter, err := gormadapter.NewAdapterByDB(db)
+	if err != nil {
+		return nil, err
+	}
+
+	m, err := caskin.CasbinModel()
+	if err != nil {
+		return nil, err
+	}
+
+	enforcer, err := casbin.NewSyncedEnforcer(m, adapter)
+	if err != nil {
+		return nil, err
+	}
+	option := &caskin.Options{
+		Dictionary: &caskin.DictionaryOption{
+			Dsn: "configs/caskin.toml",
+		},
+		DB:       dbOption,
+		Enforcer: enforcer,
+		MetaDB:   example.NewGormMDBByDB(db),
+	}
+	service, err := caskin.New(option)
+	if err != nil {
+		return nil, err
+	}
+	return &Playground{Service: service}, nil
 }
