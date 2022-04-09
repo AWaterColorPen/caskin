@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestExecutorUser_GeneralCreate(t *testing.T) {
+func TestServer_UserCreate(t *testing.T) {
 	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
 	service := stage.Service
 
@@ -17,95 +17,91 @@ func TestExecutorUser_GeneralCreate(t *testing.T) {
 		PhoneNumber: "12345678904",
 		Email:       "member2@qq.com",
 	}
-	assert.NoError(t, executor.UserCreate(user1))
+	assert.NoError(t, service.UserCreate(user1))
 
 	user2 := &example.User{
 		PhoneNumber: "12345678904",
 		Email:       "member2@qq.com",
 	}
-	assert.Equal(t, caskin.ErrAlreadyExists, executor.UserCreate(user2))
+	assert.Equal(t, caskin.ErrAlreadyExists, service.UserCreate(user2))
 
 	user3 := &example.User{
 		PhoneNumber: "12345678904",
 		Email:       "member2@qq.com",
 	}
-	assert.Equal(t, caskin.ErrEmptyID, executor.UserDelete(user3))
+	assert.Equal(t, caskin.ErrEmptyID, service.UserDelete(user3))
 	user3.ID = user2.ID
-	assert.NoError(t, executor.UserDelete(user3))
+	assert.NoError(t, service.UserDelete(user3))
 
 	user4 := &example.User{ID: 5}
-	assert.Equal(t, caskin.ErrNotExists, executor.UserDelete(user4))
-	assert.NoError(t, executor.UserCreate(user4))
+	assert.Equal(t, caskin.ErrNotExists, service.UserDelete(user4))
+	assert.NoError(t, service.UserCreate(user4))
 }
 
-func TestExecutorUser_GeneralUpdate(t *testing.T) {
+func TestServer_UserUpdate(t *testing.T) {
 	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
-	executor := stage.Caskin.GetExecutor(caskin.NewCachedProvider(nil, nil))
+	service := stage.Service
 
 	user1 := &example.User{
 		ID:          stage.MemberUser.ID,
 		PhoneNumber: stage.MemberUser.PhoneNumber,
 		Email:       "member2@qq.com",
 	}
-	assert.NoError(t, executor.UserUpdate(user1))
+	assert.NoError(t, service.UserUpdate(user1))
 
 	user2 := &example.User{
 		PhoneNumber: stage.MemberUser.PhoneNumber,
 	}
-	assert.Equal(t, caskin.ErrEmptyID, executor.UserUpdate(user2))
+	assert.Equal(t, caskin.ErrEmptyID, service.UserUpdate(user2))
 
 	user3 := &example.User{ID: 5}
-	assert.Equal(t, caskin.ErrNotExists, executor.UserUpdate(user3))
+	assert.Equal(t, caskin.ErrNotExists, service.UserUpdate(user3))
 }
 
-func TestExecutorUser_GeneralRecover(t *testing.T) {
+func TestServer_UserRecover(t *testing.T) {
 	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
-
 	service := stage.Service
 
 	user1 := &example.User{
 		PhoneNumber: stage.MemberUser.PhoneNumber,
 	}
-	assert.Equal(t, caskin.ErrAlreadyExists, executor.UserRecover(user1))
-	assert.NoError(t, executor.UserDelete(stage.MemberUser))
+	assert.Equal(t, caskin.ErrAlreadyExists, service.UserRecover(user1))
+	assert.NoError(t, service.UserDelete(stage.MemberUser))
 
 	user2 := &example.User{
 		PhoneNumber: stage.MemberUser.PhoneNumber,
 	}
-	assert.NoError(t, executor.UserRecover(user2))
+	assert.NoError(t, service.UserRecover(user2))
 
 	user3 := &example.User{ID: 5}
-	assert.Equal(t, caskin.ErrNotExists, executor.UserRecover(user3))
+	assert.Equal(t, caskin.ErrNotExists, service.UserRecover(user3))
 }
 
-func TestExecutorUser_GeneralDelete(t *testing.T) {
+func TestServer_UserDelete(t *testing.T) {
 	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
-
 	service := stage.Service
 
 	domain := &example.Domain{Name: "domain_02"}
-	assert.NoError(t, executor.DomainCreate(domain))
-	assert.NoError(t, executor.DomainInitialize(domain))
+	assert.NoError(t, service.DomainCreate(domain))
+	assert.NoError(t, service.DomainReset(domain))
 
-	provider.Domain = domain
-	provider.User = stage.SuperadminUser
-	roles, err := executor.GetRoles()
+	roles, err := service.RoleGet(stage.SuperadminUser, domain)
 	assert.NoError(t, err)
 
 	for k, v := range map[caskin.Role][]*caskin.UserRolePair{
 		roles[0]: {{User: stage.MemberUser, Role: roles[0]}},
 		roles[1]: {{User: stage.AdminUser, Role: roles[1]}},
 	} {
-		assert.NoError(t, executor.ModifyUserRolePairPerRole(k, v))
+		assert.NoError(t, service.UserRolePerRoleModify(stage.SuperadminUser, domain, k, v))
 	}
 
-	assert.NoError(t, executor.UserDelete(stage.SuperadminUser))
-	list1, err := executor.SuperadminGet()
+	assert.NoError(t, service.UserDelete(stage.SuperadminUser))
+	list1, err := service.SuperadminGet()
 	assert.NoError(t, err)
 	assert.Len(t, list1, 0)
 
-	assert.NoError(t, executor.UserDelete(stage.MemberUser))
-	list2, err := executor.GetUserRolePair()
+	assert.NoError(t, service.UserDelete(stage.MemberUser))
+	list2, err := service.UserRoleGet(stage.SuperadminUser, domain)
 	assert.NoError(t, err)
 	assert.Len(t, list2, 1)
 }

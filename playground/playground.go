@@ -29,11 +29,11 @@ func (s *Playground) AddSubAdmin() error {
 	// 	PhoneNumber: "123456789031",
 	// 	Email:       "subadmin@qq.com",
 	// }
-	// if err := executor.UserCreate(subAdmin); err != nil {
+	// if err := service.UserCreate(subAdmin); err != nil {
 	// 	return err
 	// }
 	//
-	// objects, err := executor.GetObjects()
+	// objects, err := service.ObjectGet()
 	// if err != nil {
 	// 	return err
 	// }
@@ -44,11 +44,11 @@ func (s *Playground) AddSubAdmin() error {
 	// 	ObjectID: objects[0].GetID(),
 	// 	ParentID: objects[0].GetID(),
 	// }
-	// if err := executor.CreateObject(object1); err != nil {
+	// if err := service.CreateObject(object1); err != nil {
 	// 	return err
 	// }
 	// object1.ObjectID = object1.ID
-	// if err := executor.UpdateObject(object1); err != nil {
+	// if err := service.UpdateObject(object1); err != nil {
 	// 	return err
 	// }
 	//
@@ -58,7 +58,7 @@ func (s *Playground) AddSubAdmin() error {
 	// 	ObjectID: object1.ID,
 	// 	ParentID: objects[1].GetID(),
 	// }
-	// if err := executor.CreateObject(object2); err != nil {
+	// if err := service.CreateObject(object2); err != nil {
 	// 	return err
 	// }
 	//
@@ -67,14 +67,14 @@ func (s *Playground) AddSubAdmin() error {
 	// 	ObjectID: object2.ID,
 	// 	ParentID: 1,
 	// }
-	// if err := executor.CreateRole(role); err != nil {
+	// if err := service.RoleCreate(role); err != nil {
 	// 	return err
 	// }
 	//
 	// for k, v := range map[caskin.Role][]*caskin.UserRolePair{
 	// 	role: {{User: subAdmin, Role: role}},
 	// } {
-	// 	if err := executor.ModifyUserRolePairPerRole(k, v); err != nil {
+	// 	if err := service.UserRolePerRoleModify(k, v); err != nil {
 	// 		return err
 	// 	}
 	// }
@@ -85,7 +85,7 @@ func (s *Playground) AddSubAdmin() error {
 	// 	{role, object2, s.Domain, caskin.Read},
 	// 	{role, object2, s.Domain, caskin.Write},
 	// }
-	// if err := executor.ModifyPolicyListPerRole(role, policy); err != nil {
+	// if err := service.PolicyPerRoleModify(role, policy); err != nil {
 	// 	return err
 	// }
 

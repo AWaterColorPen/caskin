@@ -74,14 +74,14 @@ func (s *server) initializeDomain(domain Domain) error {
 	// creator := s.options.DomainCreator(domain)
 	// roles, objects := creator.BuildCreator()
 	// for _, v := range objects {
-	// 	if err := s.dbUpdateRoleOrObjectWhenInitializeDomain(v); err != nil {
+	// 	if err := s.dbRoleUpdateOrObjectWhenInitializeDomain(v); err != nil {
 	// 		return err
 	// 	}
 	// }
 	//
 	// creator.SetRelation()
 	// for _, v := range roles {
-	// 	if err := s.dbUpdateRoleOrObjectWhenInitializeDomain(v); err != nil {
+	// 	if err := s.dbRoleUpdateOrObjectWhenInitializeDomain(v); err != nil {
 	// 		return err
 	// 	}
 	// }
@@ -96,7 +96,7 @@ func (s *server) initializeDomain(domain Domain) error {
 	return nil
 }
 
-func (s *server) dbUpdateRoleOrObjectWhenInitializeDomain(item roleOrObject) error {
+func (s *server) dbRoleUpdateOrObjectWhenInitializeDomain(item roleOrObject) error {
 	tmp := newByE(item)
 	tmp.SetName(item.GetName())
 	tmp.SetDomainID(item.GetDomainID())
