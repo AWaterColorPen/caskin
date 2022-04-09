@@ -9,10 +9,10 @@ import (
 )
 
 func TestExecutorUserDomain_GetUserInDomain(t *testing.T) {
-	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
-	provider := caskin.NewCachedProvider(nil, nil)
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
+	
 	assert.NoError(t, stage.AddSubAdmin())
-	executor := stage.Caskin.GetExecutor(provider)
+	service := stage.Service
 
 	provider.Domain = stage.Domain
 	list1, err := executor.GetUserInDomain(stage.Domain)
@@ -30,10 +30,10 @@ func TestExecutorUserDomain_GetUserInDomain(t *testing.T) {
 }
 
 func TestExecutorUserDomain_GetDomainByUser(t *testing.T) {
-	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
-	provider := caskin.NewCachedProvider(nil, nil)
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
+	
 	assert.NoError(t, stage.AddSubAdmin())
-	executor := stage.Caskin.GetExecutor(provider)
+	service := stage.Service
 
 	list1, err := executor.GetDomainByUser(stage.AdminUser)
 	assert.NoError(t, err)

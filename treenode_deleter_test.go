@@ -10,11 +10,11 @@ import (
 )
 
 func TestTreeNodeEntryDeleter_RetryWithRelation(t *testing.T) {
-	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
-	provider := caskin.NewCachedProvider(nil, nil)
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
+	
 	assert.NoError(t, stage.AddSubAdmin())
 
-	executor := stage.Caskin.GetExecutor(provider)
+	service := stage.Service
 
 	object1 := &example.Object{
 		Name:     "object_sub_02",

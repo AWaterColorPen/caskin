@@ -10,10 +10,10 @@ import (
 )
 
 func TestExecutorUserRole_GetUserRolePair(t *testing.T) {
-	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
 	assert.NoError(t, stage.AddSubAdmin())
-	provider := caskin.NewCachedProvider(nil, nil)
-	executor := stage.Caskin.GetExecutor(provider)
+	
+	service := stage.Service
 
 	provider.Domain = stage.Domain
 	provider.User = stage.AdminUser
@@ -36,10 +36,10 @@ func TestExecutorUserRole_GetUserRolePair(t *testing.T) {
 }
 
 func TestExecutorUserRole_GetUserRolePairSubAdmin(t *testing.T) {
-	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
 	assert.NoError(t, stage.AddSubAdmin())
-	provider := caskin.NewCachedProvider(nil, nil)
-	executor := stage.Caskin.GetExecutor(provider)
+	
+	service := stage.Service
 
 	provider.Domain = stage.Domain
 	provider.User = stage.SubAdminUser
@@ -50,10 +50,10 @@ func TestExecutorUserRole_GetUserRolePairSubAdmin(t *testing.T) {
 }
 
 func TestExecutorUserRole_GetUserRolePairByRole(t *testing.T) {
-	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
 	assert.NoError(t, stage.AddSubAdmin())
-	provider := caskin.NewCachedProvider(nil, nil)
-	executor := stage.Caskin.GetExecutor(provider)
+	
+	service := stage.Service
 
 	provider.Domain = stage.Domain
 	provider.User = stage.AdminUser
@@ -85,10 +85,10 @@ func TestExecutorUserRole_GetUserRolePairByRole(t *testing.T) {
 }
 
 func TestExecutorUserRole_GetUserRolePairByUser(t *testing.T) {
-	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
 	assert.NoError(t, stage.AddSubAdmin())
-	provider := caskin.NewCachedProvider(nil, nil)
-	executor := stage.Caskin.GetExecutor(provider)
+	
+	service := stage.Service
 
 	provider.Domain = stage.Domain
 	provider.User = stage.AdminUser
@@ -128,10 +128,10 @@ func TestExecutorUserRole_GetUserRolePairByUser(t *testing.T) {
 }
 
 func TestExecutorUserRole_ModifyUserRolePairPerRole(t *testing.T) {
-	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
 	assert.NoError(t, stage.AddSubAdmin())
-	provider := caskin.NewCachedProvider(nil, nil)
-	executor := stage.Caskin.GetExecutor(provider)
+	
+	service := stage.Service
 
 	provider.Domain = stage.Domain
 	provider.User = stage.AdminUser
@@ -179,10 +179,10 @@ func TestExecutorUserRole_ModifyUserRolePairPerRole(t *testing.T) {
 }
 
 func TestExecutorUserRole_ModifyUserRolePairPerUser(t *testing.T) {
-	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
 	assert.NoError(t, stage.AddSubAdmin())
-	provider := caskin.NewCachedProvider(nil, nil)
-	executor := stage.Caskin.GetExecutor(provider)
+	
+	service := stage.Service
 
 	provider.Domain = stage.Domain
 	provider.User = stage.AdminUser

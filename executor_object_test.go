@@ -10,9 +10,9 @@ import (
 )
 
 func TestExecutorObject_GetObjects(t *testing.T) {
-	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
-	provider := caskin.NewCachedProvider(nil, nil)
-	executor := stage.Caskin.GetExecutor(provider)
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
+	
+	service := stage.Service
 
 	provider.Domain = stage.Domain
 	provider.User = stage.AdminUser
@@ -42,9 +42,9 @@ func TestExecutorObject_GetObjects(t *testing.T) {
 }
 
 func TestExecutorObject_GetExplicitObjects(t *testing.T) {
-	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
-	provider := caskin.NewCachedProvider(nil, nil)
-	executor := stage.Caskin.GetExecutor(provider)
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
+	
+	service := stage.Service
 
 	provider.Domain = stage.Domain
 	provider.User = stage.AdminUser
@@ -66,9 +66,9 @@ func TestExecutorObject_GetExplicitObjects(t *testing.T) {
 }
 
 func TestExecutorObject_GeneralCreate(t *testing.T) {
-	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
-	provider := caskin.NewCachedProvider(nil, nil)
-	executor := stage.Caskin.GetExecutor(provider)
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
+	
+	service := stage.Service
 
 	object1 := &example.Object{
 		Name: "object_01",
@@ -111,10 +111,10 @@ func TestExecutorObject_GeneralCreate(t *testing.T) {
 }
 
 func TestExecutorObject_CreateSubNode(t *testing.T) {
-	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
 	assert.NoError(t, stage.AddSubAdmin())
-	provider := caskin.NewCachedProvider(nil, nil)
-	executor := stage.Caskin.GetExecutor(provider)
+	
+	service := stage.Service
 
 	object1 := &example.Object{
 		Name:     "object_sub_02",
@@ -157,13 +157,13 @@ func TestExecutorObject_CreateSubNode(t *testing.T) {
 }
 
 func TestExecutorObject_GeneralUpdate(t *testing.T) {
-	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
-	provider := caskin.NewCachedProvider(nil, nil)
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
+	
 	assert.NoError(t, stage.AddSubAdmin())
 
 	provider.User = stage.AdminUser
 	provider.Domain = stage.Domain
-	executor := stage.Caskin.GetExecutor(provider)
+	service := stage.Service
 
 	object := &example.Object{
 		ID:       4,
@@ -215,13 +215,13 @@ func TestExecutorObject_GeneralUpdate(t *testing.T) {
 }
 
 func TestExecutorObject_UpdateParent(t *testing.T) {
-	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
-	provider := caskin.NewCachedProvider(nil, nil)
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
+	
 	assert.NoError(t, stage.AddSubAdmin())
 
 	provider.User = stage.AdminUser
 	provider.Domain = stage.Domain
-	executor := stage.Caskin.GetExecutor(provider)
+	service := stage.Service
 
 	object1 := &example.Object{
 		Name:     "role_parent_id_to_5",
@@ -254,12 +254,12 @@ func TestExecutorObject_UpdateParent(t *testing.T) {
 }
 
 func TestExecutorObject_GeneralRecover(t *testing.T) {
-	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
 	assert.NoError(t, stage.AddSubAdmin())
-	provider := caskin.NewCachedProvider(nil, nil)
+	
 	provider.User = stage.AdminUser
 	provider.Domain = stage.Domain
-	executor := stage.Caskin.GetExecutor(provider)
+	service := stage.Service
 
 	object := &example.Object{
 		ID:       4,
@@ -282,13 +282,13 @@ func TestExecutorObject_GeneralRecover(t *testing.T) {
 }
 
 func TestExecutorObject_GeneralDelete(t *testing.T) {
-	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
-	provider := caskin.NewCachedProvider(nil, nil)
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
+	
 	assert.NoError(t, stage.AddSubAdmin())
 
 	provider.User = stage.SubAdminUser
 	provider.Domain = stage.Domain
-	executor := stage.Caskin.GetExecutor(provider)
+	service := stage.Service
 
 	object := &example.Object{}
 	assert.Equal(t, caskin.ErrEmptyID, executor.DeleteObject(object))

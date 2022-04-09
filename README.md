@@ -4,6 +4,21 @@
 
 Caskin is a multi-domain rbac library for Golang projects. It develops base on [caskin](https://github.com/casbin/casbin) 
 
+## Design Goal
+
+### 1. User: the person - 真实用户
+
+### 2. Role: the group of user - 角色=一组用户
+
+### 3. Object: the resource or resource group of authorization node  - 资源=权限节点/权限组
+
+### 4. Domain: organization - 域=组织
+
+| User - 用户 | Role - 角色 | Object -  | Domain - Organization |
+| --- | --- | --- | --- |
+| Header | Title | Header | school-1 |
+| Paragraph | Text | Header | school-2 |
+
 ## Feature
 
 1. Caskin focus on management of authorization business.
@@ -24,3 +39,22 @@ Caskin is a multi-domain rbac library for Golang projects. It develops base on [
 - docs
   - overall design
   - get start
+
+```
+project
+│   README.md
+│   file001.txt    
+│
+└───folder1
+│   │   file011.txt
+│   │   file012.txt
+│   │
+│   └───subfolder1
+│       │   file111.txt
+│       │   file112.txt
+│       │   ...
+│   
+└───folder2
+    │   file021.txt
+    │   file022.txt
+```

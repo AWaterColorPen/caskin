@@ -10,9 +10,9 @@ import (
 )
 
 func TestExecutorObjectData_CreateCheck(t *testing.T) {
-	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
-	provider := caskin.NewCachedProvider(nil, nil)
-	executor := stage.Caskin.GetExecutor(provider)
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
+	
+	service := stage.Service
 
 	data1 := &example.OneObjectData{
 		Name:     "object_data_1",
@@ -35,12 +35,12 @@ func TestExecutorObjectData_CreateCheck(t *testing.T) {
 }
 
 func TestExecutorObjectData_RecoverCheck(t *testing.T) {
-	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
 	assert.NoError(t, stage.AddSubAdmin())
-	provider := caskin.NewCachedProvider(nil, nil)
+	
 	provider.User = stage.AdminUser
 	provider.Domain = stage.Domain
-	executor := stage.Caskin.GetExecutor(provider)
+	service := stage.Service
 
 	data1 := &example.OneObjectData{
 		Name:     "object_data_1",
@@ -63,13 +63,13 @@ func TestExecutorObjectData_RecoverCheck(t *testing.T) {
 }
 
 func TestExecutorObjectData_DeleteCheck(t *testing.T) {
-	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
 	assert.NoError(t, stage.AddSubAdmin())
-	provider := caskin.NewCachedProvider(nil, nil)
+	
 
 	provider.User = stage.AdminUser
 	provider.Domain = stage.Domain
-	executor := stage.Caskin.GetExecutor(provider)
+	service := stage.Service
 
 	data1 := &example.OneObjectData{
 		ObjectID: 4,
@@ -90,13 +90,13 @@ func TestExecutorObjectData_DeleteCheck(t *testing.T) {
 }
 
 func TestExecutorObjectData_UpdateCheck(t *testing.T) {
-	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
 	assert.NoError(t, stage.AddSubAdmin())
-	provider := caskin.NewCachedProvider(nil, nil)
+	
 
 	provider.User = stage.AdminUser
 	provider.Domain = stage.Domain
-	executor := stage.Caskin.GetExecutor(provider)
+	service := stage.Service
 
 	data1 := &example.OneObjectData{
 		Name:     "object_data_1",
@@ -137,10 +137,10 @@ func TestExecutorObjectData_UpdateCheck(t *testing.T) {
 }
 
 func TestExecutorObjectData_Enforce(t *testing.T) {
-	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
 	assert.NoError(t, stage.AddSubAdmin())
-	provider := caskin.NewCachedProvider(nil, nil)
-	executor := stage.Caskin.GetExecutor(provider)
+	
+	service := stage.Service
 
 	provider.Domain = stage.Domain
 	provider.User = stage.MemberUser
@@ -166,10 +166,10 @@ func TestExecutorObjectData_Enforce(t *testing.T) {
 }
 
 func TestExecutorObjectData_FilterObjectData(t *testing.T) {
-	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
 	assert.NoError(t, stage.AddSubAdmin())
-	provider := caskin.NewCachedProvider(nil, nil)
-	executor := stage.Caskin.GetExecutor(provider)
+	
+	service := stage.Service
 
 	data1 := &example.OneObjectData{
 		Name:     "object_data_1",

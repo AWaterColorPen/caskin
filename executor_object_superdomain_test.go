@@ -10,12 +10,12 @@ import (
 )
 
 func TestExecutorObject_Superdomain(t *testing.T) {
-	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
 	assert.NoError(t, stage.AddSubAdmin())
-	provider := caskin.NewCachedProvider(nil, nil)
+	
 	provider.User = stage.SuperadminUser
 	provider.Domain = stage.Options.GetSuperadminDomain()
-	executor := stage.Caskin.GetExecutor(provider)
+	service := stage.Service
 
 	object1 := &example.Object{
 		Name: "object_01",
@@ -62,13 +62,13 @@ func TestExecutorObject_Superdomain(t *testing.T) {
 }
 
 func TestExecutorObject_Superdomain_NoSuperadmin(t *testing.T) {
-	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
 	assert.NoError(t, stage.AddSubAdmin())
 	assert.NoError(t, stage.NoSuperadmin())
-	provider := caskin.NewCachedProvider(nil, nil)
+	
 	provider.User = stage.SuperadminUser
 	provider.Domain = stage.Options.GetSuperadminDomain()
-	executor := stage.Caskin.GetExecutor(provider)
+	service := stage.Service
 
 	object1 := &example.Object{
 		Name: "object_01",

@@ -20,7 +20,7 @@ type Playground struct {
 }
 
 func (s *Playground) AddSubAdmin() error {
-	// provider := caskin.NewCachedProvider(nil, nil)
+	// 
 	// provider.Domain = s.Domain
 	// provider.User = s.AdminUser
 	// executor := s.Caskin.GetExecutor(provider)
@@ -123,7 +123,7 @@ func NewPlaygroundWithSqlitePath(sqlitePath string) (*Playground, error) {
 	}
 	option := &caskin.Options{
 		Dictionary: &caskin.DictionaryOption{
-			Dsn: "configs/caskin.toml",
+			Dsn: "../configs/caskin.toml",
 		},
 		DB:       dbOption,
 		Enforcer: enforcer,

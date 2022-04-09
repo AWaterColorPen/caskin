@@ -10,9 +10,9 @@ import (
 )
 
 func TestExecutorSuperadmin_Add(t *testing.T) {
-	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
-	provider := caskin.NewCachedProvider(nil, nil)
-	executor := stage.Caskin.GetExecutor(provider)
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
+	
+	service := stage.Service
 
 	user1 := &example.User{
 		PhoneNumber: "12345678904",
@@ -29,9 +29,9 @@ func TestExecutorSuperadmin_Add(t *testing.T) {
 }
 
 func TestExecutorSuperadmin_Delete(t *testing.T) {
-	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
-	provider := caskin.NewCachedProvider(nil, nil)
-	executor := stage.Caskin.GetExecutor(provider)
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
+	
+	service := stage.Service
 
 	user1 := &example.User{
 		PhoneNumber: "12345678904",

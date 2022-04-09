@@ -1,63 +1,59 @@
 package caskin_test
 
 import (
-	"github.com/awatercolorpen/caskin/playground"
 	"testing"
 
 	"github.com/awatercolorpen/caskin"
 	"github.com/awatercolorpen/caskin/example"
+	"github.com/awatercolorpen/caskin/playground"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestExecutorDomain_GeneralCreate(t *testing.T) {
-	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
-	provider := caskin.NewCachedProvider(nil, nil)
-	executor := stage.Caskin.GetExecutor(provider)
+func TestServer_DomainCreate_General(t *testing.T) {
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
+	service := stage.Service
 
 	domain1 := &example.Domain{Name: "domain_02"}
-	assert.NoError(t, executor.DomainCreate(domain1))
+	assert.NoError(t, service.DomainCreate(domain1))
 
 	domain2 := &example.Domain{Name: "domain_02"}
-	assert.Equal(t, caskin.ErrAlreadyExists, executor.DomainCreate(domain2))
+	assert.Equal(t, caskin.ErrAlreadyExists, service.DomainCreate(domain2))
 
-	domains1, err := executor.DomainGet()
+	domains1, err := service.DomainGet()
 	assert.NoError(t, err)
 	assert.Len(t, domains1, 2)
 
-	domain3 := &example.Domain{
-		Name: "domain_02",
-	}
-	assert.Equal(t, caskin.ErrEmptyID, executor.DomainDelete(domain3))
+	domain3 := &example.Domain{Name: "domain_02"}
+	assert.Equal(t, caskin.ErrEmptyID, service.DomainDelete(domain3))
 	domain3.ID = domain2.ID
-	assert.NoError(t, executor.DomainDelete(domain3))
+	assert.NoError(t, service.DomainDelete(domain3))
 
 	domain4 := &example.Domain{ID: 5}
-	assert.Equal(t, caskin.ErrNotExists, executor.DomainDelete(domain4))
-	assert.NoError(t, executor.DomainCreate(domain4))
+	assert.Equal(t, caskin.ErrNotExists, service.DomainDelete(domain4))
+	assert.NoError(t, service.DomainCreate(domain4))
 }
 
 func TestExecutorDomain_GeneralUpdate(t *testing.T) {
-	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
-	executor := stage.Caskin.GetExecutor(caskin.NewCachedProvider(nil, nil))
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
+	service := stage.Service
 
 	domain1 := &example.Domain{
 		ID:   stage.Domain.ID,
 		Name: "domain_01_new_name",
 	}
-	assert.NoError(t, executor.DomainUpdate(domain1))
+	assert.NoError(t, service.DomainUpdate(domain1))
 	domain2 := &example.Domain{
 		Name: "domain_01_new_name",
 	}
-	assert.Equal(t, caskin.ErrEmptyID, executor.DomainUpdate(domain2))
+	assert.Equal(t, caskin.ErrEmptyID, service.DomainUpdate(domain2))
 
 	domain3 := &example.Domain{ID: 5}
-	assert.Equal(t, caskin.ErrNotExists, executor.DomainUpdate(domain3))
+	assert.Equal(t, caskin.ErrNotExists, service.DomainUpdate(domain3))
 }
 
 func TestExecutorDomain_GeneralRecover(t *testing.T) {
-	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
-	provider := caskin.NewCachedProvider(nil, nil)
-	executor := stage.Caskin.GetExecutor(provider)
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
+	service := stage.Service
 
 	domain1 := &example.Domain{
 		Name: stage.Domain.Name,
@@ -75,9 +71,9 @@ func TestExecutorDomain_GeneralRecover(t *testing.T) {
 }
 
 func TestExecutorDomain_GeneralDelete(t *testing.T) {
-	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
-	provider := caskin.NewCachedProvider(nil, nil)
-	executor := stage.Caskin.GetExecutor(provider)
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
+
+	service := stage.Service
 
 	assert.NoError(t, executor.DomainDelete(stage.Domain))
 
@@ -100,10 +96,10 @@ func TestExecutorDomain_GeneralDelete(t *testing.T) {
 	assert.Len(t, pairs2, 0)
 }
 
-func TestExecutorDomain_Initialize(t *testing.T) {
-	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
-	provider := caskin.NewCachedProvider(nil, nil)
-	executor := stage.Caskin.GetExecutor(provider)
+func TestExecutorDomain_Reset(t *testing.T) {
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
+
+	service := stage.Service
 
 	domain := &example.Domain{Name: "domain_02"}
 	assert.NoError(t, executor.DomainCreate(domain))
@@ -141,67 +137,4 @@ func TestExecutorDomain_Initialize(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Len(t, objects3, 4)
 	assert.Equal(t, ObjectTypeTest, objects3[2].GetObjectType())
-}
-
-type testCreator struct {
-	domain  caskin.Domain
-	objects []caskin.Object
-	roles   []caskin.Role
-}
-
-func NewTestCreator(domain caskin.Domain) caskin.Creator {
-	return &testCreator{domain: domain}
-}
-
-const (
-	ObjectTypeTest caskin.ObjectType = "playground"
-)
-
-func (t *testCreator) BuildCreator() ([]caskin.Role, []caskin.Object) {
-	role0 := &example.Role{Name: "admin", DomainID: t.domain.GetID()}
-	role1 := &example.Role{Name: "member", DomainID: t.domain.GetID()}
-	t.roles = []caskin.Role{role0, role1}
-
-	object0 := &example.Object{Name: string(caskin.ObjectTypeObject), Type: caskin.ObjectTypeObject, DomainID: t.domain.GetID()}
-	object1 := &example.Object{Name: string(caskin.ObjectTypeRole), Type: caskin.ObjectTypeRole, DomainID: t.domain.GetID()}
-	object2 := &example.Object{Name: string(caskin.ObjectTypeDefault), Type: ObjectTypeTest, DomainID: t.domain.GetID()}
-	object3 := &example.Object{Name: string(ObjectTypeTest), Type: ObjectTypeTest, DomainID: t.domain.GetID()}
-	t.objects = []caskin.Object{object0, object1, object2, object3}
-
-	return t.roles, t.objects
-}
-
-func (t *testCreator) SetRelation() {
-	ooId := t.objects[0].GetID()
-	for _, object := range t.objects {
-		object.SetObjectID(ooId)
-	}
-
-	roId := t.objects[1].GetID()
-	for _, role := range t.roles {
-		role.SetObjectID(roId)
-	}
-}
-
-func (t *testCreator) GetRoles() []caskin.Role {
-	return t.roles
-}
-
-func (t *testCreator) GetObjects() []caskin.Object {
-	return t.objects
-}
-
-func (t *testCreator) GetPolicy() []*caskin.Policy {
-	return []*caskin.Policy{
-		{t.roles[0], t.objects[0], t.domain, caskin.Read},
-		{t.roles[0], t.objects[0], t.domain, caskin.Write},
-		{t.roles[0], t.objects[1], t.domain, caskin.Read},
-		{t.roles[0], t.objects[1], t.domain, caskin.Write},
-		{t.roles[0], t.objects[2], t.domain, caskin.Read},
-		{t.roles[0], t.objects[2], t.domain, caskin.Write},
-		{t.roles[0], t.objects[3], t.domain, caskin.Read},
-		{t.roles[0], t.objects[3], t.domain, caskin.Write},
-		{t.roles[1], t.objects[2], t.domain, caskin.Read},
-		{t.roles[1], t.objects[2], t.domain, caskin.Write},
-	}
 }

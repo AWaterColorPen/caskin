@@ -10,9 +10,8 @@ import (
 )
 
 func TestExecutorUser_GeneralCreate(t *testing.T) {
-	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
-	provider := caskin.NewCachedProvider(nil, nil)
-	executor := stage.Caskin.GetExecutor(provider)
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
+	service := stage.Service
 
 	user1 := &example.User{
 		PhoneNumber: "12345678904",
@@ -40,7 +39,7 @@ func TestExecutorUser_GeneralCreate(t *testing.T) {
 }
 
 func TestExecutorUser_GeneralUpdate(t *testing.T) {
-	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
 	executor := stage.Caskin.GetExecutor(caskin.NewCachedProvider(nil, nil))
 
 	user1 := &example.User{
@@ -60,9 +59,9 @@ func TestExecutorUser_GeneralUpdate(t *testing.T) {
 }
 
 func TestExecutorUser_GeneralRecover(t *testing.T) {
-	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
-	provider := caskin.NewCachedProvider(nil, nil)
-	executor := stage.Caskin.GetExecutor(provider)
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
+
+	service := stage.Service
 
 	user1 := &example.User{
 		PhoneNumber: stage.MemberUser.PhoneNumber,
@@ -80,9 +79,9 @@ func TestExecutorUser_GeneralRecover(t *testing.T) {
 }
 
 func TestExecutorUser_GeneralDelete(t *testing.T) {
-	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
-	provider := caskin.NewCachedProvider(nil, nil)
-	executor := stage.Caskin.GetExecutor(provider)
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
+
+	service := stage.Service
 
 	domain := &example.Domain{Name: "domain_02"}
 	assert.NoError(t, executor.DomainCreate(domain))

@@ -10,9 +10,9 @@ import (
 )
 
 func TestExecutorRole_GetRoles(t *testing.T) {
-	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
-	provider := caskin.NewCachedProvider(nil, nil)
-	executor := stage.Caskin.GetExecutor(provider)
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
+	
+	service := stage.Service
 
 	provider.Domain = stage.Domain
 	provider.User = stage.AdminUser
@@ -34,10 +34,10 @@ func TestExecutorRole_GetRoles(t *testing.T) {
 }
 
 func TestExecutorRole_GeneralCreate(t *testing.T) {
-	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
 	assert.NoError(t, stage.AddSubAdmin())
-	provider := caskin.NewCachedProvider(nil, nil)
-	executor := stage.Caskin.GetExecutor(provider)
+	
+	service := stage.Service
 
 	role1 := &example.Role{
 		Name: "role_01",
@@ -72,10 +72,10 @@ func TestExecutorRole_GeneralCreate(t *testing.T) {
 }
 
 func TestExecutorRole_CreateSubNode(t *testing.T) {
-	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
 	assert.NoError(t, stage.AddSubAdmin())
-	provider := caskin.NewCachedProvider(nil, nil)
-	executor := stage.Caskin.GetExecutor(provider)
+	
+	service := stage.Service
 
 	role1 := &example.Role{
 		Name:     "role_sub_02",
@@ -108,13 +108,13 @@ func TestExecutorRole_CreateSubNode(t *testing.T) {
 }
 
 func TestExecutorRole_GeneralUpdate(t *testing.T) {
-	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
-	provider := caskin.NewCachedProvider(nil, nil)
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
+	
 	assert.NoError(t, stage.AddSubAdmin())
 
 	provider.User = stage.AdminUser
 	provider.Domain = stage.Domain
-	executor := stage.Caskin.GetExecutor(provider)
+	service := stage.Service
 
 	role := &example.Role{
 		ID: 3, Name: "admin_sub_01_new_name", ParentID: 1, ObjectID: 5}
@@ -149,13 +149,13 @@ func TestExecutorRole_GeneralUpdate(t *testing.T) {
 }
 
 func TestExecutorRole_UpdateParent(t *testing.T) {
-	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
-	provider := caskin.NewCachedProvider(nil, nil)
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
+	
 	assert.NoError(t, stage.AddSubAdmin())
 
 	provider.User = stage.AdminUser
 	provider.Domain = stage.Domain
-	executor := stage.Caskin.GetExecutor(provider)
+	service := stage.Service
 
 	role1 := &example.Role{
 		Name:     "role_parent_id_to_3",
@@ -185,13 +185,13 @@ func TestExecutorRole_UpdateParent(t *testing.T) {
 }
 
 func TestExecutorRole_GeneralRecover(t *testing.T) {
-	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
 	assert.NoError(t, stage.AddSubAdmin())
 
-	provider := caskin.NewCachedProvider(nil, nil)
+	
 	provider.User = stage.AdminUser
 	provider.Domain = stage.Domain
-	executor := stage.Caskin.GetExecutor(provider)
+	service := stage.Service
 
 	role := &example.Role{
 		ID:       3,
@@ -221,13 +221,13 @@ func TestExecutorRole_GeneralRecover(t *testing.T) {
 }
 
 func TestExecutorRole_GeneralDelete(t *testing.T) {
-	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
-	provider := caskin.NewCachedProvider(nil, nil)
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
+	
 	assert.NoError(t, stage.AddSubAdmin())
 
 	provider.User = stage.SubAdminUser
 	provider.Domain = stage.Domain
-	executor := stage.Caskin.GetExecutor(provider)
+	service := stage.Service
 
 	role := &example.Role{}
 	assert.Equal(t, caskin.ErrEmptyID, executor.DeleteRole(role))
@@ -249,13 +249,13 @@ func TestExecutorRole_GeneralDelete(t *testing.T) {
 }
 
 func TestExecutorRole_DeleteSubNode(t *testing.T) {
-	stage, _ := playground.NewStageWithSqlitePath(t.TempDir())
-	provider := caskin.NewCachedProvider(nil, nil)
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
+	
 	assert.NoError(t, stage.AddSubAdmin())
 
 	provider.User = stage.AdminUser
 	provider.Domain = stage.Domain
-	executor := stage.Caskin.GetExecutor(provider)
+	service := stage.Service
 
 	role1 := &example.Role{
 		Name:     "role_sub_02",
