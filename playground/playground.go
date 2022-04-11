@@ -6,8 +6,10 @@ import (
 	"github.com/awatercolorpen/caskin"
 	"github.com/awatercolorpen/caskin/example"
 	"github.com/casbin/casbin/v2"
-	gormadapter "github.com/casbin/gorm-adapter/v3"
+	"github.com/casbin/gorm-adapter/v3"
 )
+
+var DictionaryDsn = "configs/caskin.toml"
 
 // Playground example playground for easy testing
 type Playground struct {
@@ -122,12 +124,10 @@ func NewPlaygroundWithSqlitePath(sqlitePath string) (*Playground, error) {
 		return nil, err
 	}
 	option := &caskin.Options{
-		Dictionary: &caskin.DictionaryOption{
-			Dsn: "../configs/caskin.toml",
-		},
-		DB:       dbOption,
-		Enforcer: enforcer,
-		MetaDB:   example.NewGormMDBByDB(db),
+		Dictionary: &caskin.DictionaryOption{Dsn: DictionaryDsn},
+		DB:         dbOption,
+		Enforcer:   enforcer,
+		MetaDB:     example.NewGormMDBByDB(db),
 	}
 	service, err := caskin.New(option)
 	if err != nil {

@@ -8,16 +8,29 @@ Caskin is a multi-domain rbac library for Golang projects. It develops base on [
 
 ### 1. User: the person - 真实用户
 
+- real person for school business. for example:
+  - student
+  - parent
+  - teacher
+    - class teacher
+    - subject teacher
+  - property management company
+    - dorm supervisor
+    - teaching building manager
+    - guard
+
 ### 2. Role: the group of user - 角色=一组用户
 
 ### 3. Object: the resource or resource group of authorization node  - 资源=权限节点/权限组
 
 ### 4. Domain: organization - 域=组织
 
-| User - 用户 | Role - 角色 | Object -  | Domain - Organization |
-| --- | --- | --- | --- |
-| Header | Title | Header | school-1 |
-| Paragraph | Text | Header | school-2 |
+every teat
+
+| Domain   |
+|----------|
+| school-1 |
+| school-2 |
 
 ## Feature
 
