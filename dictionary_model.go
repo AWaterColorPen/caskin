@@ -1,7 +1,7 @@
 package caskin
 
 import (
-	"fmt"
+	"encoding/json"
 )
 
 var (
@@ -31,8 +31,10 @@ type Backend struct {
 	Group       string `json:"group"       toml:"group"`
 }
 
-func (b *Backend) GetKey() string {
-	return fmt.Sprint(b.Path, DefaultSeparator, b.Method)
+func (b *Backend) Key() string {
+	s := []string{b.Path, b.Method}
+	bb, _ := json.Marshal(s)
+	return string(bb)
 }
 
 func (b *Backend) ToObject() Object {
@@ -54,8 +56,10 @@ const (
 	FrontendTypeSubFunction FrontendType = "sub_function"
 )
 
-func (f *Frontend) GetKey() string {
-	return fmt.Sprint(f.Name, DefaultSeparator, f.Type)
+func (f *Frontend) Key() string {
+	s := []string{f.Name, string(f.Type)}
+	b, _ := json.Marshal(s)
+	return string(b)
 }
 
 func (f *Frontend) ToObject() Object {
@@ -79,9 +83,23 @@ type CreatorObject struct {
 	Description string `json:"description" toml:"description"`
 }
 
+func (c *CreatorObject) ToObject() Object {
+	o := DefaultFactory().NewObject()
+	b, _ := json.Marshal(c)
+	_ = json.Unmarshal(b, o)
+	return o
+}
+
 type CreatorRole struct {
 	Name        string `json:"name"        toml:"name"`
 	Description string `json:"description" toml:"description"`
+}
+
+func (c *CreatorRole) ToRole() Role {
+	r := DefaultFactory().NewRole()
+	b, _ := json.Marshal(c)
+	_ = json.Unmarshal(b, r)
+	return r
 }
 
 type CreatorPolicy struct {

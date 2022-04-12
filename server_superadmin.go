@@ -1,20 +1,20 @@
 package caskin
 
-// SuperadminAdd
+// AddSuperadmin
 // add the user as superadmin role in superadmin domain
 // 1. no permission checking
 func (s *server) AddSuperadmin(user User) error {
 	return s.writeSuperadminUser(user, s.Enforcer.AddRoleForUserInDomain)
 }
 
-// SuperadminDelete
+// DeleteSuperadmin
 // delete a user from superadmin
 // 1. no permission checking
 func (s *server) DeleteSuperadmin(user User) error {
 	return s.writeSuperadminUser(user, s.Enforcer.RemoveRoleForUserInDomain)
 }
 
-// SuperadminGet
+// GetSuperadmin
 // get all superadmin user
 // 1. no permission checking
 func (s *server) GetSuperadmin() ([]User, error) {

@@ -13,7 +13,7 @@ func (s *server) GetFrontend() ([]*Frontend, error) {
 }
 
 func (s *server) AuthBackend(user User, domain Domain, backend *Backend) error {
-	value, err := s.Dictionary.GetBackendByKey(backend.GetKey())
+	value, err := s.Dictionary.GetBackendByKey(backend.Key())
 	if err != nil || backend == nil {
 		return ErrNoBackendPermission
 	}

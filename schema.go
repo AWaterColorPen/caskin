@@ -1,7 +1,7 @@
 package caskin
 
 import (
-	"strings"
+	"encoding/json"
 )
 
 type ObjectType string
@@ -31,7 +31,6 @@ type Object interface {
 	parentInterface
 	domainInterface
 	GetObjectType() ObjectType
-	// SetObjectType(ObjectType) // TODO
 }
 
 type ObjectData interface {
@@ -69,9 +68,6 @@ func Tree[E treeNode](in []E) map[uint64]uint64 {
 	return m
 }
 
-// DomainCreator newByE new domain's function
-type DomainCreator = func(Domain) Creator
-
 // Creator interface to newByE a domain
 type Creator interface {
 	BuildCreator() ([]Role, []Object)
@@ -92,7 +88,8 @@ type Policy struct {
 // Key get the unique identify of the policy
 func (p *Policy) Key() string {
 	s := []string{p.Role.Encode(), p.Object.Encode(), p.Domain.Encode(), string(p.Action)}
-	return strings.Join(s, DefaultSeparator)
+	b, _ := json.Marshal(s)
+	return string(b)
 }
 
 // PolicyList list of policy

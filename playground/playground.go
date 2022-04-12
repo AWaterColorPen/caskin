@@ -97,7 +97,7 @@ func (s *Playground) AddSubAdmin() error {
 func (p *Playground) Setup() error {
 	service := p.Service
 
-	p.Domain = &example.Domain{Name: "school_1"}
+	p.Domain = &example.Domain{Name: "school-1"}
 	p.Superadmin = &example.User{Email: "superadmin@qq.com"}
 	p.Admin = &example.User{Email: "teacher@qq.com"}
 	p.Member = &example.User{Email: "student@qq.com"}
@@ -144,7 +144,7 @@ func NewPlaygroundWithSqlitePath(sqlitePath string) (*Playground, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = db.AutoMigrate(&example.User{}, &example.Domain{}, &example.Object{}, &example.OneObjectData{}, &example.Role{})
+	err = db.AutoMigrate(&example.User{}, &example.Role{}, &example.Object{}, &example.Domain{}, &example.OneObjectData{})
 	if err != nil {
 		return nil, err
 	}
@@ -168,6 +168,7 @@ func NewPlaygroundWithSqlitePath(sqlitePath string) (*Playground, error) {
 		Enforcer:   enforcer,
 		MetaDB:     example.NewGormMDBByDB(db),
 	}
+	caskin.DefaultRegister().Register(&example.User{}, &example.Role{}, &example.Object{}, &example.Domain{})
 	service, err := caskin.New(option)
 	if err != nil {
 		return nil, err

@@ -17,8 +17,7 @@ func DefaultFactory() Factory {
 }
 
 type Register interface {
-	Register([]User, []Role, []Object, []Domain)
-	Factory() Factory
+	Register(User, Role, Object, Domain)
 }
 
 type builtinRegister struct {
@@ -33,17 +32,19 @@ type Factory interface {
 	Role(string) (Role, error)
 	Object(string) (Object, error)
 	Domain(string) (Domain, error)
+	NewUser() User
+	NewRole() Role
+	NewObject() Object
+	NewDomain() Domain
 }
 
-func (b *builtinRegister) Register(user []User, role []Role, object []Object, domain []Domain) {
-	b.user, b.role, b.object, b.domain = user, role, object, domain
+func (b *builtinRegister) Register(user User, role Role, object Object, domain Domain) {
+	b.user = append(b.user, user)
+	b.role = append(b.role, role)
+	b.object = append(b.object, object)
+	b.domain = append(b.domain, domain)
 	// builtin
 	b.object = append(b.object, &NamedObject{})
-}
-
-func (b *builtinRegister) Factory() Factory {
-	f := builtinFactory(*b)
-	return &f
 }
 
 type builtinFactory builtinRegister
@@ -62,6 +63,22 @@ func (b *builtinFactory) Object(code string) (Object, error) {
 
 func (b *builtinFactory) Domain(code string) (Domain, error) {
 	return decode(code, b.domain)
+}
+
+func (b *builtinFactory) NewUser() User {
+	return newByE(b.user[0])
+}
+
+func (b *builtinFactory) NewRole() Role {
+	return newByE(b.role[0])
+}
+
+func (b *builtinFactory) NewObject() Object {
+	return newByE(b.object[0])
+}
+
+func (b *builtinFactory) NewDomain() Domain {
+	return newByE(b.domain[0])
 }
 
 func decode[T codeInterface](code string, candidate []T) (T, error) {

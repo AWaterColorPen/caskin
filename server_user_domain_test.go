@@ -8,24 +8,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestServer_UserDomain_GetUserInDomain(t *testing.T) {
+func TestServer_UserDomain_GetUserByDomain(t *testing.T) {
 	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
-
-	assert.NoError(t, stage.AddSubAdmin())
 	service := stage.Service
 
 	list1, err := service.GetUserByDomain(stage.Domain)
 	assert.NoError(t, err)
-	assert.Len(t, list1, 3)
-	list2, err := service.GetUserByDomain(stage.Domain)
-	assert.NoError(t, err)
-	assert.Len(t, list2, 3)
-	list3, err := service.GetUserByDomain(stage.Domain)
-	assert.NoError(t, err)
-	assert.Len(t, list3, 3)
-	list4, err := service.GetUserByDomain(stage.Domain)
-	assert.NoError(t, err)
-	assert.Len(t, list4, 3)
+	assert.Len(t, list1, 2)
 }
 
 func TestServer_UserDomain_GetDomainByUser(t *testing.T) {

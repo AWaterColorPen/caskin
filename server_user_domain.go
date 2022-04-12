@@ -2,7 +2,7 @@ package caskin
 
 import "github.com/ahmetb/go-linq/v3"
 
-// UserByDomainGet
+// GetUserByDomain
 // get all user in domain
 // 1. no permission checking
 func (s *server) GetUserByDomain(domain Domain) ([]User, error) {
@@ -12,7 +12,7 @@ func (s *server) GetUserByDomain(domain Domain) ([]User, error) {
 	return s.DB.GetUserByID(uid)
 }
 
-// DomainByUserGet
+// GetDomainByUser
 // get user's all domain
 // 1. no permission checking
 func (s *server) GetDomainByUser(user User) ([]Domain, error) {
@@ -26,6 +26,7 @@ func (s *server) GetDomainByUser(user User) ([]Domain, error) {
 }
 
 func (s *server) getDomainBySuperadmin(user User) ([]Domain, error) {
+	// TODO don't use SuperadminCheck
 	if err := s.SuperadminCheck(user); err != nil {
 		return nil, err
 	}

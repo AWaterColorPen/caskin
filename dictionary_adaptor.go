@@ -56,6 +56,18 @@ func (f *fileDictionary) GetFrontendByKey(key string) (*Frontend, error) {
 	return nil, nil
 }
 
+func (f *fileDictionary) GetCreatorObject() ([]*CreatorObject, error) {
+	return f.CreatorObject, nil
+}
+
+func (f *fileDictionary) GetCreatorRole() ([]*CreatorRole, error) {
+	return f.CreatorRole, nil
+}
+
+func (f *fileDictionary) GetCreatorPolicy() ([]*CreatorPolicy, error) {
+	return f.CreatorPolicy, nil
+}
+
 func (f *fileDictionary) isValid() error {
 	return nil
 }

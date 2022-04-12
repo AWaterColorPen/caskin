@@ -5,7 +5,6 @@ import "github.com/casbin/casbin/v2"
 var (
 	DefaultSuperadminRoleName   = "superadmin_role"
 	DefaultSuperadminDomainName = "superadmin_domain"
-	DefaultSeparator            = "$$" // TODO don't use $$
 )
 
 type Option func(*Options)
