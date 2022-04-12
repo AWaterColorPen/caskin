@@ -25,10 +25,10 @@ func (d *Domain) SetID(id uint64) {
 }
 
 func (d *Domain) Encode() string {
-	return fmt.Sprintf("domain_%v_%v", d.ID, d.Name)
+	return fmt.Sprintf("domain_%v", d.ID)
 }
 
 func (d *Domain) Decode(code string) error {
-	_, err := fmt.Sscanf(code, "domain_%v_%v", &d.ID, &d.Name)
+	_, err := fmt.Sscanf(code, "domain_%v", &d.ID)
 	return err
 }

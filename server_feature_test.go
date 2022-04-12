@@ -13,7 +13,7 @@ func TestServer_NormalDomain_GetFeature(t *testing.T) {
 	//executor := w.GetExecutor(provider)
 	//
 	//provider.Domain = stage.Options.GetSuperadminDomain()
-	//provider.User = stage.SuperadminUser
+	//provider.User = stage.Superadmin
 	//assert.Error(t, service.SyncLatestVersionToAllDomain())
 	//
 	//assert.NoError(t, service.BuildVersion())
@@ -62,7 +62,7 @@ func TestServer_NormalDomain_PolicyList(t *testing.T) {
 	//executor := w.GetExecutor(provider)
 	//
 	//provider.Domain = stage.Options.GetSuperadminDomain()
-	//provider.User = stage.SuperadminUser
+	//provider.User = stage.Superadmin
 	//assert.Error(t, service.SyncLatestVersionToAllDomain())
 	//
 	//assert.NoError(t, service.BuildVersion())
@@ -89,14 +89,14 @@ func TestServer_NormalDomain_PolicyList(t *testing.T) {
 	//policy2, err := executor1.GetPolicyListByRole(roles[2])
 	//assert.NoError(t, err)
 	//assert.Len(t, policy2, 4)
-	//provider.User = stage.SuperadminUser
+	//provider.User = stage.Superadmin
 	//policy3, err := service.NormalDomainGetPolicyListByRole(roles[2])
 	//assert.NoError(t, err)
 	//assert.Len(t, policy3, 0)
 	//
 	//// TODO issue 1: any way to fix the behaviour
 	//// can modify feature policy but can't get by Caskin.baseService when superadmin
-	//provider.User = stage.SuperadminUser
+	//provider.User = stage.Superadmin
 	//assert.NoError(t, executor1.ModifyPolicyListPerRole(roles[2], input1))
 	//policy4, err := executor1.GetPolicyListByRole(roles[2])
 	//assert.NoError(t, err)

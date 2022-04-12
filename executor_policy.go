@@ -6,12 +6,12 @@ import "github.com/ahmetb/go-linq/v3"
 // get all policies
 // 1. current user has role and object's read permission in current domain
 // 2. build role's tree
-func (s *server) PolicyGet(user User, domain Domain) ([]*Policy, error) {
-	roles, err := s.RoleGet(user, domain)
+func (s *server) GetPolicy(user User, domain Domain) ([]*Policy, error) {
+	roles, err := s.GetRole(user, domain)
 	if err != nil {
 		return nil, err
 	}
-	objects, err := s.ObjectGet(user, domain, Manage)
+	objects, err := s.GetObject(user, domain, Manage)
 	if err != nil {
 		return nil, err
 	}
@@ -38,11 +38,11 @@ func (s *server) PolicyGet(user User, domain Domain) ([]*Policy, error) {
 // PolicyByRoleGet
 // 1. get policy which current user has role and object's read permission in current domain
 // 2. get user to role 's g as Policy in current domain
-func (s *server) PolicyByRoleGet(user User, domain Domain, byRole Role) ([]*Policy, error) {
+func (s *server) GetPolicyByRole(user User, domain Domain, byRole Role) ([]*Policy, error) {
 	if err := s.ObjectDataGetCheck(user, domain, byRole); err != nil {
 		return nil, err
 	}
-	objects, err := s.ObjectGet(user, domain, Manage)
+	objects, err := s.GetObject(user, domain, Manage)
 	if err != nil {
 		return nil, err
 	}
@@ -67,11 +67,11 @@ func (s *server) PolicyByRoleGet(user User, domain Domain, byRole Role) ([]*Poli
 // PolicyByObjectGet
 // 1. get policy which current user has role and object's read permission in current domain
 // 2. get user to role 's g as Policy in current domain
-func (s *server) PolicyByObjectGet(user User, domain Domain, byObject Object) ([]*Policy, error) {
+func (s *server) GetPolicyByObject(user User, domain Domain, byObject Object) ([]*Policy, error) {
 	if err := s.ObjectManageCheck(user, domain, byObject); err != nil {
 		return nil, err
 	}
-	roles, err := s.RoleGet(user, domain)
+	roles, err := s.GetRole(user, domain)
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +96,7 @@ func (s *server) PolicyByObjectGet(user User, domain Domain, byObject Object) ([
 // PolicyPerRoleModify
 // if current user has role and object's write permission
 // 1. modify role to object 's p in current domain
-func (s *server) PolicyPerRoleModify(user User, domain Domain, perRole Role, input []*Policy) error {
+func (s *server) ModifyPolicyPerRole(user User, domain Domain, perRole Role, input []*Policy) error {
 	if err := s.ObjectDataModifyCheck(user, domain, perRole); err != nil {
 		return err
 	}
@@ -155,7 +155,7 @@ func (s *server) PolicyPerRoleModify(user User, domain Domain, perRole Role, inp
 // PolicyPerObjectModify
 // if current user has role and object's write permission
 // 1. modify role to object 's p in current domain
-func (s *server) PolicyPerObjectModify(user User, domain Domain, perObject Object, input []*Policy) error {
+func (s *server) ModifyPolicyPerObject(user User, domain Domain, perObject Object, input []*Policy) error {
 	if err := s.ObjectManageCheck(user, domain, perObject); err != nil {
 		return err
 	}

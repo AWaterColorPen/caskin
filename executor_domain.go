@@ -4,7 +4,7 @@ package caskin
 // if there does not exist the domain then create a new one
 // 1. no permission checking
 // 2. create a new domain into metadata database
-func (s *server) DomainCreate(domain Domain) error {
+func (s *server) CreateDomain(domain Domain) error {
 	if err := s.DBCreateCheck(domain); err != nil {
 		return err
 	}
@@ -15,7 +15,7 @@ func (s *server) DomainCreate(domain Domain) error {
 // if there exist the domain but soft deleted then recover it
 // 1. no permission checking
 // 2. recover the soft delete one domain at metadata database
-func (s *server) DomainRecover(domain Domain) error {
+func (s *server) RecoverDomain(domain Domain) error {
 	if err := s.DBRecoverCheck(domain); err != nil {
 		return err
 	}
@@ -28,7 +28,7 @@ func (s *server) DomainRecover(domain Domain) error {
 // 2. delete all user's g in the domain
 // 3. don't delete any role's g or object's g2 in the domain
 // 4. soft delete one domain in metadata database
-func (s *server) DomainDelete(domain Domain) error {
+func (s *server) DeleteDomain(domain Domain) error {
 	if err := s.IDInterfaceDeleteCheck(domain); err != nil {
 		return err
 	}
@@ -42,7 +42,7 @@ func (s *server) DomainDelete(domain Domain) error {
 // if there exist the domain update domain
 // 1. no permission checking
 // 2. just update domain's properties
-func (s *server) DomainUpdate(domain Domain) error {
+func (s *server) UpdateDomain(domain Domain) error {
 	old := newByE(domain)
 	if err := s.IDInterfaceUpdateCheck(domain, old); err != nil {
 		return err
@@ -54,7 +54,7 @@ func (s *server) DomainUpdate(domain Domain) error {
 // if there exist the domain reset the domain
 // 1. no permission checking
 // 2. just reinitialize the domain
-func (s *server) DomainReset(domain Domain) error {
+func (s *server) ResetDomain(domain Domain) error {
 	old := newByE(domain)
 	if err := s.IDInterfaceUpdateCheck(domain, old); err != nil {
 		return err
@@ -65,7 +65,7 @@ func (s *server) DomainReset(domain Domain) error {
 // DomainGet
 // get all domain
 // 1. no permission checking
-func (s *server) DomainGet() ([]Domain, error) {
+func (s *server) GetDomain() ([]Domain, error) {
 	return s.DB.GetAllDomain()
 }
 

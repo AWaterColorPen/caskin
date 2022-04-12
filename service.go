@@ -6,33 +6,33 @@ type IService interface {
 }
 
 type IBaseService interface {
-	SuperadminAdd(User) error
-	SuperadminDelete(User) error
-	SuperadminGet() ([]User, error)
+	AddSuperadmin(User) error
+	DeleteSuperadmin(User) error
+	GetSuperadmin() ([]User, error)
 
-	UserCreate(User) error
-	UserRecover(User) error
-	UserDelete(User) error
-	UserUpdate(User) error
+	CreateUser(User) error
+	RecoverUser(User) error
+	DeleteUser(User) error
+	UpdateUser(User) error
 
-	DomainCreate(Domain) error
-	DomainRecover(Domain) error
-	DomainDelete(Domain) error
-	DomainUpdate(Domain) error
-	DomainGet() ([]Domain, error)
-	DomainReset(Domain) error
+	CreateDomain(Domain) error
+	RecoverDomain(Domain) error
+	DeleteDomain(Domain) error
+	UpdateDomain(Domain) error
+	GetDomain() ([]Domain, error)
+	ResetDomain(Domain) error
 
-	ObjectCreate(User, Domain, Object) error
-	ObjectRecover(User, Domain, Object) error
-	ObjectDelete(User, Domain, Object) error
-	ObjectUpdate(User, Domain, Object) error
-	ObjectGet(User, Domain, Action, ...ObjectType) ([]Object, error)
+	CreateObject(User, Domain, Object) error
+	RecoverObject(User, Domain, Object) error
+	DeleteObject(User, Domain, Object) error
+	UpdateObject(User, Domain, Object) error
+	GetObject(User, Domain, Action, ...ObjectType) ([]Object, error)
 
-	RoleCreate(User, Domain, Role) error
-	RoleRecover(User, Domain, Role) error
-	RoleDelete(User, Domain, Role) error
-	RoleUpdate(User, Domain, Role) error
-	RoleGet(User, Domain) ([]Role, error)
+	CreateRole(User, Domain, Role) error
+	RecoverRole(User, Domain, Role) error
+	DeleteRole(User, Domain, Role) error
+	UpdateRole(User, Domain, Role) error
+	GetRole(User, Domain) ([]Role, error)
 
 	ObjectDataWriteCheck(User, Domain, ObjectData, ObjectType) error
 	ObjectDataCreateCheck(User, Domain, ObjectData, ObjectType) error
@@ -42,20 +42,20 @@ type IBaseService interface {
 	ObjectDataModifyCheck(User, Domain, ObjectData) error
 	ObjectDataGetCheck(User, Domain, ObjectData) error
 
-	UserByDomainGet(Domain) ([]User, error)
-	DomainByUserGet(User) ([]Domain, error)
+	GetUserByDomain(Domain) ([]User, error)
+	GetDomainByUser(User) ([]Domain, error)
 
-	UserRoleGet(User, Domain) ([]*UserRolePair, error)
-	UserRoleByUserGet(User, Domain, User) ([]*UserRolePair, error)
-	UserRoleByRoleGet(User, Domain, Role) ([]*UserRolePair, error)
-	UserRolePerUserModify(User, Domain, User, []*UserRolePair) error
-	UserRolePerRoleModify(User, Domain, Role, []*UserRolePair) error
+	GetUserRole(User, Domain) ([]*UserRolePair, error)
+	GetUserRoleByUser(User, Domain, User) ([]*UserRolePair, error)
+	GetUserRoleByRole(User, Domain, Role) ([]*UserRolePair, error)
+	ModifyUserRolePerUser(User, Domain, User, []*UserRolePair) error
+	ModifyUserRolePerRole(User, Domain, Role, []*UserRolePair) error
 
-	PolicyGet(User, Domain) ([]*Policy, error)
-	PolicyByRoleGet(User, Domain, Role) ([]*Policy, error)
-	PolicyByObjectGet(User, Domain, Object) ([]*Policy, error)
-	PolicyPerRoleModify(User, Domain, Role, []*Policy) error
-	PolicyPerObjectModify(User, Domain, Object, []*Policy) error
+	GetPolicy(User, Domain) ([]*Policy, error)
+	GetPolicyByRole(User, Domain, Role) ([]*Policy, error)
+	GetPolicyByObject(User, Domain, Object) ([]*Policy, error)
+	ModifyPolicyPerRole(User, Domain, Role, []*Policy) error
+	ModifyPolicyPerObject(User, Domain, Object, []*Policy) error
 }
 
 type ICurrentService interface {
@@ -65,13 +65,13 @@ type IFeatureService interface {
 	GetBackend() ([]*Backend, error)
 	GetFrontend() ([]*Frontend, error)
 	GetFeature() ([]*Feature, error)
-	BackendAuth(User, Domain, *Backend) error
-	FrontendAuth(User, Domain) []*Frontend
-	FeatureObjectGet(User, Domain) ([]Object, error)
-	FeaturePolicyGet(User, Domain) ([]*Policy, error)
-	FeaturePolicyByRoleGet(User, Domain, Role) ([]*Policy, error)
-	FeaturePolicyPerRoleModify(User, Domain, Role, []*Policy) error
-	FeatureReset(Domain) error
+	AuthBackend(User, Domain, *Backend) error
+	AuthFrontend(User, Domain) []*Frontend
+	GetFeatureObject(User, Domain) ([]Object, error)
+	GetFeaturePolicy(User, Domain) ([]*Policy, error)
+	GetFeaturePolicyByRole(User, Domain, Role) ([]*Policy, error)
+	ModifyFeaturePolicyPerRole(User, Domain, Role, []*Policy) error
+	ResetFeature(Domain) error
 }
 
 type ICreatorService interface {

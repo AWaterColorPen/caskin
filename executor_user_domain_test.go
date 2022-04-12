@@ -1,8 +1,9 @@
 package caskin_test
 
 import (
-	"github.com/awatercolorpen/caskin/playground"
 	"testing"
+
+	"github.com/awatercolorpen/caskin/playground"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -13,16 +14,16 @@ func TestServer_UserDomain_GetUserInDomain(t *testing.T) {
 	assert.NoError(t, stage.AddSubAdmin())
 	service := stage.Service
 
-	list1, err := service.UserByDomainGet(stage.Domain)
+	list1, err := service.GetUserByDomain(stage.Domain)
 	assert.NoError(t, err)
 	assert.Len(t, list1, 3)
-	list2, err := service.UserByDomainGet(stage.Domain)
+	list2, err := service.GetUserByDomain(stage.Domain)
 	assert.NoError(t, err)
 	assert.Len(t, list2, 3)
-	list3, err := service.UserByDomainGet(stage.Domain)
+	list3, err := service.GetUserByDomain(stage.Domain)
 	assert.NoError(t, err)
 	assert.Len(t, list3, 3)
-	list4, err := service.UserByDomainGet(stage.Domain)
+	list4, err := service.GetUserByDomain(stage.Domain)
 	assert.NoError(t, err)
 	assert.Len(t, list4, 3)
 }
@@ -32,16 +33,16 @@ func TestServer_UserDomain_GetDomainByUser(t *testing.T) {
 	assert.NoError(t, stage.AddSubAdmin())
 	service := stage.Service
 
-	list1, err := service.DomainByUserGet(stage.AdminUser)
+	list1, err := service.GetDomainByUser(stage.Admin)
 	assert.NoError(t, err)
 	assert.Len(t, list1, 1)
-	list2, err := service.DomainByUserGet(stage.SubAdminUser)
-	assert.NoError(t, err)
-	assert.Len(t, list2, 1)
-	list3, err := service.DomainByUserGet(stage.SuperadminUser)
+	// list2, err := service.GetDomainByUser(stage.SubAdminUser)
+	// assert.NoError(t, err)
+	// assert.Len(t, list2, 1)
+	list3, err := service.GetDomainByUser(stage.Superadmin)
 	assert.NoError(t, err)
 	assert.Len(t, list3, 2)
-	list4, err := service.DomainByUserGet(stage.MemberUser)
+	list4, err := service.GetDomainByUser(stage.Member)
 	assert.NoError(t, err)
 	assert.Len(t, list4, 1)
 }

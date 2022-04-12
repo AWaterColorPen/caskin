@@ -5,7 +5,7 @@ import "github.com/ahmetb/go-linq/v3"
 // UserByDomainGet
 // get all user in domain
 // 1. no permission checking
-func (s *server) UserByDomainGet(domain Domain) ([]User, error) {
+func (s *server) GetUserByDomain(domain Domain) ([]User, error) {
 	us := s.Enforcer.GetUsersInDomain(domain)
 	uid := ID(us)
 	linq.From(uid).Distinct().ToSlice(&uid)
@@ -15,7 +15,7 @@ func (s *server) UserByDomainGet(domain Domain) ([]User, error) {
 // DomainByUserGet
 // get user's all domain
 // 1. no permission checking
-func (s *server) DomainByUserGet(user User) ([]Domain, error) {
+func (s *server) GetDomainByUser(user User) ([]Domain, error) {
 	if domain, err := s.getDomainBySuperadmin(user); err == nil {
 		return domain, nil
 	}
@@ -29,7 +29,7 @@ func (s *server) getDomainBySuperadmin(user User) ([]Domain, error) {
 	if err := s.SuperadminCheck(user); err != nil {
 		return nil, err
 	}
-	domain, err := s.DomainGet()
+	domain, err := s.GetDomain()
 	if err != nil {
 		return nil, err
 	}

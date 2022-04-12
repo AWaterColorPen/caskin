@@ -12,7 +12,7 @@ func (s *server) GetFrontend() ([]*Frontend, error) {
 	return s.Dictionary.GetFrontend()
 }
 
-func (s *server) BackendAuth(user User, domain Domain, backend *Backend) error {
+func (s *server) AuthBackend(user User, domain Domain, backend *Backend) error {
 	value, err := s.Dictionary.GetBackendByKey(backend.GetKey())
 	if err != nil || backend == nil {
 		return ErrNoBackendPermission
@@ -23,7 +23,7 @@ func (s *server) BackendAuth(user User, domain Domain, backend *Backend) error {
 	return nil
 }
 
-func (s *server) FrontendAuth(user User, domain Domain) []*Frontend {
+func (s *server) AuthFrontend(user User, domain Domain) []*Frontend {
 	var out []*Frontend
 	frontend, _ := s.Dictionary.GetFrontend()
 	for _, v := range frontend {
@@ -34,7 +34,7 @@ func (s *server) FrontendAuth(user User, domain Domain) []*Frontend {
 	return out
 }
 
-func (s *server) FeatureObjectGet(user User, domain Domain) ([]Object, error) {
+func (s *server) GetFeatureObject(user User, domain Domain) ([]Object, error) {
 	var out []Object
 	feature, _ := s.Dictionary.GetFeature()
 	for _, v := range feature {
@@ -45,12 +45,12 @@ func (s *server) FeatureObjectGet(user User, domain Domain) ([]Object, error) {
 	return out, nil
 }
 
-func (s *server) FeaturePolicyGet(user User, domain Domain) ([]*Policy, error) {
-	roles, err := s.RoleGet(user, domain)
+func (s *server) GetFeaturePolicy(user User, domain Domain) ([]*Policy, error) {
+	roles, err := s.GetRole(user, domain)
 	if err != nil {
 		return nil, err
 	}
-	objects, err := s.FeatureObjectGet(user, domain)
+	objects, err := s.GetFeatureObject(user, domain)
 	if err != nil {
 		return nil, err
 	}
@@ -73,11 +73,11 @@ func (s *server) FeaturePolicyGet(user User, domain Domain) ([]*Policy, error) {
 	return list, nil
 }
 
-func (s *server) FeaturePolicyByRoleGet(user User, domain Domain, byRole Role) ([]*Policy, error) {
+func (s *server) GetFeaturePolicyByRole(user User, domain Domain, byRole Role) ([]*Policy, error) {
 	if err := s.ObjectDataGetCheck(user, domain, byRole); err != nil {
 		return nil, err
 	}
-	objects, err := s.FeatureObjectGet(user, domain)
+	objects, err := s.GetFeatureObject(user, domain)
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +98,7 @@ func (s *server) FeaturePolicyByRoleGet(user User, domain Domain, byRole Role) (
 	return list, nil
 }
 
-func (s *server) FeaturePolicyPerRoleModify(user User, domain Domain, perRole Role, input []*Policy) error {
+func (s *server) ModifyFeaturePolicyPerRole(user User, domain Domain, perRole Role, input []*Policy) error {
 	if err := s.ObjectDataModifyCheck(user, domain, perRole); err != nil {
 		return err
 	}
@@ -108,7 +108,7 @@ func (s *server) FeaturePolicyPerRoleModify(user User, domain Domain, perRole Ro
 	}
 
 	policy := s.Enforcer.GetPoliciesForRoleInDomain(perRole, domain)
-	objects, err := s.FeatureObjectGet(user, domain)
+	objects, err := s.GetFeatureObject(user, domain)
 	if err != nil {
 		return err
 	}
@@ -143,6 +143,6 @@ func (s *server) FeaturePolicyPerRoleModify(user User, domain Domain, perRole Ro
 	return nil
 }
 
-func (s *server) FeatureReset(domain Domain) error {
+func (s *server) ResetFeature(domain Domain) error {
 	return nil
 }

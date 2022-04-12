@@ -13,12 +13,11 @@ var DictionaryDsn = "configs/caskin.toml"
 
 // Playground example playground for easy testing
 type Playground struct {
-	Service        caskin.IService
-	Domain         *example.Domain // a domain on stage
-	SuperadminUser *example.User   // superadmin user on stage
-	AdminUser      *example.User   // a domain admin user on stage
-	MemberUser     *example.User   // a domain member user on stage
-	SubAdminUser   *example.User   // a domain sub admin user on stage
+	Service    caskin.IService
+	Superadmin *example.User   // superadmin user on playground
+	Admin      *example.User   // a domain admin user on stage
+	Member     *example.User   // a domain member user on stage
+	Domain     *example.Domain // domain on playground
 }
 
 func (s *Playground) AddSubAdmin() error {
@@ -31,11 +30,11 @@ func (s *Playground) AddSubAdmin() error {
 	// 	PhoneNumber: "123456789031",
 	// 	Email:       "subadmin@qq.com",
 	// }
-	// if err := service.UserCreate(subAdmin); err != nil {
+	// if err := service.CreateUser(subAdmin); err != nil {
 	// 	return err
 	// }
 	//
-	// objects, err := service.ObjectGet()
+	// objects, err := service.GetObject()
 	// if err != nil {
 	// 	return err
 	// }
@@ -69,14 +68,14 @@ func (s *Playground) AddSubAdmin() error {
 	// 	ObjectID: object2.ID,
 	// 	ParentID: 1,
 	// }
-	// if err := service.RoleCreate(role); err != nil {
+	// if err := service.CreateRole(role); err != nil {
 	// 	return err
 	// }
 	//
 	// for k, v := range map[caskin.Role][]*caskin.UserRolePair{
 	// 	role: {{User: subAdmin, Role: role}},
 	// } {
-	// 	if err := service.UserRolePerRoleModify(k, v); err != nil {
+	// 	if err := service.ModifyUserRolePerRole(k, v); err != nil {
 	// 		return err
 	// 	}
 	// }
@@ -87,11 +86,51 @@ func (s *Playground) AddSubAdmin() error {
 	// 	{role, object2, s.Domain, caskin.Read},
 	// 	{role, object2, s.Domain, caskin.Write},
 	// }
-	// if err := service.PolicyPerRoleModify(role, policy); err != nil {
+	// if err := service.ModifyPolicyPerRole(role, policy); err != nil {
 	// 	return err
 	// }
 
 	// s.SubAdminUser = subAdmin
+	return nil
+}
+
+func (p *Playground) Setup() error {
+	service := p.Service
+
+	p.Domain = &example.Domain{Name: "school_1"}
+	p.Superadmin = &example.User{Email: "superadmin@qq.com"}
+	p.Admin = &example.User{Email: "teacher@qq.com"}
+	p.Member = &example.User{Email: "student@qq.com"}
+
+	if err := service.CreateDomain(p.Domain); err != nil {
+		return err
+	}
+	if err := service.ResetDomain(p.Domain); err != nil {
+		return err
+	}
+
+	for _, v := range []caskin.User{p.Superadmin, p.Admin, p.Member} {
+		if err := service.CreateUser(v); err != nil {
+			return err
+		}
+	}
+
+	if err := service.AddSuperadmin(p.Superadmin); err != nil {
+		return err
+	}
+
+	roles, err := service.GetRole(p.Superadmin, p.Domain)
+	if err != nil {
+		return err
+	}
+	for k, v := range map[caskin.Role][]*caskin.UserRolePair{
+		roles[0]: {{User: p.Admin, Role: roles[0]}},
+	} {
+		if err = service.ModifyUserRolePerRole(p.Superadmin, p.Domain, k, v); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -105,7 +144,7 @@ func NewPlaygroundWithSqlitePath(sqlitePath string) (*Playground, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = db.AutoMigrate(&example.User{}, &example.Domain{}, &example.Object{}, &example.OneObjectData{})
+	err = db.AutoMigrate(&example.User{}, &example.Domain{}, &example.Object{}, &example.OneObjectData{}, &example.Role{})
 	if err != nil {
 		return nil, err
 	}
@@ -133,5 +172,6 @@ func NewPlaygroundWithSqlitePath(sqlitePath string) (*Playground, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Playground{Service: service}, nil
+	playground := &Playground{Service: service}
+	return playground, playground.Setup()
 }

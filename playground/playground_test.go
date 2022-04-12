@@ -9,7 +9,6 @@ import (
 
 func TestNewPlayground(t *testing.T) {
 	playground.DictionaryDsn = "../configs/caskin.toml"
-	stage, err := playground.NewPlaygroundWithSqlitePath(t.TempDir())
+	_, err := playground.NewPlaygroundWithSqlitePath(t.TempDir())
 	assert.NoError(t, err)
-	assert.NoError(t, stage.AddSubAdmin())
 }

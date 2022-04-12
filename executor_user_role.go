@@ -8,12 +8,12 @@ import (
 // 1. get all user
 // 2. get all role which current user has read permission in current domain
 // 3. get user to role 's g as UserRolePair in current domain
-func (s *server) UserRoleGet(user User, domain Domain) ([]*UserRolePair, error) {
-	users, err := s.UserByDomainGet(domain)
+func (s *server) GetUserRole(user User, domain Domain) ([]*UserRolePair, error) {
+	users, err := s.GetUserByDomain(domain)
 	if err != nil {
 		return nil, err
 	}
-	roles, err := s.RoleGet(user, domain)
+	roles, err := s.GetRole(user, domain)
 	if err != nil {
 		return nil, err
 	}
@@ -34,11 +34,11 @@ func (s *server) UserRoleGet(user User, domain Domain) ([]*UserRolePair, error) 
 // UserRoleByUserGet
 // 1. get role which current user has read permission in current domain
 // 2. get user to role 's g as UserRolePair in current domain
-func (s *server) UserRoleByUserGet(user User, domain Domain, byUser User) ([]*UserRolePair, error) {
+func (s *server) GetUserRoleByUser(user User, domain Domain, byUser User) ([]*UserRolePair, error) {
 	if err := s.IDInterfaceGetCheck(byUser); err != nil {
 		return nil, err
 	}
-	roles, err := s.RoleGet(user, domain)
+	roles, err := s.GetRole(user, domain)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +57,7 @@ func (s *server) UserRoleByUserGet(user User, domain Domain, byUser User) ([]*Us
 // UserRoleByRoleGet
 // 1. get role which current user has read permission in current domain
 // 2. get user to role 's g as UserRolePair in current domain
-func (s *server) UserRoleByRoleGet(user User, domain Domain, byRole Role) ([]*UserRolePair, error) {
+func (s *server) GetUserRoleByRole(user User, domain Domain, byRole Role) ([]*UserRolePair, error) {
 	if err := s.ObjectDataGetCheck(user, domain, byRole); err != nil {
 		return nil, err
 	}
@@ -79,7 +79,7 @@ func (s *server) UserRoleByRoleGet(user User, domain Domain, byRole Role) ([]*Us
 // UserRolePerUserModify
 // if current user has role's write permission
 // 1. modify user to role 's g in current domain
-func (s *server) UserRolePerUserModify(user User, domain Domain, perUser User, input []*UserRolePair) error {
+func (s *server) ModifyUserRolePerUser(user User, domain Domain, perUser User, input []*UserRolePair) error {
 	if err := isValid(perUser); err != nil {
 		return err
 	}
@@ -141,7 +141,7 @@ func (s *server) UserRolePerUserModify(user User, domain Domain, perUser User, i
 // UserRolePerRoleModify
 // if current user has role's write permission
 // 1. modify role's to user 's g in current domain
-func (s *server) UserRolePerRoleModify(user User, domain Domain, perRole Role, input []*UserRolePair) error {
+func (s *server) ModifyUserRolePerRole(user User, domain Domain, perRole Role, input []*UserRolePair) error {
 	if err := s.ObjectDataModifyCheck(user, domain, perRole); err != nil {
 		return err
 	}
