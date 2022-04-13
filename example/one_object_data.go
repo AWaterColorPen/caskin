@@ -26,7 +26,7 @@ func (o *OneObjectData) SetID(id uint64) {
 	o.ID = id
 }
 
-func (o *OneObjectData) GetObject() caskin.Object {
+func (o *OneObjectData) GetObjectID() caskin.Object {
 	return &Object{ID: o.ObjectID}
 }
 

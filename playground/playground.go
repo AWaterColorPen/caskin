@@ -20,80 +20,6 @@ type Playground struct {
 	Domain     *example.Domain // domain on playground
 }
 
-func (s *Playground) AddSubAdmin() error {
-	// 
-	// provider.Domain = s.Domain
-	// provider.User = s.AdminUser
-	// executor := s.Caskin.GetExecutor(provider)
-	//
-	// subAdmin := &example.User{
-	// 	PhoneNumber: "123456789031",
-	// 	Email:       "subadmin@qq.com",
-	// }
-	// if err := service.CreateUser(subAdmin); err != nil {
-	// 	return err
-	// }
-	//
-	// objects, err := service.GetObject()
-	// if err != nil {
-	// 	return err
-	// }
-	//
-	// object1 := &example.Object{
-	// 	Name:     "object_sub_01",
-	// 	Type:     caskin.ObjectTypeObject,
-	// 	ObjectID: objects[0].GetID(),
-	// 	ParentID: objects[0].GetID(),
-	// }
-	// if err := service.CreateObject(object1); err != nil {
-	// 	return err
-	// }
-	// object1.ObjectID = object1.ID
-	// if err := service.UpdateObject(object1); err != nil {
-	// 	return err
-	// }
-	//
-	// object2 := &example.Object{
-	// 	Name:     "role_sub_02",
-	// 	Type:     caskin.ObjectTypeRole,
-	// 	ObjectID: object1.ID,
-	// 	ParentID: objects[1].GetID(),
-	// }
-	// if err := service.CreateObject(object2); err != nil {
-	// 	return err
-	// }
-	//
-	// role := &example.Role{
-	// 	Name:     "admin_sub_01",
-	// 	ObjectID: object2.ID,
-	// 	ParentID: 1,
-	// }
-	// if err := service.CreateRole(role); err != nil {
-	// 	return err
-	// }
-	//
-	// for k, v := range map[caskin.Role][]*caskin.UserRolePair{
-	// 	role: {{User: subAdmin, Role: role}},
-	// } {
-	// 	if err := service.ModifyUserRolePerRole(k, v); err != nil {
-	// 		return err
-	// 	}
-	// }
-	//
-	// policy := []*caskin.Policy{
-	// 	{role, object1, s.Domain, caskin.Read},
-	// 	{role, object1, s.Domain, caskin.Write},
-	// 	{role, object2, s.Domain, caskin.Read},
-	// 	{role, object2, s.Domain, caskin.Write},
-	// }
-	// if err := service.ModifyPolicyPerRole(role, policy); err != nil {
-	// 	return err
-	// }
-
-	// s.SubAdminUser = subAdmin
-	return nil
-}
-
 func (p *Playground) Setup() error {
 	service := p.Service
 
@@ -125,6 +51,7 @@ func (p *Playground) Setup() error {
 	}
 	for k, v := range map[caskin.Role][]*caskin.UserRolePair{
 		roles[0]: {{User: p.Admin, Role: roles[0]}},
+		roles[1]: {{User: p.Member, Role: roles[1]}},
 	} {
 		if err = service.ModifyUserRolePerRole(p.Superadmin, p.Domain, k, v); err != nil {
 			return err

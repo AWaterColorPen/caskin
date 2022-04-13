@@ -17,7 +17,7 @@ func (s *server) CheckObjectData(user User, domain Domain, one ObjectData, actio
 }
 
 func (s *server) SuperadminCheck(user User) error {
-	ok, _ := s.Enforcer.IsSuperAdmin(user)
+	ok, _ := s.Enforcer.IsSuperadmin(user)
 	if !ok {
 		return ErrIsNotSuperAdmin
 	}
@@ -134,7 +134,7 @@ func (s *server) RoleParentCheck(role Role) error {
 	if err := s.IDInterfaceModifyCheck(parent); err != nil {
 		return err
 	}
-	if role.GetObject().GetID() != parent.GetObject().GetID() {
+	if role.GetObjectID() != parent.GetObjectID() {
 		return ErrParentCanNotDiff
 	}
 	return nil
@@ -163,7 +163,7 @@ func (s *server) RoleUpdateCheck(user User, domain Domain, role Role) error {
 	if err := s.ObjectDataWriteCheck(user, domain, old, ObjectTypeRole); err != nil {
 		return err
 	}
-	if role.GetObject().GetID() != old.GetObject().GetID() {
+	if role.GetObjectID() != old.GetObjectID() {
 		return s.ObjectDataWriteCheck(user, domain, role, ObjectTypeRole)
 	}
 	return s.RoleParentToDescendantCheck(domain, role, old)

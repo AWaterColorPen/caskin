@@ -4,7 +4,8 @@ func (s *server) ObjectDataWriteCheck(user User, domain Domain, item ObjectData,
 	if err := s.CheckObjectData(user, domain, item, Write); err != nil {
 		return err
 	}
-	o := item.GetObject()
+	o := DefaultFactory().NewObject()
+	o.SetID(item.GetObjectID())
 	if err := s.DB.Take(o); err != nil {
 		return ErrInValidObject
 	}
@@ -43,7 +44,7 @@ func (s *server) ObjectDataUpdateCheck(user User, domain Domain, item ObjectData
 	if err := s.ObjectDataWriteCheck(user, domain, old, ty); err != nil {
 		return err
 	}
-	if item.GetObject().GetID() != old.GetObject().GetID() {
+	if item.GetObjectID() != old.GetObjectID() {
 		return s.ObjectDataWriteCheck(user, domain, item, ty)
 	}
 	return nil

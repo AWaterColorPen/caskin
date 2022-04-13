@@ -10,14 +10,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestServer_Superadmin_Add(t *testing.T) {
+func TestServer_AddSuperadmin(t *testing.T) {
 	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
 	service := stage.Service
 
-	user1 := &example.User{
-		Email: "member2@qq.com",
-	}
-	assert.Equal(t, caskin.ErrEmptyID, service.AddSuperadmin(user1))
+	user1 := &example.User{ID: 999, Email: "member2@qq.com"}
+	assert.Equal(t, caskin.ErrNotExists, service.AddSuperadmin(user1))
 	user1.ID = stage.Member.ID
 	assert.Error(t, service.AddSuperadmin(user1))
 	assert.NoError(t, service.AddSuperadmin(stage.Member))
@@ -27,13 +25,11 @@ func TestServer_Superadmin_Add(t *testing.T) {
 	assert.Len(t, list1, 2)
 }
 
-func TestServer_Superadmin_Delete(t *testing.T) {
+func TestServer_DeleteSuperadmin(t *testing.T) {
 	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
 	service := stage.Service
 
-	user1 := &example.User{
-		Email: "member2@qq.com",
-	}
+	user1 := &example.User{Email: "member2@qq.com"}
 	assert.Equal(t, caskin.ErrEmptyID, service.DeleteSuperadmin(user1))
 	user1.ID = stage.Member.ID
 	assert.Error(t, service.DeleteSuperadmin(user1))

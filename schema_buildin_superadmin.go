@@ -23,8 +23,8 @@ func (s *SampleSuperadminRole) Decode(code string) error {
 	return nil
 }
 
-func (s *SampleSuperadminRole) GetObject() Object {
-	return nil
+func (s *SampleSuperadminRole) GetObjectID() uint64 {
+	return 0
 }
 
 func (s *SampleSuperadminRole) SetObjectID(uint64) {

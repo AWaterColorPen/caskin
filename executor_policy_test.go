@@ -18,7 +18,7 @@ func TestServer_Policy_GetPolicyList(t *testing.T) {
 	// roles, err := service.GetRole()
 	// assert.NoError(t, err)
 	// assert.Len(t, roles, 3)
-	// objects, err := service.GetObject()
+	// objects, err := service.GetObjectID()
 	// assert.NoError(t, err)
 	// assert.Len(t, objects, 5)
 	//
@@ -129,7 +129,7 @@ func TestServer_Policy_ModifyPolicyListPerRole(t *testing.T) {
 	//
 	// provider.Domain = stage.Domain
 	// provider.User = stage.AdminUser
-	// objects0, err := service.GetObject()
+	// objects0, err := service.GetObjectID()
 	// assert.NoError(t, err)
 	// assert.Len(t, objects0, 5)
 	// roles0, err := service.GetRole()
@@ -140,7 +140,7 @@ func TestServer_Policy_ModifyPolicyListPerRole(t *testing.T) {
 	// roles1, err := service.GetRole()
 	// assert.NoError(t, err)
 	// assert.Len(t, roles1, 1)
-	// objects1, err := service.GetObject()
+	// objects1, err := service.GetObjectID()
 	// assert.NoError(t, err)
 	// assert.Len(t, objects1, 2)
 	//
@@ -178,7 +178,7 @@ func TestServer_Policy_ModifyPolicyListPerObject(t *testing.T) {
 	//
 	// provider.Domain = stage.Domain
 	// provider.User = stage.AdminUser
-	// objects0, err := service.GetObject()
+	// objects0, err := service.GetObjectID()
 	// assert.NoError(t, err)
 	// assert.Len(t, objects0, 5)
 	// roles0, err := service.GetRole()
@@ -189,7 +189,7 @@ func TestServer_Policy_ModifyPolicyListPerObject(t *testing.T) {
 	// roles1, err := service.GetRole()
 	// assert.NoError(t, err)
 	// assert.Len(t, roles1, 1)
-	// objects1, err := service.GetObject()
+	// objects1, err := service.GetObjectID()
 	// assert.NoError(t, err)
 	// assert.Len(t, objects1, 2)
 	//

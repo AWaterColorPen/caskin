@@ -37,7 +37,7 @@ type ObjectData interface {
 	idInterface
 	domainInterface
 	// GetObject get object interface method
-	GetObject() Object
+	GetObjectID() uint64
 	// SetObjectID set object
 	SetObjectID(uint64)
 }

@@ -23,12 +23,12 @@ func TestTreeNodeEntryDeleter_RetryWithRelation(t *testing.T) {
 	// assert.NoError(t, service.CreateObject(object1))
 	//
 	// provider.User = stage.Superadmin
-	// list1, err := service.GetObject()
+	// list1, err := service.GetObjectID()
 	// assert.NoError(t, err)
 	// assert.Len(t, list1, 6)
 	//
 	// assert.NoError(t, service.Enforcer.RemoveObjectInDomain(list1[5], stage.Domain))
-	// list2, err := service.GetObject()
+	// list2, err := service.GetObjectID()
 	// assert.NoError(t, err)
 	// assert.Len(t, list2, 6)
 	//
@@ -36,7 +36,7 @@ func TestTreeNodeEntryDeleter_RetryWithRelation(t *testing.T) {
 	// assert.NoError(t, service.DeleteObject(list2[3]))
 	//
 	// provider.User = stage.Superadmin
-	// list3, err := service.GetObject()
+	// list3, err := service.GetObjectID()
 	// assert.NoError(t, err)
 	// assert.Len(t, list3, 4)
 }

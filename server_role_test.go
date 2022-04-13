@@ -1,86 +1,63 @@
 package caskin_test
 
 import (
+	"github.com/awatercolorpen/caskin"
+	"github.com/awatercolorpen/caskin/example"
+	"github.com/awatercolorpen/caskin/playground"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
-func TestServer_RoleGet(t *testing.T) {
-	// stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
-	//
-	// service := stage.Service
-	//
-	// provider.Domain = stage.Domain
-	// provider.User = stage.AdminUser
-	// roles1, err := service.GetRole()
-	// assert.NoError(t, err)
-	// assert.Len(t, roles1, 2)
-	//
-	// provider.Domain = stage.Domain
-	// provider.User = stage.Member
-	// roles2, err := service.GetRole()
-	// assert.NoError(t, err)
-	// assert.Len(t, roles2, 0)
-	//
-	// provider.Domain = stage.Options.GetSuperadminDomain()
-	// provider.User = stage.Superadmin
-	// roles3, err := service.GetRole()
-	// assert.NoError(t, err)
-	// assert.Len(t, roles3, 0)
+func TestServer_GetRole(t *testing.T) {
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
+	service := stage.Service
+
+	roles1, err := service.GetRole(stage.Admin, stage.Domain)
+	assert.NoError(t, err)
+	assert.Len(t, roles1, 2)
+
+	// GetRole use action=read, member can read
+	roles2, err := service.GetRole(stage.Member, stage.Domain)
+	assert.NoError(t, err)
+	assert.Len(t, roles2, 2)
+
+	roles3, err := service.GetRole(stage.Superadmin, caskin.GetSuperadminDomain())
+	assert.NoError(t, err)
+	assert.Len(t, roles3, 0)
 }
 
-func TestServer_RoleCreate(t *testing.T) {
-	// stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
-	// assert.NoError(t, stage.AddSubAdmin())
-	//
-	// service := stage.Service
-	//
-	// role1 := &example.Role{
-	//	Name: "role_01",
-	// }
-	// assert.Equal(t, caskin.ErrProviderGet, service.CreateRole(role1))
-	//
-	// provider.Domain = stage.Domain
-	// provider.User = stage.Member
-	// assert.Equal(t, caskin.ErrNoWritePermission, service.CreateRole(role1))
-	// provider.User = stage.AdminUser
-	// assert.Equal(t, caskin.ErrNoWritePermission, service.CreateRole(role1))
-	// role1.ObjectID = 2
-	// provider.User = stage.Member
-	// assert.Equal(t, caskin.ErrNoWritePermission, service.CreateRole(role1))
-	// provider.User = stage.AdminUser
-	// assert.NoError(t, service.CreateRole(role1))
-	//
-	// role2 := &example.Role{
-	//	Name: "role_01",
-	// }
-	// assert.Equal(t, caskin.ErrAlreadyExists, service.CreateRole(role2))
-	//
-	// role3 := &example.Role{
-	//	Name:     "role_03",
-	//	ObjectID: 5,
-	//	ParentID: 1,
-	// }
-	// provider.User = stage.SubAdminUser
-	// assert.Equal(t, caskin.ErrNoWritePermission, service.CreateRole(role3))
-	// role3.ObjectID = 4
-	// assert.Equal(t, caskin.ErrInValidObjectType, service.CreateRole(role3))
+func TestServer_CreateRole(t *testing.T) {
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
+	service := stage.Service
+
+	role1 := &example.Role{Name: "role_01"}
+	assert.Equal(t, caskin.ErrNoWritePermission, service.CreateRole(stage.Member, stage.Domain, role1))
+	assert.Equal(t, caskin.ErrNoWritePermission, service.CreateRole(stage.Admin, stage.Domain, role1))
+
+	roles, _ := service.GetRole(stage.Member, stage.Domain)
+	assert.Len(t, roles, 2)
+	role1.ObjectID = roles[0].GetObjectID()
+	assert.Equal(t, caskin.ErrNoWritePermission, service.CreateRole(stage.Member, stage.Domain, role1))
+	assert.NoError(t, service.CreateRole(stage.Admin, stage.Domain, role1))
+
+	role2 := &example.Role{Name: "role_01"}
+	assert.Equal(t, caskin.ErrAlreadyExists, service.CreateRole(stage.Member, stage.Domain, role2))
 }
 
-func TestServer_RoleCreate_SubNode(t *testing.T) {
+func TestServer_CreateRole_SubNode(t *testing.T) {
 	// stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
-	// assert.NoError(t, stage.AddSubAdmin())
-	//
 	// service := stage.Service
 	//
+	// roles, _ := service.GetRole(stage.Member, stage.Domain)
+	// assert.Len(t, roles, 2)
+	//
 	// role1 := &example.Role{
-	//	Name:     "role_sub_02",
-	//	ObjectID: 5,
-	//	ParentID: 3,
+	// 	Name:     "admin-son-1",
+	// 	ObjectID: roles[0].GetObjectID(),
+	// 	ParentID: roles[0].GetID(),
 	// }
-	// provider.Domain = stage.Domain
-	// provider.User = stage.Member
 	// // member can not read or write object5
-	// assert.Equal(t, caskin.ErrNoWritePermission, service.CreateRole(role1))
+	// assert.Equal(t, caskin.ErrNoWritePermission, service.CreateRole(stage.Member, stage.Domain, role1))
 	//
 	// // subAdmin can read or write object5
 	// provider.User = stage.SubAdminUser

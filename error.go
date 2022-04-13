@@ -15,7 +15,6 @@ var (
 	ErrParentCanNotDiff      = fmt.Errorf("parent can't be different object id")
 	ErrParentCanNotBeItself  = fmt.Errorf("parent id can't be it self id")
 	ErrParentToDescendant    = fmt.Errorf("can't change parent to descendant")
-	ErrInValidAction         = fmt.Errorf("invalid action")
 
 	// errors about permission
 	ErrNoReadPermission    = fmt.Errorf("no read permission")
@@ -27,12 +26,8 @@ var (
 	ErrIsNotSuperAdmin = fmt.Errorf("is not superadmin")
 
 	// errors about caskin initialization
-	ErrInitializationNilEnforcer     = fmt.Errorf("enforcer is nil")
-	ErrInitializationNilEntryFactory = fmt.Errorf("entry factory is nil")
-	ErrInitializationNilMetaDB       = fmt.Errorf("metadata database is nil")
-
-	// errors about current provider
-	ErrProviderGet = fmt.Errorf("provider can't get current status")
+	ErrInitializationNilEnforcer = fmt.Errorf("enforcer is nil")
+	ErrInitializationNilMetaDB   = fmt.Errorf("metadata database is nil")
 
 	// errors about user role pair
 	ErrInputPairArrayNotBelongSameUser = fmt.Errorf("input user role pair array are not belong to same user")

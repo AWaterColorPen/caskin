@@ -9,7 +9,7 @@ type IEnforcer interface {
 	Enforce(User, Object, Domain, Action) (bool, error)
 	EnforceRole(son Role, parent Role, domain Domain) (bool, error)
 	EnforceObject(son Object, parent Object, domain Domain) (bool, error)
-	IsSuperAdmin(User) (bool, error)
+	IsSuperadmin(User) (bool, error)
 
 	// get user's domain
 	GetDomainsIncludeUser(User) []Domain
@@ -95,7 +95,7 @@ func (e *enforcer) EnforceObject(son Object, parent Object, domain Domain) (bool
 	return false, nil
 }
 
-func (e *enforcer) IsSuperAdmin(user User) (bool, error) {
+func (e *enforcer) IsSuperadmin(user User) (bool, error) {
 	return e.e.HasRoleForUser(user.Encode(), SuperadminRole, SuperadminDomain)
 }
 

@@ -48,8 +48,10 @@ func Filter[T any](e IEnforcer, u User, d Domain, action Action, source []T) []T
 
 // Check object/object_data permission by u, d, action
 func Check[T any](e IEnforcer, u User, d Domain, one T, action Action) bool {
-	if o, ok := any(one).(ObjectData); ok {
-		ok, _ = e.Enforce(u, o.GetObject(), d, action)
+	if data, ok := any(one).(ObjectData); ok {
+		o := DefaultFactory().NewObject()
+		o.SetID(data.GetObjectID())
+		ok, _ = e.Enforce(u, o, d, action)
 		return ok
 	}
 	if o, ok := any(one).(Object); ok {

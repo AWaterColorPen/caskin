@@ -11,7 +11,7 @@ func TestServer_Object_GetObjects(t *testing.T) {
 	//
 	// provider.Domain = stage.Domain
 	// provider.User = stage.AdminUser
-	// objects1, err := service.GetObject()
+	// objects1, err := service.GetObjectID()
 	// assert.NoError(t, err)
 	// assert.Len(t, objects1, 3)
 	//
@@ -25,13 +25,13 @@ func TestServer_Object_GetObjects(t *testing.T) {
 	//
 	// provider.Domain = stage.Domain
 	// provider.User = stage.Member
-	// objects4, err := service.GetObject()
+	// objects4, err := service.GetObjectID()
 	// assert.NoError(t, err)
 	// assert.Len(t, objects4, 0)
 	//
 	// provider.Domain = stage.Options.GetSuperadminDomain()
 	// provider.User = stage.Superadmin
-	// objects5, err := service.GetObject()
+	// objects5, err := service.GetObjectID()
 	// assert.NoError(t, err)
 	// assert.Len(t, objects5, 0)
 }
@@ -141,12 +141,12 @@ func TestServer_Object_CreateSubNode(t *testing.T) {
 	//
 	// provider.User = stage.AdminUser
 	// assert.NoError(t, service.DeleteObject(object2))
-	// list1, err := service.GetObject()
+	// list1, err := service.GetObjectID()
 	// assert.NoError(t, err)
 	// assert.Len(t, list1, 3)
 	//
 	// provider.User = stage.Superadmin
-	// list2, err := service.GetObject()
+	// list2, err := service.GetObjectID()
 	// assert.NoError(t, err)
 	// assert.Len(t, list2, 4)
 }

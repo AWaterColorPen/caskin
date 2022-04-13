@@ -130,7 +130,7 @@ func TestServer_UserRole_UserRolePerRoleModify(t *testing.T) {
 	//
 	// provider.Domain = stage.Domain
 	// provider.User = stage.AdminUser
-	// objects0, err := service.GetObject()
+	// objects0, err := service.GetObjectID()
 	// assert.NoError(t, err)
 	// assert.Len(t, objects0, 5)
 	// roles0, err := service.GetRole()
@@ -141,7 +141,7 @@ func TestServer_UserRole_UserRolePerRoleModify(t *testing.T) {
 	// roles1, err := service.GetRole()
 	// assert.NoError(t, err)
 	// assert.Len(t, roles1, 1)
-	// objects1, err := service.GetObject()
+	// objects1, err := service.GetObjectID()
 	// assert.NoError(t, err)
 	// assert.Len(t, objects1, 2)
 	//
@@ -181,7 +181,7 @@ func TestServer_UserRole_UserRolePerUserModify(t *testing.T) {
 	//
 	// provider.Domain = stage.Domain
 	// provider.User = stage.AdminUser
-	// objects0, err := service.GetObject()
+	// objects0, err := service.GetObjectID()
 	// assert.NoError(t, err)
 	// assert.Len(t, objects0, 5)
 	// roles0, err := service.GetRole()
@@ -192,7 +192,7 @@ func TestServer_UserRole_UserRolePerUserModify(t *testing.T) {
 	// roles1, err := service.GetRole()
 	// assert.NoError(t, err)
 	// assert.Len(t, roles1, 1)
-	// objects1, err := service.GetObject()
+	// objects1, err := service.GetObjectID()
 	// assert.NoError(t, err)
 	// assert.Len(t, objects1, 2)
 	//

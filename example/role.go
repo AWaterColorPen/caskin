@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/awatercolorpen/caskin"
 	"gorm.io/gorm"
 )
 
@@ -45,8 +44,8 @@ func (r *Role) Decode(code string) error {
 	return err
 }
 
-func (r *Role) GetObject() caskin.Object {
-	return &Object{ID: r.ObjectID}
+func (r *Role) GetObjectID() uint64 {
+	return r.ObjectID
 }
 
 func (r *Role) SetObjectID(objectId uint64) {
