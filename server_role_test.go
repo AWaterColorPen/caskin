@@ -45,23 +45,22 @@ func TestServer_CreateRole(t *testing.T) {
 }
 
 func TestServer_CreateRole_SubNode(t *testing.T) {
-	// stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
-	// service := stage.Service
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
+	service := stage.Service
+
+	roles, _ := service.GetRole(stage.Member, stage.Domain)
+	assert.Len(t, roles, 2)
+
+	role1 := &example.Role{
+		Name:     "admin-son-1",
+		ObjectID: roles[0].GetObjectID(),
+		ParentID: roles[0].GetID(),
+	}
+	// member can not write
+	assert.Equal(t, caskin.ErrNoWritePermission, service.CreateRole(stage.Member, stage.Domain, role1))
 	//
-	// roles, _ := service.GetRole(stage.Member, stage.Domain)
-	// assert.Len(t, roles, 2)
-	//
-	// role1 := &example.Role{
-	// 	Name:     "admin-son-1",
-	// 	ObjectID: roles[0].GetObjectID(),
-	// 	ParentID: roles[0].GetID(),
-	// }
-	// // member can not read or write object5
-	// assert.Equal(t, caskin.ErrNoWritePermission, service.CreateRole(stage.Member, stage.Domain, role1))
-	//
-	// // subAdmin can read or write object5
-	// provider.User = stage.SubAdminUser
-	// assert.NoError(t, service.CreateRole(role1))
+	// admin can write
+	assert.NoError(t, service.CreateRole(stage.Admin, stage.Domain, role1))
 	//
 	// // make current role a son of member's, subAdminUser does not own the permission
 	// role1.ParentID = 2

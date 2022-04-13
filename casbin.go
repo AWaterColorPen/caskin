@@ -307,11 +307,13 @@ func (e *enforcer) RemoveRoleForUserInDomain(user User, role Role, domain Domain
 }
 
 func (e *enforcer) AddParentForRoleInDomain(son Role, parent Role, domain Domain) error {
+	// TODO
 	_, err := e.e.AddRoleForUserInDomain(parent.Encode(), son.Encode(), domain.Encode())
 	return err
 }
 
 func (e *enforcer) RemoveParentForRoleInDomain(son Role, parent Role, domain Domain) error {
+	// TODO
 	_, err := e.e.DeleteRoleForUserInDomain(parent.Encode(), son.Encode(), domain.Encode())
 	return err
 }
