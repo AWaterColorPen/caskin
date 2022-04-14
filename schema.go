@@ -21,6 +21,7 @@ type Domain interface {
 type Role interface {
 	ObjectData
 	codeInterface
+	// TODO no parent
 	parentInterface
 }
 
@@ -36,7 +37,7 @@ type Object interface {
 type ObjectData interface {
 	idInterface
 	domainInterface
-	// GetObject get object interface method
+	// GetObjectID get object
 	GetObjectID() uint64
 	// SetObjectID set object
 	SetObjectID(uint64)
@@ -66,15 +67,6 @@ func Tree[E treeNode](in []E) map[uint64]uint64 {
 		}
 	}
 	return m
-}
-
-// Creator interface to newByE a domain
-type Creator interface {
-	BuildCreator() ([]Role, []Object)
-	SetRelation()
-	GetPolicy() []*Policy
-	GetRoles() []Role
-	GetObjects() []Object
 }
 
 // Policy tuple of role-object-domain-action

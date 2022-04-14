@@ -1,9 +1,9 @@
 package playground_test
 
 import (
-	"github.com/awatercolorpen/caskin/playground"
 	"testing"
 
+	"github.com/awatercolorpen/caskin/playground"
 	"github.com/stretchr/testify/assert"
 )
 

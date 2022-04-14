@@ -9,7 +9,7 @@ func (o *NamedObject) GetID() uint64 {
 	return 0
 }
 
-func (o *NamedObject) SetID(id uint64) {
+func (o *NamedObject) SetID(uint64) {
 }
 
 func (o *NamedObject) Encode() string {
@@ -25,14 +25,14 @@ func (o *NamedObject) GetParentID() uint64 {
 	return 0
 }
 
-func (o *NamedObject) SetParentID(pid uint64) {
+func (o *NamedObject) SetParentID(uint64) {
 }
 
 func (o *NamedObject) GetDomainID() uint64 {
 	return 0
 }
 
-func (o *NamedObject) SetDomainID(did uint64) {
+func (o *NamedObject) SetDomainID(uint64) {
 }
 
 func (o *NamedObject) GetName() string {

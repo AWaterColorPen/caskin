@@ -29,11 +29,8 @@ var (
 	ErrInitializationNilEnforcer = fmt.Errorf("enforcer is nil")
 	ErrInitializationNilMetaDB   = fmt.Errorf("metadata database is nil")
 
-	// errors about user role pair
-	ErrInputPairArrayNotBelongSameUser = fmt.Errorf("input user role pair array are not belong to same user")
-	ErrInputPairArrayNotBelongSameRole = fmt.Errorf("input user role pair array are not belong to same role")
-
-	// errors about policy list
+	ErrInputPairArrayNotBelongSameUser    = fmt.Errorf("input user role pair array are not belong to same user")
+	ErrInputPairArrayNotBelongSameRole    = fmt.Errorf("input user role pair array are not belong to same role")
 	ErrInputPolicyListNotBelongSameRole   = fmt.Errorf("input policy list are not belong to same role")
 	ErrInputPolicyListNotBelongSameObject = fmt.Errorf("input policy list are not belong to same object")
 )

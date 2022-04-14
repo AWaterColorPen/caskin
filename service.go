@@ -34,14 +34,6 @@ type IBaseService interface {
 	UpdateRole(User, Domain, Role) error
 	GetRole(User, Domain) ([]Role, error)
 
-	ObjectDataWriteCheck(User, Domain, ObjectData, ObjectType) error
-	ObjectDataCreateCheck(User, Domain, ObjectData, ObjectType) error
-	ObjectDataRecoverCheck(User, Domain, ObjectData) error
-	ObjectDataDeleteCheck(User, Domain, ObjectData) error
-	ObjectDataUpdateCheck(User, Domain, ObjectData, ObjectType) error
-	ObjectDataModifyCheck(User, Domain, ObjectData) error
-	ObjectDataGetCheck(User, Domain, ObjectData) error
-
 	GetUserByDomain(Domain) ([]User, error)
 	GetDomainByUser(User) ([]Domain, error)
 
@@ -56,6 +48,13 @@ type IBaseService interface {
 	GetPolicyByObject(User, Domain, Object) ([]*Policy, error)
 	ModifyPolicyPerRole(User, Domain, Role, []*Policy) error
 	ModifyPolicyPerObject(User, Domain, Object, []*Policy) error
+
+	ObjectDataCreateCheck(User, Domain, ObjectData, ObjectType) error
+	ObjectDataRecoverCheck(User, Domain, ObjectData) error
+	ObjectDataDeleteCheck(User, Domain, ObjectData) error
+	ObjectDataUpdateCheck(User, Domain, ObjectData, ObjectType) error
+	ObjectDataModifyCheck(User, Domain, ObjectData) error
+	ObjectDataGetCheck(User, Domain, ObjectData) error
 }
 
 type ICurrentService interface {

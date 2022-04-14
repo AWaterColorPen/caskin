@@ -7,6 +7,7 @@ import (
 	"github.com/awatercolorpen/caskin/example"
 	"github.com/casbin/casbin/v2"
 	"github.com/casbin/gorm-adapter/v3"
+	"gorm.io/gorm"
 )
 
 var DictionaryDsn = "configs/caskin.toml"
@@ -14,6 +15,7 @@ var DictionaryDsn = "configs/caskin.toml"
 // Playground example playground for easy testing
 type Playground struct {
 	Service    caskin.IService
+	DB         *gorm.DB
 	Superadmin *example.User   // superadmin user on playground
 	Admin      *example.User   // a domain admin user on stage
 	Member     *example.User   // a domain member user on stage
@@ -100,6 +102,6 @@ func NewPlaygroundWithSqlitePath(sqlitePath string) (*Playground, error) {
 	if err != nil {
 		return nil, err
 	}
-	playground := &Playground{Service: service}
+	playground := &Playground{Service: service, DB: db}
 	return playground, playground.Setup()
 }
