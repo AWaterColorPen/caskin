@@ -1,6 +1,6 @@
 package caskin
 
-// ObjectCreate
+// CreateObject
 // if there does not exist the object then create a new one
 // 1. current user has manage permission of object's parent
 // 2. create a new object into metadata database
@@ -20,7 +20,7 @@ func (s *server) CreateObject(user User, domain Domain, object Object) error {
 	return updater.Run(object, domain)
 }
 
-// ObjectRecover
+// RecoverObject
 // if there exist the object but soft deleted then recover it
 // 1. current user has manage permission of object's parent
 // 2. recover the soft delete one object at metadata database
@@ -40,7 +40,7 @@ func (s *server) RecoverObject(user User, domain Domain, object Object) error {
 	return updater.Run(object, domain)
 }
 
-// ObjectDelete
+// DeleteObject
 // if there exist the object
 // 1. current user has manage permission of object's parent
 // 2. delete object's g2 in the domain
@@ -59,7 +59,7 @@ func (s *server) DeleteObject(user User, domain Domain, object Object) error {
 	return deleter.Run(object, domain)
 }
 
-// ObjectUpdate
+// UpdateObject
 // if there exist the object
 // 1. current user has manage permission of object's parent to change parent_id
 //    current user has manage permission of object to change properties
@@ -80,7 +80,7 @@ func (s *server) UpdateObject(user User, domain Domain, object Object) error {
 	return updater.Run(object, domain)
 }
 
-// ObjectGet
+// GetObject
 // get choose object
 // 1. current user has manage permission of object
 //    manage permission for admin to manage

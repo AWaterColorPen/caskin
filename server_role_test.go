@@ -44,6 +44,7 @@ func TestServer_CreateRole(t *testing.T) {
 	assert.Equal(t, caskin.ErrAlreadyExists, service.CreateRole(stage.Member, stage.Domain, role2))
 }
 
+// TODO
 func TestServer_CreateRole_SubNode(t *testing.T) {
 	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
 	service := stage.Service
@@ -78,6 +79,7 @@ func TestServer_CreateRole_SubNode(t *testing.T) {
 	// assert.Len(t, list1, 2)
 }
 
+// TODO
 func TestServer_RoleUpdate(t *testing.T) {
 	// stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
 	//
@@ -119,6 +121,7 @@ func TestServer_RoleUpdate(t *testing.T) {
 
 }
 
+// TODO
 func TestServer_RoleUpdate_Parent(t *testing.T) {
 	// stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
 	//
@@ -155,6 +158,7 @@ func TestServer_RoleUpdate_Parent(t *testing.T) {
 	// assert.NoError(t, service.UpdateRole(role2))
 }
 
+// TODO
 func TestServer_RoleRecover(t *testing.T) {
 	// stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
 	// assert.NoError(t, stage.AddSubAdmin())
@@ -190,6 +194,7 @@ func TestServer_RoleRecover(t *testing.T) {
 	// assert.Equal(t, caskin.ErrNoWritePermission, service.RecoverRole(role3))
 }
 
+// TODO
 func TestServer_RoleDelete(t *testing.T) {
 	// stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
 	//
@@ -218,6 +223,7 @@ func TestServer_RoleDelete(t *testing.T) {
 	// assert.Equal(t, caskin.ErrNoWritePermission, service.RecoverRole(role3))
 }
 
+// TODO
 func TestServer_RoleDelete_SubNode(t *testing.T) {
 	// stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
 	//

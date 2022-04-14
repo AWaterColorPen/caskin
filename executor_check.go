@@ -119,7 +119,7 @@ func (s *server) ObjectUpdateCheck(user User, domain Domain, object Object) erro
 	if object.GetObjectType() != "" && object.GetObjectType() != old.GetObjectType() {
 		return ErrCantChangeObjectType
 	}
-	if err := s.ObjectManageCheck(user, domain, object); err != nil {
+	if err := s.ObjectManageCheck(user, domain, old); err != nil {
 		return err
 	}
 	return s.ObjectParentToDescendantCheck(domain, object, old)
