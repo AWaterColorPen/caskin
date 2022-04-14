@@ -3,10 +3,9 @@ package caskin_test
 import (
 	"testing"
 
-	"github.com/awatercolorpen/caskin/playground"
-
 	"github.com/awatercolorpen/caskin"
 	"github.com/awatercolorpen/caskin/example"
+	"github.com/awatercolorpen/caskin/playground"
 	"github.com/stretchr/testify/assert"
 )
 

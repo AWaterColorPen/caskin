@@ -4,7 +4,7 @@ import (
 	"github.com/ahmetb/go-linq/v3"
 )
 
-// UserRoleGet
+// GetUserRole
 // 1. get all user
 // 2. get all role which current user has read permission in current domain
 // 3. get user to role 's g as UserRolePair in current domain
@@ -31,7 +31,7 @@ func (s *server) GetUserRole(user User, domain Domain) ([]*UserRolePair, error) 
 	return list, nil
 }
 
-// UserRoleByUserGet
+// GetUserRoleByUser
 // 1. get role which current user has read permission in current domain
 // 2. get user to role 's g as UserRolePair in current domain
 func (s *server) GetUserRoleByUser(user User, domain Domain, byUser User) ([]*UserRolePair, error) {
@@ -54,7 +54,7 @@ func (s *server) GetUserRoleByUser(user User, domain Domain, byUser User) ([]*Us
 	return list, nil
 }
 
-// UserRoleByRoleGet
+// GetUserRoleByRole
 // 1. get role which current user has read permission in current domain
 // 2. get user to role 's g as UserRolePair in current domain
 func (s *server) GetUserRoleByRole(user User, domain Domain, byRole Role) ([]*UserRolePair, error) {
@@ -76,7 +76,7 @@ func (s *server) GetUserRoleByRole(user User, domain Domain, byRole Role) ([]*Us
 	return list, nil
 }
 
-// UserRolePerUserModify
+// ModifyUserRolePerUser
 // if current user has role's write permission
 // 1. modify user to role 's g in current domain
 func (s *server) ModifyUserRolePerUser(user User, domain Domain, perUser User, input []*UserRolePair) error {
@@ -138,7 +138,7 @@ func (s *server) ModifyUserRolePerUser(user User, domain Domain, perUser User, i
 	return nil
 }
 
-// UserRolePerRoleModify
+// ModifyUserRolePerRole
 // if current user has role's write permission
 // 1. modify role's to user 's g in current domain
 func (s *server) ModifyUserRolePerRole(user User, domain Domain, perRole Role, input []*UserRolePair) error {

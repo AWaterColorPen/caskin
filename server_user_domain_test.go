@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/awatercolorpen/caskin/playground"
-
 	"github.com/stretchr/testify/assert"
 )
 

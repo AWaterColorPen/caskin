@@ -2,7 +2,7 @@ package caskin
 
 import "github.com/ahmetb/go-linq/v3"
 
-// PolicyGet
+// GetPolicy
 // get all policies
 // 1. current user has role and object's read permission in current domain
 // 2. build role's tree
@@ -35,7 +35,7 @@ func (s *server) GetPolicy(user User, domain Domain) ([]*Policy, error) {
 	return list, nil
 }
 
-// PolicyByRoleGet
+// GetPolicyByRole
 // 1. get policy which current user has role and object's read permission in current domain
 // 2. get user to role 's g as Policy in current domain
 func (s *server) GetPolicyByRole(user User, domain Domain, byRole Role) ([]*Policy, error) {
@@ -64,7 +64,7 @@ func (s *server) GetPolicyByRole(user User, domain Domain, byRole Role) ([]*Poli
 	return list, nil
 }
 
-// PolicyByObjectGet
+// GetPolicyByObject
 // 1. get policy which current user has role and object's read permission in current domain
 // 2. get user to role 's g as Policy in current domain
 func (s *server) GetPolicyByObject(user User, domain Domain, byObject Object) ([]*Policy, error) {
@@ -93,7 +93,7 @@ func (s *server) GetPolicyByObject(user User, domain Domain, byObject Object) ([
 	return list, nil
 }
 
-// PolicyPerRoleModify
+// ModifyPolicyPerRole
 // if current user has role and object's write permission
 // 1. modify role to object 's p in current domain
 func (s *server) ModifyPolicyPerRole(user User, domain Domain, perRole Role, input []*Policy) error {
@@ -152,7 +152,7 @@ func (s *server) ModifyPolicyPerRole(user User, domain Domain, perRole Role, inp
 	return nil
 }
 
-// PolicyPerObjectModify
+// ModifyPolicyPerObject
 // if current user has role and object's write permission
 // 1. modify role to object 's p in current domain
 func (s *server) ModifyPolicyPerObject(user User, domain Domain, perObject Object, input []*Policy) error {
