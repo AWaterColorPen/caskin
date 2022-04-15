@@ -353,7 +353,6 @@ func (e *enforcer) GetRolesInDomain(domain Domain) []Role {
 		if err2 != nil {
 			continue
 		}
-		r2.SetParentID(r1.GetID())
 		roles = append(roles, r2)
 	}
 

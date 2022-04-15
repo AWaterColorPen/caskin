@@ -21,8 +21,6 @@ type Domain interface {
 type Role interface {
 	ObjectData
 	codeInterface
-	// TODO no parent
-	parentInterface
 }
 
 type Object interface {

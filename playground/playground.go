@@ -95,9 +95,10 @@ func NewPlaygroundWithSqlitePath(sqlitePath string) (*Playground, error) {
 		Dictionary: &caskin.DictionaryOption{Dsn: DictionaryDsn},
 		DB:         dbOption,
 		Enforcer:   enforcer,
-		MetaDB:     example.NewGormMDBByDB(db),
 	}
-	caskin.DefaultRegister().Register(&example.User{}, &example.Role{}, &example.Object{}, &example.Domain{})
+
+	caskin.SetRegister[*example.User, *example.Role, *example.Object, *example.Domain]()
+
 	service, err := caskin.New(option)
 	if err != nil {
 		return nil, err

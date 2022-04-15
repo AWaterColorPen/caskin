@@ -18,7 +18,6 @@ type Options struct {
 	DB                          *DBOption         `json:"db"`
 	// options for implementations of the interface
 	Enforcer casbin.IEnforcer `json:"-"`
-	MetaDB   MetaDB           `json:"-"` // TODO don't use MetaDB
 }
 
 func (o *Options) newOptions(opts ...Option) *Options {

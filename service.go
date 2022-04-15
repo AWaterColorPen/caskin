@@ -49,6 +49,12 @@ type IBaseService interface {
 	ModifyPolicyPerRole(User, Domain, Role, []*Policy) error
 	ModifyPolicyPerObject(User, Domain, Object, []*Policy) error
 
+	CreateObjectData(User, Domain, ObjectData, ObjectType) error
+	RecoverObjectData(User, Domain, ObjectData) error
+	DeleteObjectData(User, Domain, ObjectData) error
+	UpdateObjectData(User, Domain, ObjectData, ObjectType) error
+	// GetObjectData(User, Domain, ObjectData) error // TODO
+
 	ObjectDataCreateCheck(User, Domain, ObjectData, ObjectType) error
 	ObjectDataRecoverCheck(User, Domain, ObjectData) error
 	ObjectDataDeleteCheck(User, Domain, ObjectData) error

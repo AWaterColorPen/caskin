@@ -1,40 +1,53 @@
 package caskin_test
 
 import (
+	"github.com/awatercolorpen/caskin/example"
 	"testing"
+
+	"github.com/awatercolorpen/caskin"
+	"github.com/awatercolorpen/caskin/playground"
+	"github.com/stretchr/testify/assert"
 )
 
-func TestServer_UserRole_GetUserRolePair(t *testing.T) {
-	// stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
-	// assert.NoError(t, stage.AddSubAdmin())
-	//
-	// service := stage.Service
-	//
-	// provider.Domain = stage.Domain
-	// provider.User = stage.AdminUser
-	// list1, err := service.GetUserRole()
-	// assert.NoError(t, err)
-	// assert.Len(t, list1, 3)
-	// roles, err := service.GetRole()
-	// assert.NoError(t, err)
-	// assert.Len(t, roles, 3)
-	//
-	// pairs := []*caskin.UserRolePair{
-	//	{stage.Member, roles[1]},
-	//	{stage.SubAdminUser, roles[1]},
-	// }
-	// assert.NoError(t, service.ModifyUserRolePerRole(roles[1], pairs))
-	//
-	// list3, err := service.GetUserRole()
-	// assert.NoError(t, err)
-	// assert.Len(t, list3, 4)
+func TestServer_UserRole_GetUserRole(t *testing.T) {
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
+	service := stage.Service
+
+	list1, err := service.GetUserRole(stage.Admin, stage.Domain)
+	assert.NoError(t, err)
+	assert.Len(t, list1, 2)
+	roles, err := service.GetRole(stage.Admin, stage.Domain)
+	assert.NoError(t, err)
+	assert.Len(t, roles, 2)
+
+	pairs := []*caskin.UserRolePair{
+		{stage.Admin, roles[0]},
+		{stage.Member, roles[0]},
+	}
+	assert.NoError(t, service.ModifyUserRolePerRole(stage.Admin, stage.Domain, roles[0], pairs))
+
+	list2, err := service.GetUserRole(stage.Member, stage.Domain)
+	assert.NoError(t, err)
+	assert.Len(t, list2, 3)
 }
 
-func TestServer_UserRole_GetUserRolePairSubAdmin(t *testing.T) {
-	// stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
-	// assert.NoError(t, stage.AddSubAdmin())
-	//
-	// service := stage.Service
+func TestServer_UserRole_GetUserRole_TreeNode(t *testing.T) {
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
+	service := stage.Service
+
+	objects, err := service.GetObject(stage.Admin, stage.Domain, caskin.Manage)
+	assert.NoError(t, err)
+	assert.Len(t, objects, 2)
+	roles, err := service.GetRole(stage.Admin, stage.Domain)
+	assert.NoError(t, err)
+	assert.Len(t, roles, 2)
+
+	object1 := &example.Object{Name: "role_sub_01", Type: "role"}
+	object1.ParentID = objects[0].GetID()
+	assert.NoError(t, service.CreateObject(stage.Admin, stage.Domain, object1))
+
+	role1 := &example.Role{Name: "role_sub_01", ObjectID: object1.ID}
+	assert.NoError(t, service.CreateRole(stage.Admin, stage.Domain, role1))
 	//
 	// provider.Domain = stage.Domain
 	// provider.User = stage.SubAdminUser

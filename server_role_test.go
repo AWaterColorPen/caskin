@@ -56,7 +56,6 @@ func TestServer_CreateRole_SubNode(t *testing.T) {
 	role1 := &example.Role{
 		Name:     "admin-son-1",
 		ObjectID: roles[0].GetObjectID(),
-		ParentID: roles[0].GetID(),
 	}
 	// member can not write
 	assert.Equal(t, caskin.ErrNoWritePermission, service.CreateRole(stage.Member, stage.Domain, role1))

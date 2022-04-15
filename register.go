@@ -2,30 +2,11 @@ package caskin
 
 import (
 	"fmt"
+	"gorm.io/gorm"
 	"reflect"
 )
 
-var defaultRegister = &builtinRegister{}
-var defaultFactory = (*builtinFactory)(defaultRegister)
-
-func DefaultRegister() Register {
-	return defaultRegister
-}
-
-func DefaultFactory() Factory {
-	return defaultFactory
-}
-
-type Register interface {
-	Register(User, Role, Object, Domain)
-}
-
-type builtinRegister struct {
-	user   []User
-	role   []Role
-	object []Object
-	domain []Domain
-}
+var defaultFactory Factory
 
 type Factory interface {
 	User(string) (User, error)
@@ -36,49 +17,65 @@ type Factory interface {
 	NewRole() Role
 	NewObject() Object
 	NewDomain() Domain
+	MetadataDB(db *gorm.DB) MetaDB
 }
 
-func (b *builtinRegister) Register(user User, role Role, object Object, domain Domain) {
-	b.user = append(b.user, user)
-	b.role = append(b.role, role)
-	b.object = append(b.object, object)
-	b.domain = append(b.domain, domain)
+func SetRegister[U User, R Role, O Object, D Domain]() {
+	b := &builtinRegister[U, R, O, D]{}
+	b.user = append(b.user, b.NewUser())
+	b.role = append(b.role, b.NewRole())
+	b.object = append(b.object, b.NewObject())
+	b.domain = append(b.domain, b.NewDomain())
 	// builtin
 	b.object = append(b.object, &NamedObject{})
+	defaultFactory = b
 }
 
-type builtinFactory builtinRegister
+func DefaultFactory() Factory {
+	return defaultFactory
+}
 
-func (b *builtinFactory) User(code string) (User, error) {
+type builtinRegister[U User, R Role, O Object, D Domain] struct {
+	user   []User
+	role   []Role
+	object []Object
+	domain []Domain
+}
+
+func (b *builtinRegister[U, R, O, D]) User(code string) (User, error) {
 	return decode(code, b.user)
 }
 
-func (b *builtinFactory) Role(code string) (Role, error) {
+func (b *builtinRegister[U, R, O, D]) Role(code string) (Role, error) {
 	return decode(code, b.role)
 }
 
-func (b *builtinFactory) Object(code string) (Object, error) {
+func (b *builtinRegister[U, R, O, D]) Object(code string) (Object, error) {
 	return decode(code, b.object)
 }
 
-func (b *builtinFactory) Domain(code string) (Domain, error) {
+func (b *builtinRegister[U, R, O, D]) Domain(code string) (Domain, error) {
 	return decode(code, b.domain)
 }
 
-func (b *builtinFactory) NewUser() User {
-	return newByE(b.user[0])
+func (b *builtinRegister[U, R, O, D]) NewUser() User {
+	return newByT[U]()
 }
 
-func (b *builtinFactory) NewRole() Role {
-	return newByE(b.role[0])
+func (b *builtinRegister[U, R, O, D]) NewRole() Role {
+	return newByT[R]()
 }
 
-func (b *builtinFactory) NewObject() Object {
-	return newByE(b.object[0])
+func (b *builtinRegister[U, R, O, D]) NewObject() Object {
+	return newByT[O]()
 }
 
-func (b *builtinFactory) NewDomain() Domain {
-	return newByE(b.domain[0])
+func (b *builtinRegister[U, R, O, D]) NewDomain() Domain {
+	return newByT[D]()
+}
+
+func (b *builtinRegister[U, R, O, D]) MetadataDB(db *gorm.DB) MetaDB {
+	return &builtinMetadataDB[U, R, O, D]{DB: db}
 }
 
 func decode[T codeInterface](code string, candidate []T) (T, error) {
