@@ -68,10 +68,6 @@ func (f *fileDictionary) GetCreatorPolicy() ([]*CreatorPolicy, error) {
 	return f.CreatorPolicy, nil
 }
 
-func (f *fileDictionary) isValid() error {
-	return nil
-}
-
 func newDictionaryByFile(option *DictionaryOption) (*fileDictionary, error) {
 	b, err := os.ReadFile(option.Dsn)
 	if err != nil {
@@ -88,5 +84,5 @@ func newDictionaryByFile(option *DictionaryOption) (*fileDictionary, error) {
 	default:
 		return nil, fmt.Errorf("not supported extension %v", extension)
 	}
-	return dictionary, dictionary.isValid()
+	return dictionary, nil
 }

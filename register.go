@@ -20,7 +20,7 @@ type Factory interface {
 	MetadataDB(db *gorm.DB) MetaDB
 }
 
-func SetRegister[U User, R Role, O Object, D Domain]() {
+func Register[U User, R Role, O Object, D Domain]() {
 	b := &builtinRegister[U, R, O, D]{}
 	b.user = append(b.user, b.NewUser())
 	b.role = append(b.role, b.NewRole())

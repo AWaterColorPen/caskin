@@ -77,16 +77,15 @@ func NewPlaygroundWithSqlitePath(sqlitePath string) (*Playground, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	adapter, err := gormadapter.NewAdapterByDB(db)
 	if err != nil {
 		return nil, err
 	}
-
 	m, err := caskin.CasbinModel()
 	if err != nil {
 		return nil, err
 	}
-
 	enforcer, err := casbin.NewSyncedEnforcer(m, adapter)
 	if err != nil {
 		return nil, err
@@ -97,7 +96,7 @@ func NewPlaygroundWithSqlitePath(sqlitePath string) (*Playground, error) {
 		Enforcer:   enforcer,
 	}
 
-	caskin.SetRegister[*example.User, *example.Role, *example.Object, *example.Domain]()
+	caskin.Register[*example.User, *example.Role, *example.Object, *example.Domain]()
 
 	service, err := caskin.New(option)
 	if err != nil {
