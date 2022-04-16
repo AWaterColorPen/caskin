@@ -14,8 +14,11 @@ func (s *server) GetFrontend() ([]*Frontend, error) {
 
 func (s *server) AuthBackend(user User, domain Domain, backend *Backend) error {
 	value, err := s.Dictionary.GetBackendByKey(backend.Key())
-	if err != nil || backend == nil {
+	if err != nil {
 		return ErrNoBackendPermission
+	}
+	if value == nil {
+		value = &Backend{}
 	}
 	if s.CheckObject(user, domain, value.ToObject(), Read) != nil {
 		return ErrNoBackendPermission
@@ -130,19 +133,15 @@ func (s *server) ModifyFeaturePolicyPerRole(user User, domain Domain, perRole Ro
 	// get diff to add and remove
 	add, remove := DiffPolicy(source, target)
 	for _, v := range add {
-		if err = s.Enforcer.AddPolicyInDomain(v.Role, v.Object, v.Domain, Read); err != nil {
+		if err = s.Enforcer.AddPolicyInDomain(v.Role, v.Object, domain, Read); err != nil {
 			return err
 		}
 	}
 	for _, v := range remove {
-		if err = s.Enforcer.RemovePolicyInDomain(v.Role, v.Object, v.Domain, Read); err != nil {
+		if err = s.Enforcer.RemovePolicyInDomain(v.Role, v.Object, domain, Read); err != nil {
 			return err
 		}
 	}
 
-	return nil
-}
-
-func (s *server) ResetFeature(domain Domain) error {
 	return nil
 }

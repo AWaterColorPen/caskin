@@ -1,8 +1,8 @@
 package caskin
 
-func (s *server) FeatureReload(domain Domain) error {
-	sourceG2 := s.getSourceFeatureG2(domain)
-	targetG2 := s.getTargetFeatureG2()
+func (s *server) ResetFeature(domain Domain) error {
+	sourceG2 := getSourceFeatureG2(s.Enforcer, domain)
+	targetG2 := getTargetFeatureG2(s.Dictionary)
 	var source, target []string
 	for k, relation := range sourceG2 {
 		for _, v := range relation {
@@ -43,9 +43,9 @@ func (s *server) FeatureReload(domain Domain) error {
 	return nil
 }
 
-func (s *server) getSourceFeatureG2(domain Domain) map[string][]string {
+func getSourceFeatureG2(e IEnforcer, domain Domain) map[string][]string {
 	var queue []string
-	inQueue := map[string]bool{}
+	inQueue := map[string]bool{DefaultFeatureRootName: true}
 	for _, v := range queue {
 		inQueue[v] = true
 	}
@@ -53,7 +53,7 @@ func (s *server) getSourceFeatureG2(domain Domain) map[string][]string {
 	m := map[string][]string{}
 	for i := 0; i < len(queue); i++ {
 		m[queue[i]] = []string{}
-		ll := s.Enforcer.GetChildrenForObjectInDomain(&NamedObject{Name: queue[i]}, domain)
+		ll := e.GetChildrenForObjectInDomain(&NamedObject{Name: queue[i]}, domain)
 		for _, v := range ll {
 			if _, ok := inQueue[v.Encode()]; !ok {
 				queue = append(queue, v.Encode())
@@ -66,8 +66,30 @@ func (s *server) getSourceFeatureG2(domain Domain) map[string][]string {
 	return m
 }
 
-func (s *server) getTargetFeatureG2() map[string][]string {
-	return nil
+func getTargetFeatureG2(dictionary IDictionary) map[string][]string {
+	feature, _ := dictionary.GetFeature()
+	m := map[string][]string{}
+	for _, v := range feature {
+		m[DefaultFeatureRootName] = append(m[DefaultFeatureRootName], v.Key())
+	}
+
+	list, _ := dictionary.GetPackage()
+	for _, v := range list {
+		if ok, _ := dictionary.GetFeatureByKey(v.Key); ok == nil {
+			continue
+		}
+		for _, k := range v.Backend {
+			if u, _ := dictionary.GetBackendByKey(k); u != nil {
+				m[v.Key] = append(m[v.Key], u.Key())
+			}
+		}
+		for _, k := range v.Frontend {
+			if u, _ := dictionary.GetFrontendByKey(k); u != nil {
+				m[v.Key] = append(m[v.Key], u.Key())
+			}
+		}
+	}
+	return m
 }
 
 func inheritanceAction(in []string, domain Domain, sortFn func([]*InheritanceEdge[string]), action func(Object, Object, Domain) error) error {

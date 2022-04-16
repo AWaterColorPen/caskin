@@ -17,7 +17,7 @@ type Object struct {
 	Name      string            `gorm:"column:name;index:idx_object,unique"      json:"name,omitempty"`
 	Type      caskin.ObjectType `gorm:"column:type"                              json:"type,omitempty"`
 	DomainID  uint64            `gorm:"column:domain_id;index:idx_object,unique" json:"domain_id,omitempty"`
-	ParentID  uint64            `gorm:"column:parent_id"                         json:"parent_id"`
+	ParentID  uint64            `gorm:"column:parent_id;index:idx_object,unique" json:"parent_id"`
 }
 
 func (o *Object) GetID() uint64 {

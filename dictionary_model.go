@@ -5,7 +5,7 @@ import (
 )
 
 var (
-	DefaultSuperRootName = "github.com/awatercolorpen/caskin/feature"
+	DefaultFeatureRootName = "github.com/awatercolorpen/caskin::feature"
 )
 
 // Feature it is a package of Backend and Frontend
@@ -15,12 +15,12 @@ type Feature struct {
 	Group       string `json:"group"       toml:"group"`
 }
 
-func (f *Feature) GetKey() string {
+func (f *Feature) Key() string {
 	return f.Name
 }
 
 func (f *Feature) ToObject() Object {
-	return nil
+	return &NamedObject{Name: f.Key()}
 }
 
 // Backend it is for backend API
@@ -38,32 +38,25 @@ func (b *Backend) Key() string {
 }
 
 func (b *Backend) ToObject() Object {
-	return nil
+	return &NamedObject{Name: b.Key()}
 }
 
 // Frontend it is for frontend web component
 type Frontend struct {
-	Name        string       `json:"name"        toml:"name"`
-	Type        FrontendType `json:"type"        toml:"type"`
-	Description string       `json:"description" toml:"description"`
-	Group       string       `json:"group"       toml:"group"`
+	Name        string `json:"name"        toml:"name"`
+	Type        string `json:"type"        toml:"type"`
+	Description string `json:"description" toml:"description"`
+	Group       string `json:"group"       toml:"group"`
 }
 
-type FrontendType string
-
-const (
-	FrontendTypeMenu        FrontendType = "menu"
-	FrontendTypeSubFunction FrontendType = "sub_function"
-)
-
 func (f *Frontend) Key() string {
-	s := []string{f.Name, string(f.Type)}
+	s := []string{f.Name, f.Type}
 	b, _ := json.Marshal(s)
 	return string(b)
 }
 
 func (f *Frontend) ToObject() Object {
-	return nil
+	return &NamedObject{Name: f.Key()}
 }
 
 type Package struct {

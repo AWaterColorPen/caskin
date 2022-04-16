@@ -36,7 +36,9 @@ func (p *Playground) Setup() error {
 	if err := service.ResetDomain(p.Domain); err != nil {
 		return err
 	}
-
+	if err := service.ResetFeature(p.Domain); err != nil {
+		return err
+	}
 	for _, v := range []caskin.User{p.Superadmin, p.Admin, p.Member} {
 		if err := service.CreateUser(v); err != nil {
 			return err

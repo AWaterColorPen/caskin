@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 )
 
-type ObjectType string
+type ObjectType = string
 
-type Action string
+type Action = string
 
 type User interface {
 	idInterface

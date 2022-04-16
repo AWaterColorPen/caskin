@@ -45,15 +45,34 @@ func (f *fileDictionary) GetFrontend() ([]*Frontend, error) {
 }
 
 func (f *fileDictionary) GetFeatureByKey(key string) (*Feature, error) {
+	for _, v := range f.Feature {
+		if v.Key() == key {
+			return v, nil
+		}
+	}
 	return nil, nil
 }
 
 func (f *fileDictionary) GetBackendByKey(key string) (*Backend, error) {
+	for _, v := range f.Backend {
+		if v.Key() == key {
+			return v, nil
+		}
+	}
 	return nil, nil
 }
 
 func (f *fileDictionary) GetFrontendByKey(key string) (*Frontend, error) {
+	for _, v := range f.Frontend {
+		if v.Key() == key {
+			return v, nil
+		}
+	}
 	return nil, nil
+}
+
+func (f *fileDictionary) GetPackage() ([]*Package, error) {
+	return f.Package, nil
 }
 
 func (f *fileDictionary) GetCreatorObject() ([]*CreatorObject, error) {

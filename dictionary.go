@@ -12,8 +12,7 @@ type IFeatureDictionary interface {
 	GetFeatureByKey(key string) (*Feature, error)
 	GetBackendByKey(key string) (*Backend, error)
 	GetFrontendByKey(key string) (*Frontend, error)
-	// GetPackage(*Feature) (*Package, error)
-	// GetPackages() (map[string]*Package, error)
+	GetPackage() ([]*Package, error)
 }
 
 type ICreatorDictionary interface {

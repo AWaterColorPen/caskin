@@ -2,6 +2,7 @@ package caskin
 
 type IService interface {
 	IBaseService
+	IFeatureService
 	ICurrentService
 }
 
@@ -53,7 +54,7 @@ type IBaseService interface {
 	RecoverObjectData(User, Domain, ObjectData) error
 	DeleteObjectData(User, Domain, ObjectData) error
 	UpdateObjectData(User, Domain, ObjectData, ObjectType) error
-	// GetObjectData(User, Domain, ObjectData) error // TODO
+	// GetObjectData(User, Domain, ObjectData) ([]ObjectData, error) // TODO
 
 	ObjectDataCreateCheck(User, Domain, ObjectData, ObjectType) error
 	ObjectDataRecoverCheck(User, Domain, ObjectData) error
@@ -77,7 +78,4 @@ type IFeatureService interface {
 	GetFeaturePolicyByRole(User, Domain, Role) ([]*Policy, error)
 	ModifyFeaturePolicyPerRole(User, Domain, Role, []*Policy) error
 	ResetFeature(Domain) error
-}
-
-type ICreatorService interface {
 }
