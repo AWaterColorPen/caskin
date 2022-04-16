@@ -124,13 +124,13 @@ func (s *server) ModifyUserRolePerUser(user User, domain Domain, perUser User, i
 	add, remove := Diff(source, target)
 	for _, v := range add {
 		r := rm[v]
-		if err = s.Enforcer.AddRoleForUserInDomain(user, r, domain); err != nil {
+		if err = s.Enforcer.AddRoleForUserInDomain(perUser, r, domain); err != nil {
 			return err
 		}
 	}
 	for _, v := range remove {
 		r := rm[v]
-		if err = s.Enforcer.RemoveRoleForUserInDomain(user, r, domain); err != nil {
+		if err = s.Enforcer.RemoveRoleForUserInDomain(perUser, r, domain); err != nil {
 			return err
 		}
 	}

@@ -134,6 +134,7 @@ func TestServer_UserRole_ModifyUserRolePerUser(t *testing.T) {
 	assert.NoError(t, service.CreateRole(stage.Admin, stage.Domain, role1))
 
 	pairs := []*caskin.UserRolePair{
+		{stage.Member, roles[1]},
 		{stage.Member, role1},
 	}
 	assert.NoError(t, service.ModifyUserRolePerUser(stage.Member, stage.Domain, stage.Member, pairs))

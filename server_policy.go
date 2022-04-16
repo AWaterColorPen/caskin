@@ -139,12 +139,12 @@ func (s *server) ModifyPolicyPerRole(user User, domain Domain, perRole Role, inp
 	// get diff to add and remove
 	add, remove := DiffPolicy(source, target)
 	for _, v := range add {
-		if err = s.Enforcer.AddPolicyInDomain(v.Role, v.Object, v.Domain, v.Action); err != nil {
+		if err = s.Enforcer.AddPolicyInDomain(v.Role, v.Object, domain, v.Action); err != nil {
 			return err
 		}
 	}
 	for _, v := range remove {
-		if err = s.Enforcer.RemovePolicyInDomain(v.Role, v.Object, v.Domain, v.Action); err != nil {
+		if err = s.Enforcer.RemovePolicyInDomain(v.Role, v.Object, domain, v.Action); err != nil {
 			return err
 		}
 	}
@@ -198,12 +198,12 @@ func (s *server) ModifyPolicyPerObject(user User, domain Domain, perObject Objec
 	// get diff to add and remove
 	add, remove := DiffPolicy(source, target)
 	for _, v := range add {
-		if err = s.Enforcer.AddPolicyInDomain(v.Role, v.Object, v.Domain, v.Action); err != nil {
+		if err = s.Enforcer.AddPolicyInDomain(v.Role, v.Object, domain, v.Action); err != nil {
 			return err
 		}
 	}
 	for _, v := range remove {
-		if err = s.Enforcer.RemovePolicyInDomain(v.Role, v.Object, v.Domain, v.Action); err != nil {
+		if err = s.Enforcer.RemovePolicyInDomain(v.Role, v.Object, domain, v.Action); err != nil {
 			return err
 		}
 	}

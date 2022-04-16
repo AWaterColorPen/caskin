@@ -3,9 +3,9 @@ module github.com/awatercolorpen/caskin
 go 1.18
 
 require (
-	github.com/BurntSushi/toml v1.0.0
+	github.com/BurntSushi/toml v1.1.0
 	github.com/ahmetb/go-linq/v3 v3.2.0
-	github.com/casbin/casbin/v2 v2.42.0
+	github.com/casbin/casbin/v2 v2.44.0
 	github.com/casbin/gorm-adapter/v3 v3.5.0
 	github.com/stretchr/testify v1.7.1
 	golang.org/x/exp v0.0.0-20220328175248-053ad81199eb
