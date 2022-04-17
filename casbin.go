@@ -66,7 +66,7 @@ type enforcer struct {
 }
 
 func (e *enforcer) Enforce(user User, object Object, domain Domain, action Action) (bool, error) {
-	return e.e.Enforce(user.Encode(), domain.Encode(), object.Encode(), string(action))
+	return e.e.Enforce(user.Encode(), domain.Encode(), object.Encode(), action)
 }
 
 func (e *enforcer) EnforceRole(son Role, parent Role, domain Domain) (bool, error) {
@@ -194,7 +194,7 @@ func (e *enforcer) GetPoliciesForRoleInDomain(role Role, domain Domain) []*Polic
 			Role:   r,
 			Object: o,
 			Domain: domain,
-			Action: Action(action),
+			Action: action,
 		}
 		policies = append(policies, pp)
 	}
@@ -216,7 +216,7 @@ func (e *enforcer) GetPoliciesForObjectInDomain(object Object, domain Domain) []
 			Role:   r,
 			Object: o,
 			Domain: domain,
-			Action: Action(action),
+			Action: action,
 		}
 		policies = append(policies, pp)
 	}
@@ -287,12 +287,12 @@ func (e *enforcer) RemoveObjectInDomain(object Object, domain Domain) error {
 }
 
 func (e *enforcer) AddPolicyInDomain(role Role, object Object, domain Domain, action Action) error {
-	_, err := e.e.AddPolicy(role.Encode(), domain.Encode(), object.Encode(), string(action))
+	_, err := e.e.AddPolicy(role.Encode(), domain.Encode(), object.Encode(), action)
 	return err
 }
 
 func (e *enforcer) RemovePolicyInDomain(role Role, object Object, domain Domain, action Action) error {
-	_, err := e.e.RemovePolicy(role.Encode(), domain.Encode(), object.Encode(), string(action))
+	_, err := e.e.RemovePolicy(role.Encode(), domain.Encode(), object.Encode(), action)
 	return err
 }
 
@@ -307,14 +307,12 @@ func (e *enforcer) RemoveRoleForUserInDomain(user User, role Role, domain Domain
 }
 
 func (e *enforcer) AddParentForRoleInDomain(son Role, parent Role, domain Domain) error {
-	// TODO
-	_, err := e.e.AddRoleForUserInDomain(parent.Encode(), son.Encode(), domain.Encode())
+	_, err := e.e.AddRoleForUserInDomain(son.Encode(), parent.Encode(), domain.Encode())
 	return err
 }
 
 func (e *enforcer) RemoveParentForRoleInDomain(son Role, parent Role, domain Domain) error {
-	// TODO
-	_, err := e.e.DeleteRoleForUserInDomain(parent.Encode(), son.Encode(), domain.Encode())
+	_, err := e.e.DeleteRoleForUserInDomain(son.Encode(), parent.Encode(), domain.Encode())
 	return err
 }
 
@@ -394,7 +392,7 @@ func (e *enforcer) GetPoliciesInDomain(domain Domain) []*Policy {
 			Role:   r,
 			Object: o,
 			Domain: domain,
-			Action: Action(action),
+			Action: action,
 		}
 		policies = append(policies, pp)
 	}

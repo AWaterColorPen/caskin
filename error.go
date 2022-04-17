@@ -12,7 +12,6 @@ var (
 	ErrInValidObjectType     = fmt.Errorf("invalid object type")
 	ErrCantChangeObjectType  = fmt.Errorf("can't change object type")
 	ErrCantOperateRootObject = fmt.Errorf("can't operate root object")
-	ErrParentCanNotDiff      = fmt.Errorf("parent can't be different object id")
 	ErrParentCanNotBeItself  = fmt.Errorf("parent id can't be it self id")
 	ErrParentToDescendant    = fmt.Errorf("can't change parent to descendant")
 
@@ -27,7 +26,6 @@ var (
 
 	// errors about caskin initialization
 	ErrInitializationNilEnforcer = fmt.Errorf("enforcer is nil")
-	ErrInitializationNilMetaDB   = fmt.Errorf("metadata database is nil")
 
 	ErrInputPairArrayNotBelongSameUser    = fmt.Errorf("input user role pair array are not belong to same user")
 	ErrInputPairArrayNotBelongSameRole    = fmt.Errorf("input user role pair array are not belong to same role")

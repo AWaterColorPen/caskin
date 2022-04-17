@@ -5,7 +5,7 @@ package caskin
 // 1. current user has item's write permission
 // 2. create a new item into database
 func (s *server) CreateObjectData(user User, domain Domain, item ObjectData, ty ObjectType) error {
-	if err := s.ObjectDataCreateCheck(user, domain, item, ObjectTypeRole); err != nil {
+	if err := s.ObjectDataCreateCheck(user, domain, item, ty); err != nil {
 		return err
 	}
 	item.SetDomainID(domain.GetID())

@@ -57,16 +57,6 @@ func IDMap[E idInterface](in []E) map[uint64]E {
 	return m
 }
 
-func Tree[E treeNode](in []E) map[uint64]uint64 {
-	m := map[uint64]uint64{}
-	for _, v := range in {
-		if v.GetParentID() != 0 {
-			m[v.GetID()] = v.GetParentID()
-		}
-	}
-	return m
-}
-
 // Policy tuple of role-object-domain-action
 type Policy struct {
 	Role   Role   `json:"role"`
@@ -77,7 +67,7 @@ type Policy struct {
 
 // Key get the unique identify of the policy
 func (p *Policy) Key() string {
-	s := []string{p.Role.Encode(), p.Object.Encode(), p.Domain.Encode(), string(p.Action)}
+	s := []string{p.Role.Encode(), p.Object.Encode(), p.Domain.Encode(), p.Action}
 	b, _ := json.Marshal(s)
 	return string(b)
 }

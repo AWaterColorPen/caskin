@@ -26,10 +26,3 @@ func (o *Options) newOptions(opts ...Option) *Options {
 	}
 	return o
 }
-
-// EnforcerOption set the casbin.IEnforcer for the options
-func EnforcerOption(enforcer casbin.IEnforcer) Option {
-	return func(o *Options) {
-		o.Enforcer = enforcer
-	}
-}
