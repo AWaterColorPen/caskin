@@ -3,17 +3,14 @@ package caskin
 type UpsertType string
 
 type MetaDB interface {
-	AutoMigrate(...interface{}) error
-
-	Create(interface{}) error
-	Recover(interface{}) error
-	Update(interface{}) error
-	UpsertType(interface{}) UpsertType
-	Take(interface{}) error
-	TakeUnscoped(interface{}) error
-	First(interface{}, ...interface{}) error
-	Find(interface{}, ...interface{}) error
-	DeleteByID(interface{}, uint64) error
+	Create(any) error
+	Recover(any) error
+	Update(any) error
+	UpsertType(any) UpsertType
+	Take(any) error
+	TakeUnscoped(any) error
+	Find(any, ...any) error
+	DeleteByID(any, uint64) error
 
 	// User API
 	GetUserByID([]uint64) ([]User, error)

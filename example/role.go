@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/awatercolorpen/caskin"
 	"gorm.io/gorm"
 )
 
@@ -17,11 +16,18 @@ type Role struct {
 	Name      string         `gorm:"column:name;index:idx_role,unique"      json:"name,omitempty"`
 	DomainID  uint64         `gorm:"column:domain_id;index:idx_role,unique" json:"domain_id,omitempty"`
 	ObjectID  uint64         `gorm:"column:object_id"                       json:"object_id,omitempty"`
-	ParentID  uint64         `gorm:"column:parent_id"                       json:"parent_id"`
 }
 
 func (r *Role) GetID() uint64 {
 	return r.ID
+}
+
+func (r *Role) GetName() string {
+	return r.Name
+}
+
+func (r *Role) SetName(name string) {
+	r.Name = name
 }
 
 func (r *Role) SetID(id uint64) {
@@ -37,20 +43,12 @@ func (r *Role) Decode(code string) error {
 	return err
 }
 
-func (r *Role) GetObject() caskin.Object {
-	return &Object{ID: r.ObjectID}
+func (r *Role) GetObjectID() uint64 {
+	return r.ObjectID
 }
 
 func (r *Role) SetObjectID(objectId uint64) {
 	r.ObjectID = objectId
-}
-
-func (r *Role) GetParentID() uint64 {
-	return r.ParentID
-}
-
-func (r *Role) SetParentID(pid uint64) {
-	r.ParentID = pid
 }
 
 func (r *Role) GetDomainID() uint64 {
@@ -59,12 +57,4 @@ func (r *Role) GetDomainID() uint64 {
 
 func (r *Role) SetDomainID(did uint64) {
 	r.DomainID = did
-}
-
-func (r *Role) GetName() string {
-	return r.Name
-}
-
-func (r *Role) SetName(name string) {
-	r.Name = name
 }

@@ -3,7 +3,6 @@ package example
 import (
 	"time"
 
-	"github.com/awatercolorpen/caskin"
 	"gorm.io/gorm"
 )
 
@@ -26,8 +25,8 @@ func (o *OneObjectData) SetID(id uint64) {
 	o.ID = id
 }
 
-func (o *OneObjectData) GetObject() caskin.Object {
-	return &Object{ID: o.ObjectID}
+func (o *OneObjectData) GetObjectID() uint64 {
+	return o.ObjectID
 }
 
 func (o *OneObjectData) SetObjectID(objectId uint64) {

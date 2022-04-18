@@ -1,149 +1,60 @@
 package caskin
 
 import (
-	"strings"
-
-	"gorm.io/datatypes"
+	"encoding/json"
 )
 
-type ObjectType string
+type ObjectType = string
 
-type Action string
-
-type ObjectData interface {
-	idInterface
-	// GetObject get object interface method
-	GetObject() Object
-	// SetObjectID set object
-	SetObjectID(uint64)
-	// GetDomainID get domain id method
-	GetDomainID() uint64
-	// SetDomainID set domain id method
-	SetDomainID(uint64)
-}
-
-type TreeNodeEntry interface {
-	entry
-	treeNode
-	ObjectData
-}
+type Action = string
 
 type User interface {
-	entry
-}
-
-type Role interface {
-	TreeNodeEntry
-	nameInterface
-}
-
-type Object interface {
-	TreeNodeEntry
-	nameInterface
-	GetObjectType() ObjectType
-	SetObjectType(ObjectType)
-	GetCustomizedData() datatypes.JSON
-	SetCustomizedData(datatypes.JSON)
+	idInterface
+	codeInterface
 }
 
 type Domain interface {
-	entry
+	idInterface
+	codeInterface
 }
 
-type Users []User
+type Role interface {
+	ObjectData
+	codeInterface
+}
 
-func (u Users) ID() []uint64 {
+type Object interface {
+	idInterface
+	// nameInterface // TODO
+	codeInterface
+	parentInterface
+	domainInterface
+	GetObjectType() ObjectType
+}
+
+type ObjectData interface {
+	idInterface
+	domainInterface
+	// GetObjectID get object
+	GetObjectID() uint64
+	// SetObjectID set object
+	SetObjectID(uint64)
+}
+
+func ID[E idInterface](in []E) []uint64 {
 	var m []uint64
-	for _, v := range u {
+	for _, v := range in {
 		m = append(m, v.GetID())
 	}
 	return m
 }
 
-func (u Users) IDMap() map[uint64]User {
-	m := map[uint64]User{}
-	for _, v := range u {
+func IDMap[E idInterface](in []E) map[uint64]E {
+	m := map[uint64]E{}
+	for _, v := range in {
 		m[v.GetID()] = v
 	}
 	return m
-}
-
-type Roles []Role
-
-func (r Roles) ID() []uint64 {
-	var m []uint64
-	for _, v := range r {
-		m = append(m, v.GetID())
-	}
-	return m
-}
-
-func (r Roles) IDMap() map[uint64]Role {
-	m := map[uint64]Role{}
-	for _, v := range r {
-		m[v.GetID()] = v
-	}
-	return m
-}
-
-func (r Roles) Tree() map[uint64]uint64 {
-	m := map[uint64]uint64{}
-	for _, v := range r {
-		if v.GetParentID() != 0 {
-			m[v.GetID()] = v.GetParentID()
-		}
-	}
-	return m
-}
-
-type Objects []Object
-
-func (o Objects) ID() []uint64 {
-	var m []uint64
-	for _, v := range o {
-		m = append(m, v.GetID())
-	}
-	return m
-}
-
-func (o Objects) IDMap() map[uint64]Object {
-	m := map[uint64]Object{}
-	for _, v := range o {
-		m[v.GetID()] = v
-	}
-	return m
-}
-
-func (o Objects) Tree() map[uint64]uint64 {
-	m := map[uint64]uint64{}
-	for _, v := range o {
-		if v.GetParentID() != 0 {
-			m[v.GetID()] = v.GetParentID()
-		}
-	}
-	return m
-}
-
-type Domains []Domain
-
-func (d Domains) ID() []uint64 {
-	var m []uint64
-	for _, v := range d {
-		m = append(m, v.GetID())
-	}
-	return m
-}
-
-// DomainCreator create new domain's function
-type DomainCreator = func(Domain) Creator
-
-// Creator interface to create a domain
-type Creator interface {
-	BuildCreator() ([]Role, []Object)
-	SetRelation()
-	GetPolicy() []*Policy
-	GetRoles() []Role
-	GetObjects() []Object
 }
 
 // Policy tuple of role-object-domain-action
@@ -156,8 +67,9 @@ type Policy struct {
 
 // Key get the unique identify of the policy
 func (p *Policy) Key() string {
-	s := []string{p.Role.Encode(), p.Object.Encode(), p.Domain.Encode(), string(p.Action)}
-	return strings.Join(s, DefaultSeparator)
+	s := []string{p.Role.Encode(), p.Object.Encode(), p.Domain.Encode(), p.Action}
+	b, _ := json.Marshal(s)
+	return string(b)
 }
 
 // PolicyList list of policy
@@ -226,9 +138,4 @@ func (u UserRolePairs) UserID() []uint64 {
 		id = append(id, v.User.GetID())
 	}
 	return id
-}
-
-type CustomizedDataPair struct {
-	Object               Object         `json:"object"`
-	ObjectCustomizedData CustomizedData `json:"customized_data"`
 }

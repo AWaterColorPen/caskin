@@ -9,7 +9,7 @@ type IEnforcer interface {
 	Enforce(User, Object, Domain, Action) (bool, error)
 	EnforceRole(son Role, parent Role, domain Domain) (bool, error)
 	EnforceObject(son Object, parent Object, domain Domain) (bool, error)
-	IsSuperAdmin(User) (bool, error)
+	IsSuperadmin(User) (bool, error)
 
 	// get user's domain
 	GetDomainsIncludeUser(User) []Domain
@@ -52,8 +52,9 @@ type IEnforcer interface {
 	GetPoliciesInDomain(Domain) []*Policy
 
 	// get inheritance relation
-	GetRoleInheritanceRelationInDomain(Domain) InheritanceRelations
-	GetObjectInheritanceRelationInDomain(Domain) InheritanceRelations
+	// TODO
+	// GetRoleInheritanceRelationInDomain(Domain) InheritanceRelations
+	// GetObjectInheritanceRelationInDomain(Domain) InheritanceRelations
 
 	// remove entry in domain
 	RemoveUsersInDomain(Domain) error
@@ -61,11 +62,11 @@ type IEnforcer interface {
 
 type enforcer struct {
 	e       casbin.IEnforcer
-	factory EntryFactory
+	factory Factory
 }
 
 func (e *enforcer) Enforce(user User, object Object, domain Domain, action Action) (bool, error) {
-	return e.e.Enforce(user.Encode(), domain.Encode(), object.Encode(), string(action))
+	return e.e.Enforce(user.Encode(), domain.Encode(), object.Encode(), action)
 }
 
 func (e *enforcer) EnforceRole(son Role, parent Role, domain Domain) (bool, error) {
@@ -94,7 +95,7 @@ func (e *enforcer) EnforceObject(son Object, parent Object, domain Domain) (bool
 	return false, nil
 }
 
-func (e *enforcer) IsSuperAdmin(user User) (bool, error) {
+func (e *enforcer) IsSuperadmin(user User) (bool, error) {
 	return e.e.HasRoleForUser(user.Encode(), SuperadminRole, SuperadminDomain)
 }
 
@@ -102,11 +103,9 @@ func (e *enforcer) GetDomainsIncludeUser(user User) []Domain {
 	var domains []Domain
 	rules := e.e.GetFilteredGroupingPolicy(0, user.Encode())
 	for _, rule := range rules {
-		d := e.factory.NewDomain()
-		if err := d.Decode(rule[2]); err != nil {
-			continue
+		if domain, err := e.factory.Domain(rule[2]); err == nil {
+			domains = append(domains, domain)
 		}
-		domains = append(domains, d)
 	}
 	return domains
 }
@@ -115,12 +114,10 @@ func (e *enforcer) GetRolesForUserInDomain(user User, domain Domain) []Role {
 	var roles []Role
 	rs := e.e.GetRolesForUserInDomain(user.Encode(), domain.Encode())
 	for _, r := range rs {
-		role := e.factory.NewRole()
-		if err := role.Decode(r); err == nil {
+		if role, err := e.factory.Role(r); err == nil {
 			roles = append(roles, role)
 		}
 	}
-
 	return roles
 }
 
@@ -128,12 +125,10 @@ func (e *enforcer) GetUsersForRoleInDomain(role Role, domain Domain) []User {
 	var users []User
 	us := e.e.GetUsersForRoleInDomain(role.Encode(), domain.Encode())
 	for _, u := range us {
-		user := e.factory.NewUser()
-		if err := user.Decode(u); err == nil {
+		if user, err := e.factory.User(u); err == nil {
 			users = append(users, user)
 		}
 	}
-
 	return users
 }
 
@@ -141,8 +136,7 @@ func (e *enforcer) GetParentsForRoleInDomain(role Role, domain Domain) []Role {
 	var roles []Role
 	rs := e.e.GetUsersForRoleInDomain(role.Encode(), domain.Encode())
 	for _, v := range rs {
-		r := e.factory.NewRole()
-		if err := r.Decode(v); err == nil {
+		if _, err := e.factory.Role(v); err == nil {
 			roles = append(roles, role)
 		}
 	}
@@ -154,8 +148,7 @@ func (e *enforcer) GetChildrenForRoleInDomain(role Role, domain Domain) []Role {
 	var roles []Role
 	rs := e.e.GetRolesForUserInDomain(role.Encode(), domain.Encode())
 	for _, v := range rs {
-		r := e.factory.NewRole()
-		if err := r.Decode(v); err == nil {
+		if r, err := e.factory.Role(v); err == nil {
 			roles = append(roles, r)
 		}
 	}
@@ -167,8 +160,7 @@ func (e *enforcer) GetParentsForObjectInDomain(object Object, domain Domain) []O
 	var objects []Object
 	os, _ := e.e.GetModel()["g"][ObjectPType].RM.GetRoles(object.Encode(), domain.Encode())
 	for _, v := range os {
-		o := e.factory.NewObject()
-		if err := o.Decode(v); err == nil {
+		if o, err := e.factory.Object(v); err == nil {
 			objects = append(objects, o)
 		}
 	}
@@ -180,8 +172,7 @@ func (e *enforcer) GetChildrenForObjectInDomain(object Object, domain Domain) []
 	var objects []Object
 	os, _ := e.e.GetModel()["g"][ObjectPType].RM.GetUsers(object.Encode(), domain.Encode())
 	for _, v := range os {
-		o := e.factory.NewObject()
-		if err := o.Decode(v); err == nil {
+		if o, err := e.factory.Object(v); err == nil {
 			objects = append(objects, o)
 		}
 	}
@@ -193,21 +184,17 @@ func (e *enforcer) GetPoliciesForRoleInDomain(role Role, domain Domain) []*Polic
 	var policies []*Policy
 	ps := e.e.GetPermissionsForUser(role.Encode(), domain.Encode())
 	for _, p := range ps {
-		r := e.factory.NewRole()
-		o := e.factory.NewObject()
-		if err := r.Decode(p[0]); err != nil {
-			continue
-		}
-		if err := o.Decode(p[2]); err != nil {
+		r, err1 := e.factory.Role(p[0])
+		o, err2 := e.factory.Object(p[2])
+		if err1 != nil || err2 != nil {
 			continue
 		}
 		action := p[3]
-
 		pp := &Policy{
 			Role:   r,
 			Object: o,
 			Domain: domain,
-			Action: Action(action),
+			Action: action,
 		}
 		policies = append(policies, pp)
 	}
@@ -219,21 +206,17 @@ func (e *enforcer) GetPoliciesForObjectInDomain(object Object, domain Domain) []
 	var policies []*Policy
 	ps := e.e.GetFilteredPolicy(1, domain.Encode(), object.Encode())
 	for _, p := range ps {
-		r := e.factory.NewRole()
-		o := e.factory.NewObject()
-		if err := r.Decode(p[0]); err != nil {
-			continue
-		}
-		if err := o.Decode(p[2]); err != nil {
+		r, err1 := e.factory.Role(p[0])
+		o, err2 := e.factory.Object(p[2])
+		if err1 != nil || err2 != nil {
 			continue
 		}
 		action := p[3]
-
 		pp := &Policy{
 			Role:   r,
 			Object: o,
 			Domain: domain,
-			Action: Action(action),
+			Action: action,
 		}
 		policies = append(policies, pp)
 	}
@@ -304,12 +287,12 @@ func (e *enforcer) RemoveObjectInDomain(object Object, domain Domain) error {
 }
 
 func (e *enforcer) AddPolicyInDomain(role Role, object Object, domain Domain, action Action) error {
-	_, err := e.e.AddPolicy(role.Encode(), domain.Encode(), object.Encode(), string(action))
+	_, err := e.e.AddPolicy(role.Encode(), domain.Encode(), object.Encode(), action)
 	return err
 }
 
 func (e *enforcer) RemovePolicyInDomain(role Role, object Object, domain Domain, action Action) error {
-	_, err := e.e.RemovePolicy(role.Encode(), domain.Encode(), object.Encode(), string(action))
+	_, err := e.e.RemovePolicy(role.Encode(), domain.Encode(), object.Encode(), action)
 	return err
 }
 
@@ -324,12 +307,12 @@ func (e *enforcer) RemoveRoleForUserInDomain(user User, role Role, domain Domain
 }
 
 func (e *enforcer) AddParentForRoleInDomain(son Role, parent Role, domain Domain) error {
-	_, err := e.e.AddRoleForUserInDomain(parent.Encode(), son.Encode(), domain.Encode())
+	_, err := e.e.AddRoleForUserInDomain(son.Encode(), parent.Encode(), domain.Encode())
 	return err
 }
 
 func (e *enforcer) RemoveParentForRoleInDomain(son Role, parent Role, domain Domain) error {
-	_, err := e.e.DeleteRoleForUserInDomain(parent.Encode(), son.Encode(), domain.Encode())
+	_, err := e.e.DeleteRoleForUserInDomain(son.Encode(), parent.Encode(), domain.Encode())
 	return err
 }
 
@@ -347,8 +330,7 @@ func (e *enforcer) GetUsersInDomain(domain Domain) []User {
 	var users []User
 	rules := e.e.GetFilteredGroupingPolicy(2, domain.Encode())
 	for _, rule := range rules {
-		user := e.factory.NewUser()
-		if err := user.Decode(rule[0]); err == nil {
+		if user, err := e.factory.User(rule[0]); err == nil {
 			users = append(users, user)
 		}
 	}
@@ -360,16 +342,15 @@ func (e *enforcer) GetRolesInDomain(domain Domain) []Role {
 	var roles []Role
 	rules := e.e.GetFilteredGroupingPolicy(2, domain.Encode())
 	for _, rule := range rules {
-		r1 := e.factory.NewRole()
-		if err := r1.Decode(rule[0]); err != nil {
+		r1, err1 := e.factory.Role(rule[0])
+		if err1 != nil {
 			continue
 		}
 		roles = append(roles, r1)
-		r2 := e.factory.NewRole()
-		if err := r2.Decode(rule[1]); err != nil {
+		r2, err2 := e.factory.Role(rule[1])
+		if err2 != nil {
 			continue
 		}
-		r2.SetParentID(r1.GetID())
 		roles = append(roles, r2)
 	}
 
@@ -380,13 +361,13 @@ func (e *enforcer) GetObjectsInDomain(domain Domain) []Object {
 	var objects []Object
 	rules := e.e.GetFilteredNamedGroupingPolicy(ObjectPType, 2, domain.Encode())
 	for _, rule := range rules {
-		o1 := e.factory.NewObject()
-		if err := o1.Decode(rule[0]); err != nil {
+		o1, err1 := e.factory.Object(rule[0])
+		if err1 != nil {
 			continue
 		}
 		objects = append(objects, o1)
-		o2 := e.factory.NewObject()
-		if err := o2.Decode(rule[1]); err != nil {
+		o2, err2 := e.factory.Object(rule[1])
+		if err2 != nil {
 			continue
 		}
 		o1.SetParentID(o2.GetID())
@@ -400,12 +381,9 @@ func (e *enforcer) GetPoliciesInDomain(domain Domain) []*Policy {
 	var policies []*Policy
 	ps := e.e.GetFilteredPolicy(1, domain.Encode())
 	for _, p := range ps {
-		r := e.factory.NewRole()
-		o := e.factory.NewObject()
-		if err := r.Decode(p[0]); err != nil {
-			continue
-		}
-		if err := o.Decode(p[2]); err != nil {
+		r, err1 := e.factory.Role(p[0])
+		o, err2 := e.factory.Object(p[2])
+		if err1 != nil || err2 != nil {
 			continue
 		}
 		action := p[3]
@@ -414,7 +392,7 @@ func (e *enforcer) GetPoliciesInDomain(domain Domain) []*Policy {
 			Role:   r,
 			Object: o,
 			Domain: domain,
-			Action: Action(action),
+			Action: action,
 		}
 		policies = append(policies, pp)
 	}
@@ -422,46 +400,46 @@ func (e *enforcer) GetPoliciesInDomain(domain Domain) []*Policy {
 	return policies
 }
 
-func (e *enforcer) GetRoleInheritanceRelationInDomain(domain Domain) InheritanceRelations {
-	relations := InheritanceRelations{}
-	rules := e.e.GetFilteredGroupingPolicy(2, domain.Encode())
-	for _, rule := range rules {
-		r1 := e.factory.NewRole()
-		if err := r1.Decode(rule[0]); err != nil {
-			continue
-		}
-		r2 := e.factory.NewRole()
-		if err := r2.Decode(rule[1]); err != nil {
-			continue
-		}
-		relations[r1.GetID()] = append(relations[r1.GetID()], r2.GetID())
-	}
-	return relations
-}
-
-func (e *enforcer) GetObjectInheritanceRelationInDomain(domain Domain) InheritanceRelations {
-	relations := InheritanceRelations{}
-	rules := e.e.GetFilteredNamedGroupingPolicy(ObjectPType, 2, domain.Encode())
-	for _, rule := range rules {
-		o1 := e.factory.NewObject()
-		if err := o1.Decode(rule[0]); err != nil {
-			continue
-		}
-		o2 := e.factory.NewObject()
-		if err := o2.Decode(rule[1]); err != nil {
-			continue
-		}
-		relations[o2.GetID()] = append(relations[o2.GetID()], o1.GetID())
-	}
-	return relations
-}
+// TODO
+// func (e *enforcer) GetRoleInheritanceRelationInDomain(domain Domain) InheritanceRelations {
+// 	relations := InheritanceRelations{}
+// 	rules := e.e.GetFilteredGroupingPolicy(2, domain.Encode())
+// 	for _, rule := range rules {
+// 		r1 := e.factory.NewRole()
+// 		if err := r1.Decode(rule[0]); err != nil {
+// 			continue
+// 		}
+// 		r2 := e.factory.NewRole()
+// 		if err := r2.Decode(rule[1]); err != nil {
+// 			continue
+// 		}
+// 		relations[r1.GetID()] = append(relations[r1.GetID()], r2.GetID())
+// 	}
+// 	return relations
+// }
+//
+// func (e *enforcer) GetObjectInheritanceRelationInDomain(domain Domain) InheritanceRelations {
+// 	relations := InheritanceRelations{}
+// 	rules := e.e.GetFilteredNamedGroupingPolicy(ObjectPType, 2, domain.Encode())
+// 	for _, rule := range rules {
+// 		o1 := e.factory.NewObject()
+// 		if err := o1.Decode(rule[0]); err != nil {
+// 			continue
+// 		}
+// 		o2 := e.factory.NewObject()
+// 		if err := o2.Decode(rule[1]); err != nil {
+// 			continue
+// 		}
+// 		relations[o2.GetID()] = append(relations[o2.GetID()], o1.GetID())
+// 	}
+// 	return relations
+// }
 
 func (e *enforcer) RemoveUsersInDomain(domain Domain) error {
-	user := e.factory.NewUser()
 	gp := e.e.GetFilteredGroupingPolicy(2, domain.Encode())
 	var rules [][]string
 	for _, rule := range gp {
-		if err := user.Decode(rule[0]); err == nil {
+		if _, err := e.factory.User(rule[0]); err == nil {
 			rules = append(rules, rule)
 		}
 	}
@@ -470,7 +448,7 @@ func (e *enforcer) RemoveUsersInDomain(domain Domain) error {
 	return err
 }
 
-func NewEnforcer(e casbin.IEnforcer, factory EntryFactory) IEnforcer {
+func NewEnforcer(e casbin.IEnforcer, factory Factory) IEnforcer {
 	return &enforcer{
 		e:       e,
 		factory: factory,
