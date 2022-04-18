@@ -8,7 +8,7 @@ require (
 	github.com/casbin/casbin/v2 v2.44.0
 	github.com/casbin/gorm-adapter/v3 v3.5.0
 	github.com/stretchr/testify v1.7.1
-	golang.org/x/exp v0.0.0-20220328175248-053ad81199eb
+	golang.org/x/exp v0.0.0-20220414153411-bcd21879b8fd
 	gorm.io/driver/mysql v1.3.3
 	gorm.io/driver/postgres v1.3.4
 	gorm.io/driver/sqlite v1.3.1

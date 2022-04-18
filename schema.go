@@ -29,7 +29,7 @@ type Object interface {
 	codeInterface
 	parentInterface
 	domainInterface
-	GetObjectType() ObjectType
+	GetObjectType() string
 }
 
 type ObjectData interface {

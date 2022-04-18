@@ -16,7 +16,7 @@ func (s *server) CreateObject(user User, domain Domain, object Object) error {
 	if err := s.DB.Create(object); err != nil {
 		return err
 	}
-	updater := s.DefaultObjectUpdater()
+	updater := defaultObjectUpdater(s.Enforcer)
 	return updater.Run(object, domain)
 }
 
@@ -36,7 +36,7 @@ func (s *server) RecoverObject(user User, domain Domain, object Object) error {
 	if err := s.DB.Recover(object); err != nil {
 		return err
 	}
-	updater := s.DefaultObjectUpdater()
+	updater := defaultObjectUpdater(s.Enforcer)
 	return updater.Run(object, domain)
 }
 
@@ -55,7 +55,7 @@ func (s *server) DeleteObject(user User, domain Domain, object Object) error {
 		return err
 	}
 	object.SetDomainID(domain.GetID())
-	deleter := NewTreeNodeDeleter(s.DefaultObjectChildrenGetFunc(), s.DefaultObjectDeleteFunc())
+	deleter := defaultObjectDeleter(s.Enforcer, s.DB)
 	return deleter.Run(object, domain)
 }
 
@@ -76,7 +76,7 @@ func (s *server) UpdateObject(user User, domain Domain, object Object) error {
 	if err := s.DB.Update(object); err != nil {
 		return err
 	}
-	updater := s.DefaultObjectUpdater()
+	updater := defaultObjectUpdater(s.Enforcer)
 	return updater.Run(object, domain)
 }
 
@@ -92,4 +92,33 @@ func (s *server) GetObject(user User, domain Domain, action Action, ty ...Object
 		return nil, err
 	}
 	return Filter(s.Enforcer, user, domain, action, objects), nil
+}
+
+func defaultObjectUpdater(e IEnforcer) *objectUpdater {
+	return NewObjectUpdater(e.GetParentsForObjectInDomain, e.AddParentForObjectInDomain, e.RemoveParentForObjectInDomain)
+}
+
+func defaultObjectDeleter(e IEnforcer, db MetaDB) *objectDeleter {
+	fn1 := func(p Object, d Domain) error {
+		if err := e.RemoveObjectInDomain(p.(Object), d); err != nil {
+			return err
+		}
+		return db.DeleteByID(p, p.GetID())
+	}
+	fn2 := func(p Object, domain Domain) []Object {
+		os := e.GetChildrenForObjectInDomain(p, domain)
+		om := IDMap(os)
+		os2, _ := db.GetObjectInDomain(domain, p.GetObjectType())
+		for _, v := range os2 {
+			if v.GetParentID() != p.GetID() {
+				continue
+			}
+			if _, ok := om[v.GetID()]; !ok {
+				om[v.GetID()] = v
+				os = append(os, v)
+			}
+		}
+		return os
+	}
+	return NewObjectDeleter(fn2, fn1)
 }

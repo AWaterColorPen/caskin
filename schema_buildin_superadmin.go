@@ -30,25 +30,11 @@ func (s *SampleSuperadminRole) GetObjectID() uint64 {
 func (s *SampleSuperadminRole) SetObjectID(uint64) {
 }
 
-func (s *SampleSuperadminRole) GetParentID() uint64 {
-	return 0
-}
-
-func (s *SampleSuperadminRole) SetParentID(uint64) {
-}
-
 func (s *SampleSuperadminRole) GetDomainID() uint64 {
 	return 0
 }
 
 func (s *SampleSuperadminRole) SetDomainID(uint64) {
-}
-
-func (s *SampleSuperadminRole) GetName() string {
-	return s.Name
-}
-
-func (s *SampleSuperadminRole) SetName(string) {
 }
 
 type SampleSuperadminDomain struct {

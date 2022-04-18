@@ -1,12 +1,12 @@
 package caskin
 
-type treeNodeUpdater struct {
-	parentGet TreeNodeParentGetFunc
-	parentAdd TreeNodeParentAddFunc
-	parentDel TreeNodeParentDelFunc
+type objectUpdater struct {
+	parentGet ObjectParentGetFunc
+	parentAdd ObjectParentAddFunc
+	parentDel ObjectParentDelFunc
 }
 
-func (t *treeNodeUpdater) Run(item treeNode, domain Domain) error {
+func (t *objectUpdater) Run(item Object, domain Domain) error {
 	var source, target []uint64
 	if item.GetParentID() != 0 {
 		target = append(target, item.GetParentID())
@@ -34,17 +34,17 @@ func (t *treeNodeUpdater) Run(item treeNode, domain Domain) error {
 	return nil
 }
 
-func NewTreeNodeUpdater(
-	parentGet TreeNodeParentGetFunc,
-	parentAdd TreeNodeParentAddFunc,
-	parentDel TreeNodeParentDelFunc) *treeNodeUpdater {
-	return &treeNodeUpdater{
+func NewObjectUpdater(
+	parentGet ObjectParentGetFunc,
+	parentAdd ObjectParentAddFunc,
+	parentDel ObjectParentDelFunc) *objectUpdater {
+	return &objectUpdater{
 		parentGet: parentGet,
 		parentAdd: parentAdd,
 		parentDel: parentDel,
 	}
 }
 
-type TreeNodeParentGetFunc = func(treeNode, Domain) []treeNode
-type TreeNodeParentAddFunc = func(treeNode, treeNode, Domain) error
-type TreeNodeParentDelFunc = func(treeNode, treeNode, Domain) error
+type ObjectParentGetFunc = func(Object, Domain) []Object
+type ObjectParentAddFunc = func(Object, Object, Domain) error
+type ObjectParentDelFunc = func(Object, Object, Domain) error

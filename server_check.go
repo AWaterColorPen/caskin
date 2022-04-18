@@ -16,14 +16,6 @@ func (s *server) CheckObjectData(user User, domain Domain, one ObjectData, actio
 	return fmt.Errorf("no %v permission", action)
 }
 
-func (s *server) SuperadminCheck(user User) error {
-	ok, _ := s.Enforcer.IsSuperadmin(user)
-	if !ok {
-		return ErrIsNotSuperAdmin
-	}
-	return nil
-}
-
 func (s *server) DBCreateCheck(item any) error {
 	if err := s.DB.Take(item); err == nil {
 		return ErrAlreadyExists

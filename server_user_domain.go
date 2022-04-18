@@ -27,8 +27,8 @@ func (s *server) GetDomainByUser(user User) ([]Domain, error) {
 
 func (s *server) getDomainBySuperadmin(user User) ([]Domain, error) {
 	// TODO don't use SuperadminCheck
-	if err := s.SuperadminCheck(user); err != nil {
-		return nil, err
+	if ok, _ := s.Enforcer.IsSuperadmin(user); !ok {
+		return nil, ErrIsNotSuperAdmin
 	}
 	domain, err := s.GetDomain()
 	if err != nil {

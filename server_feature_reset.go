@@ -28,7 +28,7 @@ func (s *server) ResetFeature(domain Domain) error {
 	}
 
 	graph := MergeInheritanceGraph(sourceG2, targetG2)
-	index := TopSort(graph)
+	index := graph.TopSort()
 	sorter := NewEdgeSorter(index)
 
 	add, remove := Diff(source, target)

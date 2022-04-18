@@ -148,3 +148,65 @@ func TestServer_UserRole_ModifyUserRolePerUser(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Len(t, list2, 2)
 }
+
+func TestServer_UserRole_AddUserRole(t *testing.T) {
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
+	service := stage.Service
+
+	objects, err := service.GetObject(stage.Admin, stage.Domain, caskin.Manage)
+	assert.NoError(t, err)
+	assert.Len(t, objects, 2)
+	roles, err := service.GetRole(stage.Admin, stage.Domain)
+	assert.NoError(t, err)
+	assert.Len(t, roles, 2)
+
+	object1 := &example.Object{Name: "role_sub_01", Type: "role"}
+	object1.ParentID = objects[0].GetID()
+	assert.NoError(t, service.CreateObject(stage.Admin, stage.Domain, object1))
+
+	role1 := &example.Role{Name: "role_sub_01", ObjectID: object1.ID}
+	assert.NoError(t, service.CreateRole(stage.Admin, stage.Domain, role1))
+
+	pairs := []*caskin.UserRolePair{
+		{stage.Member, role1},
+	}
+	assert.Equal(t, caskin.ErrNoWritePermission, service.AddUserRole(stage.Member, stage.Domain, pairs))
+	assert.NoError(t, service.AddUserRole(stage.Admin, stage.Domain, pairs))
+
+	list1, err := service.GetUserRoleByUser(stage.Admin, stage.Domain, stage.Member)
+	assert.NoError(t, err)
+	assert.Len(t, list1, 2)
+}
+
+func TestServer_UserRole_RemoveUserRole(t *testing.T) {
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
+	service := stage.Service
+
+	objects, err := service.GetObject(stage.Admin, stage.Domain, caskin.Manage)
+	assert.NoError(t, err)
+	assert.Len(t, objects, 2)
+	roles, err := service.GetRole(stage.Admin, stage.Domain)
+	assert.NoError(t, err)
+	assert.Len(t, roles, 2)
+
+	object1 := &example.Object{Name: "role_sub_01", Type: "role"}
+	object1.ParentID = objects[0].GetID()
+	assert.NoError(t, service.CreateObject(stage.Admin, stage.Domain, object1))
+
+	role1 := &example.Role{Name: "role_sub_01", ObjectID: object1.ID}
+	assert.NoError(t, service.CreateRole(stage.Admin, stage.Domain, role1))
+
+	pairs1 := []*caskin.UserRolePair{
+		{stage.Member, role1},
+	}
+	assert.NoError(t, service.AddUserRole(stage.Admin, stage.Domain, pairs1))
+	pairs2 := []*caskin.UserRolePair{
+		{stage.Member, role1},
+	}
+	assert.Equal(t, caskin.ErrNoWritePermission, service.RemoveUserRole(stage.Member, stage.Domain, pairs2))
+	assert.NoError(t, service.RemoveUserRole(stage.Admin, stage.Domain, pairs2))
+
+	list1, err := service.GetUserRoleByUser(stage.Admin, stage.Domain, stage.Member)
+	assert.NoError(t, err)
+	assert.Len(t, list1, 1)
+}

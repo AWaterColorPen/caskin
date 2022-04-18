@@ -35,6 +35,8 @@ type IBaseService interface {
 	UpdateRole(User, Domain, Role) error
 	GetRole(User, Domain) ([]Role, error)
 
+	AddUserRole(User, Domain, []*UserRolePair) error
+	RemoveUserRole(User, Domain, []*UserRolePair) error
 	AddRoleG(User, Domain, Role, Role) error
 	RemoveRoleG(User, Domain, Role, Role) error
 

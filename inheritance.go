@@ -64,6 +64,35 @@ func (g InheritanceGraph[T]) Sort() InheritanceGraph[T] {
 	return m
 }
 
+func (g InheritanceGraph[T]) TopSort() []T {
+	inDegree := map[T]int{}
+	for k := range g {
+		inDegree[k] = 0
+	}
+	for _, node := range g {
+		for _, v := range node {
+			inDegree[v]++
+		}
+	}
+
+	var queue []T
+	for k, v := range inDegree {
+		if v == 0 {
+			queue = append(queue, k)
+		}
+	}
+	for i := 0; i < len(queue); i++ {
+		node := queue[i]
+		for _, v := range g[node] {
+			inDegree[v]--
+			if inDegree[v] == 0 {
+				queue = append(queue, v)
+			}
+		}
+	}
+	return queue
+}
+
 func MergeInheritanceGraph[T constraints.Ordered](graphs ...InheritanceGraph[T]) InheritanceGraph[T] {
 	m := InheritanceGraph[T]{}
 	for _, graph := range graphs {

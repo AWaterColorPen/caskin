@@ -4,20 +4,19 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/awatercolorpen/caskin"
 	"gorm.io/gorm"
 )
 
 // Object sample for caskin.Object interface
 type Object struct {
-	ID        uint64            `gorm:"column:id;primaryKey"                     json:"id,omitempty"`
-	CreatedAt time.Time         `gorm:"column:created_at"                        json:"created_at,omitempty"`
-	UpdatedAt time.Time         `gorm:"column:updated_at"                        json:"updated_at,omitempty"`
-	DeletedAt gorm.DeletedAt    `gorm:"column:delete_at;index"                   json:"-"`
-	Name      string            `gorm:"column:name;index:idx_object,unique"      json:"name,omitempty"`
-	Type      caskin.ObjectType `gorm:"column:type"                              json:"type,omitempty"`
-	DomainID  uint64            `gorm:"column:domain_id;index:idx_object,unique" json:"domain_id,omitempty"`
-	ParentID  uint64            `gorm:"column:parent_id;index:idx_object,unique" json:"parent_id"`
+	ID        uint64         `gorm:"column:id;primaryKey"                     json:"id,omitempty"`
+	CreatedAt time.Time      `gorm:"column:created_at"                        json:"created_at,omitempty"`
+	UpdatedAt time.Time      `gorm:"column:updated_at"                        json:"updated_at,omitempty"`
+	DeletedAt gorm.DeletedAt `gorm:"column:delete_at;index"                   json:"-"`
+	Name      string         `gorm:"column:name;index:idx_object,unique"      json:"name,omitempty"`
+	Type      string         `gorm:"column:type"                              json:"type,omitempty"`
+	DomainID  uint64         `gorm:"column:domain_id;index:idx_object,unique" json:"domain_id,omitempty"`
+	ParentID  uint64         `gorm:"column:parent_id;index:idx_object,unique" json:"parent_id"`
 }
 
 func (o *Object) GetID() uint64 {
@@ -61,6 +60,6 @@ func (o *Object) SetName(name string) {
 	o.Name = name
 }
 
-func (o *Object) GetObjectType() caskin.ObjectType {
+func (o *Object) GetObjectType() string {
 	return o.Type
 }

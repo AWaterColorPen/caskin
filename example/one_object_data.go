@@ -29,8 +29,8 @@ func (o *OneObjectData) GetObjectID() uint64 {
 	return o.ObjectID
 }
 
-func (o *OneObjectData) SetObjectID(objectId uint64) {
-	o.ObjectID = objectId
+func (o *OneObjectData) SetObjectID(oid uint64) {
+	o.ObjectID = oid
 }
 
 func (o *OneObjectData) GetDomainID() uint64 {

@@ -49,8 +49,3 @@ type parentInterface interface {
 	// SetParentID set parent id method
 	SetParentID(uint64)
 }
-
-type treeNode interface {
-	idInterface
-	parentInterface
-}

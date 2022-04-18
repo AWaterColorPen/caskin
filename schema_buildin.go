@@ -43,6 +43,6 @@ func (o *NamedObject) SetName(name string) {
 	o.Name = name
 }
 
-func (o *NamedObject) GetObjectType() ObjectType {
+func (o *NamedObject) GetObjectType() string {
 	return ""
 }

@@ -195,3 +195,34 @@ func (s *server) ModifyUserRolePerRole(user User, domain Domain, perRole Role, i
 
 	return nil
 }
+
+// AddUserRole
+// if current user has role's write permission
+// 1. add user to role 's g in current domain
+func (s *server) AddUserRole(user User, domain Domain, input []*UserRolePair) error {
+	return s.fnUserRole(user, domain, input, s.Enforcer.AddRoleForUserInDomain)
+}
+
+// RemoveUserRole
+// if current user has role's write permission
+// 1. remove role's to user 's g in current domain
+func (s *server) RemoveUserRole(user User, domain Domain, input []*UserRolePair) error {
+	return s.fnUserRole(user, domain, input, s.Enforcer.RemoveRoleForUserInDomain)
+}
+
+func (s *server) fnUserRole(user User, domain Domain, input []*UserRolePair, fn func(User, Role, Domain) error) error {
+	for _, v := range input {
+		if err := s.IDInterfaceValidAndExistsCheck(v.User); err != nil {
+			return err
+		}
+		if err := s.ObjectDataModifyCheck(user, domain, v.Role); err != nil {
+			return err
+		}
+	}
+	for _, v := range input {
+		if err := fn(v.User, v.Role, domain); err != nil {
+			return err
+		}
+	}
+	return nil
+}
