@@ -105,8 +105,7 @@ func (s *server) ModifyFeaturePolicyPerRole(user User, domain Domain, perRole Ro
 	if err := s.ObjectDataModifyCheck(user, domain, perRole); err != nil {
 		return err
 	}
-	list := PolicyList(input)
-	if err := list.IsValidWithRole(perRole); err != nil {
+	if err := isValidPolicyWithRole(input, perRole); err != nil {
 		return err
 	}
 

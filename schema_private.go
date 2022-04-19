@@ -18,14 +18,6 @@ func isValid(item idInterface) error {
 	return nil
 }
 
-// nameInterface it is only for get/set name method
-type nameInterface interface {
-	// GetName get name method
-	GetName() string
-	// SetName set name method
-	SetName(string)
-}
-
 // domainInterface it is only for get/set domain_id method
 type domainInterface interface {
 	// GetDomainID get domain_id method

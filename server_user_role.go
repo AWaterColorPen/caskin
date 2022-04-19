@@ -83,8 +83,7 @@ func (s *server) ModifyUserRolePerUser(user User, domain Domain, perUser User, i
 	if err := isValid(perUser); err != nil {
 		return err
 	}
-	pairs := UserRolePairs(input)
-	if err := pairs.IsValidWithUser(perUser); err != nil {
+	if err := isValidWithUser(input, perUser); err != nil {
 		return err
 	}
 	if err := s.DB.Take(perUser); err != nil {
@@ -93,7 +92,7 @@ func (s *server) ModifyUserRolePerUser(user User, domain Domain, perUser User, i
 
 	rs := s.Enforcer.GetRolesForUserInDomain(perUser, domain)
 	rid1 := ID(rs)
-	rid2 := pairs.RoleID()
+	rid2 := roleID(input)
 
 	// get all role data
 	var rid []uint64
@@ -145,14 +144,13 @@ func (s *server) ModifyUserRolePerRole(user User, domain Domain, perRole Role, i
 	if err := s.ObjectDataModifyCheck(user, domain, perRole); err != nil {
 		return err
 	}
-	pairs := UserRolePairs(input)
-	if err := pairs.IsValidWithRole(perRole); err != nil {
+	if err := isValidWithRole(input, perRole); err != nil {
 		return err
 	}
 
 	us := s.Enforcer.GetUsersForRoleInDomain(perRole, domain)
 	uid1 := ID(us)
-	uid2 := pairs.UserID()
+	uid2 := userID(input)
 
 	// get all role data
 	var uid []uint64
@@ -225,4 +223,40 @@ func (s *server) fnUserRole(user User, domain Domain, input []*UserRolePair, fn 
 		}
 	}
 	return nil
+}
+
+func isValidWithRole(u []*UserRolePair, role Role) error {
+	encode := role.Encode()
+	for _, v := range u {
+		if v.Role.Encode() != encode {
+			return ErrInputPairArrayNotBelongSameRole
+		}
+	}
+	return nil
+}
+
+func isValidWithUser(u []*UserRolePair, user User) error {
+	encode := user.Encode()
+	for _, v := range u {
+		if v.User.Encode() != encode {
+			return ErrInputPairArrayNotBelongSameUser
+		}
+	}
+	return nil
+}
+
+func roleID(u []*UserRolePair) []uint64 {
+	var id []uint64
+	for _, v := range u {
+		id = append(id, v.Role.GetID())
+	}
+	return id
+}
+
+func userID(u []*UserRolePair) []uint64 {
+	var id []uint64
+	for _, v := range u {
+		id = append(id, v.User.GetID())
+	}
+	return id
 }

@@ -25,7 +25,6 @@ type Role interface {
 
 type Object interface {
 	idInterface
-	// nameInterface // TODO
 	codeInterface
 	parentInterface
 	domainInterface
@@ -72,70 +71,32 @@ func (p *Policy) Key() string {
 	return string(b)
 }
 
-// PolicyList list of policy
-type PolicyList []*Policy
-
-func (p PolicyList) IsValidWithObject(object Object) error {
-	encode := object.Encode()
-	for _, v := range p {
-		if v.Object.Encode() != encode {
-			return ErrInputPolicyListNotBelongSameObject
-		}
-	}
-	return nil
-}
-
-func (p PolicyList) IsValidWithRole(role Role) error {
-	encode := role.Encode()
-	for _, v := range p {
-		if v.Role.Encode() != encode {
-			return ErrInputPolicyListNotBelongSameRole
-		}
-	}
-	return nil
-}
-
 // UserRolePair pair of user and role
 type UserRolePair struct {
 	User User `json:"user"`
 	Role Role `json:"role"`
 }
 
-// UserRolePairs list of user and role's pair
-type UserRolePairs []*UserRolePair
-
-func (u UserRolePairs) IsValidWithRole(role Role) error {
-	encode := role.Encode()
-	for _, v := range u {
-		if v.Role.Encode() != encode {
-			return ErrInputPairArrayNotBelongSameRole
-		}
-	}
-	return nil
+type Directory struct {
+	Object
+	AllDirectoryCount uint64 `json:"all_directory_count"`
+	AllItemCount      uint64 `json:"all_item_count"`
+	TopDirectoryCount uint64 `json:"top_directory_count"`
+	TopItemCount      uint64 `json:"top_item_count"`
+	Depth             uint64 `json:"depth"`
+	Distance          uint64 `json:"distance"`
 }
 
-func (u UserRolePairs) IsValidWithUser(user User) error {
-	encode := user.Encode()
-	for _, v := range u {
-		if v.User.Encode() != encode {
-			return ErrInputPairArrayNotBelongSameUser
-		}
-	}
-	return nil
+type DirectoryRequest struct {
+	To     uint64   `json:"to"`
+	ID     []uint64 `json:"id"`
+	Type   string   `json:"type"`
+	Policy string   `json:"policy"`
 }
 
-func (u UserRolePairs) RoleID() []uint64 {
-	var id []uint64
-	for _, v := range u {
-		id = append(id, v.Role.GetID())
-	}
-	return id
-}
-
-func (u UserRolePairs) UserID() []uint64 {
-	var id []uint64
-	for _, v := range u {
-		id = append(id, v.User.GetID())
-	}
-	return id
+type DirectoryResponse struct {
+	DoneDirectoryCount uint64 `json:"done_directory_count,omitempty"`
+	DoneItemCount      uint64 `json:"done_item_count,omitempty"`
+	ToDoDirectoryCount uint64 `json:"to_do_directory_count,omitempty"`
+	ToDoItemCount      uint64 `json:"to_do_item_count,omitempty"`
 }

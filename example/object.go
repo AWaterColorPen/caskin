@@ -52,14 +52,6 @@ func (o *Object) SetDomainID(did uint64) {
 	o.DomainID = did
 }
 
-func (o *Object) GetName() string {
-	return o.Name
-}
-
-func (o *Object) SetName(name string) {
-	o.Name = name
-}
-
 func (o *Object) GetObjectType() string {
 	return o.Type
 }

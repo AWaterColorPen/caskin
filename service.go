@@ -51,9 +51,7 @@ type IBaseService interface {
 
 	GetPolicy(User, Domain) ([]*Policy, error)
 	GetPolicyByRole(User, Domain, Role) ([]*Policy, error)
-	GetPolicyByObject(User, Domain, Object) ([]*Policy, error)
 	ModifyPolicyPerRole(User, Domain, Role, []*Policy) error
-	ModifyPolicyPerObject(User, Domain, Object, []*Policy) error
 
 	CreateObjectData(User, Domain, ObjectData, ObjectType) error
 	RecoverObjectData(User, Domain, ObjectData) error
@@ -69,9 +67,6 @@ type IBaseService interface {
 	ObjectDataGetCheck(User, Domain, ObjectData) error
 }
 
-type ICurrentService interface {
-}
-
 type IFeatureService interface {
 	GetBackend() ([]*Backend, error)
 	GetFrontend() ([]*Frontend, error)
@@ -83,4 +78,10 @@ type IFeatureService interface {
 	GetFeaturePolicyByRole(User, Domain, Role) ([]*Policy, error)
 	ModifyFeaturePolicyPerRole(User, Domain, Role, []*Policy) error
 	ResetFeature(Domain) error
+}
+
+type ICurrentService interface {
+}
+
+type IDirectoryService interface {
 }
