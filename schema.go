@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 )
 
+type DirectorySearchType = string
+
 type ObjectType = string
 
 type Action = string

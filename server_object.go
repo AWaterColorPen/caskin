@@ -12,6 +12,9 @@ func (s *server) CreateObject(user User, domain Domain, object Object) error {
 	if err := s.ObjectParentCheck(user, domain, object); err != nil {
 		return err
 	}
+	if err := s.ObjectHierarchyCheck(domain, object); err != nil {
+		return err
+	}
 	object.SetDomainID(domain.GetID())
 	if err := s.DB.Create(object); err != nil {
 		return err
@@ -72,6 +75,9 @@ func (s *server) UpdateObject(user User, domain Domain, object Object) error {
 	if err := s.ObjectParentCheck(user, domain, object); err != nil {
 		return err
 	}
+	if err := s.ObjectHierarchyCheck(domain, object); err != nil {
+		return err
+	}
 	object.SetDomainID(domain.GetID())
 	if err := s.DB.Update(object); err != nil {
 		return err
@@ -82,7 +88,7 @@ func (s *server) UpdateObject(user User, domain Domain, object Object) error {
 
 // GetObject
 // get choose object
-// 1. current user has manage permission of object
+// 1. current user has permission of object
 //    manage permission for admin to manage
 //    read/write permission for customer to get directory
 // 2. get object by type

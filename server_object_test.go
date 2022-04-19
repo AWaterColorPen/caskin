@@ -237,3 +237,21 @@ func TestServer_DeleteObject(t *testing.T) {
 	object2 := &example.Object{ID: 999}
 	assert.Equal(t, caskin.ErrNotExists, service.DeleteObject(stage.Admin, stage.Domain, object2))
 }
+
+func TestServer_ObjectHierarchyCheck(t *testing.T) {
+	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
+	service := stage.Service
+
+	objects, err := service.GetObject(stage.Admin, stage.Domain, caskin.Manage)
+	assert.NoError(t, err)
+	assert.Len(t, objects, 2)
+
+	list := []caskin.Object{objects[0]}
+	for i := 1; i <= 9; i++ {
+		object := &example.Object{Name: "benchmark", Type: "role", ParentID: list[i-1].GetID()}
+		assert.NoError(t, service.CreateObject(stage.Admin, stage.Domain, object))
+		list = append(list, object)
+	}
+	object10 := &example.Object{Name: "benchmark", Type: "role", ParentID: list[9].GetID()}
+	assert.NotNil(t, service.CreateObject(stage.Admin, stage.Domain, object10))
+}

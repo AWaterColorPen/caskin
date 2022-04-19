@@ -1,6 +1,8 @@
 package caskin
 
 import (
+	"fmt"
+
 	"github.com/ahmetb/go-linq/v3"
 )
 
@@ -229,7 +231,7 @@ func isValidWithRole(u []*UserRolePair, role Role) error {
 	encode := role.Encode()
 	for _, v := range u {
 		if v.Role.Encode() != encode {
-			return ErrInputPairArrayNotBelongSameRole
+			return fmt.Errorf("input user role pair array are not belong to same role")
 		}
 	}
 	return nil
@@ -239,7 +241,7 @@ func isValidWithUser(u []*UserRolePair, user User) error {
 	encode := user.Encode()
 	for _, v := range u {
 		if v.User.Encode() != encode {
-			return ErrInputPairArrayNotBelongSameUser
+			return fmt.Errorf("input user role pair array are not belong to same user")
 		}
 	}
 	return nil

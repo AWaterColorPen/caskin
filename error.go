@@ -19,11 +19,6 @@ var (
 	ErrNoManagePermission  = fmt.Errorf("no manage permission")
 	ErrNoBackendPermission = fmt.Errorf("no backend api permission")
 
-	ErrIsNotSuperAdmin = fmt.Errorf("is not superadmin")
-
+	ErrIsNotSuperadmin           = fmt.Errorf("is not superadmin")
 	ErrInitializationNilEnforcer = fmt.Errorf("enforcer is nil")
-
-	ErrInputPairArrayNotBelongSameUser  = fmt.Errorf("input user role pair array are not belong to same user")
-	ErrInputPairArrayNotBelongSameRole  = fmt.Errorf("input user role pair array are not belong to same role")
-	ErrInputPolicyListNotBelongSameRole = fmt.Errorf("input policy list are not belong to same role")
 )

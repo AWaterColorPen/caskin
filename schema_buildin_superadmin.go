@@ -18,7 +18,7 @@ func (s *SampleSuperadminRole) Encode() string {
 
 func (s *SampleSuperadminRole) Decode(code string) error {
 	if code != SuperadminRole {
-		return ErrIsNotSuperAdmin
+		return ErrIsNotSuperadmin
 	}
 	return nil
 }
@@ -55,7 +55,7 @@ func (s *SampleSuperadminDomain) Encode() string {
 
 func (s *SampleSuperadminDomain) Decode(code string) error {
 	if code != SuperadminDomain {
-		return ErrIsNotSuperAdmin
+		return ErrIsNotSuperadmin
 	}
 	return nil
 }

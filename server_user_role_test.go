@@ -111,7 +111,7 @@ func TestServer_UserRole_ModifyUserRolePerRole(t *testing.T) {
 		{stage.Member, role1},
 	}
 	assert.Equal(t, caskin.ErrNoWritePermission, service.ModifyUserRolePerRole(stage.Member, stage.Domain, roles[0], pairs))
-	assert.Equal(t, caskin.ErrInputPairArrayNotBelongSameRole, service.ModifyUserRolePerRole(stage.Admin, stage.Domain, roles[0], pairs))
+	assert.NotNil(t, service.ModifyUserRolePerRole(stage.Admin, stage.Domain, roles[0], pairs))
 	assert.NoError(t, service.ModifyUserRolePerRole(stage.Admin, stage.Domain, role1, pairs))
 }
 
@@ -142,7 +142,7 @@ func TestServer_UserRole_ModifyUserRolePerUser(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Len(t, list1, 1)
 
-	assert.Equal(t, caskin.ErrInputPairArrayNotBelongSameUser, service.ModifyUserRolePerUser(stage.Admin, stage.Domain, stage.Admin, pairs))
+	assert.NotNil(t, service.ModifyUserRolePerUser(stage.Admin, stage.Domain, stage.Admin, pairs))
 	assert.NoError(t, service.ModifyUserRolePerUser(stage.Admin, stage.Domain, stage.Member, pairs))
 	list2, err := service.GetUserRoleByUser(stage.Member, stage.Domain, stage.Member)
 	assert.NoError(t, err)

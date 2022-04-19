@@ -116,3 +116,35 @@ func (s *server) ObjectUpdateCheck(user User, domain Domain, object Object) erro
 	}
 	return s.ObjectParentToDescendantCheck(domain, object, old)
 }
+
+func (s *server) ObjectHierarchyCheck(domain Domain, object Object) error {
+	parent := newByE(object)
+	parent.SetID(object.GetParentID())
+	hierarchyLevel1 := objectHierarchyBFS(domain, parent, s.Enforcer.GetParentsForObjectInDomain)
+	hierarchyLevel2 := objectHierarchyBFS(domain, object, s.Enforcer.GetChildrenForObjectInDomain)
+	if hierarchyLevel := hierarchyLevel1 + hierarchyLevel2; hierarchyLevel > 10 {
+		return fmt.Errorf("max directory depth %v is too large than 10", hierarchyLevel)
+	}
+	return nil
+}
+
+func objectHierarchyBFS(domain Domain, object Object, fn func(Object, Domain) []Object) int {
+	hierarchyLevel := 0
+	m := map[uint64]int{object.GetID(): 1}
+	queue := []uint64{object.GetID()}
+	for i := 0; i < len(queue); i++ {
+		node := newByE(object)
+		node.SetID(queue[i])
+		for _, v := range fn(node, domain) {
+			if _, ok := m[v.GetID()]; ok {
+				continue
+			}
+			m[v.GetID()] = m[node.GetID()] + 1
+			queue = append(queue, v.GetID())
+		}
+		if hierarchyLevel < m[node.GetID()] {
+			hierarchyLevel = m[node.GetID()]
+		}
+	}
+	return hierarchyLevel
+}

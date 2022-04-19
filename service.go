@@ -3,7 +3,6 @@ package caskin
 type IService interface {
 	IBaseService
 	IFeatureService
-	ICurrentService
 }
 
 type IBaseService interface {
@@ -80,8 +79,59 @@ type IFeatureService interface {
 	ResetFeature(Domain) error
 }
 
-type ICurrentService interface {
+type IDirectoryService interface {
+	CreateDirectory(User, Domain, Object) error
+	DeleteDirectory(User, Domain, Object) error
+	UpdateDirectory(User, Domain, Object) error
+	MoveDirectory(User, Domain, *DirectoryRequest) (*DirectoryResponse, error)
+	MoveItem(User, Domain, *DirectoryRequest) (*DirectoryResponse, error)
+	CopyItem(User, Domain, *DirectoryRequest) (*DirectoryResponse, error)
+	GetDirectory(User, Domain) ([]*Directory, error)
 }
 
-type IDirectoryService interface {
+type ICurrentService interface {
+	SetCurrent(User, Domain) IService
+
+	CreateObjectWithCurrent(Object) error
+	RecoverObjectWithCurrent(Object) error
+	DeleteObjectWithCurrent(Object) error
+	UpdateObjectWithCurrent(Object) error
+	GetObjectWithCurrent(Action, ...ObjectType) ([]Object, error)
+
+	CreateRoleWithCurrent(Role) error
+	RecoverRoleWithCurrent(Role) error
+	DeleteRoleWithCurrent(Role) error
+	UpdateRoleWithCurrent(Role) error
+	GetRole() ([]Role, error)
+
+	AddUserRoleWithCurrent([]*UserRolePair) error
+	RemoveUserRoleWithCurrent([]*UserRolePair) error
+	AddRoleGWithCurrent(Role, Role) error
+	RemoveRoleGWithCurrent(Role, Role) error
+
+	GetUserByDomain(Domain) ([]User, error)
+	GetDomainByUser(User) ([]Domain, error)
+
+	GetUserRole() ([]*UserRolePair, error)
+	GetUserRoleByUserWithCurrent(User) ([]*UserRolePair, error)
+	GetUserRoleByRoleWithCurrent(Role) ([]*UserRolePair, error)
+	ModifyUserRolePerUserWithCurrent(User, []*UserRolePair) error
+	ModifyUserRolePerRoleWithCurrent(Role, []*UserRolePair) error
+
+	GetPolicy() ([]*Policy, error)
+	GetPolicyByRoleWithCurrent(Role) ([]*Policy, error)
+	ModifyPolicyPerRoleWithCurrent(Role, []*Policy) error
+
+	CreateObjectDataWithCurrent(ObjectData, ObjectType) error
+	RecoverObjectDataWithCurrent(ObjectData) error
+	DeleteObjectDataWithCurrent(ObjectData) error
+	UpdateObjectDataWithCurrent(ObjectData, ObjectType) error
+	// GetObjectDataWithCurrent(ObjectData) ([]ObjectData, error) // TODO
+
+	CreateObjectDataCheckWithCurrent(ObjectData, ObjectType) error
+	RecoverObjectDataCheckWithCurrent(ObjectData) error
+	DeleteObjectDataCheckWithCurrent(ObjectData) error
+	UpdateObjectDataCheckWithCurrent(ObjectData, ObjectType) error
+	ModifyObjectDataCheckWithCurrent(ObjectData) error
+	GetObjectDataCheckWithCurrent(ObjectData) error
 }

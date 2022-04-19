@@ -9,12 +9,9 @@ type server struct {
 	Enforcer   IEnforcer
 	DB         MetaDB
 	Dictionary IDictionary
-}
 
-type currentServer struct {
-	server
-	CurrentUser   User
-	CurrentDomain Domain
+	CurrentUser   User   // for ICurrentService
+	CurrentDomain Domain // for ICurrentService
 }
 
 func New(options *Options, opts ...Option) (IService, error) {

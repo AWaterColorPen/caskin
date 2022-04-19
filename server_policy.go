@@ -1,6 +1,10 @@
 package caskin
 
-import "github.com/ahmetb/go-linq/v3"
+import (
+	"fmt"
+
+	"github.com/ahmetb/go-linq/v3"
+)
 
 // GetPolicy
 // get all policies
@@ -126,7 +130,7 @@ func isValidPolicyWithRole(p []*Policy, role Role) error {
 	encode := role.Encode()
 	for _, v := range p {
 		if v.Role.Encode() != encode {
-			return ErrInputPolicyListNotBelongSameRole
+			return fmt.Errorf("input policy list are not belong to same role")
 		}
 	}
 	return nil

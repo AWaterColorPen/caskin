@@ -2,8 +2,9 @@ package caskin
 
 import (
 	"fmt"
-	"gorm.io/gorm"
 	"reflect"
+
+	"gorm.io/gorm"
 )
 
 var defaultFactory Factory

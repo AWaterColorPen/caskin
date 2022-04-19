@@ -18,6 +18,12 @@ const (
 )
 
 const (
+	DirectorySearchAll DirectorySearchType = "all"
+	DirectorySearchTop DirectorySearchType = "top"
+	DirectoryMaxDepth                      = 8
+)
+
+const (
 	UpsertTypeCreate  UpsertType = "create"
 	UpsertTypeRecover UpsertType = "recover"
 	UpsertTypeUpdate  UpsertType = "update"
