@@ -1,71 +1,168 @@
 package caskin
 
-// GetDirectory
-// get choose directory
-// 1. current user has read of object to get directory
-// 2. get object by type
-func (s *server) GetDirectory(user User, domain Domain, ty ObjectType) ([]*Directory, error) {
-	// object, err := s.GetObject(user, domain, Read, ty)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	return nil, nil
+// CreateDirectory
+// 1. if there exist the object but soft deleted then recover it
+// 2. if there does not exist the object then create a new one
+func (s *server) CreateDirectory(user User, domain Domain, object Object) error {
+	if err := s.RecoverObject(user, domain, object); err == nil {
+		return nil
+	}
+	return s.CreateObject(user, domain, object)
 }
 
-// func ObjectToDirectoryWithItemCount(db *gorm.DB, ty string, object []Object) ([]*Directory, error) {
-// 	// models, _, err := itemModelsByItemType(ty)
-// 	// if err != nil {
-// 	// 	return nil, err
-// 	// }
-// 	id := ID(object)
-// 	var itemCounts []map[uint64]uint64
-// 	for _, model := range models {
-// 		count, err := countDirectoryItem(db, model, id)
-// 		if err != nil {
-// 			return nil, err
-// 		}
-// 		itemCounts = append(itemCounts, count)
-// 	}
-// 	return object2Directory(object, itemCounts...), nil
-// }
+// UpdateDirectory
+// 1. if there exist the object update properties and g2 in the domain
+func (s *server) UpdateDirectory(user User, domain Domain, object Object) error {
+	return s.UpdateObject(user, domain, object)
+}
 
-func object2Directory(object []Object, itemCounts ...map[uint64]uint64) []*Directory {
-	var out []*Directory
+// DeleteDirectory
+// request.type required as object type
+// request.to required as object id
+// request.ActionDirectory required for to delete directory item
+// if there exist the object
+// 1. delete all item of object
+// 2. soft delete one object in metadata database
+// 3. delete all son of the object in the domain
+func (s *server) DeleteDirectory(user User, domain Domain, request *DirectoryRequest) error {
+	if request.Type == "" || request.To == 0 || request.ActionDirectory == nil {
+		return ErrInValidRequest
+	}
+	list, err := s.GetObject(user, domain, Write, request.Type)
+	if err != nil {
+		return err
+	}
+	var directory []*Directory
+	for _, v := range list {
+		directory = append(directory, &Directory{Object: v})
+	}
+	id := ID(NewObjectDirectory(directory).Search(request.To, DirectorySearchAll))
+	id = append(id, request.To)
+	if err = request.ActionDirectory(id); err != nil {
+		return err
+	}
+	object := DefaultFactory().NewObject()
+	object.SetID(request.To)
+	return s.DeleteObject(user, domain, object)
+}
+
+// GetDirectory
+// request.type required as object type
+// request.to required as the target object id
+// request.CountDirectory required to count the item number of directory
+// request.search_type optional as directory search option
+//   "top" will only search top level directory by default
+//   "all" will search all level directory
+// 1. current user has read of object to get directory
+func (s *server) GetDirectory(user User, domain Domain, request *DirectoryRequest) ([]*Directory, error) {
+	if request.Type == "" || request.To == 0 || request.CountDirectory == nil {
+		return nil, ErrInValidRequest
+	}
+	object, err := s.GetObject(user, domain, Read, request.Type)
+	if err != nil {
+		return nil, err
+	}
+	count, err := request.CountDirectory(ID(object))
+	if err != nil {
+		return nil, err
+	}
+
+	var directory []*Directory
 	for _, v := range object {
 		u := &Directory{Object: v}
-		for _, count := range itemCounts {
-			u.TopItemCount += count[u.GetID()]
-		}
-		out = append(out, u)
+		u.TopItemCount = count[u.GetID()]
+		directory = append(directory, u)
 	}
-	return out
+	return NewObjectDirectory(directory).Search(request.To, request.SearchType), nil
 }
 
-type CountDirectoryItem = func(objectID []uint64) (map[uint64]uint64, error)
-type DeleteDirectoryItem = func(objectID []uint64) error
+// MoveDirectory
+// request.to required as the target object id
+// request.id required as the source object id list
+// request.policy optional as the error handle policy.
+//   it will stop by default when error happen
+//   "continue" will ignore error
+func (s *server) MoveDirectory(user User, domain Domain, request *DirectoryRequest) (*DirectoryResponse, error) {
+	if request.Type == "" || request.To == 0 {
+		return nil, ErrInValidRequest
+	}
+	response := &DirectoryResponse{ToDoDirectoryCount: uint64(len(request.ID))}
+	object, err := s.DB.GetObjectByID(request.ID)
+	if err != nil {
+		return nil, err
+	}
+	for _, v := range object {
+		v.SetParentID(request.To)
+		if err = s.UpdateObject(user, domain, v); err != nil {
+			if request.Policy == "continue" {
+				continue
+			}
+			return response, err
+		}
+		response.DoneDirectoryCount++
+		response.ToDoDirectoryCount--
+	}
+	return response, nil
+}
 
-// func countDirectoryItem(db *gorm.DB, model any, objectID []uint64) (map[uint64]uint64, error) {
-// 	rows, err := db.
-// 		Model(model).
-// 		Select("object_id, COUNT(*) as count").
-// 		Where("object_id in (?)", objectID).
-// 		Group("object_id").Rows()
-// 	if err != nil {
-// 		return nil, err
-// 	}
-//
-// 	out := map[uint64]uint64{}
-// 	for rows.Next() {
-// 		var id, count uint64
-// 		if err = rows.Scan(&id, &count); err != nil {
-// 			return nil, err
-// 		}
-// 		out[id] = count
-// 	}
-//
-// 	return out, nil
-// }
-//
-// func deleteDirectoryItem(db *gorm.DB, model any, objectID []uint64) error {
-// 	return db.Delete(model, "object_id in (?)", objectID).Error
-// }
+// MoveItem
+// request.to required as the target object id
+// request.id required as the source data id list
+// request.policy optional as the error handle policy.
+//   it will stop by default when error happen
+//   "continue" will ignore error
+func (s *server) MoveItem(user User, domain Domain, data ObjectData, request *DirectoryRequest) (*DirectoryResponse, error) {
+	if request.Type == "" || request.To == 0 {
+		return nil, ErrInValidRequest
+	}
+	response := &DirectoryResponse{ToDoItemCount: uint64(len(request.ID))}
+	for _, id := range request.ID {
+		item := newByE(data)
+		item.SetID(id)
+		item.SetObjectID(request.To)
+		if err := s.UpdateObjectData(user, domain, item, request.Type); err != nil {
+			if request.Policy == "continue" {
+				continue
+			}
+			return response, err
+		}
+		response.DoneItemCount++
+		response.ToDoItemCount--
+	}
+	return response, nil
+}
+
+// CopyItem
+// request.to required as the target object id
+// request.id required as the source data id list
+// request.policy optional as the error handle policy.
+//   it will stop by default when error happen
+//   "continue" will ignore error
+func (s *server) CopyItem(user User, domain Domain, data ObjectData, request *DirectoryRequest) (*DirectoryResponse, error) {
+	if request.Type == "" || request.To == 0 {
+		return nil, ErrInValidRequest
+	}
+	response := &DirectoryResponse{ToDoItemCount: uint64(len(request.ID))}
+	for _, id := range request.ID {
+		item := newByE(data)
+		item.SetID(id)
+		item.SetDomainID(domain.GetID())
+		if err := s.ObjectDataGetCheck(user, domain, item); err != nil {
+			if request.Policy == "continue" {
+				continue
+			}
+			return response, err
+		}
+		item.SetID(0)
+		item.SetObjectID(request.To)
+		if err := s.CreateObjectData(user, domain, item, request.Type); err != nil {
+			if request.Policy == "continue" {
+				continue
+			}
+			return response, err
+		}
+		response.DoneItemCount++
+		response.ToDoItemCount--
+	}
+	return response, nil
+}

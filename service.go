@@ -2,6 +2,7 @@ package caskin
 
 type IService interface {
 	IBaseService
+	IDirectoryService
 	IFeatureService
 }
 
@@ -81,12 +82,12 @@ type IFeatureService interface {
 
 type IDirectoryService interface {
 	CreateDirectory(User, Domain, Object) error
-	DeleteDirectory(User, Domain, Object) error
 	UpdateDirectory(User, Domain, Object) error
+	DeleteDirectory(User, Domain, *DirectoryRequest) error
+	GetDirectory(User, Domain, *DirectoryRequest) ([]*Directory, error)
 	MoveDirectory(User, Domain, *DirectoryRequest) (*DirectoryResponse, error)
-	MoveItem(User, Domain, *DirectoryRequest) (*DirectoryResponse, error)
-	CopyItem(User, Domain, *DirectoryRequest) (*DirectoryResponse, error)
-	GetDirectory(User, Domain) ([]*Directory, error)
+	MoveItem(User, Domain, ObjectData, *DirectoryRequest) (*DirectoryResponse, error)
+	CopyItem(User, Domain, ObjectData, *DirectoryRequest) (*DirectoryResponse, error)
 }
 
 type ICurrentService interface {

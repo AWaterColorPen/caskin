@@ -42,6 +42,10 @@ type ObjectData interface {
 	SetObjectID(uint64)
 }
 
+type IDirectory interface {
+	Search(uint64, DirectorySearchType) []*Directory
+}
+
 func ID[E idInterface](in []E) []uint64 {
 	var m []uint64
 	for _, v := range in {
@@ -85,16 +89,19 @@ type Directory struct {
 	AllItemCount      uint64 `json:"all_item_count"`
 	TopDirectoryCount uint64 `json:"top_directory_count"`
 	TopItemCount      uint64 `json:"top_item_count"`
-	Depth             uint64 `json:"depth"`
-	Distance          uint64 `json:"distance"`
 }
 
 type DirectoryRequest struct {
-	To     uint64   `json:"to"`
-	ID     []uint64 `json:"id"`
-	Type   string   `json:"type"`
-	Policy string   `json:"policy"`
+	To              uint64   `json:"to,omitempty"`
+	ID              []uint64 `json:"id,omitempty"`
+	Type            string   `json:"type,omitempty"`
+	Policy          string   `json:"policy,omitempty"`
+	SearchType      string   `json:"search_type,omitempty"`
+	CountDirectory  func([]uint64) (map[uint64]uint64, error)
+	ActionDirectory func([]uint64) error
 }
+
+type CountDirectoryItem = func([]uint64) (map[uint64]uint64, error)
 
 type DirectoryResponse struct {
 	DoneDirectoryCount uint64 `json:"done_directory_count,omitempty"`

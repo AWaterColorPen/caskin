@@ -13,6 +13,7 @@ var (
 	ErrCantOperateRootObject = fmt.Errorf("can't operate root object")
 	ErrParentCanNotBeItself  = fmt.Errorf("parent id can't be it self id")
 	ErrParentToDescendant    = fmt.Errorf("can't change parent to descendant")
+	ErrInValidRequest        = fmt.Errorf("invalid request")
 
 	ErrNoReadPermission    = fmt.Errorf("no read permission")
 	ErrNoWritePermission   = fmt.Errorf("no write permission")
