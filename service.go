@@ -4,6 +4,7 @@ type IService interface {
 	IBaseService
 	IDirectoryService
 	IFeatureService
+	ICurrentService
 }
 
 type IBaseService interface {
