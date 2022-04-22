@@ -22,4 +22,5 @@ var (
 
 	ErrIsNotSuperadmin           = fmt.Errorf("is not superadmin")
 	ErrInitializationNilEnforcer = fmt.Errorf("enforcer is nil")
+	ErrInValidCurrent            = fmt.Errorf("invalid current api")
 )

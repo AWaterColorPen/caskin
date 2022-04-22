@@ -5,7 +5,7 @@ package caskin
 // 1. current user has item's write permission
 // 2. create a new item into database
 func (s *server) CreateObjectData(user User, domain Domain, item ObjectData, ty ObjectType) error {
-	if err := s.ObjectDataCreateCheck(user, domain, item, ty); err != nil {
+	if err := s.CheckCreateObjectData(user, domain, item, ty); err != nil {
 		return err
 	}
 	item.SetDomainID(domain.GetID())
@@ -17,7 +17,7 @@ func (s *server) CreateObjectData(user User, domain Domain, item ObjectData, ty 
 // 1. current user has item's write permission
 // 2. recover the soft delete one item at database
 func (s *server) RecoverObjectData(user User, domain Domain, item ObjectData) error {
-	if err := s.ObjectDataRecoverCheck(user, domain, item); err != nil {
+	if err := s.CheckRecoverObjectData(user, domain, item); err != nil {
 		return err
 	}
 	return s.DB.Recover(item)
@@ -28,7 +28,7 @@ func (s *server) RecoverObjectData(user User, domain Domain, item ObjectData) er
 // 1. current user has item's write permission
 // 3. soft delete one item in database
 func (s *server) DeleteObjectData(user User, domain Domain, item ObjectData) error {
-	if err := s.ObjectDataDeleteCheck(user, domain, item); err != nil {
+	if err := s.CheckDeleteObjectData(user, domain, item); err != nil {
 		return err
 	}
 	item.SetDomainID(domain.GetID())
@@ -40,7 +40,7 @@ func (s *server) DeleteObjectData(user User, domain Domain, item ObjectData) err
 // 1. current user has item's write permission and
 // 2. update item's properties
 func (s *server) UpdateObjectData(user User, domain Domain, item ObjectData, ty ObjectType) error {
-	if err := s.ObjectDataUpdateCheck(user, domain, item, ty); err != nil {
+	if err := s.CheckUpdateObjectData(user, domain, item, ty); err != nil {
 		return err
 	}
 	item.SetDomainID(domain.GetID())
@@ -60,7 +60,7 @@ func (s *server) UpdateObjectData(user User, domain Domain, item ObjectData, ty 
 // 	return Filter(s.Enforcer, user, domain, Read, roles), nil
 // }
 
-func (s *server) ObjectDataWriteCheck(user User, domain Domain, item ObjectData, ty ObjectType) error {
+func (s *server) CheckWriteObjectData(user User, domain Domain, item ObjectData, ty ObjectType) error {
 	if err := s.CheckObjectData(user, domain, item, Write); err != nil {
 		return err
 	}
@@ -75,49 +75,49 @@ func (s *server) ObjectDataWriteCheck(user User, domain Domain, item ObjectData,
 	return nil
 }
 
-func (s *server) ObjectDataCreateCheck(user User, domain Domain, item ObjectData, ty ObjectType) error {
+func (s *server) CheckCreateObjectData(user User, domain Domain, item ObjectData, ty ObjectType) error {
 	if err := s.DBCreateCheck(item); err != nil {
 		return err
 	}
-	return s.ObjectDataWriteCheck(user, domain, item, ty)
+	return s.CheckWriteObjectData(user, domain, item, ty)
 }
 
-func (s *server) ObjectDataRecoverCheck(user User, domain Domain, item ObjectData) error {
+func (s *server) CheckRecoverObjectData(user User, domain Domain, item ObjectData) error {
 	if err := s.DBRecoverCheck(item); err != nil {
 		return err
 	}
 	return s.CheckObjectData(user, domain, item, Write)
 }
 
-func (s *server) ObjectDataDeleteCheck(user User, domain Domain, item ObjectData) error {
+func (s *server) CheckDeleteObjectData(user User, domain Domain, item ObjectData) error {
 	if err := s.IDInterfaceDeleteCheck(item); err != nil {
 		return err
 	}
 	return s.CheckObjectData(user, domain, item, Write)
 }
 
-func (s *server) ObjectDataUpdateCheck(user User, domain Domain, item ObjectData, ty ObjectType) error {
+func (s *server) CheckUpdateObjectData(user User, domain Domain, item ObjectData, ty ObjectType) error {
 	old := newByE(item)
 	if err := s.IDInterfaceUpdateCheck(item, old); err != nil {
 		return err
 	}
-	if err := s.ObjectDataWriteCheck(user, domain, old, ty); err != nil {
+	if err := s.CheckWriteObjectData(user, domain, old, ty); err != nil {
 		return err
 	}
 	if item.GetObjectID() != old.GetObjectID() {
-		return s.ObjectDataWriteCheck(user, domain, item, ty)
+		return s.CheckWriteObjectData(user, domain, item, ty)
 	}
 	return nil
 }
 
-func (s *server) ObjectDataModifyCheck(user User, domain Domain, item ObjectData) error {
+func (s *server) CheckModifyObjectData(user User, domain Domain, item ObjectData) error {
 	if err := s.IDInterfaceModifyCheck(item); err != nil {
 		return err
 	}
 	return s.CheckObjectData(user, domain, item, Write)
 }
 
-func (s *server) ObjectDataGetCheck(user User, domain Domain, item ObjectData) error {
+func (s *server) CheckGetObjectData(user User, domain Domain, item ObjectData) error {
 	if err := s.IDInterfaceGetCheck(item); err != nil {
 		return err
 	}

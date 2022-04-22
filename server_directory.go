@@ -147,7 +147,7 @@ func (s *server) CopyItem(user User, domain Domain, data ObjectData, request *Di
 		item := newByE(data)
 		item.SetID(id)
 		item.SetDomainID(domain.GetID())
-		if err := s.ObjectDataGetCheck(user, domain, item); err != nil {
+		if err := s.CheckGetObjectData(user, domain, item); err != nil {
 			if request.Policy == "continue" {
 				continue
 			}

@@ -43,7 +43,7 @@ func (s *server) GetPolicy(user User, domain Domain) ([]*Policy, error) {
 // 1. get policy which current user has role and object's read permission in current domain
 // 2. get user to role 's g as Policy in current domain
 func (s *server) GetPolicyByRole(user User, domain Domain, byRole Role) ([]*Policy, error) {
-	if err := s.ObjectDataGetCheck(user, domain, byRole); err != nil {
+	if err := s.CheckGetObjectData(user, domain, byRole); err != nil {
 		return nil, err
 	}
 	objects, err := s.GetObject(user, domain, Manage)
@@ -72,7 +72,7 @@ func (s *server) GetPolicyByRole(user User, domain Domain, byRole Role) ([]*Poli
 // if current user has role and object's write permission
 // 1. modify role to object 's p in current domain
 func (s *server) ModifyPolicyPerRole(user User, domain Domain, perRole Role, input []*Policy) error {
-	if err := s.ObjectDataModifyCheck(user, domain, perRole); err != nil {
+	if err := s.CheckModifyObjectData(user, domain, perRole); err != nil {
 		return err
 	}
 	if err := isValidPolicyWithRole(input, perRole); err != nil {

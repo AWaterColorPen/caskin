@@ -77,7 +77,7 @@ func (s *server) GetFeaturePolicy(user User, domain Domain) ([]*Policy, error) {
 }
 
 func (s *server) GetFeaturePolicyByRole(user User, domain Domain, byRole Role) ([]*Policy, error) {
-	if err := s.ObjectDataGetCheck(user, domain, byRole); err != nil {
+	if err := s.CheckGetObjectData(user, domain, byRole); err != nil {
 		return nil, err
 	}
 	objects, err := s.GetFeatureObject(user, domain)
@@ -102,7 +102,7 @@ func (s *server) GetFeaturePolicyByRole(user User, domain Domain, byRole Role) (
 }
 
 func (s *server) ModifyFeaturePolicyPerRole(user User, domain Domain, perRole Role, input []*Policy) error {
-	if err := s.ObjectDataModifyCheck(user, domain, perRole); err != nil {
+	if err := s.CheckModifyObjectData(user, domain, perRole); err != nil {
 		return err
 	}
 	if err := isValidPolicyWithRole(input, perRole); err != nil {

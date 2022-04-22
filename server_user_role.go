@@ -60,7 +60,7 @@ func (s *server) GetUserRoleByUser(user User, domain Domain, byUser User) ([]*Us
 // 1. get role which current user has read permission in current domain
 // 2. get user to role 's g as UserRolePair in current domain
 func (s *server) GetUserRoleByRole(user User, domain Domain, byRole Role) ([]*UserRolePair, error) {
-	if err := s.ObjectDataGetCheck(user, domain, byRole); err != nil {
+	if err := s.CheckGetObjectData(user, domain, byRole); err != nil {
 		return nil, err
 	}
 
@@ -143,7 +143,7 @@ func (s *server) ModifyUserRolePerUser(user User, domain Domain, perUser User, i
 // if current user has role's write permission
 // 1. modify role's to user 's g in current domain
 func (s *server) ModifyUserRolePerRole(user User, domain Domain, perRole Role, input []*UserRolePair) error {
-	if err := s.ObjectDataModifyCheck(user, domain, perRole); err != nil {
+	if err := s.CheckModifyObjectData(user, domain, perRole); err != nil {
 		return err
 	}
 	if err := isValidWithRole(input, perRole); err != nil {
@@ -215,7 +215,7 @@ func (s *server) fnUserRole(user User, domain Domain, input []*UserRolePair, fn 
 		if err := s.IDInterfaceValidAndExistsCheck(v.User); err != nil {
 			return err
 		}
-		if err := s.ObjectDataModifyCheck(user, domain, v.Role); err != nil {
+		if err := s.CheckModifyObjectData(user, domain, v.Role); err != nil {
 			return err
 		}
 	}

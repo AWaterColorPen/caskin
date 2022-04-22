@@ -59,12 +59,13 @@ type IBaseService interface {
 	UpdateObjectData(User, Domain, ObjectData, ObjectType) error
 	// GetObjectData(User, Domain, ObjectData) ([]ObjectData, error) // TODO
 
-	ObjectDataCreateCheck(User, Domain, ObjectData, ObjectType) error
-	ObjectDataRecoverCheck(User, Domain, ObjectData) error
-	ObjectDataDeleteCheck(User, Domain, ObjectData) error
-	ObjectDataUpdateCheck(User, Domain, ObjectData, ObjectType) error
-	ObjectDataModifyCheck(User, Domain, ObjectData) error
-	ObjectDataGetCheck(User, Domain, ObjectData) error
+	CheckCreateObjectData(User, Domain, ObjectData, ObjectType) error
+	CheckRecoverObjectData(User, Domain, ObjectData) error
+	CheckDeleteObjectData(User, Domain, ObjectData) error
+	CheckWriteObjectData(User, Domain, ObjectData, ObjectType) error
+	CheckUpdateObjectData(User, Domain, ObjectData, ObjectType) error
+	CheckModifyObjectData(User, Domain, ObjectData) error
+	CheckGetObjectData(User, Domain, ObjectData) error
 }
 
 type IFeatureService interface {
@@ -93,35 +94,32 @@ type IDirectoryService interface {
 type ICurrentService interface {
 	SetCurrent(User, Domain) IService
 
-	CreateObjectWithCurrent(Object) error
-	RecoverObjectWithCurrent(Object) error
-	DeleteObjectWithCurrent(Object) error
-	UpdateObjectWithCurrent(Object) error
-	GetObjectWithCurrent(Action, ...ObjectType) ([]Object, error)
-
-	CreateRoleWithCurrent(Role) error
-	RecoverRoleWithCurrent(Role) error
-	DeleteRoleWithCurrent(Role) error
-	UpdateRoleWithCurrent(Role) error
-	GetRole() ([]Role, error)
-
-	AddUserRoleWithCurrent([]*UserRolePair) error
-	RemoveUserRoleWithCurrent([]*UserRolePair) error
-	AddRoleGWithCurrent(Role, Role) error
-	RemoveRoleGWithCurrent(Role, Role) error
-
-	GetUserByDomain(Domain) ([]User, error)
-	GetDomainByUser(User) ([]Domain, error)
-
-	GetUserRole() ([]*UserRolePair, error)
-	GetUserRoleByUserWithCurrent(User) ([]*UserRolePair, error)
-	GetUserRoleByRoleWithCurrent(Role) ([]*UserRolePair, error)
-	ModifyUserRolePerUserWithCurrent(User, []*UserRolePair) error
-	ModifyUserRolePerRoleWithCurrent(Role, []*UserRolePair) error
-
-	GetPolicy() ([]*Policy, error)
-	GetPolicyByRoleWithCurrent(Role) ([]*Policy, error)
-	ModifyPolicyPerRoleWithCurrent(Role, []*Policy) error
+	// CreateObjectWithCurrent(Object) error
+	// RecoverObjectWithCurrent(Object) error
+	// DeleteObjectWithCurrent(Object) error
+	// UpdateObjectWithCurrent(Object) error
+	// GetObjectWithCurrent(Action, ...ObjectType) ([]Object, error)
+	//
+	// CreateRoleWithCurrent(Role) error
+	// RecoverRoleWithCurrent(Role) error
+	// DeleteRoleWithCurrent(Role) error
+	// UpdateRoleWithCurrent(Role) error
+	// GetRoleWithCurrent() ([]Role, error)
+	//
+	// AddUserRoleWithCurrent([]*UserRolePair) error
+	// RemoveUserRoleWithCurrent([]*UserRolePair) error
+	// AddRoleGWithCurrent(Role, Role) error
+	// RemoveRoleGWithCurrent(Role, Role) error
+	//
+	// GetUserRoleWithCurrent() ([]*UserRolePair, error)
+	// GetUserRoleByUserWithCurrent(User) ([]*UserRolePair, error)
+	// GetUserRoleByRoleWithCurrent(Role) ([]*UserRolePair, error)
+	// ModifyUserRolePerUserWithCurrent(User, []*UserRolePair) error
+	// ModifyUserRolePerRoleWithCurrent(Role, []*UserRolePair) error
+	//
+	// GetPolicyWithCurrent() ([]*Policy, error)
+	// GetPolicyByRoleWithCurrent(Role) ([]*Policy, error)
+	// ModifyPolicyPerRoleWithCurrent(Role, []*Policy) error
 
 	CreateObjectDataWithCurrent(ObjectData, ObjectType) error
 	RecoverObjectDataWithCurrent(ObjectData) error
@@ -129,10 +127,11 @@ type ICurrentService interface {
 	UpdateObjectDataWithCurrent(ObjectData, ObjectType) error
 	// GetObjectDataWithCurrent(ObjectData) ([]ObjectData, error) // TODO
 
-	CreateObjectDataCheckWithCurrent(ObjectData, ObjectType) error
-	RecoverObjectDataCheckWithCurrent(ObjectData) error
-	DeleteObjectDataCheckWithCurrent(ObjectData) error
-	UpdateObjectDataCheckWithCurrent(ObjectData, ObjectType) error
-	ModifyObjectDataCheckWithCurrent(ObjectData) error
-	GetObjectDataCheckWithCurrent(ObjectData) error
+	CheckCreateObjectDataWithCurrent(ObjectData, ObjectType) error
+	CheckRecoverObjectDataWithCurrent(ObjectData) error
+	CheckDeleteObjectDataWithCurrent(ObjectData) error
+	CheckWriteObjectDataWithCurrent(ObjectData, ObjectType) error
+	CheckUpdateObjectDataWithCurrent(ObjectData, ObjectType) error
+	CheckModifyObjectDataWithCurrent(ObjectData) error
+	CheckGetObjectDataWithCurrent(ObjectData) error
 }

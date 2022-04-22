@@ -23,7 +23,7 @@ func (s *server) RecoverRole(user User, domain Domain, role Role) error {
 // 2. delete role's p in the domain
 // 3. soft delete one role in metadata database
 func (s *server) DeleteRole(user User, domain Domain, role Role) error {
-	if err := s.ObjectDataDeleteCheck(user, domain, role); err != nil {
+	if err := s.CheckDeleteObjectData(user, domain, role); err != nil {
 		return err
 	}
 	role.SetDomainID(domain.GetID())
