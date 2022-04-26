@@ -48,14 +48,14 @@ func (s *server) DeleteDirectory(user User, domain Domain, request *DirectoryReq
 
 // GetDirectory
 // request.type required as object type
-// request.to required as the target object id
+// request.to required as the target object id, 0 by default is root
 // request.CountDirectory required to count the item number of directory
 // request.search_type optional as directory search option
 //   "top" will only search top level directory by default
 //   "all" will search all level directory
 // 1. current user has read of object to get directory
 func (s *server) GetDirectory(user User, domain Domain, request *DirectoryRequest) ([]*Directory, error) {
-	if request.Type == "" || request.To == 0 || request.CountDirectory == nil {
+	if request.Type == "" || request.CountDirectory == nil {
 		return nil, ErrInValidRequest
 	}
 	object, err := s.GetObject(user, domain, Read, request.Type)

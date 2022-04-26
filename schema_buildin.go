@@ -2,7 +2,7 @@ package caskin
 
 // NamedObject build in Object for name encode/decode
 type NamedObject struct {
-	Name string
+	Name string `json:"name"`
 }
 
 func (o *NamedObject) GetID() uint64 {

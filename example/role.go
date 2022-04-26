@@ -15,7 +15,7 @@ type Role struct {
 	DeletedAt gorm.DeletedAt `gorm:"column:delete_at;index"                 json:"-"`
 	Name      string         `gorm:"column:name;index:idx_role,unique"      json:"name,omitempty"`
 	DomainID  uint64         `gorm:"column:domain_id;index:idx_role,unique" json:"domain_id,omitempty"`
-	ObjectID  uint64         `gorm:"column:object_id"                       json:"object_id,omitempty"`
+	ObjectID  uint64         `gorm:"column:object_id;index:idx_role,unique" json:"object_id,omitempty"`
 }
 
 func (r *Role) GetID() uint64 {
