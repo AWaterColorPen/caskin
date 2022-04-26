@@ -37,12 +37,12 @@ func (s *server) AuthFrontend(user User, domain Domain) []*Frontend {
 	return out
 }
 
-func (s *server) GetFeatureObject(user User, domain Domain) ([]Object, error) {
-	var out []Object
+func (s *server) GetFeatureObject(user User, domain Domain) ([]*Feature, error) {
+	var out []*Feature
 	feature, _ := s.Dictionary.GetFeature()
 	for _, v := range feature {
 		if s.CheckObject(user, domain, v.ToObject(), Read) == nil {
-			out = append(out, v.ToObject())
+			out = append(out, v)
 		}
 	}
 	return out, nil
@@ -53,12 +53,12 @@ func (s *server) GetFeaturePolicy(user User, domain Domain) ([]*Policy, error) {
 	if err != nil {
 		return nil, err
 	}
-	objects, err := s.GetFeatureObject(user, domain)
+	feature, err := s.GetFeatureObject(user, domain)
 	if err != nil {
 		return nil, err
 	}
 
-	om := IDMap(objects)
+	om := IDMap(feature2Object(feature))
 	var list []*Policy
 	for _, v := range roles {
 		policy := s.Enforcer.GetPoliciesForRoleInDomain(v, domain)
@@ -80,12 +80,12 @@ func (s *server) GetFeaturePolicyByRole(user User, domain Domain, byRole Role) (
 	if err := s.CheckGetObjectData(user, domain, byRole); err != nil {
 		return nil, err
 	}
-	objects, err := s.GetFeatureObject(user, domain)
+	feature, err := s.GetFeatureObject(user, domain)
 	if err != nil {
 		return nil, err
 	}
 
-	om := IDMap(objects)
+	om := IDMap(feature2Object(feature))
 	var list []*Policy
 	policy := s.Enforcer.GetPoliciesForRoleInDomain(byRole, domain)
 	for _, p := range policy {
@@ -110,12 +110,12 @@ func (s *server) ModifyFeaturePolicyPerRole(user User, domain Domain, perRole Ro
 	}
 
 	policy := s.Enforcer.GetPoliciesForRoleInDomain(perRole, domain)
-	objects, err := s.GetFeatureObject(user, domain)
+	feature, err := s.GetFeatureObject(user, domain)
 	if err != nil {
 		return err
 	}
 
-	om := IDMap(objects)
+	om := IDMap(feature2Object(feature))
 	// make source and target role id list
 	var source, target []*Policy
 	for _, v := range policy {
@@ -143,4 +143,12 @@ func (s *server) ModifyFeaturePolicyPerRole(user User, domain Domain, perRole Ro
 	}
 
 	return nil
+}
+
+func feature2Object(feature []*Feature) []Object {
+	var out []Object
+	for _, v := range feature {
+		out = append(out, v.ToObject())
+	}
+	return out
 }
