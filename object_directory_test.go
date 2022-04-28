@@ -34,4 +34,9 @@ func TestNewObjectDirectory(t *testing.T) {
 	assert.Equal(t, uint64(19), od.Node[2].AllItemCount)
 	assert.Equal(t, uint64(1), od.Node[5].AllDirectoryCount)
 	assert.Equal(t, uint64(13), od.Node[5].AllItemCount)
+
+	list1 := od.Search(0, "")
+	assert.Len(t, list1, 3)
+	list2 := od.Search(0, "all")
+	assert.Len(t, list2, 6)
 }

@@ -8,9 +8,18 @@ type objectDirectory struct {
 
 func (o *objectDirectory) Search(prefix uint64, searchType DirectorySearchType) []*Directory {
 	var out []*Directory
-	for _, v := range o.Tree[prefix] {
-		out = append(out, v)
+	if prefix == 0 {
+		for _, v := range o.Node {
+			if _, ok := o.Node[v.GetParentID()]; !ok {
+				out = append(out, v)
+			}
+		}
+	} else {
+		for _, v := range o.Tree[prefix] {
+			out = append(out, v)
+		}
 	}
+
 	switch searchType {
 	case DirectorySearchAll:
 		for i := 0; i < len(out); i++ {

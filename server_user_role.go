@@ -1,8 +1,6 @@
 package caskin
 
 import (
-	"fmt"
-
 	"github.com/ahmetb/go-linq/v3"
 )
 
@@ -81,11 +79,9 @@ func (s *server) GetUserRoleByRole(user User, domain Domain, byRole Role) ([]*Us
 // ModifyUserRolePerUser
 // if current user has role's write permission
 // 1. modify user to role 's g in current domain
+// 2. pair required role
 func (s *server) ModifyUserRolePerUser(user User, domain Domain, perUser User, input []*UserRolePair) error {
 	if err := isValid(perUser); err != nil {
-		return err
-	}
-	if err := isValidWithUser(input, perUser); err != nil {
 		return err
 	}
 	if err := s.DB.Take(perUser); err != nil {
@@ -142,11 +138,9 @@ func (s *server) ModifyUserRolePerUser(user User, domain Domain, perUser User, i
 // ModifyUserRolePerRole
 // if current user has role's write permission
 // 1. modify role's to user 's g in current domain
+// 2. pair required user
 func (s *server) ModifyUserRolePerRole(user User, domain Domain, perRole Role, input []*UserRolePair) error {
 	if err := s.CheckModifyObjectData(user, domain, perRole); err != nil {
-		return err
-	}
-	if err := isValidWithRole(input, perRole); err != nil {
 		return err
 	}
 
@@ -222,26 +216,6 @@ func (s *server) fnUserRole(user User, domain Domain, input []*UserRolePair, fn 
 	for _, v := range input {
 		if err := fn(v.User, v.Role, domain); err != nil {
 			return err
-		}
-	}
-	return nil
-}
-
-func isValidWithRole(u []*UserRolePair, role Role) error {
-	encode := role.Encode()
-	for _, v := range u {
-		if v.Role.Encode() != encode {
-			return fmt.Errorf("input user role pair array are not belong to same role")
-		}
-	}
-	return nil
-}
-
-func isValidWithUser(u []*UserRolePair, user User) error {
-	encode := user.Encode()
-	for _, v := range u {
-		if v.User.Encode() != encode {
-			return fmt.Errorf("input user role pair array are not belong to same user")
 		}
 	}
 	return nil

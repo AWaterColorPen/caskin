@@ -1,15 +1,12 @@
 package caskin
 
 import (
-	"fmt"
-
 	"github.com/ahmetb/go-linq/v3"
 )
 
 // GetPolicy
 // get all policies
 // 1. current user has role and object's read permission in current domain
-// 2. build role's tree
 func (s *server) GetPolicy(user User, domain Domain) ([]*Policy, error) {
 	roles, err := s.GetRole(user, domain)
 	if err != nil {
@@ -41,7 +38,7 @@ func (s *server) GetPolicy(user User, domain Domain) ([]*Policy, error) {
 
 // GetPolicyByRole
 // 1. get policy which current user has role and object's read permission in current domain
-// 2. get user to role 's g as Policy in current domain
+// 2. get role to object 's p as Policy in current domain
 func (s *server) GetPolicyByRole(user User, domain Domain, byRole Role) ([]*Policy, error) {
 	if err := s.CheckGetObjectData(user, domain, byRole); err != nil {
 		return nil, err
@@ -71,11 +68,9 @@ func (s *server) GetPolicyByRole(user User, domain Domain, byRole Role) ([]*Poli
 // ModifyPolicyPerRole
 // if current user has role and object's write permission
 // 1. modify role to object 's p in current domain
+// 2. policy required object and action
 func (s *server) ModifyPolicyPerRole(user User, domain Domain, perRole Role, input []*Policy) error {
 	if err := s.CheckModifyObjectData(user, domain, perRole); err != nil {
-		return err
-	}
-	if err := isValidPolicyWithRole(input, perRole); err != nil {
 		return err
 	}
 
@@ -105,6 +100,7 @@ func (s *server) ModifyPolicyPerRole(user User, domain Domain, perRole Role, inp
 		}
 	}
 	for _, v := range input {
+		v.Role, v.Domain = perRole, domain
 		if _, ok := om[v.Object.GetID()]; ok {
 			target = append(target, v)
 		}
@@ -113,25 +109,15 @@ func (s *server) ModifyPolicyPerRole(user User, domain Domain, perRole Role, inp
 	// get diff to add and remove
 	add, remove := DiffPolicy(source, target)
 	for _, v := range add {
-		if err = s.Enforcer.AddPolicyInDomain(v.Role, v.Object, domain, v.Action); err != nil {
+		if err = s.Enforcer.AddPolicyInDomain(v.Role, v.Object, v.Domain, v.Action); err != nil {
 			return err
 		}
 	}
 	for _, v := range remove {
-		if err = s.Enforcer.RemovePolicyInDomain(v.Role, v.Object, domain, v.Action); err != nil {
+		if err = s.Enforcer.RemovePolicyInDomain(v.Role, v.Object, v.Domain, v.Action); err != nil {
 			return err
 		}
 	}
 
-	return nil
-}
-
-func isValidPolicyWithRole(p []*Policy, role Role) error {
-	encode := role.Encode()
-	for _, v := range p {
-		if v.Role.Encode() != encode {
-			return fmt.Errorf("input policy list are not belong to same role")
-		}
-	}
 	return nil
 }

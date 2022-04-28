@@ -118,10 +118,9 @@ func TestServer_ModifyFeaturePolicyPerRole(t *testing.T) {
 	assert.Len(t, feature, 3)
 
 	policy1 := []*caskin.Policy{
-		{roles[1], feature[1].ToObject(), stage.Domain, caskin.Read},
-		{roles[1], feature[2].ToObject(), stage.Domain, caskin.Read},
+		{Object: feature[1].ToObject()},
+		{Object: feature[2].ToObject()},
 	}
-	assert.NotNil(t, service.ModifyFeaturePolicyPerRole(stage.Admin, stage.Domain, roles[0], policy1))
 	assert.Equal(t, caskin.ErrNoWritePermission, service.ModifyFeaturePolicyPerRole(stage.Member, stage.Domain, roles[1], policy1))
 	assert.NoError(t, service.ModifyFeaturePolicyPerRole(stage.Admin, stage.Domain, roles[1], policy1))
 

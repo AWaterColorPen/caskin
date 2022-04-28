@@ -76,6 +76,9 @@ func (s *server) GetFeaturePolicy(user User, domain Domain) ([]*Policy, error) {
 	return list, nil
 }
 
+// GetFeaturePolicyByRole
+// 1. get policy which current user has role and feature's read permission in current domain
+// 2. get role to feature 's g as Policy in current domain
 func (s *server) GetFeaturePolicyByRole(user User, domain Domain, byRole Role) ([]*Policy, error) {
 	if err := s.CheckGetObjectData(user, domain, byRole); err != nil {
 		return nil, err
@@ -101,11 +104,12 @@ func (s *server) GetFeaturePolicyByRole(user User, domain Domain, byRole Role) (
 	return list, nil
 }
 
+// ModifyFeaturePolicyPerRole
+// if current user has role and feature's read permission
+// 1. modify role to feature 's p in current domain
+// 2. policy required feature-object and action
 func (s *server) ModifyFeaturePolicyPerRole(user User, domain Domain, perRole Role, input []*Policy) error {
 	if err := s.CheckModifyObjectData(user, domain, perRole); err != nil {
-		return err
-	}
-	if err := isValidPolicyWithRole(input, perRole); err != nil {
 		return err
 	}
 
@@ -124,6 +128,7 @@ func (s *server) ModifyFeaturePolicyPerRole(user User, domain Domain, perRole Ro
 		}
 	}
 	for _, v := range input {
+		v.Role, v.Domain, v.Action = perRole, domain, Read
 		if _, ok := om[v.Object.GetID()]; ok {
 			target = append(target, v)
 		}
@@ -132,12 +137,12 @@ func (s *server) ModifyFeaturePolicyPerRole(user User, domain Domain, perRole Ro
 	// get diff to add and remove
 	add, remove := DiffPolicy(source, target)
 	for _, v := range add {
-		if err = s.Enforcer.AddPolicyInDomain(v.Role, v.Object, domain, Read); err != nil {
+		if err = s.Enforcer.AddPolicyInDomain(v.Role, v.Object, v.Domain, v.Action); err != nil {
 			return err
 		}
 	}
 	for _, v := range remove {
-		if err = s.Enforcer.RemovePolicyInDomain(v.Role, v.Object, domain, Read); err != nil {
+		if err = s.Enforcer.RemovePolicyInDomain(v.Role, v.Object, v.Domain, v.Action); err != nil {
 			return err
 		}
 	}
