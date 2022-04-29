@@ -43,7 +43,7 @@ func (s *server) GetPolicyByRole(user User, domain Domain, byRole Role) ([]*Poli
 	if err := s.CheckGetObjectData(user, domain, byRole); err != nil {
 		return nil, err
 	}
-	objects, err := s.GetObject(user, domain, Manage)
+	objects, err := s.GetObject(user, domain, Read)
 	if err != nil {
 		return nil, err
 	}
