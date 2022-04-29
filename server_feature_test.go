@@ -8,33 +8,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestServer_GetFeature(t *testing.T) {
-	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
-	service := stage.Service
-
-	feature, err := service.GetFeature()
-	assert.NoError(t, err)
-	assert.Len(t, feature, 3)
-}
-
-func TestServer_GetBackend(t *testing.T) {
-	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
-	service := stage.Service
-
-	backend, err := service.GetBackend()
-	assert.NoError(t, err)
-	assert.Len(t, backend, 6)
-}
-
-func TestServer_GetFrontend(t *testing.T) {
-	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
-	service := stage.Service
-
-	frontend, err := service.GetFrontend()
-	assert.NoError(t, err)
-	assert.Len(t, frontend, 3)
-}
-
 func TestServer_AuthBackend(t *testing.T) {
 	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
 	service := stage.Service
@@ -63,13 +36,13 @@ func TestServer_GetFeatureObject(t *testing.T) {
 	stage, _ := playground.NewPlaygroundWithSqlitePath(t.TempDir())
 	service := stage.Service
 
-	list1, err := service.GetFeatureObject(stage.Admin, stage.Domain)
+	list1, err := service.GetFeature(stage.Admin, stage.Domain)
 	assert.NoError(t, err)
 	assert.Len(t, list1, 3)
-	list2, err := service.GetFeatureObject(stage.Member, stage.Domain)
+	list2, err := service.GetFeature(stage.Member, stage.Domain)
 	assert.NoError(t, err)
 	assert.Len(t, list2, 0)
-	list3, err := service.GetFeatureObject(stage.Superadmin, stage.Domain)
+	list3, err := service.GetFeature(stage.Superadmin, stage.Domain)
 	assert.NoError(t, err)
 	assert.Len(t, list3, 3)
 }
@@ -113,7 +86,7 @@ func TestServer_ModifyFeaturePolicyPerRole(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Len(t, roles, 2)
 
-	feature, err := service.GetFeature()
+	feature, err := service.GetFeature(stage.Admin, stage.Domain)
 	assert.NoError(t, err)
 	assert.Len(t, feature, 3)
 

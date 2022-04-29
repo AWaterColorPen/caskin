@@ -70,12 +70,9 @@ type IBaseService interface {
 }
 
 type IFeatureService interface {
-	GetBackend() ([]*Backend, error)
-	GetFrontend() ([]*Frontend, error)
-	GetFeature() ([]*Feature, error)
 	AuthBackend(User, Domain, *Backend) error
 	AuthFrontend(User, Domain) []*Frontend
-	GetFeatureObject(User, Domain) ([]*Feature, error)
+	GetFeature(User, Domain) ([]*Feature, error)
 	GetFeaturePolicy(User, Domain) ([]*Policy, error)
 	GetFeaturePolicyByRole(User, Domain, Role) ([]*Policy, error)
 	ModifyFeaturePolicyPerRole(User, Domain, Role, []*Policy) error

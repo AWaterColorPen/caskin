@@ -1,17 +1,5 @@
 package caskin
 
-func (s *server) GetFeature() ([]*Feature, error) {
-	return s.Dictionary.GetFeature()
-}
-
-func (s *server) GetBackend() ([]*Backend, error) {
-	return s.Dictionary.GetBackend()
-}
-
-func (s *server) GetFrontend() ([]*Frontend, error) {
-	return s.Dictionary.GetFrontend()
-}
-
 func (s *server) AuthBackend(user User, domain Domain, backend *Backend) error {
 	value, err := s.Dictionary.GetBackendByKey(backend.Key())
 	if err != nil {
@@ -37,7 +25,7 @@ func (s *server) AuthFrontend(user User, domain Domain) []*Frontend {
 	return out
 }
 
-func (s *server) GetFeatureObject(user User, domain Domain) ([]*Feature, error) {
+func (s *server) GetFeature(user User, domain Domain) ([]*Feature, error) {
 	var out []*Feature
 	feature, _ := s.Dictionary.GetFeature()
 	for _, v := range feature {
@@ -53,7 +41,7 @@ func (s *server) GetFeaturePolicy(user User, domain Domain) ([]*Policy, error) {
 	if err != nil {
 		return nil, err
 	}
-	feature, err := s.GetFeatureObject(user, domain)
+	feature, err := s.GetFeature(user, domain)
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +71,7 @@ func (s *server) GetFeaturePolicyByRole(user User, domain Domain, byRole Role) (
 	if err := s.CheckGetObjectData(user, domain, byRole); err != nil {
 		return nil, err
 	}
-	feature, err := s.GetFeatureObject(user, domain)
+	feature, err := s.GetFeature(user, domain)
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +102,7 @@ func (s *server) ModifyFeaturePolicyPerRole(user User, domain Domain, perRole Ro
 	}
 
 	policy := s.Enforcer.GetPoliciesForRoleInDomain(perRole, domain)
-	feature, err := s.GetFeatureObject(user, domain)
+	feature, err := s.GetFeature(user, domain)
 	if err != nil {
 		return err
 	}
