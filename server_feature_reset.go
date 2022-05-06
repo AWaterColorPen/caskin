@@ -1,5 +1,7 @@
 package caskin
 
+import "encoding/json"
+
 func (s *server) ResetFeature(domain Domain) error {
 	sourceG2 := getSourceFeatureG2(s.Enforcer, domain)
 	targetG2 := getTargetFeatureG2(s.Dictionary)
@@ -79,12 +81,16 @@ func getTargetFeatureG2(dictionary IDictionary) map[string][]string {
 			continue
 		}
 		for _, k := range v.Backend {
-			if u, _ := dictionary.GetBackendByKey(k); u != nil {
+			b, _ := json.Marshal(k)
+			key := string(b)
+			if u, _ := dictionary.GetBackendByKey(key); u != nil {
 				m[v.Key] = append(m[v.Key], u.Key())
 			}
 		}
 		for _, k := range v.Frontend {
-			if u, _ := dictionary.GetFrontendByKey(k); u != nil {
+			b, _ := json.Marshal(k)
+			key := string(b)
+			if u, _ := dictionary.GetFrontendByKey(key); u != nil {
 				m[v.Key] = append(m[v.Key], u.Key())
 			}
 		}

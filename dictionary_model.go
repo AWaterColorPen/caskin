@@ -60,10 +60,10 @@ func (f *Frontend) ToObject() Object {
 }
 
 type Package struct {
-	Key      string   `toml:"key"`
-	Feature  []string `toml:"feature"`
-	Backend  []string `toml:"backend"`
-	Frontend []string `toml:"frontend"`
+	Key      string     `toml:"key"`
+	Feature  [][]string `toml:"feature"`
+	Backend  [][]string `toml:"backend"`
+	Frontend [][]string `toml:"frontend"`
 }
 
 func (p *Package) GetName() string {
