@@ -23,7 +23,7 @@ type WatcherOption struct {
 	Address  string `json:"address"`
 	Password string `json:"password"`
 	Channel  string `json:"channel"`
-	AutoLoad int64
+	AutoLoad int64  `json:"auto_load"`
 }
 
 func SetWatcher(e casbin.IEnforcer, option *WatcherOption) error {
