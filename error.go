@@ -20,7 +20,6 @@ var (
 	ErrNoManagePermission  = fmt.Errorf("no manage permission")
 	ErrNoBackendPermission = fmt.Errorf("no backend api permission")
 
-	ErrIsNotSuperadmin           = fmt.Errorf("is not superadmin")
-	ErrInitializationNilEnforcer = fmt.Errorf("enforcer is nil")
-	ErrInValidCurrent            = fmt.Errorf("invalid current api")
+	ErrIsNotSuperadmin = fmt.Errorf("is not superadmin")
+	ErrInValidCurrent  = fmt.Errorf("invalid current api")
 )

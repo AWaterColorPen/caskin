@@ -1,7 +1,5 @@
 package caskin
 
-import "github.com/casbin/casbin/v2"
-
 var (
 	DefaultSuperadminRoleName   = "superadmin_role"
 	DefaultSuperadminDomainName = "superadmin_domain"
@@ -16,8 +14,7 @@ type Options struct {
 	DefaultSuperadminRoleName   string            `json:"default_superadmin_role_name"`
 	Dictionary                  *DictionaryOption `json:"dictionary"`
 	DB                          *DBOption         `json:"db"`
-	// options for implementations of the interface
-	Enforcer casbin.IEnforcer `json:"-"`
+	Watcher                     *WatcherOption    `json:"watcher"`
 }
 
 func (o *Options) newOptions(opts ...Option) *Options {

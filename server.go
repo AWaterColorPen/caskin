@@ -2,6 +2,8 @@ package caskin
 
 import (
 	"github.com/ahmetb/go-linq/v3"
+	"github.com/casbin/casbin/v2"
+	"github.com/casbin/gorm-adapter/v3"
 	"golang.org/x/exp/constraints"
 )
 
@@ -24,9 +26,6 @@ func New(options *Options, opts ...Option) (IService, error) {
 		DefaultSuperadminRoleName = options.DefaultSuperadminRoleName
 	}
 
-	if options.Enforcer == nil {
-		return nil, ErrInitializationNilEnforcer
-	}
 	dictionary, err := NewDictionary(options.Dictionary)
 	if err != nil {
 		return nil, err
@@ -35,8 +34,24 @@ func New(options *Options, opts ...Option) (IService, error) {
 	if err != nil {
 		return nil, err
 	}
+	model, err := CasbinModel()
+	if err != nil {
+		return nil, err
+	}
+	adapter, err := gormadapter.NewAdapterByDB(db)
+	if err != nil {
+		return nil, err
+	}
+	syncedEnforcer, err := casbin.NewSyncedEnforcer(model, adapter)
+	if err != nil {
+		return nil, err
+	}
+	if err = SetWatcher(syncedEnforcer, options.Watcher); err != nil {
+		return nil, err
+	}
+
 	return &server{
-		Enforcer:   NewEnforcer(options.Enforcer, DefaultFactory()),
+		Enforcer:   NewEnforcer(syncedEnforcer, DefaultFactory()),
 		DB:         DefaultFactory().MetadataDB(db),
 		Dictionary: dictionary,
 	}, nil

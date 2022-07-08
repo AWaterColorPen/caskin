@@ -2,9 +2,13 @@ package caskin
 
 import (
 	_ "embed"
+	"fmt"
+	"time"
 
 	"github.com/casbin/casbin/v2"
 	"github.com/casbin/casbin/v2/model"
+	"github.com/casbin/redis-watcher/v2"
+	"github.com/go-redis/redis/v8"
 )
 
 //go:embed configs/casbin_model.conf
@@ -12,6 +16,50 @@ var CasbinModelText string
 
 func CasbinModel() (model.Model, error) {
 	return model.NewModelFromString(CasbinModelText)
+}
+
+type WatcherOption struct {
+	Type     string `json:"type"`
+	Address  string `json:"address"`
+	Password string `json:"password"`
+	Channel  string `json:"channel"`
+	AutoLoad int64
+}
+
+func SetWatcher(e casbin.IEnforcer, option *WatcherOption) error {
+	if option == nil {
+		return nil
+	}
+	switch option.Type {
+	case "redis":
+		wOption := rediswatcher.WatcherOptions{
+			Options: redis.Options{
+				Network:  "tcp",
+				Password: option.Password,
+			},
+			Channel: option.Channel,
+		}
+		w, err := rediswatcher.NewWatcher(option.Address, wOption)
+		if err != nil {
+			return err
+		}
+		return e.SetWatcher(w)
+	default:
+		if option.AutoLoad == 0 {
+			return nil
+		}
+
+		startAutoLoadPolicy, ok := e.(startAutoLoadPolicyInterface)
+		if !ok {
+			return fmt.Errorf("watcher type %v, enforcer has no StartAutoLoadPolicy method", option.Type)
+		}
+		startAutoLoadPolicy.StartAutoLoadPolicy(time.Duration(option.AutoLoad))
+		return nil
+	}
+}
+
+type startAutoLoadPolicyInterface interface {
+	StartAutoLoadPolicy(time.Duration)
 }
 
 type IEnforcer interface {

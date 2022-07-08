@@ -5,8 +5,6 @@ import (
 
 	"github.com/awatercolorpen/caskin"
 	"github.com/awatercolorpen/caskin/example"
-	"github.com/casbin/casbin/v2"
-	"github.com/casbin/gorm-adapter/v3"
 	"gorm.io/gorm"
 )
 
@@ -70,7 +68,6 @@ func NewPlaygroundWithSqlitePath(sqlitePath string) (*Playground, error) {
 		DSN:  filepath.Join(sqlitePath, "sqlite"),
 		Type: "sqlite",
 	}
-
 	db, err := dbOption.NewDB()
 	if err != nil {
 		return nil, err
@@ -79,23 +76,44 @@ func NewPlaygroundWithSqlitePath(sqlitePath string) (*Playground, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	adapter, err := gormadapter.NewAdapterByDB(db)
-	if err != nil {
-		return nil, err
-	}
-	m, err := caskin.CasbinModel()
-	if err != nil {
-		return nil, err
-	}
-	enforcer, err := casbin.NewSyncedEnforcer(m, adapter)
 	if err != nil {
 		return nil, err
 	}
 	option := &caskin.Options{
 		Dictionary: &caskin.DictionaryOption{Dsn: DictionaryDsn},
 		DB:         dbOption,
-		Enforcer:   enforcer,
+	}
+
+	caskin.Register[*example.User, *example.Role, *example.Object, *example.Domain]()
+
+	service, err := caskin.New(option)
+	if err != nil {
+		return nil, err
+	}
+	playground := &Playground{Service: service, DB: db}
+	return playground, playground.Setup()
+}
+
+func NewPlaygroundWithSqlitePathAndWatcher(sqlitePath string, watcher *caskin.WatcherOption) (*Playground, error) {
+	dbOption := &caskin.DBOption{
+		DSN:  filepath.Join(sqlitePath, "sqlite"),
+		Type: "sqlite",
+	}
+	db, err := dbOption.NewDB()
+	if err != nil {
+		return nil, err
+	}
+	err = db.AutoMigrate(&example.User{}, &example.Role{}, &example.Object{}, &example.Domain{}, &example.OneObjectData{})
+	if err != nil {
+		return nil, err
+	}
+	if err != nil {
+		return nil, err
+	}
+	option := &caskin.Options{
+		Dictionary: &caskin.DictionaryOption{Dsn: DictionaryDsn},
+		DB:         dbOption,
+		Watcher:    watcher,
 	}
 
 	caskin.Register[*example.User, *example.Role, *example.Object, *example.Domain]()
