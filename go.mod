@@ -12,9 +12,9 @@ require (
 	github.com/stretchr/testify v1.8.0
 	golang.org/x/exp v0.0.0-20220706164943-b4a6d9510983
 	gorm.io/driver/mysql v1.3.4
-	gorm.io/driver/postgres v1.3.8
+	gorm.io/driver/postgres v1.3.4
 	gorm.io/driver/sqlite v1.3.6
-	gorm.io/gorm v1.23.8
+	gorm.io/gorm v1.23.5
 )
 
 require (
