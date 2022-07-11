@@ -43,7 +43,11 @@ func SetWatcher(e casbin.IEnforcer, option *WatcherOption) error {
 		if err != nil {
 			return err
 		}
-		return w.SetUpdateCallback(func(string) { _ = e.LoadPolicy() })
+		err = e.SetWatcher(w)
+		if err != nil {
+			return err
+		}
+		return w.SetUpdateCallback(func(v string) { _ = e.LoadPolicy() })
 	default:
 		if option.AutoLoad == 0 {
 			return nil
