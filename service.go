@@ -29,6 +29,7 @@ type IBaseService interface {
 	DeleteObject(User, Domain, Object) error
 	UpdateObject(User, Domain, Object) error
 	GetObject(User, Domain, Action, ...ObjectType) ([]Object, error)
+	GetObjectHierarchyLevel(user User, domain Domain, object Object) (int, error)
 
 	CreateRole(User, Domain, Role) error
 	RecoverRole(User, Domain, Role) error

@@ -100,6 +100,17 @@ func (s *server) GetObject(user User, domain Domain, action Action, ty ...Object
 	return Filter(s.Enforcer, user, domain, action, objects), nil
 }
 
+// GetObjectHierarchyLevel
+// get input object's hierarchy_level
+// 1. current user has manage permission of object
+func (s *server) GetObjectHierarchyLevel(user User, domain Domain, object Object) (int, error) {
+	if err := s.ObjectManageCheck(user, domain, object); err != nil {
+		return 0, err
+	}
+	hierarchyLevel := objectHierarchyBFS(domain, object, s.Enforcer.GetParentsForObjectInDomain)
+	return hierarchyLevel, nil
+}
+
 func defaultObjectUpdater(e IEnforcer) *objectUpdater {
 	return NewObjectUpdater(e.GetParentsForObjectInDomain, e.AddParentForObjectInDomain, e.RemoveParentForObjectInDomain)
 }

@@ -3,7 +3,7 @@ module github.com/awatercolorpen/caskin
 go 1.18
 
 require (
-	github.com/BurntSushi/toml v1.1.0
+	github.com/BurntSushi/toml v1.2.0
 	github.com/ahmetb/go-linq/v3 v3.2.0
 	github.com/casbin/casbin/v2 v2.50.0
 	github.com/casbin/gorm-adapter/v3 v3.7.0
