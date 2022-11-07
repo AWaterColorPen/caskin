@@ -5,16 +5,16 @@ go 1.18
 require (
 	github.com/BurntSushi/toml v1.2.0
 	github.com/ahmetb/go-linq/v3 v3.2.0
-	github.com/casbin/casbin/v2 v2.50.0
-	github.com/casbin/gorm-adapter/v3 v3.7.0
-	github.com/casbin/redis-watcher/v2 v2.0.0-20220614104201-0e70bf2be930
+	github.com/casbin/casbin/v2 v2.57.0
+	github.com/casbin/gorm-adapter/v3 v3.11.0
+	github.com/casbin/redis-watcher/v2 v2.2.0
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/stretchr/testify v1.8.0
-	golang.org/x/exp v0.0.0-20220706164943-b4a6d9510983
-	gorm.io/driver/mysql v1.3.4
-	gorm.io/driver/postgres v1.3.4
+	golang.org/x/exp v0.0.0-20221106115401-f9659909a136
+	gorm.io/driver/mysql v1.3.6
+	gorm.io/driver/postgres v1.3.6
 	gorm.io/driver/sqlite v1.3.6
-	gorm.io/gorm v1.23.5
+	gorm.io/gorm v1.23.10
 )
 
 require (
@@ -44,7 +44,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0 // indirect
 	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4 // indirect
-	golang.org/x/sys v0.0.0-20220412211240-33da011f77ad // indirect
+	golang.org/x/sys v0.1.0 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/driver/sqlserver v1.3.2 // indirect

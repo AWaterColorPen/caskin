@@ -117,7 +117,7 @@ func defaultObjectUpdater(e IEnforcer) *objectUpdater {
 
 func defaultObjectDeleter(e IEnforcer, db MetaDB) *objectDeleter {
 	fn1 := func(p Object, d Domain) error {
-		if err := e.RemoveObjectInDomain(p.(Object), d); err != nil {
+		if err := e.RemoveObjectInDomain(p, d); err != nil {
 			return err
 		}
 		return db.DeleteByID(p, p.GetID())
