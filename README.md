@@ -4,6 +4,14 @@
 
 Caskin is a multi-domain rbac library for Golang projects. It develops base on [caskin](https://github.com/casbin/casbin) 
 
+## Introduction
+
+### Example
+
+## Documentation
+
+1. [Configuration](./docs/configuration.md) to configure caskin instance and dictionary.
+
 ## Design Goal
 
 ### 1. User: the person - 真实用户
@@ -92,3 +100,6 @@ every student / parent / teacher / property management company can be working in
 
 ## Getting Started
 
+## License
+
+See the [License File](./LICENSE).
