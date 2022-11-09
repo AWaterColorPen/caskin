@@ -11,94 +11,133 @@ Caskin is a multi-domain rbac library for Golang projects. It develops base on [
 ## Documentation
 
 1. [Configuration](./docs/configuration.md) to configure caskin instance and dictionary.
-
-## Design Goal
-
-### 1. User: the person - 真实用户
-
-real person for school business. for example:
-- student
-- parent
-- teacher
-  - class teacher
-  - subject teacher
-- property management company
-  - dorm supervisor
-  - teaching building manager
-  - guard
-
-### 2. Role: the group of user - 角色=一组用户
-
-role group for school business. for example:
-
-- student
-  - junior student
-    - junior class 1
-  - senior student 
-- parent
-- teacher
-  - class teacher
-  - subject teacher
-- property management company
-  - dorm supervisor
-  - teaching building manager
-  - guard
-
-### 3. Object: the resource or resource group of authorization node  - 资源=权限节点/权限组
-
-#### feature resource
-
-authorization action = read
-
-- school gateway
-- playground
-- dining room
-
-#### data resource
-
-authorization action = read / write / manage
-
-- course management
-  - class 1 course management
-  - class 2 course management
-- student management
-  - class 1 student management
-  - class 2 student management
-- teacher management
-- dorm management
-  - room 1
-  - idle room
-- teaching building management
-  - junior building
-    - classroom 1
-  - senior building
-  - administration building
-  - idle building
-
-### 4. Domain: organization - 域=组织
-
-every student / parent / teacher / property management company can be working in one or more schools
-
-| Domain   |
-|----------|
-| school-1 |
-| school-2 |
-
-## Feature
-
-1. Caskin focus on management of authorization business.
-   - casbin is easy to access control. but it is bad at access controlling on authorization management.
-2. Abstracting `User`, `Role`, `Object`, `Domain` as interface, it is easy for business logic code to use.
-3. Facade pattern, provide management APIs for overall authorization business
-   - management [user](https://github.com/AWaterColorPen/caskin/blob/main/executor_user.go)
-   - management relation of [user and domain](https://github.com/AWaterColorPen/caskin/blob/main/executor_user_domain.go)
-   - management relation of [user and role](https://github.com/AWaterColorPen/caskin/blob/main/executor_user_role.go)
-   - management [superadmin](https://github.com/AWaterColorPen/caskin/blob/main/executor_superadmin.go)
-   - management [role](https://github.com/AWaterColorPen/caskin/blob/main/executor_role.go)
-   - management [object](https://github.com/AWaterColorPen/caskin/blob/main/executor_object.go)
-   - management resource group [object data](https://github.com/AWaterColorPen/caskin/blob/main/executor_object_data.go)
+2. [Design](./docs/design.md) for the details of design.
+3. [API](./docs/api.md) for the details of caskin service method.
 
 ## Getting Started
+
+### Define the dictionary configuration file
+
+Create a new file for example named `caskin.toml` to define
+[feature](./docs/configuration.md#feature),
+[backend](./docs/configuration.md#backend),
+[frontend](./docs/configuration.md#frontend),
+[package](./docs/configuration.md#package),
+[creator_object](./docs/configuration.md#creator-object),
+[creator_role](./docs/configuration.md#creator-role),
+[creator_policy](./docs/configuration.md#creator-policy).
+
+```toml
+feature = [
+    {name = "feature"},
+]
+
+backend = [
+    {path = "api/feature", method = "GET"},
+    {path = "api/feature", method = "POST"},
+]
+
+frontend = [
+    {name = "feature", type = "menu"},
+]
+
+package = [
+    {key = "feature", backend = [["api/feature", "GET"], ["api/feature", "POST"]], frontend = [["feature", "menu"]]},
+]
+
+creator_object = [
+    {name = "role_root", type = "role"},
+]
+
+creator_role = [
+    {name = "admin"},
+    {name = "member"},
+]
+
+creator_policy = [
+    {role = "admin", object = "role_root", action = ["read", "write", "manage"]},
+    {role = "admin", object = "github.com/awatercolorpen/caskin::feature", action = ["read"]},
+    {role = "member", object = "role_root", action = ["read"]},
+]
+```
+
+### To make use of caskin in golang
+
+Register [user-role-object-domain]() instance. 
+
+It should implement the interface of `caskin.User`, `caskin.Role`, `caskin.Object`, `caskin.Domain` generally.
+Or use the example implementation in `github.com/awatercolorpen/caskin/example` for the prototype.
+
+```golang
+import "github.com/awatercolorpen/caskin"
+import "github.com/awatercolorpen/caskin/example"
+
+// register instance type
+caskin.Register[*example.User, *example.Role, *example.Object, *example.Domain]()
+```
+
+Create a new [caskin service instance](./docs/configuration.md#service-configuration).
+
+```golang
+import "github.com/awatercolorpen/caskin"
+
+// set db option
+dbOption := &caskin.DBOption{
+	DSN:  "./sqlite.db", 
+	Type: "sqlite",
+}
+
+// set dictionary option
+dictionaryOption := &caskin.DictionaryOption{
+	Dsn: "caskin.toml",
+}
+
+// build service option
+option := &caskin.Options{
+	Dictionary: dictionaryOption, 
+	DB:         dbOption,
+}
+
+// create a new service instance
+service, err := caskin.New(option)
+```
+
+Initialize first [domain](), and add first superadmin.
+
+```golang
+domain := &example.Domain{Name: "school-1"}
+superadmin := &example.User{Email: "superadmin@qq.com"}
+
+// create domain
+err := service.CreateDomain(domain)
+
+// reset domain by the creator setting from caskin.toml
+err := service.ResetDomain(domain)
+
+// reset domain by the feature setting from caskin.toml
+err := service.ResetFeature(domain)
+
+// add a user to caskin
+err := service.CreateUser(superadmin)
+
+// set a user as superadmin
+err := service.AddSuperadmin(p.Superadmin)
+```
+
+### To manage the authorization business
+
+Use the `caskin.Service`'s [API](./docs/api.md) to control on authorization management.
+
+```golang
+// authorization business: delete one role
+err := service.DeleteRole(operatorUser, workingOnDomain, toDeleteRole))
+```
+
+Use the `caskin.CurrentService` interface.
+
+```golang
+currentService := service.SetCurrent(operatorUser, workingOnDomain)
+```
 
 ## License
 
