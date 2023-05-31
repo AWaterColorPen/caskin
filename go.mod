@@ -8,6 +8,7 @@ require (
 	github.com/casbin/casbin/v2 v2.69.0
 	github.com/casbin/gorm-adapter/v3 v3.17.0
 	github.com/casbin/redis-watcher/v2 v2.5.0
+	github.com/redis/go-redis/v9 v9.0.5
 	github.com/stretchr/testify v1.8.1
 	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1
 	gorm.io/driver/mysql v1.5.0
@@ -37,7 +38,6 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.15 // indirect
 	github.com/microsoft/go-mssqldb v0.17.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/redis/go-redis/v9 v9.0.5 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230126093431-47fa9a501578 // indirect
 	golang.org/x/crypto v0.6.0 // indirect
 	golang.org/x/sys v0.5.0 // indirect
