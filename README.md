@@ -142,3 +142,4 @@ currentService := service.SetCurrent(operatorUser, workingOnDomain)
 ## License
 
 See the [License File](./LICENSE).
+<!-- CI test -->
