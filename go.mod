@@ -1,16 +1,16 @@
 module github.com/awatercolorpen/caskin
 
-go 1.20
+go 1.24
 
 require (
-	github.com/BurntSushi/toml v1.3.0
+	github.com/BurntSushi/toml v1.6.0
 	github.com/ahmetb/go-linq/v3 v3.2.0
 	github.com/casbin/casbin/v2 v2.69.0
 	github.com/casbin/gorm-adapter/v3 v3.17.0
 	github.com/casbin/redis-watcher/v2 v2.5.0
 	github.com/redis/go-redis/v9 v9.0.5
-	github.com/stretchr/testify v1.8.1
-	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1
+	github.com/stretchr/testify v1.11.1
+	golang.org/x/exp v0.0.0-20241108190413-2d47ceb2692f
 	gorm.io/driver/mysql v1.5.0
 	gorm.io/driver/postgres v1.5.0
 	gorm.io/driver/sqlite v1.5.0
