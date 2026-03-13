@@ -1,16 +1,14 @@
 package caskin
 
 import (
+	"cmp"
 	"encoding/json"
+	"slices"
 	"sort"
-
-	"github.com/ahmetb/go-linq/v3"
-	"golang.org/x/exp/constraints"
-	"golang.org/x/exp/slices"
 )
 
 // InheritanceEdge x is node, y is adjacency
-type InheritanceEdge[T constraints.Ordered] struct {
+type InheritanceEdge[T cmp.Ordered] struct {
 	U T `json:"u"`
 	V T `json:"v"`
 }
@@ -25,7 +23,7 @@ func (i *InheritanceEdge[T]) Decode(in string) error {
 	return json.Unmarshal([]byte(in), i)
 }
 
-type EdgeSorter[T constraints.Ordered] map[T]int
+type EdgeSorter[T cmp.Ordered] map[T]int
 
 func (e EdgeSorter[T]) RootFirstSort(edges []*InheritanceEdge[T]) {
 	sort.Slice(edges, func(i, j int) bool {
@@ -39,7 +37,7 @@ func (e EdgeSorter[T]) LeafFirstSort(edges []*InheritanceEdge[T]) {
 	})
 }
 
-func NewEdgeSorter[T constraints.Ordered](order []T) EdgeSorter[T] {
+func NewEdgeSorter[T cmp.Ordered](order []T) EdgeSorter[T] {
 	sorter := map[T]int{}
 	for i, v := range order {
 		sorter[v] = i
@@ -47,7 +45,7 @@ func NewEdgeSorter[T constraints.Ordered](order []T) EdgeSorter[T] {
 	return sorter
 }
 
-type InheritanceGraph[T constraints.Ordered] map[T][]T
+type InheritanceGraph[T cmp.Ordered] map[T][]T
 
 func (g InheritanceGraph[T]) Sort() InheritanceGraph[T] {
 	var keys []T
@@ -93,23 +91,32 @@ func (g InheritanceGraph[T]) TopSort() []T {
 	return queue
 }
 
-func MergeInheritanceGraph[T constraints.Ordered](graphs ...InheritanceGraph[T]) InheritanceGraph[T] {
+// distinct returns a new slice with duplicate elements removed, preserving order.
+func distinct[T cmp.Ordered](s []T) []T {
+	seen := make(map[T]struct{}, len(s))
+	out := make([]T, 0, len(s))
+	for _, v := range s {
+		if _, ok := seen[v]; !ok {
+			seen[v] = struct{}{}
+			out = append(out, v)
+		}
+	}
+	return out
+}
+
+func MergeInheritanceGraph[T cmp.Ordered](graphs ...InheritanceGraph[T]) InheritanceGraph[T] {
 	m := InheritanceGraph[T]{}
 	for _, graph := range graphs {
 		for node, adjacency := range graph {
 			if _, ok := m[node]; !ok {
 				m[node] = []T{}
 			}
-			for _, v := range adjacency {
-				m[node] = append(m[node], v)
-			}
+			m[node] = append(m[node], adjacency...)
 		}
 	}
 
 	for node, adjacency := range m {
-		var t []T
-		linq.From(adjacency).Distinct().ToSlice(&t)
-		m[node] = t
+		m[node] = distinct(adjacency)
 	}
 	return m.Sort()
 }

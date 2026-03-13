@@ -1,7 +1,6 @@
 package caskin
 
 import (
-	"github.com/ahmetb/go-linq/v3"
 	"gorm.io/gorm"
 )
 
@@ -51,32 +50,38 @@ func (b *builtinMetadataDB[U, R, O, D]) DeleteByID(item any, id uint64) error {
 }
 
 func (b *builtinMetadataDB[U, R, O, D]) GetUserByID(id []uint64) ([]User, error) {
-	user, err := GetByID[U](b, id)
+	users, err := GetByID[U](b, id)
 	if err != nil {
 		return nil, err
 	}
-	var out []User
-	linq.From(user).ToSlice(&out)
+	out := make([]User, len(users))
+	for i, v := range users {
+		out[i] = v
+	}
 	return out, nil
 }
 
 func (b *builtinMetadataDB[U, R, O, D]) GetRoleInDomain(domain Domain) ([]Role, error) {
-	var role []R
-	if err := b.DB.Find(&role, "domain_id = ?", domain.GetID()).Error; err != nil {
+	var roles []R
+	if err := b.DB.Find(&roles, "domain_id = ?", domain.GetID()).Error; err != nil {
 		return nil, err
 	}
-	var out []Role
-	linq.From(role).ToSlice(&out)
+	out := make([]Role, len(roles))
+	for i, v := range roles {
+		out[i] = v
+	}
 	return out, nil
 }
 
 func (b *builtinMetadataDB[U, R, O, D]) GetRoleByID(id []uint64) ([]Role, error) {
-	role, err := GetByID[R](b, id)
+	roles, err := GetByID[R](b, id)
 	if err != nil {
 		return nil, err
 	}
-	var out []Role
-	linq.From(role).ToSlice(&out)
+	out := make([]Role, len(roles))
+	for i, v := range roles {
+		out[i] = v
+	}
 	return out, nil
 }
 
@@ -86,45 +91,54 @@ func (b *builtinMetadataDB[U, R, O, D]) GetObjectInDomain(domain Domain, objectT
 		d = d.Where("type IN ?", objectType)
 	}
 
-	var object []O
-	if err := d.Find(&object).Error; err != nil {
+	var objects []O
+	if err := d.Find(&objects).Error; err != nil {
 		return nil, err
 	}
-	var out []Object
-	linq.From(object).ToSlice(&out)
+	out := make([]Object, len(objects))
+	for i, v := range objects {
+		out[i] = v
+	}
 	return out, nil
 }
 
 func (b *builtinMetadataDB[U, R, O, D]) GetObjectByID(id []uint64) ([]Object, error) {
-	object, err := GetByID[O](b, id)
+	objects, err := GetByID[O](b, id)
 	if err != nil {
 		return nil, err
 	}
-	var out []Object
-	linq.From(object).ToSlice(&out)
+	out := make([]Object, len(objects))
+	for i, v := range objects {
+		out[i] = v
+	}
 	return out, nil
 }
 
 func (b *builtinMetadataDB[U, R, O, D]) GetDomainByID(id []uint64) ([]Domain, error) {
-	domain, err := GetByID[D](b, id)
+	domains, err := GetByID[D](b, id)
 	if err != nil {
 		return nil, err
 	}
-	var out []Domain
-	linq.From(domain).ToSlice(&out)
+	out := make([]Domain, len(domains))
+	for i, v := range domains {
+		out[i] = v
+	}
 	return out, nil
 }
 
 func (b *builtinMetadataDB[U, R, O, D]) GetAllDomain() ([]Domain, error) {
-	var domain []D
-	if err := b.DB.Find(&domain).Error; err != nil {
+	var domains []D
+	if err := b.DB.Find(&domains).Error; err != nil {
 		return nil, err
 	}
-	var ret []Domain
-	linq.From(domain).ToSlice(&ret)
-	return ret, nil
+	out := make([]Domain, len(domains))
+	for i, v := range domains {
+		out[i] = v
+	}
+	return out, nil
 }
 
+// GetByID retrieves records of type T filtered by a list of IDs.
 func GetByID[T any](db MetaDB, id []uint64) ([]T, error) {
 	var out []T
 	if err := db.Find(&out, "id IN ?", id); err != nil {
