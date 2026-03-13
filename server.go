@@ -1,10 +1,10 @@
 package caskin
 
 import (
-	"github.com/ahmetb/go-linq/v3"
+	"cmp"
+
 	"github.com/casbin/casbin/v2"
 	"github.com/casbin/gorm-adapter/v3"
-	"golang.org/x/exp/constraints"
 )
 
 type server struct {
@@ -16,6 +16,7 @@ type server struct {
 	CurrentDomain Domain // for ICurrentService
 }
 
+// New creates a new caskin service instance with the given options.
 func New(options *Options, opts ...Option) (IService, error) {
 	options = options.newOptions(opts...)
 	// set default caskin option
@@ -57,7 +58,7 @@ func New(options *Options, opts ...Option) (IService, error) {
 	}, nil
 }
 
-// Filter do filter source permission by u, d, action
+// Filter filters source by checking permission for (u, d, action) on each element.
 func Filter[T any](e IEnforcer, u User, d Domain, action Action, source []T) []T {
 	var result []T
 	for _, v := range source {
@@ -68,7 +69,7 @@ func Filter[T any](e IEnforcer, u User, d Domain, action Action, source []T) []T
 	return result
 }
 
-// Check object/object_data permission by u, d, action
+// Check returns true if u has action permission on one in domain d.
 func Check[T any](e IEnforcer, u User, d Domain, one T, action Action) bool {
 	if data, ok := any(one).(ObjectData); ok {
 		o := DefaultFactory().NewObject()
@@ -83,14 +84,32 @@ func Check[T any](e IEnforcer, u User, d Domain, one T, action Action) bool {
 	return false
 }
 
-// Diff do diff source, target list to get add, remove list
-func Diff[T constraints.Ordered](source, target []T) (add, remove []T) {
-	linq.From(source).Except(linq.From(target)).ToSlice(&remove)
-	linq.From(target).Except(linq.From(source)).ToSlice(&add)
+// Diff returns the elements in target but not in source (add) and
+// elements in source but not in target (remove).
+func Diff[T cmp.Ordered](source, target []T) (add, remove []T) {
+	sourceSet := make(map[T]struct{}, len(source))
+	targetSet := make(map[T]struct{}, len(target))
+	for _, v := range source {
+		sourceSet[v] = struct{}{}
+	}
+	for _, v := range target {
+		targetSet[v] = struct{}{}
+	}
+	for _, v := range target {
+		if _, ok := sourceSet[v]; !ok {
+			add = append(add, v)
+		}
+	}
+	for _, v := range source {
+		if _, ok := targetSet[v]; !ok {
+			remove = append(remove, v)
+		}
+	}
 	return
 }
 
-// DiffPolicy diff policy source, target list to get add, remove list
+// DiffPolicy returns policies in target but not in source (add) and
+// policies in source but not in target (remove).
 func DiffPolicy(source, target []*Policy) (add, remove []*Policy) {
 	sourceMap := make(map[any]*Policy)
 	targetMap := make(map[any]*Policy)

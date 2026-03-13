@@ -1,14 +1,11 @@
 package caskin
 
-import "github.com/ahmetb/go-linq/v3"
-
 // GetUserByDomain
 // get all user in domain
 // 1. no permission checking
 func (s *server) GetUserByDomain(domain Domain) ([]User, error) {
 	us := s.Enforcer.GetUsersInDomain(domain)
-	uid := ID(us)
-	linq.From(uid).Distinct().ToSlice(&uid)
+	uid := distinct(ID(us))
 	return s.DB.GetUserByID(uid)
 }
 
@@ -20,8 +17,7 @@ func (s *server) GetDomainByUser(user User) ([]Domain, error) {
 		return domain, nil
 	}
 	ds := s.Enforcer.GetDomainsIncludeUser(user)
-	did := ID(ds)
-	linq.From(did).Distinct().ToSlice(&did)
+	did := distinct(ID(ds))
 	return s.DB.GetDomainByID(did)
 }
 

@@ -1,9 +1,5 @@
 package caskin
 
-import (
-	"github.com/ahmetb/go-linq/v3"
-)
-
 // GetPolicy
 // get all policies
 // 1. current user has role and object's read permission in current domain
@@ -84,7 +80,7 @@ func (s *server) ModifyPolicyPerRole(user User, domain Domain, perRole Role, inp
 	}
 	oid = append(oid, oid1...)
 	oid = append(oid, oid2...)
-	linq.From(oid).Distinct().ToSlice(&oid)
+	oid = distinct(oid)
 	objects, err := s.DB.GetObjectByID(oid)
 	if err != nil {
 		return err
