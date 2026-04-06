@@ -1,9 +1,5 @@
 package caskin
 
-import (
-	"github.com/ahmetb/go-linq/v3"
-)
-
 // GetUserRole
 // 1. get all user
 // 2. get all role which current user has read permission in current domain
@@ -96,7 +92,7 @@ func (s *server) ModifyUserRolePerUser(user User, domain Domain, perUser User, i
 	var rid []uint64
 	rid = append(rid, rid1...)
 	rid = append(rid, rid2...)
-	linq.From(rid).Distinct().ToSlice(&rid)
+	rid = distinct(rid)
 	roles, err := s.DB.GetRoleByID(rid)
 	if err != nil {
 		return err
@@ -152,7 +148,7 @@ func (s *server) ModifyUserRolePerRole(user User, domain Domain, perRole Role, i
 	var uid []uint64
 	uid = append(uid, uid1...)
 	uid = append(uid, uid2...)
-	linq.From(uid).Distinct().ToSlice(&uid)
+	uid = distinct(uid)
 	users, err := s.DB.GetUserByID(uid)
 	if err != nil {
 		return err

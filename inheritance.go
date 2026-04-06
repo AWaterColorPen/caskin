@@ -4,7 +4,6 @@ import (
 	"cmp"
 	"encoding/json"
 	"slices"
-	"sort"
 )
 
 // InheritanceEdge x is node, y is adjacency
@@ -26,14 +25,14 @@ func (i *InheritanceEdge[T]) Decode(in string) error {
 type EdgeSorter[T cmp.Ordered] map[T]int
 
 func (e EdgeSorter[T]) RootFirstSort(edges []*InheritanceEdge[T]) {
-	sort.Slice(edges, func(i, j int) bool {
-		return e[edges[i].U] < e[edges[j].U]
+	slices.SortFunc(edges, func(a, b *InheritanceEdge[T]) int {
+		return cmp.Compare(e[a.U], e[b.U])
 	})
 }
 
 func (e EdgeSorter[T]) LeafFirstSort(edges []*InheritanceEdge[T]) {
-	sort.Slice(edges, func(i, j int) bool {
-		return e[edges[i].V] > e[edges[j].V]
+	slices.SortFunc(edges, func(a, b *InheritanceEdge[T]) int {
+		return cmp.Compare(e[b.V], e[a.V])
 	})
 }
 
@@ -79,6 +78,7 @@ func (g InheritanceGraph[T]) TopSort() []T {
 			queue = append(queue, k)
 		}
 	}
+	// BFS topological sort: queue grows as in-degrees reach zero
 	for i := 0; i < len(queue); i++ {
 		node := queue[i]
 		for _, v := range g[node] {
