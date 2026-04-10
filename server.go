@@ -1,10 +1,10 @@
 package caskin
 
 import (
-	"github.com/ahmetb/go-linq/v3"
+	"cmp"
+
 	"github.com/casbin/casbin/v2"
 	"github.com/casbin/gorm-adapter/v3"
-	"golang.org/x/exp/constraints"
 )
 
 type server struct {
@@ -83,17 +83,33 @@ func Check[T any](e IEnforcer, u User, d Domain, one T, action Action) bool {
 	return false
 }
 
-// Diff do diff source, target list to get add, remove list
-func Diff[T constraints.Ordered](source, target []T) (add, remove []T) {
-	linq.From(source).Except(linq.From(target)).ToSlice(&remove)
-	linq.From(target).Except(linq.From(source)).ToSlice(&add)
+// Diff returns the elements to add and remove to transform source into target.
+func Diff[T cmp.Ordered](source, target []T) (add, remove []T) {
+	sourceSet := make(map[T]struct{}, len(source))
+	for _, v := range source {
+		sourceSet[v] = struct{}{}
+	}
+	targetSet := make(map[T]struct{}, len(target))
+	for _, v := range target {
+		targetSet[v] = struct{}{}
+	}
+	for _, v := range source {
+		if _, ok := targetSet[v]; !ok {
+			remove = append(remove, v)
+		}
+	}
+	for _, v := range target {
+		if _, ok := sourceSet[v]; !ok {
+			add = append(add, v)
+		}
+	}
 	return
 }
 
 // DiffPolicy diff policy source, target list to get add, remove list
 func DiffPolicy(source, target []*Policy) (add, remove []*Policy) {
-	sourceMap := make(map[any]*Policy)
-	targetMap := make(map[any]*Policy)
+	sourceMap := make(map[string]*Policy, len(source))
+	targetMap := make(map[string]*Policy, len(target))
 	for _, v := range source {
 		sourceMap[v.Key()] = v
 	}

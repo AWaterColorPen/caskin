@@ -46,22 +46,21 @@ func (s *server) ResetFeature(domain Domain) error {
 }
 
 func getSourceFeatureG2(e IEnforcer, domain Domain) map[string][]string {
-	var queue []string
+	queue := []string{DefaultFeatureRootName}
 	inQueue := map[string]bool{DefaultFeatureRootName: true}
-	for _, v := range queue {
-		inQueue[v] = true
-	}
 
 	m := map[string][]string{}
+	// BFS: queue grows as children are discovered
 	for i := 0; i < len(queue); i++ {
-		m[queue[i]] = []string{}
-		ll := e.GetChildrenForObjectInDomain(&NamedObject{Name: queue[i]}, domain)
+		current := queue[i]
+		m[current] = []string{}
+		ll := e.GetChildrenForObjectInDomain(&NamedObject{Name: current}, domain)
 		for _, v := range ll {
 			if _, ok := inQueue[v.Encode()]; !ok {
 				queue = append(queue, v.Encode())
 				inQueue[v.Encode()] = true
 			}
-			m[queue[i]] = append(m[queue[i]], v.Encode())
+			m[current] = append(m[current], v.Encode())
 		}
 	}
 

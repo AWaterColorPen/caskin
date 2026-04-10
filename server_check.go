@@ -132,6 +132,7 @@ func objectHierarchyBFS(domain Domain, object Object, fn func(Object, Domain) []
 	hierarchyLevel := 0
 	m := map[uint64]int{object.GetID(): 1}
 	queue := []uint64{object.GetID()}
+	// BFS: queue grows as children are discovered
 	for i := 0; i < len(queue); i++ {
 		node := newByE(object)
 		node.SetID(queue[i])

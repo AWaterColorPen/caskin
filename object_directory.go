@@ -22,11 +22,9 @@ func (o *objectDirectory) Search(prefix uint64, searchType DirectorySearchType) 
 
 	switch searchType {
 	case DirectorySearchAll:
+		// BFS: process queue while it grows with children
 		for i := 0; i < len(out); i++ {
-			node := out[i]
-			for _, v := range o.Tree[node.GetID()] {
-				out = append(out, v)
-			}
+			out = append(out, o.Tree[out[i].GetID()]...)
 		}
 	default:
 	}
