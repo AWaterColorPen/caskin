@@ -1,6 +1,9 @@
 package caskin
 
-// NamedObject build in Object for name encode/decode
+// NamedObject is the built-in [Object] implementation used for special objects
+// such as the superadmin sentinel. Its Encode/Decode methods simply use the
+// Name string, so it can represent objects that exist only in casbin policy
+// strings without corresponding database rows.
 type NamedObject struct {
 	Name string `json:"name"`
 }
@@ -39,6 +42,9 @@ func (o *NamedObject) GetObjectType() string {
 	return ""
 }
 
+// SampleSuperadminRole is the built-in [Role] that identifies the global
+// superadmin. Its Encode method always returns the [SuperadminRole] constant
+// and Decode accepts only that value, returning [ErrIsNotSuperadmin] otherwise.
 type SampleSuperadminRole struct {
 	ID   uint64 `json:"id"`
 	Name string `json:"name"`
@@ -76,6 +82,9 @@ func (s *SampleSuperadminRole) GetDomainID() uint64 {
 func (s *SampleSuperadminRole) SetDomainID(uint64) {
 }
 
+// SampleSuperadminDomain is the built-in [Domain] that represents the
+// superadmin scope. Its Encode method always returns [SuperadminDomain] and
+// Decode accepts only that value.
 type SampleSuperadminDomain struct {
 	ID   uint64 `json:"id"`
 	Name string `json:"name"`
@@ -99,6 +108,8 @@ func (s *SampleSuperadminDomain) Decode(code string) error {
 	return nil
 }
 
+// GetSuperadminRole returns a [Role] that encodes to the [SuperadminRole]
+// constant. It is used internally when granting or checking superadmin status.
 func GetSuperadminRole() Role {
 	return &SampleSuperadminRole{
 		ID:   0,
@@ -106,6 +117,9 @@ func GetSuperadminRole() Role {
 	}
 }
 
+// GetSuperadminDomain returns a [Domain] that encodes to the
+// [SuperadminDomain] constant. It is used internally alongside
+// [GetSuperadminRole] for superadmin enforcement.
 func GetSuperadminDomain() Domain {
 	return &SampleSuperadminDomain{
 		ID:   0,

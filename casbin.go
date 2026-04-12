@@ -14,18 +14,37 @@ import (
 //go:embed configs/casbin_model.conf
 var CasbinModelText string
 
+// CasbinModel loads the embedded casbin RBAC model configuration and returns
+// a parsed model.Model ready to be passed to a casbin Enforcer.
 func CasbinModel() (model.Model, error) {
 	return model.NewModelFromString(CasbinModelText)
 }
 
+// WatcherOption configures an optional casbin policy watcher that keeps
+// multiple enforcer instances in sync when the policy changes.
 type WatcherOption struct {
-	Type     string `json:"type"`
-	Address  string `json:"address"`
+	// Type selects the watcher backend. Currently "redis" is supported.
+	// An empty or unrecognised type falls back to auto-load polling when
+	// AutoLoad > 0.
+	Type string `json:"type"`
+	// Address is the host:port of the watcher backend (e.g. "localhost:6379").
+	Address string `json:"address"`
+	// Password is the authentication password for the watcher backend.
 	Password string `json:"password"`
-	Channel  string `json:"channel"`
-	AutoLoad int64  `json:"auto_load"`
+	// Channel is the pub/sub channel name used by the Redis watcher.
+	Channel string `json:"channel"`
+	// AutoLoad, when > 0 and Type is not "redis", sets the interval in
+	// seconds for the enforcer's built-in StartAutoLoadPolicy poller.
+	AutoLoad int64 `json:"auto_load"`
 }
 
+// SetWatcher attaches a policy watcher to the given casbin enforcer based on
+// the provided [WatcherOption]. If option is nil, SetWatcher is a no-op.
+//
+// Supported watcher types:
+//   - "redis": sets up a Redis pub/sub watcher via github.com/casbin/redis-watcher.
+//   - "": or unknown type with AutoLoad > 0 — enables the enforcer's built-in
+//     periodic policy reload via StartAutoLoadPolicy.
 func SetWatcher(e casbin.IEnforcer, option *WatcherOption) error {
 	if option == nil {
 		return nil
@@ -66,44 +85,82 @@ type startAutoLoadPolicyInterface interface {
 	StartAutoLoadPolicy(time.Duration)
 }
 
+// IEnforcer is the caskin-internal interface that wraps casbin's enforcer with
+// domain-aware, strongly-typed methods. All parameters and return values use
+// the caskin domain model types ([User], [Role], [Object], [Domain], [Action],
+// [Policy]) rather than raw strings.
+//
+// Obtain an IEnforcer via [NewEnforcer].
 type IEnforcer interface {
+	// Enforce checks whether user u can perform action on object o within domain d.
 	Enforce(User, Object, Domain, Action) (bool, error)
+	// EnforceRole checks whether son inherits from parent within domain.
 	EnforceRole(son Role, parent Role, domain Domain) (bool, error)
+	// EnforceObject checks whether son is a descendant of parent within domain.
 	EnforceObject(son Object, parent Object, domain Domain) (bool, error)
+	// IsSuperadmin returns true if user is a global superadmin.
 	IsSuperadmin(User) (bool, error)
 
+	// GetDomainsIncludeUser returns every domain the user belongs to.
 	GetDomainsIncludeUser(User) []Domain
 
+	// GetRolesForUserInDomain returns the roles directly assigned to user in domain.
 	GetRolesForUserInDomain(User, Domain) []Role
+	// GetUsersForRoleInDomain returns the users that have role in domain.
 	GetUsersForRoleInDomain(Role, Domain) []User
+	// GetParentsForRoleInDomain returns the parent roles of role in domain.
 	GetParentsForRoleInDomain(Role, Domain) []Role
+	// GetChildrenForRoleInDomain returns the child roles of role in domain.
 	GetChildrenForRoleInDomain(Role, Domain) []Role
+	// GetParentsForObjectInDomain returns the parent objects of object in domain.
 	GetParentsForObjectInDomain(Object, Domain) []Object
+	// GetChildrenForObjectInDomain returns the child objects of object in domain.
 	GetChildrenForObjectInDomain(Object, Domain) []Object
+	// GetPoliciesForRoleInDomain returns all policies granted to role in domain.
 	GetPoliciesForRoleInDomain(Role, Domain) []*Policy
+	// GetPoliciesForObjectInDomain returns all policies that reference object in domain.
 	GetPoliciesForObjectInDomain(Object, Domain) []*Policy
 
+	// RemoveUserInDomain removes all role assignments for user within domain.
 	RemoveUserInDomain(User, Domain) error
+	// RemoveRoleInDomain removes all policies, inheritance edges, and user
+	// assignments associated with role within domain.
 	RemoveRoleInDomain(Role, Domain) error
+	// RemoveObjectInDomain removes all policies and hierarchy edges associated
+	// with object within domain.
 	RemoveObjectInDomain(Object, Domain) error
 
+	// AddPolicyInDomain grants role the given action on object within domain.
 	AddPolicyInDomain(Role, Object, Domain, Action) error
+	// RemovePolicyInDomain revokes role's action on object within domain.
 	RemovePolicyInDomain(Role, Object, Domain, Action) error
 
+	// AddRoleForUserInDomain assigns role to user within domain.
 	AddRoleForUserInDomain(User, Role, Domain) error
+	// RemoveRoleForUserInDomain unassigns role from user within domain.
 	RemoveRoleForUserInDomain(User, Role, Domain) error
 
+	// AddParentForRoleInDomain makes son inherit from parent within domain.
 	AddParentForRoleInDomain(Role, Role, Domain) error
+	// RemoveParentForRoleInDomain removes the son→parent inheritance in domain.
 	RemoveParentForRoleInDomain(Role, Role, Domain) error
 
+	// AddParentForObjectInDomain makes son a child of parent within domain.
 	AddParentForObjectInDomain(Object, Object, Domain) error
+	// RemoveParentForObjectInDomain removes the son→parent object edge in domain.
 	RemoveParentForObjectInDomain(Object, Object, Domain) error
 
+	// GetUsersInDomain returns all users that have any role in domain.
 	GetUsersInDomain(Domain) []User
+	// GetRolesInDomain returns all roles defined in domain.
 	GetRolesInDomain(Domain) []Role
+	// GetObjectsInDomain returns all objects defined in domain.
 	GetObjectsInDomain(Domain) []Object
+	// GetPoliciesInDomain returns all policies defined in domain.
 	GetPoliciesInDomain(Domain) []*Policy
 
+	// RemoveUsersInDomain removes all user→role assignments within domain,
+	// effectively clearing the domain's user membership.
 	RemoveUsersInDomain(Domain) error
 }
 
@@ -460,6 +517,8 @@ func (e *enforcer) RemoveUsersInDomain(domain Domain) error {
 	return err
 }
 
+// NewEnforcer wraps a casbin enforcer and a [Factory] into an [IEnforcer].
+// The factory is used to decode casbin string tokens back into typed caskin values.
 func NewEnforcer(e casbin.IEnforcer, factory Factory) IEnforcer {
 	return &enforcer{
 		e:       e,
