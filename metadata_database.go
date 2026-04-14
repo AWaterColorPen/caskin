@@ -9,11 +9,17 @@ import (
 	"gorm.io/gorm"
 )
 
+// DBOption holds the configuration for the metadata database connection.
+// Pass it as part of [Options] when constructing a caskin service via [New].
 type DBOption struct {
-	DSN  string `json:"dsn"`
+	// DSN is the data source name (connection string) for the database.
+	DSN string `json:"dsn"`
+	// Type selects the database driver. Supported values: "sqlite", "mysql"
+	// (default when empty), and "postgres".
 	Type string `json:"type"`
 }
 
+// NewDB opens a GORM database connection using the configured driver and DSN.
 func (o *DBOption) NewDB() (*gorm.DB, error) {
 	dialect, err := getDialect(o.Type, o.DSN)
 	if err != nil {
