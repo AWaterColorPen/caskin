@@ -34,6 +34,7 @@ import (
 )
 
 // newService creates an in-memory caskin service for demonstration.
+// It mirrors the setup in playground/playground.go.
 func newService() (caskin.IService, *gorm.DB) {
     dir, _ := os.MkdirTemp("", "caskin-example-*")
     dbOption := &caskin.DBOption{
@@ -48,15 +49,14 @@ func newService() (caskin.IService, *gorm.DB) {
         &example.Domain{},
     )
 
-    dictOption := &caskin.DictionaryOption{
-        ModelText: caskin.DefaultModelText(),
-    }
-    dict, _ := dictOption.Build()
+    // Register must be called before New so the factory knows which
+    // concrete types to instantiate.
+    caskin.Register[*example.User, *example.Role, *example.Object, *example.Domain]()
 
-    svc, _ := caskin.New(
-        caskin.WithDB(db),
-        caskin.WithDictionary(dict),
-    )
+    svc, _ := caskin.New(&caskin.Options{
+        DB:         dbOption,
+        Dictionary: &caskin.DictionaryOption{Dsn: "configs/caskin.toml"},
+    })
     return svc, db
 }
 ```
@@ -211,13 +211,14 @@ func roleInheritanceExample() {
 
     // --- Verify that Bob (editor) inherits viewer permissions ---
     // Bob should be able to read (inherited) and write (direct).
-    canRead  := caskin.Check(svc.GetEnforcer(), bob, domain, resource, caskin.Read)
-    canWrite := caskin.Check(svc.GetEnforcer(), bob, domain, resource, caskin.Write)
+    // IService exposes CheckObject which returns nil on success.
+    canRead  := svc.CheckObject(bob, domain, resource, caskin.Read) == nil
+    canWrite := svc.CheckObject(bob, domain, resource, caskin.Write) == nil
     fmt.Println("bob can read:", canRead)   // true (inherited from viewer)
     fmt.Println("bob can write:", canWrite) // true (direct on editor)
 
     // Alice (viewer) cannot write.
-    aliceWrite := caskin.Check(svc.GetEnforcer(), alice, domain, resource, caskin.Write)
+    aliceWrite := svc.CheckObject(alice, domain, resource, caskin.Write) == nil
     fmt.Println("alice can write:", aliceWrite) // false
 
     // --- Remove the editor → viewer link at runtime ---
@@ -238,11 +239,12 @@ func roleInheritanceExample() {
 
 ## Scenario 3: Permission Checks
 
-There are two ways to check permissions in caskin:
+caskin exposes two layers for checking permissions:
 
-1. **`caskin.Check`** — low-level, direct enforcer call; returns a `bool`.
-2. **`IService` methods** — higher-level; return typed errors and respect the
-   caller's own permission scope.
+1. **`IService.CheckObject`** — service-level check; returns a typed error and
+   respects the caller's own permission scope.
+2. **`ICurrentService.Check*WithCurrent`** — middleware pattern; binds user and
+   domain once via `SetCurrent` then checks without re-passing them.
 
 ```go
 func permissionCheckExample() {
@@ -280,9 +282,9 @@ func permissionCheckExample() {
         []*caskin.Policy{{Role: editor, Object: article, Domain: domain, Action: caskin.Write}},
     )
 
-    // --- Method 1: low-level boolean check (no user-scope filtering) ---
-    ok := caskin.Check(svc.GetEnforcer(), alice, domain, article, caskin.Write)
-    fmt.Println("alice can write (low-level):", ok) // true
+    // --- Method 1: service-level boolean check ---
+    ok := svc.CheckObject(alice, domain, article, caskin.Write) == nil
+    fmt.Println("alice can write:", ok) // true
 
     // --- Method 2: service-level check (respects caller's own permissions) ---
     err := svc.CheckObject(alice, domain, article, caskin.Write)
@@ -306,7 +308,7 @@ func permissionCheckExample() {
 |---|---|
 | HTTP middleware / auth gate | `ICurrentService.Check*WithCurrent` after `SetCurrent` |
 | Business logic, needs typed error | `IService.CheckObject` / `CheckObjectData` |
-| Raw policy inspection / tests | `caskin.Check` (package-level) |
+| Testing policy directly (with concrete `*server`) | `caskin.Check(enforcer, ...)` (package-level, not on `IService`) |
 
 ---
 
@@ -432,10 +434,10 @@ func frontendBackendSeparationExample() {
 
     // --- Simulate what an API gateway checks per request ---
     // "Can Alice call POST /api/users?"
-    canPost := caskin.Check(svc.GetEnforcer(), alice, domain, apiUsersWrite, caskin.Write)
+    canPost := svc.CheckObject(alice, domain, apiUsersWrite, caskin.Write) == nil
     fmt.Println("alice can POST /api/users:", canPost) // false
 
-    canPost = caskin.Check(svc.GetEnforcer(), bob, domain, apiUsersWrite, caskin.Write)
+    canPost = svc.CheckObject(bob, domain, apiUsersWrite, caskin.Write) == nil
     fmt.Println("bob can POST /api/users:", canPost) // true
 }
 
@@ -449,7 +451,7 @@ func mustGetObjects(svc caskin.IService, u caskin.User, d caskin.Domain, a caski
 func filterByType(objs []caskin.Object, ty caskin.ObjectType) []caskin.Object {
     var out []caskin.Object
     for _, o := range objs {
-        if o.GetType() == ty {
+        if o.GetObjectType() == ty {
             out = append(out, o)
         }
     }
@@ -475,7 +477,7 @@ func PermissionMiddleware(svc caskin.IService) Middleware {
         domain := ctx.CurrentDomain().(caskin.Domain)
         object := lookupObjectForRoute(ctx.Route()).(caskin.Object)
 
-        if !caskin.Check(svc.GetEnforcer(), user, domain, object, caskin.Read) {
+        if svc.CheckObject(user, domain, object, caskin.Read) != nil {
             ctx.Abort(http.StatusForbidden)
             return
         }
