@@ -187,9 +187,11 @@ stage, err := playground.NewPlaygroundWithSqlitePath(t.TempDir())
 | Doc | Description |
 |-----|-------------|
 | [Getting Started](./docs/getting-started.md) | Step-by-step guide with complete runnable examples |
+| [Common Use Cases](./docs/use-cases.md) | Multi-domain, role hierarchy, permission checks, frontend/backend separation |
 | [Configuration](./docs/configuration.md) | All config options: DB, dictionary, watcher |
-| [Design](./docs/design.md) | Architecture and design decisions |
 | [API Reference](./docs/api-reference.md) | Full type and method reference with parameters, return values, and usage notes |
+| [Architecture](./docs/architecture.md) | Internal design and package layout (for contributors) |
+| [Contributing](./CONTRIBUTING.md) | How to contribute: setup, workflow, coding conventions, tests |
 
 ## Storage backends
 
