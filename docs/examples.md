@@ -119,7 +119,8 @@ func multiDomainExample() {
     fmt.Println("eng admin sees marketing roles:", len(rolesSeenByEngAdmin)) // 0
 
     // The superadmin can see all domains.
-    domains, _ := svc.GetDomain(superadmin)
+    // GetDomain takes no arguments — it always returns all domains visible to the caller.
+    domains, _ := svc.GetDomain()
     fmt.Println("total domains:", len(domains)) // 2
 }
 ```
@@ -210,15 +211,21 @@ func roleInheritanceExample() {
         []*caskin.UserRolePair{{User: carol, Role: owner}})
 
     // --- Verify that Bob (editor) inherits viewer permissions ---
-    // Bob should be able to read (inherited) and write (direct).
-    // IService exposes CheckObject which returns nil on success.
-    canRead  := svc.CheckObject(bob, domain, resource, caskin.Read) == nil
-    canWrite := svc.CheckObject(bob, domain, resource, caskin.Write) == nil
+    // caskin's access-control model is query-oriented: GetObject returns only the
+    // objects the caller may perform the requested action on.  If the resource
+    // appears in the list the caller is permitted; if it is absent, they are not.
+    // (containsObj is defined at the bottom of this file)
+    bobReadObjects, _  := svc.GetObject(bob, domain, caskin.Read)
+    bobWriteObjects, _ := svc.GetObject(bob, domain, caskin.Write)
+
+    canRead  := containsObj(bobReadObjects,  resource.GetID())
+    canWrite := containsObj(bobWriteObjects, resource.GetID())
     fmt.Println("bob can read:", canRead)   // true (inherited from viewer)
     fmt.Println("bob can write:", canWrite) // true (direct on editor)
 
     // Alice (viewer) cannot write.
-    aliceWrite := svc.CheckObject(alice, domain, resource, caskin.Write) == nil
+    aliceWriteObjects, _ := svc.GetObject(alice, domain, caskin.Write)
+    aliceWrite := containsObj(aliceWriteObjects, resource.GetID())
     fmt.Println("alice can write:", aliceWrite) // false
 
     // --- Remove the editor → viewer link at runtime ---
@@ -241,8 +248,9 @@ func roleInheritanceExample() {
 
 caskin exposes two layers for checking permissions:
 
-1. **`IService.CheckObject`** — service-level check; returns a typed error and
-   respects the caller's own permission scope.
+1. **`IService.GetObject(user, domain, action)`** — query-oriented check; returns only
+   the objects the caller may perform the action on.  If the object is absent from
+   the result the caller is denied.
 2. **`ICurrentService.Check*WithCurrent`** — middleware pattern; binds user and
    domain once via `SetCurrent` then checks without re-passing them.
 
@@ -282,23 +290,26 @@ func permissionCheckExample() {
         []*caskin.Policy{{Role: editor, Object: article, Domain: domain, Action: caskin.Write}},
     )
 
-    // --- Method 1: service-level boolean check ---
-    ok := svc.CheckObject(alice, domain, article, caskin.Write) == nil
-    fmt.Println("alice can write:", ok) // true
+    // --- Method 1: query-based permission check ---
+    // GetObject returns only the objects the caller may act on.
+    // Presence in the list means the permission is granted.
+    writeObjs, _ := svc.GetObject(alice, domain, caskin.Write)
+    hasWrite := containsObj(writeObjs, article.GetID())
+    fmt.Println("alice can write:", hasWrite) // true
 
-    // --- Method 2: service-level check (respects caller's own permissions) ---
-    err := svc.CheckObject(alice, domain, article, caskin.Write)
-    fmt.Println("alice write error:", err) // <nil>
+    manageObjs, _ := svc.GetObject(alice, domain, caskin.Manage)
+    hasManage := containsObj(manageObjs, article.GetID())
+    fmt.Println("alice can manage:", hasManage) // false
 
-    err = svc.CheckObject(alice, domain, article, caskin.Manage)
-    fmt.Println("alice manage error:", err) // "no manage permission"
+    // containsObj is a small helper used throughout this file.
+    // (defined at the bottom of the examples)
 
     // --- Using ICurrentService for middleware-style checks ---
     // Bind the current user + domain once (e.g. in an HTTP middleware) and
     // then call the Check* methods without passing user/domain on every call.
     current := svc.SetCurrent(alice, domain)
-    err = current.CheckModifyObjectDataWithCurrent(editor)
-    fmt.Println("alice modify editor (current):", err) // <nil> — alice is editor
+    checkErr := current.CheckModifyObjectDataWithCurrent(editor)
+    fmt.Println("alice modify editor (current):", checkErr) // <nil> — alice is editor
 }
 ```
 
@@ -307,8 +318,9 @@ func permissionCheckExample() {
 | Scenario | Recommended API |
 |---|---|
 | HTTP middleware / auth gate | `ICurrentService.Check*WithCurrent` after `SetCurrent` |
-| Business logic, needs typed error | `IService.CheckObject` / `CheckObjectData` |
-| Testing policy directly (with concrete `*server`) | `caskin.Check(enforcer, ...)` (package-level, not on `IService`) |
+| Object-level permission (query style) | `IService.GetObject(user, domain, action)` — object absent = denied |
+| ObjectData permission (roles, etc.) | `IService.CheckModifyObjectData(user, domain, objectData)` |
+| Package-level check (internal use) | `caskin.Check(enforcer, user, domain, obj, action)` — not on `IService` |
 
 ---
 
@@ -434,10 +446,13 @@ func frontendBackendSeparationExample() {
 
     // --- Simulate what an API gateway checks per request ---
     // "Can Alice call POST /api/users?"
-    canPost := svc.CheckObject(alice, domain, apiUsersWrite, caskin.Write) == nil
+    // Use GetObject with the Write action; if apiUsersWrite is absent, Alice is denied.
+    aliceWriteObjs, _ := svc.GetObject(alice, domain, caskin.Write)
+    canPost := containsObj(aliceWriteObjs, apiUsersWrite.GetID())
     fmt.Println("alice can POST /api/users:", canPost) // false
 
-    canPost = svc.CheckObject(bob, domain, apiUsersWrite, caskin.Write) == nil
+    bobWriteObjs, _ := svc.GetObject(bob, domain, caskin.Write)
+    canPost = containsObj(bobWriteObjs, apiUsersWrite.GetID())
     fmt.Println("bob can POST /api/users:", canPost) // true
 }
 
@@ -446,6 +461,16 @@ func frontendBackendSeparationExample() {
 func mustGetObjects(svc caskin.IService, u caskin.User, d caskin.Domain, a caskin.Action) []caskin.Object {
     objs, _ := svc.GetObject(u, d, a)
     return objs
+}
+
+// containsObj returns true if any object in objs has the given ID.
+func containsObj(objs []caskin.Object, id uint64) bool {
+    for _, o := range objs {
+        if o.GetID() == id {
+            return true
+        }
+    }
+    return false
 }
 
 func filterByType(objs []caskin.Object, ty caskin.ObjectType) []caskin.Object {
@@ -477,7 +502,17 @@ func PermissionMiddleware(svc caskin.IService) Middleware {
         domain := ctx.CurrentDomain().(caskin.Domain)
         object := lookupObjectForRoute(ctx.Route()).(caskin.Object)
 
-        if svc.CheckObject(user, domain, object, caskin.Read) != nil {
+        // GetObject returns only objects the caller may act on.
+        // If the specific object is absent from the result the request is denied.
+        allowed, _ := svc.GetObject(user, domain, caskin.Read)
+        permitted := false
+        for _, o := range allowed {
+            if o.GetID() == object.GetID() {
+                permitted = true
+                break
+            }
+        }
+        if !permitted {
             ctx.Abort(http.StatusForbidden)
             return
         }
