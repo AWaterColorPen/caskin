@@ -13,6 +13,7 @@ var DictionaryDsn = "configs/caskin.toml"
 // Playground example playground for easy testing
 type Playground struct {
 	Service    caskin.IService
+	Enforcer   caskin.IEnforcer
 	DB         *gorm.DB
 	Superadmin *example.User   // superadmin user on playground
 	Admin      *example.User   // a domain admin user on stage
@@ -90,7 +91,8 @@ func NewPlaygroundWithSqlitePath(sqlitePath string) (*Playground, error) {
 	if err != nil {
 		return nil, err
 	}
-	playground := &Playground{Service: service, DB: db}
+	enforcer, _ := caskin.GetEnforcer(service)
+	playground := &Playground{Service: service, Enforcer: enforcer, DB: db}
 	return playground, playground.Setup()
 }
 
@@ -122,6 +124,7 @@ func NewPlaygroundWithSqlitePathAndWatcher(sqlitePath string, watcher *caskin.Wa
 	if err != nil {
 		return nil, err
 	}
-	playground := &Playground{Service: service, DB: db}
+	enforcer, _ := caskin.GetEnforcer(service)
+	playground := &Playground{Service: service, Enforcer: enforcer, DB: db}
 	return playground, playground.Setup()
 }

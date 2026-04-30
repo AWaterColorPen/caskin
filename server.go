@@ -57,6 +57,15 @@ func New(options *Options, opts ...Option) (IService, error) {
 	}, nil
 }
 
+// GetEnforcer extracts the IEnforcer from an IService instance created by New.
+// Returns the enforcer and true on success, or nil and false if s is not a *server.
+func GetEnforcer(s IService) (IEnforcer, bool) {
+	if srv, ok := s.(*server); ok {
+		return srv.Enforcer, true
+	}
+	return nil, false
+}
+
 // Filter do filter source permission by u, d, action
 func Filter[T any](e IEnforcer, u User, d Domain, action Action, source []T) []T {
 	var result []T
