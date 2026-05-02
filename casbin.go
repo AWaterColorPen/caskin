@@ -76,7 +76,7 @@ func SetWatcher(e casbin.IEnforcer, option *WatcherOption) error {
 		if !ok {
 			return fmt.Errorf("watcher type %v, enforcer has no StartAutoLoadPolicy method", option.Type)
 		}
-		startAutoLoadPolicy.StartAutoLoadPolicy(time.Duration(option.AutoLoad))
+		startAutoLoadPolicy.StartAutoLoadPolicy(time.Duration(option.AutoLoad) * time.Second)
 		return nil
 	}
 }
@@ -205,7 +205,7 @@ func (e *enforcer) IsSuperadmin(user User) (bool, error) {
 
 func (e *enforcer) GetDomainsIncludeUser(user User) []Domain {
 	var domains []Domain
-	rules := e.e.GetFilteredGroupingPolicy(0, user.Encode())
+	rules, _ := e.e.GetFilteredGroupingPolicy(0, user.Encode())
 	for _, rule := range rules {
 		if domain, err := e.factory.Domain(rule[2]); err == nil {
 			domains = append(domains, domain)
@@ -286,7 +286,7 @@ func (e *enforcer) GetChildrenForObjectInDomain(object Object, domain Domain) []
 
 func (e *enforcer) GetPoliciesForRoleInDomain(role Role, domain Domain) []*Policy {
 	var policies []*Policy
-	ps := e.e.GetPermissionsForUser(role.Encode(), domain.Encode())
+	ps, _ := e.e.GetPermissionsForUser(role.Encode(), domain.Encode())
 	for _, p := range ps {
 		r, err1 := e.factory.Role(p[0])
 		o, err2 := e.factory.Object(p[2])
@@ -308,7 +308,7 @@ func (e *enforcer) GetPoliciesForRoleInDomain(role Role, domain Domain) []*Polic
 
 func (e *enforcer) GetPoliciesForObjectInDomain(object Object, domain Domain) []*Policy {
 	var policies []*Policy
-	ps := e.e.GetFilteredPolicy(1, domain.Encode(), object.Encode())
+	ps, _ := e.e.GetFilteredPolicy(1, domain.Encode(), object.Encode())
 	for _, p := range ps {
 		r, err1 := e.factory.Role(p[0])
 		o, err2 := e.factory.Object(p[2])
@@ -432,7 +432,7 @@ func (e *enforcer) RemoveParentForObjectInDomain(son Object, parent Object, doma
 
 func (e *enforcer) GetUsersInDomain(domain Domain) []User {
 	var users []User
-	rules := e.e.GetFilteredGroupingPolicy(2, domain.Encode())
+	rules, _ := e.e.GetFilteredGroupingPolicy(2, domain.Encode())
 	for _, rule := range rules {
 		if user, err := e.factory.User(rule[0]); err == nil {
 			users = append(users, user)
@@ -444,7 +444,7 @@ func (e *enforcer) GetUsersInDomain(domain Domain) []User {
 
 func (e *enforcer) GetRolesInDomain(domain Domain) []Role {
 	var roles []Role
-	rules := e.e.GetFilteredGroupingPolicy(2, domain.Encode())
+	rules, _ := e.e.GetFilteredGroupingPolicy(2, domain.Encode())
 	for _, rule := range rules {
 		r1, err1 := e.factory.Role(rule[0])
 		if err1 != nil {
@@ -463,7 +463,7 @@ func (e *enforcer) GetRolesInDomain(domain Domain) []Role {
 
 func (e *enforcer) GetObjectsInDomain(domain Domain) []Object {
 	var objects []Object
-	rules := e.e.GetFilteredNamedGroupingPolicy(ObjectPType, 2, domain.Encode())
+	rules, _ := e.e.GetFilteredNamedGroupingPolicy(ObjectPType, 2, domain.Encode())
 	for _, rule := range rules {
 		o1, err1 := e.factory.Object(rule[0])
 		if err1 != nil {
@@ -483,7 +483,7 @@ func (e *enforcer) GetObjectsInDomain(domain Domain) []Object {
 
 func (e *enforcer) GetPoliciesInDomain(domain Domain) []*Policy {
 	var policies []*Policy
-	ps := e.e.GetFilteredPolicy(1, domain.Encode())
+	ps, _ := e.e.GetFilteredPolicy(1, domain.Encode())
 	for _, p := range ps {
 		r, err1 := e.factory.Role(p[0])
 		o, err2 := e.factory.Object(p[2])
@@ -505,7 +505,7 @@ func (e *enforcer) GetPoliciesInDomain(domain Domain) []*Policy {
 }
 
 func (e *enforcer) RemoveUsersInDomain(domain Domain) error {
-	gp := e.e.GetFilteredGroupingPolicy(2, domain.Encode())
+	gp, _ := e.e.GetFilteredGroupingPolicy(2, domain.Encode())
 	var rules [][]string
 	for _, rule := range gp {
 		if _, err := e.factory.User(rule[0]); err == nil {

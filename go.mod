@@ -4,7 +4,7 @@ go 1.24
 
 require (
 	github.com/BurntSushi/toml v1.6.0
-	github.com/casbin/casbin/v2 v2.69.0
+	github.com/casbin/casbin/v2 v2.135.0
 	github.com/casbin/gorm-adapter/v3 v3.17.0
 	github.com/casbin/redis-watcher/v2 v2.8.0
 	github.com/redis/go-redis/v9 v9.18.0
