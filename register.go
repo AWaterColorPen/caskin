@@ -1,8 +1,10 @@
 package caskin
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
+	"strings"
 
 	"gorm.io/gorm"
 )
@@ -39,6 +41,65 @@ type Factory interface {
 	MetadataDB(db *gorm.DB) MetaDB
 }
 
+// RegisterOption is a functional option for [Register] that customises the
+// type factory. Use [WithObject], [WithRole], [WithUser], and [WithDomain]
+// to add extra candidate types to the decode chain.
+type RegisterOption func(*registerConfig)
+
+// registerConfig holds the additional candidates supplied via RegisterOption.
+type registerConfig struct {
+	extraUsers   []User
+	extraRoles   []Role
+	extraObjects []Object
+	extraDomains []Domain
+	noBuiltins   bool
+}
+
+// WithObject adds an extra [Object] candidate to the factory's decode chain.
+// This allows registering additional Object implementations (e.g. custom
+// object types) without hardcoding them inside [Register].
+//
+// Example:
+//
+//	caskin.Register[*MyUser, *MyRole, *MyObject, *MyDomain](
+//	    caskin.WithObject(&MySpecialObject{}),
+//	)
+func WithObject(o Object) RegisterOption {
+	return func(c *registerConfig) {
+		c.extraObjects = append(c.extraObjects, o)
+	}
+}
+
+// WithRole adds an extra [Role] candidate to the factory's decode chain.
+func WithRole(r Role) RegisterOption {
+	return func(c *registerConfig) {
+		c.extraRoles = append(c.extraRoles, r)
+	}
+}
+
+// WithUser adds an extra [User] candidate to the factory's decode chain.
+func WithUser(u User) RegisterOption {
+	return func(c *registerConfig) {
+		c.extraUsers = append(c.extraUsers, u)
+	}
+}
+
+// WithDomain adds an extra [Domain] candidate to the factory's decode chain.
+func WithDomain(d Domain) RegisterOption {
+	return func(c *registerConfig) {
+		c.extraDomains = append(c.extraDomains, d)
+	}
+}
+
+// WithoutBuiltins disables the automatic registration of built-in candidates
+// (e.g. [NamedObject]). Use this when you want full control over the decode
+// chain and don't need the default fallback types.
+func WithoutBuiltins() RegisterOption {
+	return func(c *registerConfig) {
+		c.noBuiltins = true
+	}
+}
+
 // Register wires up the global type factory with the caller's concrete
 // implementations of [User], [Role], [Object], and [Domain]. It must be called
 // exactly once before creating any caskin service via [New].
@@ -47,14 +108,33 @@ type Factory interface {
 // respective interfaces:
 //
 //	caskin.Register[*MyUser, *MyRole, *MyObject, *MyDomain]()
-func Register[U User, R Role, O Object, D Domain]() {
+//
+// Optional [RegisterOption] values can be passed to add extra candidate types:
+//
+//	caskin.Register[*MyUser, *MyRole, *MyObject, *MyDomain](
+//	    caskin.WithObject(&MyNamedObject{}),
+//	)
+func Register[U User, R Role, O Object, D Domain](opts ...RegisterOption) {
+	cfg := &registerConfig{}
+	for _, opt := range opts {
+		opt(cfg)
+	}
+
 	b := &builtinRegister[U, R, O, D]{}
 	b.user = append(b.user, b.NewUser())
+	b.user = append(b.user, cfg.extraUsers...)
 	b.role = append(b.role, b.NewRole())
+	b.role = append(b.role, cfg.extraRoles...)
 	b.object = append(b.object, b.NewObject())
+	b.object = append(b.object, cfg.extraObjects...)
 	b.domain = append(b.domain, b.NewDomain())
-	// builtin
-	b.object = append(b.object, &NamedObject{})
+	b.domain = append(b.domain, cfg.extraDomains...)
+
+	// Built-in candidates (e.g. NamedObject as fallback decoder for objects).
+	if !cfg.noBuiltins {
+		b.object = append(b.object, &NamedObject{})
+	}
+
 	defaultFactory = b
 }
 
@@ -108,16 +188,26 @@ func (b *builtinRegister[U, R, O, D]) MetadataDB(db *gorm.DB) MetaDB {
 }
 
 // decode tries each candidate by creating a fresh copy and calling Decode.
-// The first candidate that decodes without error is returned.
+// The first candidate that decodes without error is returned. If all
+// candidates fail, the returned error wraps every individual decode error
+// for diagnostic purposes.
 func decode[T codeInterface](code string, candidate []T) (T, error) {
+	var errs []error
 	for _, v := range candidate {
 		e := newByE(v)
 		if err := e.Decode(code); err == nil {
 			return e, nil
+		} else {
+			errs = append(errs, fmt.Errorf("%T: %w", v, err))
 		}
 	}
 	var zero T
-	return zero, fmt.Errorf("no register factory for %v", code)
+	joinedErr := errors.Join(errs...)
+	typeName := "unknown"
+	if len(candidate) > 0 {
+		typeName = strings.TrimPrefix(fmt.Sprintf("%T", candidate[0]), "*")
+	}
+	return zero, fmt.Errorf("no registered factory for %v (type %s): %w", code, typeName, joinedErr)
 }
 
 // newByE creates a new zero-value instance of the same concrete type as e.
