@@ -162,6 +162,14 @@ type IEnforcer interface {
 	// RemoveUsersInDomain removes all user→role assignments within domain,
 	// effectively clearing the domain's user membership.
 	RemoveUsersInDomain(Domain) error
+
+	// BatchEnforce checks permissions for user u on multiple objects within
+	// domain d in a single call. Returns a bool slice aligned with objects:
+	// results[i] indicates whether u may perform action on objects[i].
+	// This is more efficient than calling Enforce in a loop when using a
+	// SyncedEnforcer (single lock acquisition) and positions the code for
+	// future truly-batched adapter implementations.
+	BatchEnforce(u User, objects []Object, d Domain, action Action) ([]bool, error)
 }
 
 type enforcer struct {
@@ -171,6 +179,19 @@ type enforcer struct {
 
 func (e *enforcer) Enforce(user User, object Object, domain Domain, action Action) (bool, error) {
 	return e.e.Enforce(user.Encode(), domain.Encode(), object.Encode(), action)
+}
+
+func (e *enforcer) BatchEnforce(u User, objects []Object, d Domain, action Action) ([]bool, error) {
+	if len(objects) == 0 {
+		return nil, nil
+	}
+	requests := make([][]interface{}, len(objects))
+	uEnc := u.Encode()
+	dEnc := d.Encode()
+	for i, o := range objects {
+		requests[i] = []interface{}{uEnc, dEnc, o.Encode(), action}
+	}
+	return e.e.BatchEnforce(requests)
 }
 
 func (e *enforcer) EnforceRole(son Role, parent Role, domain Domain) (bool, error) {

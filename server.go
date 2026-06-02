@@ -68,13 +68,52 @@ func GetEnforcer(s IService) (IEnforcer, bool) {
 
 // Filter do filter source permission by u, d, action
 func Filter[T any](e IEnforcer, u User, d Domain, action Action, source []T) []T {
-	var result []T
-	for _, v := range source {
-		if Check(e, u, d, v, action) {
-			result = append(result, v)
+	if len(source) == 0 {
+		return nil
+	}
+
+	// Collect objects for batch enforcement.
+	objects := make([]Object, len(source))
+	valid := make([]bool, len(source)) // true if item yields an Object
+	for i, v := range source {
+		if data, ok := any(v).(ObjectData); ok {
+			o := DefaultFactory().NewObject()
+			o.SetID(data.GetObjectID())
+			objects[i] = o
+			valid[i] = true
+		} else if o, ok := any(v).(Object); ok {
+			objects[i] = o
+			valid[i] = true
 		}
 	}
-	return result
+
+	// Gather only valid objects for a single BatchEnforce call.
+	var batchObjects []Object
+	var indexMap []int // maps batch position back to source index
+	for i, ok := range valid {
+		if ok {
+			batchObjects = append(batchObjects, objects[i])
+			indexMap = append(indexMap, i)
+		}
+	}
+
+	if len(batchObjects) == 0 {
+		return nil
+	}
+
+	results, err := e.BatchEnforce(u, batchObjects, d, action)
+	if err != nil {
+		// Fallback: on error, return empty (safe default).
+		return nil
+	}
+
+	var filtered []T
+	for j, allowed := range results {
+		if allowed {
+			filtered = append(filtered, source[indexMap[j]])
+		}
+	}
+	return filtered
 }
 
 // Check object/object_data permission by u, d, action
